@@ -1,0 +1,12 @@
+---
+- name: Provision a VM
+  hosts: pvenodes
+  gather_facts: false
+  roles:
+    - global
+
+  tasks:
+    - name: Clone vm
+      ansible.builtin.import_role:
+        name: vms
+        tasks_from: clone

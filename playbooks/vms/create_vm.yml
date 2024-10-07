@@ -1,0 +1,12 @@
+---
+- name: Create a VM
+  hosts: pvenodes,template
+  gather_facts: false
+  roles:
+    - global
+
+  tasks:
+    - name: Create vm
+      ansible.builtin.import_role:
+        name: vms
+        tasks_from: create

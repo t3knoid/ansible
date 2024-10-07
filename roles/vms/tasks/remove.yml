@@ -1,0 +1,11 @@
+---
+
+- name: Remove VM
+  community.general.proxmox_kvm:
+    api_host: "{{ global_proxmox_api_host }}"
+    api_user: "{{ global_proxmox_api_user }}"
+    api_password: "{{ global_proxmox_api_password }}"
+    node: "{{ vms_proxmox_node }}"
+    name: "{{ inventory_hostname }}"
+    state: absent
+  delegate_to: localhost
