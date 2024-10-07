@@ -1,0 +1,13 @@
+---
+- name: Provision a VM
+  hosts: pvenodes,template
+  gather_facts: false
+  roles:
+    - global
+    - vms
+
+  tasks:
+    - name: Remove vm
+      ansible.builtin.import_role:
+        name: vms
+        tasks_from: remove

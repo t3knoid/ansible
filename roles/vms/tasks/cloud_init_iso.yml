@@ -1,0 +1,53 @@
+---
+
+- name: Create tmp folder
+  ansible.builtin.file:
+    path: "/tmp/{{ inventory_hostname }}/iso"
+    state: directory
+  register: tmp_folder
+  delegate_to: localhost
+
+- name: Create empty meta-data file
+  ansible.builtin.file:
+    path: "{{ tmp_folder.path }}/meta-data"
+    state: touch
+  delegate_to: localhost
+
+- name: Copy user-data file
+  ansible.builtin.copy:
+    src: "user-data"
+    dest: "{{ tmp_folder.path }}"
+  delegate_to: localhost
+
+- name: Create autoinstall iso image
+  community.general.iso_create:
+    vol_ident: cidata
+    joliet: 3
+    rock_ridge: 1.09
+    interchange_level: 4
+    src_files:
+      - "{{ tmp_folder.path }}/meta-data"
+      - "{{ tmp_folder.path }}/user-data"
+    dest_iso: "{{ tmp_folder.path }}/cloud-init.iso"
+  delegate_to: localhost
+
+- name: "Upload cloud-init.iso to {{ vms_proxmox_node }} Proxmox VE server"
+  community.general.proxmox_template:
+    api_host: "{{ global_proxmox_api_host }}"
+    api_user: "{{ global_proxmox_api_user }}"
+    api_password: "{{ global_proxmox_api_password }}"
+    api_token_id: "{{ global_proxmox_api_token_id }}"
+    api_token_secret: "{{ global_proxmox_api_token }}"
+    node: "{{ vms_proxmox_node }}"
+    src: "{{ tmp_folder.path }}/cloud-init.iso"
+    content_type: iso
+    storage: local
+    force: true
+    state: present
+  delegate_to: localhost
+
+- name: Cleanup temp folder
+  ansible.builtin.file:
+    path: "{{ tmp_folder.path }}"
+    state: absent
+  delegate_to: localhost

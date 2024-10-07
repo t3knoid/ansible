@@ -1,0 +1,40 @@
+#cloud-config
+autoinstall:
+  version: 1
+  locale: en_US
+  keyboard:
+    layout: us
+    variant: ""
+    toggle: null
+  identity:
+    hostname: ubu24-template
+    realname: 'Ansible user Installation User'
+    username: ansible
+    password: '$1$0B0FM/w.$qKfcdzifra0BkpkOJ.iU70'
+  storage:
+    layout:
+      name: lvm
+      sizing-policy: all
+  source:
+    id: ubuntu-server-minimal
+  network:
+    version: 2
+    ethernets:
+      ens18:
+        dhcp4: true
+  ssh:
+    install-server: yes
+  packages:
+    - vim
+    - net-tools
+    - realmd
+    - sssd
+    - sssd-tools
+    - libnss-sss
+    - libpam-sss
+    - adcli
+    - samba-common-bin
+    - oddjob
+    - oddjob-mkhomedir
+    - packagekit
+    - qemu-guest-agent

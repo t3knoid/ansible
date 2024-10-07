@@ -1,0 +1,10 @@
+---
+
+global_proxmox_api_host: 192.168.2.200
+global_proxmox_api_port: 8006
+
+global_iso_images: {
+    "ubuntu_24_server": "ubuntu-24.04.1-live-server-amd64.iso",
+    "win_2022_server": "en-us_windows_server_2022_updated_aug_2024_x64_dvd_17b2bb17.iso",
+    "win_11_business": "en-us_windows_11_business-editions_version_23h2_updated_aug_2024_x64_dvd_4b6aa6b4.iso"
+}

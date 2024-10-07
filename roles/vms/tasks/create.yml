@@ -1,0 +1,77 @@
+---
+
+- name: Create new ubuntu virtual machine
+  community.general.proxmox_kvm:
+    api_host: "{{ global_proxmox_api_host }}"
+    api_user: "{{ global_proxmox_api_user }}"
+    api_password: "{{ global_proxmox_api_password }}"
+    node: "{{ vms_proxmox_node | string }}"
+    name: "{{ inventory_hostname }}"
+    agent: "{{ vms_config.agent | string }}"
+    storage: "{{ vms_config.storage }}"
+    scsihw: "{{ vms_config.scsihw }}"
+    net:
+      net0: "virtio,bridge=vmbr0"
+    virtio:
+      virtio0: "{{ vms_disk_os.storage }}:{{ vms_disk_os.size }}"
+    ide:
+      ide2: "none,media=cdrom"
+    cpu: "{{ vms_config.cpu }}"
+    cores: "{{ vms_config.cores | string }}"
+    sockets: "{{ vms_config.sockets | int }}"
+    memory: "{{ vms_config.memory | int }}"
+    state: present
+  delegate_to: localhost
+  register: vms_new_vm_info
+
+- name: Add second cd-rom drive to new VM
+  community.general.proxmox_disk:
+    api_host: "{{ global_proxmox_api_host }}"
+    api_user: "{{ global_proxmox_api_user }}"
+    api_token_id: "{{ global_proxmox_api_token_id }}"
+    api_token_secret: "{{ global_proxmox_api_token }}"
+    api_password: "{{ global_proxmox_api_password }}"
+    vmid: "{{ vms_new_vm_info.vmid | int }}"
+    disk: ide0
+    media: cdrom
+    iso_image: "none"
+    state: present
+  delegate_to: localhost
+
+# Assumes that the iso image is located in the local storage
+- name: Mount cd-rom installer image
+  community.general.proxmox_disk:
+    api_host: "{{ global_proxmox_api_host }}"
+    api_user: "{{ global_proxmox_api_user }}"
+    api_token_id: "{{ global_proxmox_api_token_id }}"
+    api_token_secret: "{{ global_proxmox_api_token }}"
+    api_password: "{{ global_proxmox_api_password }}"
+    vmid: "{{ vms_new_vm_info.vmid | int }}"
+    disk: ide2
+    media: "cdrom"
+    iso_image: "local:iso/{{ global_iso_images[os] }}"
+  delegate_to: localhost
+
+# Assumes that the iso image is located in the local storage
+- name: Mount cloud-init.iso image
+  community.general.proxmox_disk:
+    api_host: "{{ global_proxmox_api_host }}"
+    api_user: "{{ global_proxmox_api_user }}"
+    api_token_id: "{{ global_proxmox_api_token_id }}"
+    api_token_secret: "{{ global_proxmox_api_token }}"
+    api_password: "{{ global_proxmox_api_password }}"
+    vmid: "{{ vms_new_vm_info.vmid | int }}"
+    disk: ide0
+    media: "cdrom"
+    iso_image: "local:iso/cloud-init.iso"
+  delegate_to: localhost
+
+- name: Start VM
+  community.general.proxmox_kvm:
+    api_host: "{{ global_proxmox_api_host }}"
+    api_user: "{{ global_proxmox_api_user }}"
+    api_password: "{{ global_proxmox_api_password }}"
+    node: "{{ vms_proxmox_node }}"
+    vmid: "{{ vms_new_vm_info.vmid | int }}"
+    state: started
+  delegate_to: localhost
