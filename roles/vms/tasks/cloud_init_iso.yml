@@ -13,10 +13,16 @@
     state: touch
   delegate_to: localhost
 
+- name: Generate ssh key
+  community.crypto.openssh_keypair:
+    path: ~/.ssh/id_rsa
+  delegate_to: localhost
+  register: ssh_key
+
 - name: Copy user-data file
-  ansible.builtin.copy:
-    src: "user-data"
-    dest: "{{ tmp_folder.path }}"
+  ansible.builtin.template:
+    src: "user-data.j2"
+    dest: "{{ tmp_folder.path }}/user-data"
   delegate_to: localhost
 
 - name: Create autoinstall iso image
