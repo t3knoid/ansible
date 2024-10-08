@@ -13,18 +13,36 @@
     net:
       net0: "virtio,bridge=vmbr0"
     virtio:
-      virtio0: "{{ vms_disk_os.storage }}:{{ vms_disk_os.size }}"
+      virtio0: "{{ vms_config.disk_os.storage }}:{{ vms_config.disk_os.size }}"
     ide:
       ide2: "none,media=cdrom"
     cpu: "{{ vms_config.cpu }}"
     cores: "{{ vms_config.cores | string }}"
     sockets: "{{ vms_config.sockets | int }}"
     memory: "{{ vms_config.memory | int }}"
+    ostype: "{{ vms_config.ostype }}"
     state: present
   delegate_to: localhost
   register: vms_new_vm_info
 
-- name: Add second cd-rom drive to new VM
+- name: Add second disk
+  community.general.proxmox_disk:
+    api_host: "{{ global_proxmox_api_host }}"
+    api_user: "{{ global_proxmox_api_user }}"
+    api_token_id: "{{ global_proxmox_api_token_id }}"
+    api_token_secret: "{{ global_proxmox_api_token }}"
+    api_password: "{{ global_proxmox_api_password }}"
+    vmid: "{{ vms_new_vm_info.vmid  }}"
+    disk: virtio1
+    backup: "{{ vms_config.disk2.backup | default(true) }}"
+    cache: none
+    storage: "{{ vms_config.disk2.storage | default(local_thin) }}"
+    size: "{{ vms_config.disk2.size | default(20) }}"
+    state: present
+  delegate_to: localhost
+  when: vms_config.disk2 is defined
+
+- name: Add second cd-rom drivefor cloud-init.iso 
   community.general.proxmox_disk:
     api_host: "{{ global_proxmox_api_host }}"
     api_user: "{{ global_proxmox_api_user }}"
@@ -49,7 +67,7 @@
     vmid: "{{ vms_new_vm_info.vmid | int }}"
     disk: ide2
     media: "cdrom"
-    iso_image: "local:iso/{{ global_iso_images[os] }}"
+    iso_image: "local:iso/{{ global_iso_images[vms_os] }}"
   delegate_to: localhost
 
 # Assumes that the iso image is located in the local storage
