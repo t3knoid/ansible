@@ -1,10 +1,9 @@
 ---
-- name: Provision a VM
+- name: Remove a VM
   hosts: pvenodes,template
   gather_facts: false
   roles:
     - global
-    - vms
 
   tasks:
     - name: Remove vm
