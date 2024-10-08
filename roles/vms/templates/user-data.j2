@@ -8,9 +8,9 @@ autoinstall:
     toggle: null
   identity:
     hostname: ubu24-template
-    realname: 'Ansible user Installation User'
-    username: ansible
-    password: '$1$0B0FM/w.$qKfcdzifra0BkpkOJ.iU70'
+    realname: 'Template user'
+    username: '{{ global_template_user }}'
+    password: '{{ global_template_crypted_password }}'
   storage:
     layout:
       name: lvm
@@ -24,6 +24,9 @@ autoinstall:
         dhcp4: true
   ssh:
     install-server: yes
+    allow-pw: true
+    authorized-keys: 
+      - "{{ ssh_key.public_key }}"
   packages:
     - vim
     - net-tools
