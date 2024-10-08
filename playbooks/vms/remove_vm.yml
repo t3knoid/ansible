@@ -6,6 +6,10 @@
     - global
 
   tasks:
+    - name: Stop vm
+      ansible.builtin.import_role:
+        name: vms
+        tasks_from: stop
     - name: Remove vm
       ansible.builtin.import_role:
         name: vms
