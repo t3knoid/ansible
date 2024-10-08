@@ -6,6 +6,11 @@
     - global
 
   tasks:
+    - name: Generate cloud-init.iso
+      ansible.builtin.import_role:
+        name: vms
+        tasks_from: cloud_init_iso
+      run_once: true # noqa: run-once[task]
     - name: Create vm
       ansible.builtin.import_role:
         name: vms
