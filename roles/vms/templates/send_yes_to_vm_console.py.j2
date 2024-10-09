@@ -1,0 +1,18 @@
+import requests
+
+# Proxmox API credentials
+proxmox_url = 'https://{{ global_proxmox_api_host }}:8006/api2/json'
+api_token_id = '{{ global_proxmox_api_user }}!{{ global_proxmox_api_token_id }}'
+api_token_secret = '{{ global_proxmox_api_token }}'
+
+# Headers for authenticated requests
+headers = {
+    'Authorization': f'PVEAPIToken={api_token_id}={api_token_secret}'
+}
+
+# Send 'yes <enter>' to the VM console
+node = 'pve-0'
+vmid = '100'
+command = 'sendkey y-e-s-kp_enter' 
+response = requests.post(f'{proxmox_url}/nodes/{node}/qemu/{vmid}/monitor', headers=headers, data={'command': command}, verify=False)
+print(response.json())
