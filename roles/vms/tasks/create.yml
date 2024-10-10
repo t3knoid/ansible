@@ -55,6 +55,14 @@
     iso_image: "none"
     state: present
   delegate_to: localhost
+  when: vms_use_cloudinit
+
+- name: Generate cloud-init.iso
+  ansible.builtin.import_role:
+    name: vms
+    tasks_from: cloud_init_iso
+  run_once: true # noqa: run-once[task]
+  when: vms_use_cloudinit
 
 # Assumes that the iso image is located in the local storage
 - name: Mount cd-rom installer image
@@ -67,7 +75,7 @@
     vmid: "{{ vms_new_vm_info.vmid | int }}"
     disk: ide2
     media: "cdrom"
-    iso_image: "local:iso/{{ global_iso_images[vms_os] }}"
+    iso_image: "local:iso/{{ global_os[vms_os].iso }}"
   delegate_to: localhost
 
 # Assumes that the iso image is located in the local storage
@@ -83,6 +91,7 @@
     media: "cdrom"
     iso_image: "local:iso/cloud-init.iso"
   delegate_to: localhost
+  when: vms_use_cloudinit
 
 - name: Start VM
   community.general.proxmox_kvm:
@@ -130,7 +139,18 @@
   register: result
   delegate_to: localhost
 
-- name: Show ip_addresses
+- name: "Show {{ inventory_hostname }} ip address"
   ansible.builtin.debug:
     msg: "{{ result.json.data.result[1]['ip-addresses'][0]['ip-address'] }}"
 
+- name: "Store {{ inventory_hostname }} ip address into a variable"
+  ansible.builtin.set_fact:
+    vms_new_vm_ip_address: "{{ result.json.data.result[1]['ip-addresses'][0]['ip-address'] }}"
+
+- name: Update ~/.ssh/known_hosts
+  ansible.builtin.known_hosts:
+    name: "{{ vms_new_vm_ip_address }}"
+    key: "{{ lookup('pipe', 'ssh-keyscan {{ vms_new_vm_ip_address }}') }}"
+    path: ~/.ssh/known_hosts
+    state: present
+  delegate_to: localhost
