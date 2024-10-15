@@ -3,3 +3,4 @@
 # defaults file for vm
 
 vms_proxmox_node: pve-0
+vms_autoinstall: false

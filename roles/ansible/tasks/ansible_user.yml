@@ -1,18 +1,25 @@
 ---
 
-- name: Add ansible user
+- name: Get the current user
+  ansible.builtin.command: whoami
+  register: ansible_current_user
+  changed_when: false
+  delegate_to: localhost
+
+- name: Add current user to ansible group
   ansible.builtin.user:
-    name: ansible
-    state: present
+    name: "{{ ansible_current_user.stdout }}"
     generate_ssh_key: true
-    password: "{{ global_ansible_user_crypted_password }}"
-    shell: /bin/bash
+    groups: ansible
+    append: true
+  become: true
 
 - name: Ensure sudoers.d directory exists
   ansible.builtin.file:
     path: /etc/sudoers.d
     state: directory
     mode: '0755'
+  become: true
 
 - name: Add 'ansible' group to sudoers with NOPASSWD
   ansible.builtin.lineinfile:
@@ -22,3 +29,4 @@
     line: '%ansible ALL=(ALL) NOPASSWD:ALL'
     mode: '0644'
     validate: 'visudo -cf %s'
+  become: true
