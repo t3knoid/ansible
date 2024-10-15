@@ -1,0 +1,41 @@
+---
+
+- name: Include pi-hole var file
+  ansible.builtin.include_vars:
+    dir: ../../pihole/vars
+
+- name: Set primary dns
+  ansible.builtin.set_fact:
+    primary_dns: "{{ hostvars[inventory_hostname].dns0 }}"
+
+- name: Check if hostname already exists
+  ansible.builtin.command: 'grep -E "^([0-9]{1,3}\\.){3}[0-9]{1,3} {{ inventory_hostname }}" {{ pihole_custom_list_file }}'
+  register: vms_hostname_check
+  changed_when: vms_hostname_check.stdout != ''
+  ignore_errors: true
+  delegate_to: "{{ primary_dns }}"
+
+- name: Add new entry if hostname does not exist
+  ansible.builtin.lineinfile:
+    path: "{{ pihole_custom_list_file }}"
+    line: "{{ inventory_hostname }} {{ hostvars[inventory_hostname].ip_address }}"
+    state: present
+    create: true
+    mode: "0644"
+  become: true
+  when: vms_hostname_check.stdout == ''
+  delegate_to: "{{ primary_dns }}"
+
+- name: Update existing entry
+  ansible.builtin.lineinfile:
+    path: "{{ pihole_custom_list_file }}"
+    regexp: "^([0-9]{1,3}\\.){3}[0-9]{1,3} {{ inventory_hostname }}"
+    line: "{{ hostvars[inventory_hostname].ip_address }} {{ inventory_hostname }}.refol.us"
+  become: true
+  delegate_to: "{{ primary_dns }}"
+
+- name: Reload DNS list and flush cache
+  ansible.builtin.command: 'sudo pihole restartdns reload'
+  changed_when: false
+  ignore_errors: true
+  delegate_to: "{{ primary_dns }}"

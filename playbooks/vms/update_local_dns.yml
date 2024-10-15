@@ -1,0 +1,13 @@
+---
+- name: Update Pi-hole local DNS
+  hosts: all
+  gather_facts: false
+
+  roles:
+    - global
+
+  tasks:
+    - name: Import vms role
+      ansible.builtin.import_role:
+        name: vms
+        tasks_from: update_local_dns
