@@ -1,0 +1,18 @@
+---
+
+# To run
+# ansible-playbook -i inventory/dns/inventory.ini playbooks/ansible/add_ansible_user.yml -l dns-0 -u $(whoami) -k
+
+- name: Add ansible user
+  hosts: all
+  gather_facts: false
+  become: true
+  become_user: root
+  roles:
+    - global
+
+  tasks:
+    - name: Import ansible role
+      ansible.builtin.import_role:
+        name: ansible
+        tasks_from: ansible_user

@@ -1,0 +1,24 @@
+---
+
+- name: Add ansible user
+  ansible.builtin.user:
+    name: ansible
+    state: present
+    generate_ssh_key: true
+    password: "{{ global_ansible_user_crypted_password }}"
+    shell: /bin/bash
+
+- name: Ensure sudoers.d directory exists
+  ansible.builtin.file:
+    path: /etc/sudoers.d
+    state: directory
+    mode: '0755'
+
+- name: Add 'ansible' group to sudoers with NOPASSWD
+  ansible.builtin.lineinfile:
+    path: /etc/sudoers.d/99_ansible
+    create: true
+    state: present
+    line: '%ansible ALL=(ALL) NOPASSWD:ALL'
+    mode: '0644'
+    validate: 'visudo -cf %s'
