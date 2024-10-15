@@ -13,7 +13,9 @@
     state: touch
   delegate_to: localhost
 
-- name: Generate ssh key
+# This ensures that the current Ansible user can
+# connect via ssh into the new virtual machine
+- name: Generate Ansible user ssh key if needed
   community.crypto.openssh_keypair:
     path: ~/.ssh/id_rsa
   delegate_to: localhost
