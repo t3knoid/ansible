@@ -82,16 +82,21 @@
 
 - name: "Store {{ inventory_hostname }} ip address into a variable"
   ansible.builtin.set_fact:
-    vms_new_vm_ip_address: "{{ result.json.data.result[1]['ip-addresses'][0]['ip-address'] }}"
+    ip_address: "{{ result.json.data.result[1]['ip-addresses'][0]['ip-address'] }}"
 
 - name: "Show {{ inventory_hostname }} ip address"
   ansible.builtin.debug:
-    msg: "{{ vms_new_vm_ip_address }}"
+    msg: "{{ ip_address }}"
 
+- name: Include update_local_dns tasks
+  ansible.builtin.include_tasks: "update_local_dns.yml"
+  
 - name: Update ~/.ssh/known_hosts
   ansible.builtin.known_hosts:
-    name: "{{ vms_new_vm_ip_address }}"
-    key: "{{ lookup('pipe', 'ssh-keyscan -t rsa {{ vms_new_vm_ip_address }}') }}"
+    name: "{{ ip_address }}"
+    key: "{{ lookup('pipe', 'ssh-keyscan -t rsa {{ ip_address }}') }}"
     path: ~/.ssh/known_hosts
     state: present
   delegate_to: localhost
+
+
