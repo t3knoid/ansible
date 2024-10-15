@@ -11,8 +11,8 @@ headers = {
 }
 
 # Send 'yes <enter>' to the VM console
-node = 'pve-0'
-vmid = '100'
+node = '{{ vms_proxmox_node | string }}'
+vmid = '{{ vms_new_vm_info.vmid  }}'
 command = 'sendkey y-e-s-kp_enter' 
 response = requests.post(f'{proxmox_url}/nodes/{node}/qemu/{vmid}/monitor', headers=headers, data={'command': command}, verify=False)
 print(response.json())

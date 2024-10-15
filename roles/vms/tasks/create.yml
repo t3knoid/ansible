@@ -63,3 +63,4 @@
 
 - name: Include serial terminal tasks
   ansible.builtin.include_tasks: "serial_terminal.yml"
+  when: enable_serial_terminal

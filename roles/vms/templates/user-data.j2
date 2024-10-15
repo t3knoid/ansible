@@ -2,6 +2,7 @@
 autoinstall:
   version: 1
   locale: en_US
+  timezone: America/New_York
   keyboard:
     layout: us
     variant: ""
@@ -9,8 +10,8 @@ autoinstall:
   identity:
     hostname: ubu24-template
     realname: 'Template user'
-    username: '{{ global_template_user }}'
-    password: '{{ global_template_crypted_password }}'
+    username: '{{ global_vm_template_user }}'
+    password: '{{ global_vm_template_user_crypted_password }}'
   storage:
     layout:
       name: lvm
@@ -41,3 +42,6 @@ autoinstall:
     - oddjob-mkhomedir
     - packagekit
     - qemu-guest-agent
+  late-commands:
+    - echo '%ansible ALL=(ALL) NOPASSWD:ALL' > /target/etc/sudoers.d/99_ansible
+

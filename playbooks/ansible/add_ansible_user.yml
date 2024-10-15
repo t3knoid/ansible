@@ -6,8 +6,6 @@
 - name: Add ansible user
   hosts: all
   gather_facts: false
-  become: true
-  become_user: root
   roles:
     - global
 
