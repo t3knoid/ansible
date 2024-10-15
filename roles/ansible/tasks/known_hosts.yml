@@ -1,0 +1,21 @@
+---
+
+- name: Get remote hosts SSH key
+  ansible.builtin.command: "ssh-keyscan -t rsa {{ inventory_hostname }}"
+  register: host_key
+  changed_when: false
+
+- name: Ensure the known_hosts file exists
+  ansible.builtin.file:
+    path: ~/.ssh/known_hosts
+    state: touch
+    mode: '0644'
+  delegate_to: localhost
+  changed_when: false
+
+- name: Add remote host's SSH key to known_hosts
+  ansible.builtin.known_hosts:
+    path: ~/.ssh/known_hosts
+    name: "{{ inventory_hostname }}"
+    key: "{{ host_key.stdout }}"
+  delegate_to: localhost

@@ -1,0 +1,22 @@
+---
+
+- name: Check if hostname already exists
+  ansible.builtin.command: "grep '^{{ inventory_hostname }} ' {{ pihole_custom_list_file }}"
+  register: hostname_check
+  changed_when: hostname_check.stdout != ''
+  ignore_errors: true
+
+- name: Add new entry if hostname does not exist
+  ansible.builtin.lineinfile:
+    path: "{{ pihole_custom_list_file }}"
+    line: "{{ inventory_hostname }} {{ hostvars['ip_address'] }}"
+    state: present
+    create: true
+    mode: "0644"
+  when: hostname_check.stdout == ''
+
+- name: Update existing entry
+  ansible.builtin.lineinfile:
+    path: "{{ pihole_custom_list_file }}"
+    regexp: "^{{ inventory_hostname }} "
+    line: "{{ inventory_hostname }} {{ hostvars['ip_address'] }}"

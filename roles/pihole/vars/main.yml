@@ -1,0 +1,4 @@
+---
+# vars file for pi-hole
+
+pihole_custom_list_file: /etc/pihole/custom.list
