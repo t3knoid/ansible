@@ -17,9 +17,9 @@
   with_items: "{{ vm_list.json.data }}"
   when: item.name == inventory_hostname
 
-- name: Stop VM
+- name: Reboot VM
   ansible.builtin.uri:
-    url: 'https://{{ global_proxmox_api_host }}:8006/api2/json/nodes/{{ vms_proxmox_node }}/qemu/{{ vms_vmid }}/status/stop'
+    url: 'https://{{ global_proxmox_api_host }}:8006/api2/json/nodes/{{ vms_proxmox_node }}/qemu/{{ vms_vmid }}/status/reboot'
     method: POST
     headers:
       Authorization: "PVEAPIToken={{ global_proxmox_api_user }}!{{ global_proxmox_api_token_id }}={{ global_proxmox_api_token }}"
