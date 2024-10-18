@@ -29,19 +29,7 @@ autoinstall:
     authorized-keys: 
       - "{{ ssh_key.public_key }}"
   packages:
-    - vim
-    - net-tools
-    - realmd
-    - sssd
-    - sssd-tools
-    - libnss-sss
-    - libpam-sss
-    - adcli
-    - samba-common-bin
-    - oddjob
-    - oddjob-mkhomedir
-    - packagekit
-    - qemu-guest-agent
+      - "{{ vms_packages_list | union(vms_additional_packages) }}"
   late-commands:
     - echo '%ansible ALL=(ALL) NOPASSWD:ALL' > /target/etc/sudoers.d/99_ansible
 
