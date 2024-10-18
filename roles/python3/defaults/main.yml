@@ -1,0 +1,10 @@
+---
+
+python3_version: 3.11
+
+python3_modules_to_install:
+  - requests
+  - pycdlib
+  - proxmoxer
+  - oddjob
+  - oddjob-mkhomedir

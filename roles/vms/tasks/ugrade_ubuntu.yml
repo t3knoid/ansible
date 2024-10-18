@@ -1,0 +1,9 @@
+---
+
+- name: Upgrade Ubuntu OS (apt-get dist-upgrade)
+  ansible.builtin.apt:
+    update_cache: yes
+    autoclean: yes
+    purge: true
+    upgrade: dist
+
