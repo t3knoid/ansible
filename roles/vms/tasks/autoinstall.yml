@@ -56,14 +56,14 @@
   delegate_to: localhost
 
 - name: Make the Python script executable
-  file:
+  ansible.builtin.file:
     path: /tmp/send_yes_to_vm_console.py
     mode: '0755'
   when: python_script_generated.changed
   delegate_to: localhost
 
 - name: Execute Python script
-  script: "{{ ansible_playbook_python }} /tmp/send_yes_to_vm_console.py"
+  ansible.builtin.script: "{{ ansible_playbook_python }} /tmp/send_yes_to_vm_console.py"
   delegate_to: localhost
 
 - name: Wait for VM to fully start by trying to get it's IP address
@@ -80,17 +80,17 @@
   register: result
   delegate_to: localhost
 
-- name: "Store {{ inventory_hostname }} ip address into a variable"
+- name: Store ip address into a variable
   ansible.builtin.set_fact:
     ip_address: "{{ result.json.data.result[1]['ip-addresses'][0]['ip-address'] }}"
 
-- name: "Show {{ inventory_hostname }} ip address"
+- name: Show ip address
   ansible.builtin.debug:
     msg: "{{ ip_address }}"
 
 - name: Include update_local_dns tasks
   ansible.builtin.include_tasks: "update_local_dns.yml"
-  
+
 - name: Update ~/.ssh/known_hosts
   ansible.builtin.known_hosts:
     name: "{{ ip_address }}"
@@ -98,5 +98,3 @@
     path: ~/.ssh/known_hosts
     state: present
   delegate_to: localhost
-
-
