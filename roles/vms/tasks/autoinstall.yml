@@ -80,17 +80,6 @@
   register: result
   delegate_to: localhost
 
-- name: Store ip address into a variable
-  ansible.builtin.set_fact:
-    ip_address: "{{ result.json.data.result[1]['ip-addresses'][0]['ip-address'] }}"
-
-- name: Show ip address
-  ansible.builtin.debug:
-    msg: "{{ ip_address }}"
-
-- name: Include update_local_dns tasks
-  ansible.builtin.include_tasks: "update_local_dns.yml"
-
 - name: Update ~/.ssh/known_hosts
   ansible.builtin.known_hosts:
     name: "{{ ip_address }}"
