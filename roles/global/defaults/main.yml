@@ -22,3 +22,12 @@ global_os:
         iso: en-us_windows_11_business-editions_version_23h2_updated_aug_2024_x64_dvd_4b6aa6b4.iso
         template:
         version: 11
+
+global_dns_servers:
+    - 192.168.2.251
+    - 192.168.2.252
+    - 192.168.2.253
+
+global_gateway: 192.168.2.1
+
+global_domain_name: refol.us

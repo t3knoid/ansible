@@ -9,9 +9,9 @@ autoinstall:
     toggle: null
   identity:
     hostname: ubu24-template
-    realname: 'Template user'
-    username: '{{ global_vm_template_user }}'
-    password: '{{ global_vm_template_user_crypted_password }}'
+    realname: Template user
+    username: {{ global_vm_template_user }}
+    password: {{ global_vm_template_user_crypted_password }}
   storage:
     layout:
       name: lvm
@@ -19,17 +19,28 @@ autoinstall:
   source:
     id: ubuntu-server-minimal
   network:
-    version: 2
-    ethernets:
-      ens18:
-        dhcp4: true
+    network:
+      version: 2
+      ethernets:
+        ens18:
+          addresses: [{{ ip_address }}/24]
+          gateway4: {{ global_gateway }}
+          nameservers:
+            search: [{{ global_domain_name }}]
+            addresses: 
+              {% for dns_server in global_dns_servers -%}
+              - {{ dns_server }}
+              {% endfor -%}
+  #
   ssh:
     install-server: yes
     allow-pw: true
     authorized-keys: 
-      - "{{ ssh_key.public_key }}"
-  packages:
-      - "{{ vms_packages_list | union(vms_additional_packages) }}"
+      - {{ ssh_key.public_key }}
+  packages: 
+  {% for package in vms_packages_list | union(vms_additional_packages) -%}
+  - {{ package }}
+  {% endfor -%} 
   late-commands:
     - echo '%ansible ALL=(ALL) NOPASSWD:ALL' > /target/etc/sudoers.d/99_ansible
 
