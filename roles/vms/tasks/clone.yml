@@ -6,7 +6,7 @@
     api_user: "{{ global_proxmox_api_user }}"
     api_password: "{{ global_proxmox_api_password }}"
     node: "{{ vms_proxmox_node }}"
-    clone: ubuntu-server-24.04
+    clone: "{{ global_os['{{ vms_os }}'].template }}"
     name: "{{ inventory_hostname }}"
     storage: linstor_storage
     timeout: 500
@@ -36,13 +36,13 @@
     api_password: "{{ global_proxmox_api_password }}"
     vmid: "{{ vms_cloned_vm_info.vmid  }}"
     disk: virtio1
-    backup: "{{ vms_disk2.backup | default(true) }}"
+    backup: "{{ vms_config.disk2.backup | default(true) }}"
     cache: none
-    storage: "{{ vms_disk2.storage | default(local_thin) }}"
-    size: "{{ vms_disk2.size | default(20) }}"
+    storage: "{{ vms_config.disk2.storage | default(local_thin) }}"
+    size: "{{ vms_config.disk2.size | default(20) }}"
     state: present
   delegate_to: localhost
-  when: vms_disk2 is defined
+  when: vms_config.vms_disk2 is defined
 
 - name: Migrate new image
   community.general.proxmox_kvm:

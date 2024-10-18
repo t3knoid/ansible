@@ -1,0 +1,7 @@
+---
+
+- name: Install Python on Ubuntu and update ansible.cfg
+  hosts: all
+  become: true
+  roles:
+    - python3

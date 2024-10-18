@@ -52,6 +52,7 @@
   ansible.builtin.template:
     src: send_yes_to_vm_console.py.j2
     dest: /tmp/send_yes_to_vm_console.py
+    mode: '0755'
   register: python_script_generated
   delegate_to: localhost
 
