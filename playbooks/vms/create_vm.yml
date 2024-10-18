@@ -4,9 +4,4 @@
   gather_facts: false
   roles:
     - global
-
-  tasks:
-    - name: Create vm
-      ansible.builtin.import_role:
-        name: vms
-        tasks_from: create
+    - vms

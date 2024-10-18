@@ -20,5 +20,5 @@ vms_config:
 
 vms_os: ubuntu_24_server
 vms_autoinstall: true
-vms_proxmox_node: pve-0
 enable_serial_terminal: false
+vms_additional_packages: []
