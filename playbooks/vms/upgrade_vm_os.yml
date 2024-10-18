@@ -1,0 +1,12 @@
+---
+- name: Upgrade a VM Operating System
+  hosts: pvenodes,template
+  gather_facts: true
+  roles:
+    - global
+
+  tasks:
+    - name: Upgrade OS
+      ansible.builtin.import_role:
+        name: vms
+        tasks_from: upgrade

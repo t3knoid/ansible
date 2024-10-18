@@ -1,2 +1,4 @@
 ---
 # defaults file for ad
+
+ad_additional_packages: []

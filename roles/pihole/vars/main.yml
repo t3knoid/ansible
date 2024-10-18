@@ -2,3 +2,5 @@
 # vars file for pi-hole
 
 pihole_custom_list_file: /etc/pihole/custom.list
+pihole_primary_dns: dns-0
+pihole_secondary_dns: dns-1

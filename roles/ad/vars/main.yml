@@ -1,2 +1,12 @@
 ---
-# vars file for ad
+
+ad_required_packages:
+ - realmd
+ - sssd
+ - sssd-tools
+ - libnss-sss
+ - libpam-sss
+ - adcli
+ - samba-common-bin
+ - oddjob oddjob-mkhomedir
+ - packagekit

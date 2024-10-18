@@ -10,13 +10,6 @@ vms_config:
   sockets: 1
   storage: linstor_storage
 
-vms_network:
-  ip_address: 192.168.2.102
-  gateway: 192.168.2.101
-  dns:
-    - 192.168.2.251
-    - 192.168.2.252
-
 vms_disk_os: 
   backup: true
   size: 20

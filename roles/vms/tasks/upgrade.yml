@@ -1,0 +1,4 @@
+---
+
+- name: Include
+  ansible.builtin.include_tasks: "upgrade_{{ ansible_facts['os_family']|lower }}.yml"
