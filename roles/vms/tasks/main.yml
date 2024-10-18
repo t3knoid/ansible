@@ -32,7 +32,7 @@
     api_token_id: "{{ global_proxmox_api_token_id }}"
     api_token_secret: "{{ global_proxmox_api_token }}"
     api_password: "{{ global_proxmox_api_password }}"
-    vmid: "{{ vms_new_vm_info.vmid  }}"
+    vmid: "{{ vms_new_vm_info.vmid }}"
     disk: virtio1
     backup: "{{ vms_config.disk2.backup | default(true) }}"
     cache: none
