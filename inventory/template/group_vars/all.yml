@@ -1,0 +1,4 @@
+---
+
+dns0: 192.168.2.252
+vms_proxmox_node: pve-0
