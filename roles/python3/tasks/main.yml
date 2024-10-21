@@ -1,59 +1,36 @@
 ---
 
-- name: Add Deadsnakes PPA
-  ansible.builtin.apt_repository:
-    repo: ppa:deadsnakes/ppa
-
-- name: Update apt cache
-  ansible.builtin.apt:
-    update_cache: true
-  become: true
-
 - name: Install Python
   ansible.builtin.apt:
     name:
       - "python{{ python3_version }}"
       - python3-venv
     state: present
+    update_cache: true
   become: true
 
-- name: Get Python version
-  ansible.builtin.command: python3 --version
-  register: python3_version_info
-  changed_when: python3_version is defined
+- name: Create a directory for the virtual environment
+  ansible.builtin.file:
+    path: "/opt/python_{{ python3_version }}"
+    state: directory
+    mode: "0774"
+    group: "ansible"
+  become: true
 
-- name: Show Python version
-  ansible.builtin.debug:
-    msg:
-      - "{{ python3_version_info }}"
-      - "{{ ansible_version }}"
+- name: Create Python virtual environment
+  ansible.builtin.command: "python3 -m venv /opt/python_{{ python3_version }}"
+  register: python3_command_return
+  changed_when: python3_command_return.rc !=0
 
-# - name: Create a directory for the virtual environment
-#   file:
-#     path: /opt/myenv
-#     state: directory
-#   become:
+- name: Install Python pip
+  ansible.builtin.apt:
+    name: python3-pip
+    state: present
+  become: true
 
-# - name: Install Python pip
-#   ansible.builtin.apt:
-#     name: python3-pip
-#     state: present
-#   become: true
-
-# - name: Install Python modules
-#   ansible.builtin.pip:
-#     name: "{{ python3_modules_to_install }}"
-#     state: present
-#   become: true
-
-# - name: Get Python version
-#   ansible.builtin.command: python3 --version
-#   register: python_version
-#   changed_when: python3_version_info is defined
-
-# - name: Update ansible.cfg to use installed Python version
-#   ansible.builtin.lineinfile:
-#     path: /etc/ansible/ansible.cfg
-#     regexp: '^interpreter_python = '
-#     line: "interpreter_python = /usr/bin/python3"
-#   become: true
+- name: Install Python modules
+  ansible.builtin.pip:
+    name: "{{ item }}"
+    virtualenv: "/opt/python_{{ python3_version }}"
+    state: present
+  loop: "{{ python3_modules_to_install }}"

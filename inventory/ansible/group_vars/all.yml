@@ -21,3 +21,4 @@ vms_disk2:
   storage: linstor_storage
 
 os: ubuntu_24_server
+python3_version: 3.12
