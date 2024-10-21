@@ -1,2 +1,3 @@
 ---
-# defaults file for ansible
+
+ansible_ver: 10.5.0
