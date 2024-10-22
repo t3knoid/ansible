@@ -23,11 +23,4 @@ global_os:
         template:
         version: 11
 
-global_dns_servers:
-    - 192.168.2.251
-    - 192.168.2.252
-    - 192.168.2.253
-
-global_gateway: 192.168.2.1
-
-global_domain_name: refol.us
+ansible_python_interpreter: "/opt/python{{ python3_version }}/bin/python3"

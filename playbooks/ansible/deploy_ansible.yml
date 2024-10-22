@@ -1,0 +1,7 @@
+- name: Add host fingerprint to known_hosts
+  hosts: all
+  gather_facts: false
+  become: true
+  become_user: root
+  roles:
+    - ansible
