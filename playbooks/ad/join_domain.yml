@@ -1,0 +1,11 @@
+---
+
+- name: Join active directory domain
+  hosts: all
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Import ad role
+      ansible.builtin.import_role:
+        name: ad
+        tasks_from: join
