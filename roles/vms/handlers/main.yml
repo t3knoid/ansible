@@ -1,0 +1,8 @@
+---
+
+- name: Make the Python script executable
+  ansible.builtin.file:
+    path: /tmp/send_yes_to_vm_console.py
+    mode: '0755'
+  when: python_script_generated.changed
+  delegate_to: localhost

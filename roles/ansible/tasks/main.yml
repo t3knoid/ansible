@@ -1,18 +1,7 @@
 ---
 
-- name: Create Python virtual environment
-  ansible.builtin.command: "python3 -m venv /opt/python_{{ python3_version }}"
-  register: python3_command_return
-  changed_when: python3_command_return.rc !=0
-
-- name: Upgrade pip within the virtual environment
-  ansible.builtin.command: "/opt/python_{{ python3_version }}/bin/pip install --upgrade pip"
-  register: pip_install_ansible_return
-  become: true
-  changed_when: pip_install_ansible_return.rc != ""
-
-- name: Install Ansible in the virtual environment
-  ansible.builtin.command: "/opt/python_{{ python3_version }}/bin/pip install ansible=={{ ansible_ver }}"
-  register: pip_install_ansible_return
-  become: true
-  changed_when: pip_install_ansible_return.rc != ""
+- name: Install Ansible
+  ansible.builtin.pip:
+    name: ansible
+    virtualenv: "/opt/python_{{ python3_version }}"
+    state: present

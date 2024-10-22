@@ -1,0 +1,33 @@
+---
+
+- name: Install Python
+  ansible.builtin.raw: |
+    apt update && apt install -y python3
+
+- name: Install Python python3-pip
+  ansible.builtin.raw: |
+    apt install -y python3-pip
+
+- name: Install Python python3-venv
+  ansible.builtin.raw: |
+    apt install -y python3-venv
+
+- name: Install Python python3-pexpect
+  ansible.builtin.raw: |
+    apt install -y python3-pexpect
+
+- name: Install Python python3-requests
+  ansible.builtin.raw: |
+    apt install -y python3-requests
+
+- name: Install Python python3-pycdlib
+  ansible.builtin.raw: |
+    apt install -y python3-pycdlib
+
+- name: Install Python python3-proxmoxer
+  ansible.builtin.raw: |
+    apt install -y python3-proxmoxer
+
+- name: Install Python python3-ansible-lint
+  ansible.builtin.raw: |
+    apt install -y ansible-lint

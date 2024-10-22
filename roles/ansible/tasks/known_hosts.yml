@@ -1,10 +1,5 @@
 ---
 
-- name: Get remote hosts SSH key
-  ansible.builtin.command: "ssh-keyscan -t rsa {{ inventory_hostname }}"
-  register: host_key
-  changed_when: false
-
 - name: Ensure the known_hosts file exists
   ansible.builtin.file:
     path: ~/.ssh/known_hosts
@@ -13,9 +8,32 @@
   delegate_to: localhost
   changed_when: false
 
-- name: Add remote host's SSH key to known_hosts
+- name: Remove existing known_host hostname entry
   ansible.builtin.known_hosts:
-    path: ~/.ssh/known_hosts
     name: "{{ inventory_hostname }}"
-    key: "{{ host_key.stdout }}"
+    path: ~/.ssh/known_hosts
+    state: absent
+  delegate_to: localhost
+
+- name: Add remote host key to known_hosts with hostname entry
+  ansible.builtin.known_hosts:
+    name: "{{ inventory_hostname }}"
+    key: "{{ lookup('pipe', 'ssh-keyscan -t rsa {{ inventory_hostname }}') }}"
+    path: ~/.ssh/known_hosts
+    state: present
+  delegate_to: localhost
+
+- name: Remove existing known_host ip address entry
+  ansible.builtin.known_hosts:
+    name: "{{ ip_address }}"
+    path: ~/.ssh/known_hosts
+    state: absent
+  delegate_to: localhost
+
+- name: Add remote host key to known_hosts with ip address entry
+  ansible.builtin.known_hosts:
+    key: "{{ lookup('pipe', 'ssh-keyscan -t rsa {{ ip_address }}') }}"
+    name: "{{ ip_address }}"
+    path: ~/.ssh/known_hosts
+    state: present
   delegate_to: localhost
