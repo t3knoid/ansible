@@ -2,3 +2,8 @@
 # defaults file for ad
 
 ad_additional_packages: []
+ad_domain_name: "refol.us"
+ad_dns_servers:
+    - 192.168.2.251
+    - 192.168.2.252
+ad_gateway: 192.168.2.1
