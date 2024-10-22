@@ -3,13 +3,10 @@
 - name: Add host fingerprint to known_hosts
   hosts: all
   gather_facts: false
-  become: true
-  become_user: root
   roles:
     - global
 
   tasks:
-
     - name: Import ansible role
       ansible.builtin.import_role:
         name: ansible
