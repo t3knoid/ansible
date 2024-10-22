@@ -20,5 +20,5 @@ vms_packages_list:
     - qemu-guest-agent
     - python3-pip
     - python3-requests
-    - pexpect
+    - python3-pexpect
 vms_additional_packages: []

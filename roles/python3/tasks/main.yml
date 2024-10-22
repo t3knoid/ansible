@@ -1,14 +1,5 @@
 ---
 
-- name: Install Python
-  ansible.builtin.apt:
-    name:
-      - "python{{ python3_version }}"
-      - python3-venv
-    state: present
-    update_cache: true
-  become: true
-
 - name: Create a directory for the virtual environment
   ansible.builtin.file:
     path: "/opt/python_{{ python3_version }}"
@@ -23,10 +14,9 @@
   changed_when: python3_command_return.rc !=0
 
 - name: Install Python pip
-  ansible.builtin.apt:
-    name: python3-pip
-    state: present
-  become: true
+  ansible.builtin.command: "/opt/python_{{ python3_version }}/bin/pip install --upgrade pip"
+  register: python3_install_pip
+  changed_when: python3_install_pip.rc !=0
 
 - name: Install Python modules
   ansible.builtin.pip:

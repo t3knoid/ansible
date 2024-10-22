@@ -24,11 +24,11 @@ autoinstall:
       ethernets:
         ens18:
           addresses: [{{ ip_address }}/24]
-          gateway4: {{ global_gateway }}
+          gateway4: {{ ad_gateway }}
           nameservers:
-            search: [{{ global_domain_name }}]
+            search: [{{ ad_domain_name }}]
             addresses: 
-              {% for dns_server in global_dns_servers -%}
+              {% for dns_server in ad_dns_servers -%}
               - {{ dns_server }}
               {% endfor -%}
   #

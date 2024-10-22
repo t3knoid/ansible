@@ -1,8 +1,5 @@
 ---
 
-# To run
-# ansible-playbook -i inventory/dns/inventory.ini playbooks/ansible/add_ansible_user.yml -l dns-0 -u $(whoami) -k
-
 - name: Add ansible user
   hosts: all
   gather_facts: false

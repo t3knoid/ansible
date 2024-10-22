@@ -55,18 +55,13 @@
     mode: '0755'
   register: python_script_generated
   delegate_to: localhost
-
-- name: Make the Python script executable
-  ansible.builtin.file:
-    path: /tmp/send_yes_to_vm_console.py
-    mode: '0755'
-  when: python_script_generated.changed
-  delegate_to: localhost
+  notify:
+    - Make the Python script executable
 
 - name: Execute Python script
   ansible.builtin.script: /tmp/send_yes_to_vm_console.py
   args:
-    executable: python3 
+    executable: python3
   delegate_to: localhost
 
 - name: Wait for VM to fully start by trying to get it's IP address
@@ -83,6 +78,13 @@
   register: result
   delegate_to: localhost
 
+- name: Remove existing known_host entry
+  ansible.builtin.known_hosts:
+    name: "{{ ip_address }}"
+    path: ~/.ssh/known_hosts
+    state: absent
+  delegate_to: localhost
+  
 - name: Update ~/.ssh/known_hosts
   ansible.builtin.known_hosts:
     name: "{{ ip_address }}"
