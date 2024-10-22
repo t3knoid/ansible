@@ -4,7 +4,6 @@
   ansible.builtin.command: "grep '^{{ inventory_hostname }} ' {{ pihole_custom_list_file }}"
   register: hostname_check
   changed_when: hostname_check.stdout != ''
-  ignore_errors: true
 
 - name: Add new entry if hostname does not exist
   ansible.builtin.lineinfile:
