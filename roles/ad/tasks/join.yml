@@ -1,0 +1,86 @@
+---
+
+- name: Install required packages
+  ansible.builtin.apt:
+    autoclean: true
+    autoremove: true
+    name: "{{ ad_required_packages | union(ad_additional_packages) }}"
+    state: present
+
+- name: Update /etc/resolv.conf with domain name
+  ansible.builtin.lineinfile:
+    path: /etc/resolv.conf
+    regexp: '^search {{ ad_domain_name }}$'
+    line: "search {{ ad_domain_name }}"
+    state: present
+
+- name: Update /etc/resolv.conf with DNS servers
+  ansible.builtin.lineinfile:
+    path: /etc/resolv.conf
+    regexp: '^nameserver {{ item }}$'
+    line: "nameserver {{ item }}"
+    state: present
+  loop: "{{ ad_dns_servers }}"
+
+- name: Discover domain
+  ansible.builtin.command: "realm discover {{ ad_domain_name }}"
+  register: realm_discover_output
+  changed_when: realm_discover_output.changed
+
+- name: Show realm_discover_output
+  ansible.builtin.debug:
+    var: realm_discover_output.stdout_lines
+
+- name: Find configured value
+  ansible.builtin.set_fact:
+    ad_configured: "{{ realm_discover_output.stdout_lines | select('search', '^\\s*configured:') | map('regex_replace', '^\\s*configured:\\s*', '') }}"
+
+- name: Display "configured" value
+  ansible.builtin.set_fact:
+    ad_configured: "{{ ad_configured[0] != 'no' }}"
+
+- name: Display "configured" value
+  ansible.builtin.debug:
+    var: ad_configured
+
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+
+- name: Install python3-pexpect
+  ansible.builtin.apt:
+    name: python3-pexpect
+    state: present
+
+- name: Load vault file
+  ansible.builtin.include_vars: vars/vault.yml
+
+- name: Join machine to domain
+  no_log: false
+  ansible.builtin.expect:
+    command: "realm join -U Administrator -v {{ ad_domain_name }}"
+    responses:
+      Password for Administrator: "{{ ad_administrator_password }}"
+    echo: true
+  register: realm_join_output
+  changed_when: realm_join_output.changed
+  when: not ad_configured
+
+- name: Show realm_join_output
+  ansible.builtin.debug:
+    var: realm_join_output.stdout_lines
+  when: not ad_configured
+
+- name: Set use_fully_qualified_names in /etc/sssd/sssd.conf to False
+  ansible.builtin.lineinfile:
+    path: /etc/sssd/sssd.conf
+    regexp: "^use_fully_qualified_names"
+    line: "use_fully_qualified_names = False"
+    mode: "0600"
+    backup: true
+
+- name: Restart SSSD service
+  ansible.builtin.systemd:
+    name: sssd
+    state: restarted
+    enabled: true

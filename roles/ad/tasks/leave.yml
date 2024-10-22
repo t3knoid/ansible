@@ -1,0 +1,38 @@
+---
+
+- name: Discover domain
+  ansible.builtin.command: "realm discover {{ ad_domain_name }}"
+  register: realm_discover_output
+  changed_when: realm_discover_output.changed
+
+- name: Show realm_discover_output
+  ansible.builtin.debug:
+    var: realm_discover_output.stdout_lines
+
+- name: Find configured value
+  ansible.builtin.set_fact:
+    ad_configured: "{{ realm_discover_output.stdout_lines | select('search', '^\\s*configured:') | map('regex_replace', '^\\s*configured:\\s*', '') }}"
+
+- name: Install python3-pexpect
+  ansible.builtin.apt:
+    name: python3-pexpect
+    state: present
+
+- name: Load vault file
+  ansible.builtin.include_vars: vars/vault.yml
+
+- name: Leave domain
+  no_log: false
+  ansible.builtin.expect:
+    command: "realm leave -U Administrator -v {{ ad_domain_name }}"
+    responses:
+      Password for Administrator: "{{ ad_administrator_password }}"
+    echo: true
+  register: realm_leave_output
+  changed_when: realm_leave_output.changed
+  when: ad_configured
+
+- name: Show realm_leave_output
+  ansible.builtin.debug:
+    var: realm_leave_output.stdout_lines
+  when: ad_configured
