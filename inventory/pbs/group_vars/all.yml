@@ -2,3 +2,4 @@
 
 pbs_version: 3.2-7
 vms_proxmox_node: pve-0
+python3_version: 3.11

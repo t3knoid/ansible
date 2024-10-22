@@ -18,4 +18,7 @@ vms_packages_list:
     - oddjob-mkhomedir
     - packagekit
     - qemu-guest-agent
+    - python3-pip
+    - python3-requests
+    - pexpect
 vms_additional_packages: []

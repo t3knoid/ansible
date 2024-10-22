@@ -64,7 +64,9 @@
   delegate_to: localhost
 
 - name: Execute Python script
-  ansible.builtin.script: "{{ ansible_playbook_python }} /tmp/send_yes_to_vm_console.py"
+  ansible.builtin.script: /tmp/send_yes_to_vm_console.py
+  args:
+    executable: python3 
   delegate_to: localhost
 
 - name: Wait for VM to fully start by trying to get it's IP address

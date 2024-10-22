@@ -13,11 +13,9 @@ vms_config:
     backup: true
     size: 20
     storage: linstor_storage
-  disk2:
-    backup: true
-    size: 20
-    storage: linstor_storage
 
 vms_os: ubuntu_24_server
-vms_autoinstall: false
-vms_proxmox_node: pve-0
+vms_autoinstall: true
+enable_serial_terminal: false
+vms_additional_packages: []
+python3_version: 3.12

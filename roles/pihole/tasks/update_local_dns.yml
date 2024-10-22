@@ -5,7 +5,7 @@
   register: vms_hostname_check
   failed_when: vms_hostname_check.rc == 2
   delegate_to: "{{ pihole_primary_dns }}"
-  
+
 - name: Add new entry if hostname does not exist
   ansible.builtin.lineinfile:
     path: "{{ pihole_custom_list_file }}"
@@ -30,5 +30,5 @@
 
 - name: Reload DNS list and flush cache
   ansible.builtin.command: 'sudo pihole restartdns reload'
-  when: pihole_custom_list_file_result.changed
+  register: pihole_restartdns_result
   delegate_to: "{{ pihole_primary_dns }}"
