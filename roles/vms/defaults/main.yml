@@ -21,4 +21,5 @@ vms_packages_list:
     - python3-pip
     - python3-requests
     - python3-pexpect
+    - python3-venv
 vms_additional_packages: []
