@@ -2,5 +2,3 @@
 - name: Global
   ansible.builtin.debug:
     msg: Loading global variables
-- name: Load global vault file
-  ansible.builtin.include_vars: vars/vault.yml
