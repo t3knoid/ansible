@@ -9,5 +9,5 @@
   tasks:
     - name: Import ansible role
       ansible.builtin.import_role:
-        name: ansible
+        name: vms
         tasks_from: known_hosts

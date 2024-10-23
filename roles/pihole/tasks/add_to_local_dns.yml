@@ -1,0 +1,26 @@
+---
+
+- name: Configure Add URL
+  no_log: true
+  ansible.builtin.set_fact:
+    pihole_add_host_url: |-
+      http://{{ pihole_api_host }}/admin/api.php?customdns&
+      action=add&
+      domain={{ inventory_hostname }}.refol.us&
+      ip={{ ip_address }}&
+      auth={{ pihole_api_token }}
+
+- name: Add host to local DNS
+  no_log: true
+  ansible.builtin.uri:
+    url: "{{ pihole_add_host_url | split('\n') | join }}"
+    method: GET
+    return_content: true
+  register: result
+  delegate_to: localhost
+  changed_when: result.json.success | bool
+
+- name: Display API response
+  ansible.builtin.debug:
+    var: result.json.message
+  when: result.json.message != ''
