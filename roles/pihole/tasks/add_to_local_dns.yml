@@ -6,6 +6,7 @@
     pihole_add_host_url: |-
       http://{{ pihole_api_host }}/admin/api.php?customdns&
       action=add&
+      reload=true&
       domain={{ inventory_hostname }}.refol.us&
       ip={{ ip_address }}&
       auth={{ pihole_api_token }}
