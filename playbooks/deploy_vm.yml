@@ -2,18 +2,25 @@
 
 - name: Add to local DNS entry
   ansible.builtin.import_playbook: dns/add_dns_entry.yml
-
-- name: Deploy a VM
-  hosts: pvenodes,template
-  gather_facts: false
   vars:
     ansible_user: ansible
 
 - name: Create a new VM
   ansible.builtin.import_playbook: vms/create_vm.yml
+  vars:
+    ansible_user: ansible
 
 - name: Configure Python3
   ansible.builtin.import_playbook: python/deploy_python3_venv.yml
+  vars:
+    ansible_user: ansible
 
 - name: Add current user to ansible group
   ansible.builtin.import_playbook: ansible/add_ansible_user.yml
+  vars:
+    ansible_user: ansible
+
+- name: Add to active directory domain
+  ansible.builtin.import_playbook: ad/join_domain.yml
+  vars:
+    ansible_user: ansible
