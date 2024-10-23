@@ -1,4 +1,5 @@
 ---
+
 - name: Create a VM
   hosts: pvenodes,template
   gather_facts: false

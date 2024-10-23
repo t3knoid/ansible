@@ -78,17 +78,5 @@
   register: result
   delegate_to: localhost
 
-- name: Remove existing known_host entry
-  ansible.builtin.known_hosts:
-    name: "{{ ip_address }}"
-    path: ~/.ssh/known_hosts
-    state: absent
-  delegate_to: localhost
-  
-- name: Update ~/.ssh/known_hosts
-  ansible.builtin.known_hosts:
-    name: "{{ ip_address }}"
-    key: "{{ lookup('pipe', 'ssh-keyscan -t rsa {{ ip_address }}') }}"
-    path: ~/.ssh/known_hosts
-    state: present
-  delegate_to: localhost
+- name: Update known_hosts file
+  ansible.builtin.include_tasks: "known_hosts.yml"
