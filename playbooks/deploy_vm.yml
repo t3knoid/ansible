@@ -1,5 +1,8 @@
 ---
 
+- name: Add to local DNS entry
+  ansible.builtin.import_playbook: dns/add_dns_entry.yml
+
 - name: Deploy a VM
   hosts: pvenodes,template
   gather_facts: false
@@ -8,9 +11,6 @@
 
 - name: Create a new VM
   ansible.builtin.import_playbook: vms/create_vm.yml
-
-- name: Add to local DNS entry
-  ansible.builtin.import_playbook: dns/add_dns_entry.yml
 
 - name: Configure Python3
   ansible.builtin.import_playbook: python/deploy_python3_venv.yml
