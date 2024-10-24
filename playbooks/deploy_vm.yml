@@ -24,3 +24,8 @@
   ansible.builtin.import_playbook: ad/join_domain.yml
   vars:
     ansible_user: ansible
+
+- name: Add to active directory domain
+  ansible.builtin.import_playbook: vms/prep_disk.yml
+  vars:
+    ansible_user: ansible
