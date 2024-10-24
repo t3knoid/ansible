@@ -1,4 +1,4 @@
-- name: Add host fingerprint to known_hosts
+- name: Deploy ansible
   hosts: all
   gather_facts: false
   become: true
