@@ -22,4 +22,6 @@ vms_packages_list:
     - python3-requests
     - python3-pexpect
     - python3-venv
+    - parted
+    - git
 vms_additional_packages: []
