@@ -10,6 +10,7 @@ vms_packages_list:
     - realmd
     - sssd
     - sssd-tools
+    - sshpass
     - libnss-sss
     - libpam-sss
     - adcli
