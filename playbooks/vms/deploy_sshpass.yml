@@ -1,0 +1,7 @@
+---
+
+- name: Deploy sshpass
+  hosts: pvenodes,template
+  gather_facts: false
+  roles:
+    - sshpass
