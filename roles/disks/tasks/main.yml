@@ -1,0 +1,61 @@
+---
+
+- name: Find all disks
+  ansible.builtin.set_fact:
+    disks: "{{ ansible_devices.keys() | select('match', '^vd[a-z]$') | list }}"
+
+- name: Check for unformatted disks and format first one
+  block:
+    - name: Check filesystem type
+      ansible.builtin.command: "lsblk -f /dev/{{ item }}"
+      register: disk_check
+      ignore_errors: true
+      loop: "{{ disks }}"
+      changed_when: disk_check is defined
+
+    - name: Set fact for unformatted disks
+      ansible.builtin.set_fact:
+        unformatted_disks: "{{ unformatted_disks | default([]) + [item.item] }}"
+      when: "'ext4' not in item.stdout and 'xfs' not in item.stdout"
+      loop: "{{ disk_check.results }}"
+
+    - name: Display unformatted disks
+      ansible.builtin.debug:
+        var: unformatted_disks
+
+    - name: Format and mount the first available disk
+      block:
+        - name: Ensure the directory exists
+          ansible.builtin.file:
+            path: /ansible
+            state: directory
+            group: ansible
+            owner: root
+            mode: "0770"
+
+    - name: Create a new ext4 primary partition
+      community.general.parted:
+        device: "/dev/{{ unformatted_disks[0] }}"
+        number: 1
+        state: present
+        fs_type: ext4
+        label: gpt
+        part_type: primary
+        part_start: "0%"
+        part_end: "100%"
+      when: unformatted_disks is defined
+
+    - name: Format the first unformatted drive
+      community.general.filesystem:
+        fstype: ext4
+        dev: "/dev/{{ unformatted_disks[0] }}1"
+      when: unformatted_disks is defined
+
+    - name: Mount the first unformatted drive
+      ansible.posix.mount:
+        path: /ansible
+        src: "/dev/{{ unformatted_disks[0] }}1"
+        fstype: ext4
+        state: mounted
+        boot: true
+      when: unformatted_disks is defined
