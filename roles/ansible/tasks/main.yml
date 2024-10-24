@@ -5,3 +5,9 @@
     name: ansible
     virtualenv: "/opt/python_{{ python3_version }}"
     state: present
+
+- name: Install ansible-dev-tools (ansible-lint)
+  ansible.builtin.pip:
+    name: ansible-dev-tools
+    virtualenv: "/opt/python_{{ python3_version }}"
+    state: present
