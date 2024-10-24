@@ -1,6 +1,6 @@
 ---
 - name: Upgrade a VM Operating System
-  hosts: pvenodes,template
+  hosts: vms
   gather_facts: true
   roles:
     - global

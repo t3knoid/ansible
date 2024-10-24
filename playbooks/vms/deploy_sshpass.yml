@@ -1,7 +1,7 @@
 ---
 
 - name: Deploy sshpass
-  hosts: pvenodes,template
+  hosts: vms
   gather_facts: false
   roles:
     - sshpass
