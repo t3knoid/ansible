@@ -43,12 +43,11 @@
   delegate_to: localhost
 
 - name: "Upload cloud-init.iso to {{ vms_proxmox_node }} Proxmox VE server"
+  no_log: false
   community.general.proxmox_template:
     api_host: "{{ global_proxmox_api_host }}"
     api_user: "{{ global_proxmox_api_user }}"
     api_password: "{{ global_proxmox_api_password }}"
-    api_token_id: "{{ global_proxmox_api_token_id }}"
-    api_token_secret: "{{ global_proxmox_api_token }}"
     node: "{{ vms_proxmox_node }}"
     src: "{{ tmp_folder.path }}/cloud-init.iso"
     content_type: iso

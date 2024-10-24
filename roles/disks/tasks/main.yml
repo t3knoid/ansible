@@ -17,6 +17,8 @@
       ansible.builtin.set_fact:
         unformatted_disks: "{{ unformatted_disks | default([]) + [item.item] }}"
       when: "'ext4' not in item.stdout and 'xfs' not in item.stdout"
+      loop_control:
+        label: "{{ item.item }}"
       loop: "{{ disk_check.results }}"
 
     - name: Display unformatted disks

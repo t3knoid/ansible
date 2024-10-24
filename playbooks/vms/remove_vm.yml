@@ -1,12 +1,12 @@
 ---
 
-- name: Add to local DNS entry
+- name: Stop the VM
   ansible.builtin.import_playbook: stop_vm.yml
 
-- name: Remove from local DNS entry
+- name: Remove VM hostname from local DNS entry
   ansible.builtin.import_playbook: ../dns/delete_dns_entry.yml
 
-- name: Remove a VM
+- name: Remove the VM
   hosts: pvenodes,template
   gather_facts: false
   roles:
