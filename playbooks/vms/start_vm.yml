@@ -1,6 +1,6 @@
 ---
 - name: Stop a VM
-  hosts: pvenodes,template
+  hosts: vms
   gather_facts: false
   roles:
     - global

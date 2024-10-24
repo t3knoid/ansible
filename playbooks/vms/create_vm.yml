@@ -1,8 +1,9 @@
 ---
 
 - name: Create a VM
-  hosts: pvenodes,template
+  hosts: vms
   gather_facts: false
   roles:
     - global
     - vms
+  serial: 1

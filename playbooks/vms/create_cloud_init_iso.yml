@@ -1,6 +1,6 @@
 ---
 - name: Create cloud-init.iso for autoinstall
-  hosts: pvenodes,template
+  hosts: vms
   gather_facts: false
   roles:
     - global

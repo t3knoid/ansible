@@ -23,4 +23,4 @@ global_os:
         template:
         version: 11
 
-ansible_python_interpreter: "/opt/python{{ python3_version }}/bin/python3"
+# ansible_python_interpreter: "/opt/python{{ python3_version }}/bin/python3"
