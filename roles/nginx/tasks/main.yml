@@ -1,0 +1,42 @@
+---
+# tasks file for webserver
+
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+
+- name: Install nginx, certbot, and python3-certbot-nginx
+  ansible.builtin.apt:
+    name:
+      - nginx
+      - certbot
+      - python3-certbot-nginx
+    state: present
+    update_cache: true
+
+- name: Create or update Nginx site configuration for code-server
+  ansible.builtin.copy:
+    dest: /etc/nginx/sites-available/{{ nginx_site_name }}
+    content: "{{ nginx_site_config }}"
+    mode: "0644"
+  notify: Restart nginx
+
+- name: Enable Nginx site configuration
+  ansible.builtin.file:
+    src: "/etc/nginx/sites-available/{{ nginx_site_name }}"
+    dest: "/etc/nginx/sites-enabled/{{ nginx_site_name }}"
+    state: link
+    force: true
+  notify: Restart nginx
+
+# - name: Obtain and install SSL certificate with Certbot
+#   ansible.builtin.command: >
+#     certbot --non-interactive --redirect --agree-tos --nginx
+#     -d {{ nginx_domain_name }} -m 11518894+t3knoid@users.noreply.github.com
+#   notify: Restart nginx
+#   register: certbot_command_retval
+
+# - name: Show certbot_command_retval
+#   debug:
+#     var: certbot_command_retval
+

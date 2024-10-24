@@ -34,7 +34,7 @@ Ensure that global variables are loaded prior to using this role. This can be do
 
 ```yaml
 - name: Create a VM
-  hosts: pvenodes,template
+  hosts: vms
   gather_facts: false
   roles:
     - global
@@ -76,7 +76,7 @@ The following playbook calls the vm role and load tasks from the create.yml file
 
 ```bash
 - name: Create a VM
-  hosts: pvenodes,template
+  hosts: vms
   gather_facts: false
   roles:
     - global

@@ -1,0 +1,9 @@
+---
+
+- name: Install and configure code-server
+  hosts: all
+  become: true
+  gather_facts: true
+  roles:
+    - global
+    - code_server

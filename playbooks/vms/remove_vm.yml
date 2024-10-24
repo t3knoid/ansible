@@ -7,7 +7,7 @@
   ansible.builtin.import_playbook: ../dns/delete_dns_entry.yml
 
 - name: Remove the VM
-  hosts: pvenodes,template
+  hosts: vms
   gather_facts: false
   roles:
     - global
