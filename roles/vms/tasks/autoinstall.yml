@@ -1,6 +1,6 @@
 ---
 
-- name: Add second cd-rom drive for cloud-init.iso 
+- name: Add second cd-rom drive for cloud-init.iso
   community.general.proxmox_disk:
     api_host: "{{ global_proxmox_api_host }}"
     api_user: "{{ global_proxmox_api_user }}"
