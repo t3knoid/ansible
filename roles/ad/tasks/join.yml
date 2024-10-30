@@ -52,9 +52,6 @@
     name: python3-pexpect
     state: present
 
-- name: Load vault file
-  ansible.builtin.include_vars: vars/vault.yml
-
 - name: Join machine to domain
   no_log: false
   ansible.builtin.expect:
@@ -62,6 +59,7 @@
     responses:
       Password for Administrator: "{{ ad_administrator_password }}"
     echo: true
+  become: true
   register: realm_join_output
   changed_when: realm_join_output.changed
   when: not ad_configured
@@ -78,9 +76,11 @@
     line: "use_fully_qualified_names = False"
     mode: "0600"
     backup: true
+  become: true
 
 - name: Restart SSSD service
   ansible.builtin.systemd:
     name: sssd
     state: restarted
     enabled: true
+  become: true

@@ -8,6 +8,6 @@ ad_required_packages:
  - libpam-sss
  - adcli
  - samba-common-bin
- - oddjob 
+ - oddjob
  - oddjob-mkhomedir
  - packagekit
