@@ -5,6 +5,7 @@
     api_host: "{{ global_proxmox_api_host }}"
     api_user: "{{ global_proxmox_api_user }}"
     api_password: "{{ global_proxmox_api_password }}"
+    vmid: "{{ vms_static_vmid | default('') | int }}"
     node: "{{ vms_proxmox_node | string }}"
     name: "{{ inventory_hostname }}"
     agent: "{{ vms_config.agent | string }}"
