@@ -41,14 +41,19 @@
       - "{{ tmp_folder.path }}/user-data"
     dest_iso: "{{ tmp_folder.path }}/cloud-init.iso"
   delegate_to: localhost
-
+    
 - name: "Upload cloud-init.iso to {{ vms_proxmox_node }} Proxmox VE server"
-  ansible.builtin.copy:
-    src: "{{ tmp_folder.path }}/cloud-init.iso"
-    dest: "/var/lib/vz/template/iso/cloud-init.iso"
-    mode: "0644"
-  become: true
-  delegate_to: "{{ vms_proxmox_node }}"
+  ansible.builtin.command:
+    cmd: >
+      curl --location 'https://{{ global_proxmox_api_host }}:8006/api2/json/nodes/{{ vms_proxmox_node }}/storage/local/upload'
+      --header "Authorization: PVEAPIToken={{ global_proxmox_api_user }}!{{ global_proxmox_api_token_id }}={{ global_proxmox_api_token }}"
+      --form 'content="iso"'
+      --form 'filename=@"{{ tmp_folder.path }}/cloud-init.iso"'
+      --form 'storage="local"'
+      --form 'node="{{ vms_proxmox_node }}"'
+      -k
+  register: vms_upload_result
+  delegate_to: localhost
 
 - name: Cleanup temp folder
   ansible.builtin.file:
