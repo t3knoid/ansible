@@ -26,3 +26,4 @@ vms_packages_list:
     - parted
     - git
 vms_additional_packages: []
+vms_name: "{{ vms_name | default(inventory_hostname) }}"

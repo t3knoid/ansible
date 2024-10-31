@@ -6,3 +6,11 @@
     mode: '0755'
   when: python_script_generated.changed
   delegate_to: localhost
+
+- name: Restart virtual machine
+  ansible.builtin.include_tasks:
+    file: ../tasks/reboot.yml
+
+- name: Wait for virtual machine to come up
+  ansible.builtin.include_tasks:
+    file: ../tasks/wait_for_vm_to_become_reachable.yml

@@ -10,14 +10,14 @@
 
 - name: Remove existing known_host hostname entry
   ansible.builtin.known_hosts:
-    name: "{{ inventory_hostname }}"
+    name: "{{ vms_name | default(inventory_hostname) }}"
     path: ~/.ssh/known_hosts
     state: absent
   delegate_to: localhost
 
 - name: Add remote host key to known_hosts with hostname entry
   ansible.builtin.known_hosts:
-    name: "{{ inventory_hostname }}"
+    name: "{{ vms_name | default(inventory_hostname) }}"
     key: "{{ lookup('pipe', 'ssh-keyscan -t rsa {{ inventory_hostname }}') }}"
     path: ~/.ssh/known_hosts
     state: present

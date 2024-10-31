@@ -55,14 +55,21 @@
     - Make the Python script executable
 
 - name: Execute Python script
+  no_log: true
   ansible.builtin.script: /tmp/send_yes_to_vm_console.py
   args:
     executable: python3
   delegate_to: localhost
 
-- name: Wait for VM to fully start by trying to get it's IP address
+- name: Delete Python script
+  ansible.builtin.file:
+    path: /tmp/send_yes_to_vm_console.py
+    state: absent
+  delegate_to: localhost
+
+- name: Wait for VM to fully start
   ansible.builtin.uri:
-    url: 'https://{{ global_proxmox_api_host }}:8006/api2/json/nodes/{{ vms_proxmox_node }}/qemu/{{ vms_new_vm_info.vmid | int }}/agent/network-get-interfaces'
+    url: 'https://{{ global_proxmox_api_host }}:8006/api2/json/nodes/{{ vms_proxmox_node }}/qemu/{{ vms_new_vm_info.vmid | int }}/agent/info'
     method: GET
     headers:
       Authorization: "PVEAPIToken={{ global_proxmox_api_user }}!{{ global_proxmox_api_token_id }}={{ global_proxmox_api_token }}"
@@ -77,7 +84,7 @@
 - name: Update known_hosts file
   ansible.builtin.include_tasks: "known_hosts.yml"
 
-- name: Eject cloud-init.iso image
+- name: Remove cd-rom containing cloud-init.iso
   community.general.proxmox_disk:
     api_host: "{{ global_proxmox_api_host }}"
     api_user: "{{ global_proxmox_api_user }}"
@@ -86,3 +93,6 @@
     disk: ide0
     state: absent
   delegate_to: localhost
+  notify:
+    - Restart virtual machine
+    - Wait for virtual machine to come up

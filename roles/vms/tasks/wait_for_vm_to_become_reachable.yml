@@ -1,0 +1,9 @@
+---
+
+- name: Wait for virtual machine to become reachable
+  ansible.builtin.wait_for:
+    host: "{{ vms_proxmox_node }}"
+    port: 22
+    delay: 5
+    timeout: 300
+  delegate_to: localhost
