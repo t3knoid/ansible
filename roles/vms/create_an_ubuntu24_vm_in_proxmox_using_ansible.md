@@ -33,7 +33,7 @@ Creating a virtual machine in Proxmox is straightforward by using the [community
     api_user: "{{ global_proxmox_api_user }}"
     api_password: "{{ global_proxmox_api_password }}"
     node: "{{ vms_proxmox_node | string }}"
-    name: "{{ inventory_hostname }}"
+    name: "{{ vms_name | default(inventory_hostname) }}"
     agent: "{{ vms_config.agent | string }}"
     storage: "{{ vms_config.storage }}"
     scsihw: "{{ vms_config.scsihw }}"
