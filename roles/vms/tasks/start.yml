@@ -17,7 +17,7 @@
   with_items: "{{ vm_list.json.data }}"
   loop_control:
     label: "{{ item.name }}"
-  when: item.name == inventory_hostname
+  when: item.name == vms_name
 
 - name: Start VM
   ansible.builtin.uri:

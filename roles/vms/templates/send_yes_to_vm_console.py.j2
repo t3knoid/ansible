@@ -1,9 +1,11 @@
 import requests
 
 # Proxmox API credentials
-proxmox_url = 'https://{{ global_proxmox_api_host }}:8006/api2/json'
+proxmox_url = 'https://{{ global_proxmox_api_host }}:8006'
 api_token_id = '{{ global_proxmox_api_user }}!{{ global_proxmox_api_token_id }}'
 api_token_secret = '{{ global_proxmox_api_token }}'
+node = '{{ vms_proxmox_node | string }}'
+vmid = '{{ vms_new_vm_info.vmid  }}'
 
 # Headers for authenticated requests
 headers = {
@@ -11,8 +13,10 @@ headers = {
 }
 
 # Send 'yes <enter>' to the VM console
-node = '{{ vms_proxmox_node | string }}'
-vmid = '{{ vms_new_vm_info.vmid  }}'
-command = 'sendkey y-e-s-kp_enter' 
-response = requests.post(f'{proxmox_url}/nodes/{node}/qemu/{vmid}/monitor', headers=headers, data={'command': command}, verify=False)
+payload = {
+    'key': 'y-e-s-kp_enter'
+}
+
+endpoint = "/api2/json/nodes/{{ vms_proxmox_node | string }}/qemu/{{ vms_new_vm_info.vmid  }}/sendkey"
+response = requests.put(f'{proxmox_url}{endpoint}', headers=headers, data=payload, verify=False)
 print(response.json())

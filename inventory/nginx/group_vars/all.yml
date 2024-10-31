@@ -20,6 +20,6 @@ vms_config:
 
 vms_os: ubuntu_24_server
 vms_autoinstall: true
-enable_serial_terminal: false
+vms_enable_serial_terminal: false
 vms_additional_packages: []
 python3_version: 3.12
