@@ -18,5 +18,4 @@ vms_os: ubuntu_24_server
 vms_autoinstall: true
 vms_enable_serial_terminal: false
 vms_additional_packages: []
-vms_name: ubuntu-server-24.04
 vms_set_to_template: true
