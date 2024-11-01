@@ -1,0 +1,23 @@
+---
+
+- name: Check for Ubuntu installation
+  ignore_errors: true
+  ansible.builtin.shell: |
+    if command -v lsb_release; then
+      lsb_release -a
+    else
+      echo "Ubuntu not installed"
+    fi
+  register: ubuntu_check
+
+- name: Extract Distributor ID
+  ansible.builtin.set_fact:
+    vms_distributor_id: "{{ ubuntu_check.stdout_lines | select('match', 'Distributor ID:') | map('regex_replace', 'Distributor ID:\\s*(\\S+)', '\\1') | list | first }}"
+
+- name: Set distributor_id_status to true if equal to Ubuntu
+  ansible.builtin.set_fact:
+    vms_ubuntu_installed: "{{ vms_distributor_id == 'Ubuntu' }}"
+
+- name: Display ubuntu_installed
+  ansible.builtin.debug:
+    msg: "vms_ubuntu_installed: {{ vms_ubuntu_installed }}"
