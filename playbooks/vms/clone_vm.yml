@@ -1,0 +1,20 @@
+---
+
+- name: Clone a VM
+  hosts: vms
+  gather_facts: false
+  serial: 1
+  roles:
+    - global
+
+  pre_tasks:
+    - name: Import add_to_local_dns.yml from pihole role
+      ansible.builtin.import_role:
+        name: pihole
+        tasks_from: add_to_local_dns.yml
+
+  tasks:
+    - name: Import clone_vm.yml from vms role
+      ansible.builtin.import_role:
+        name: vms
+        tasks_from: clone.yml
