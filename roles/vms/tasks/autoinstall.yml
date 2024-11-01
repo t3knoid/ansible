@@ -51,8 +51,13 @@
     mode: '0755'
   register: python_script_generated
   delegate_to: localhost
-  notify:
-    - Make the Python script executable
+
+- name: Make the Python script executable
+  ansible.builtin.file:
+    path: /tmp/send_yes_to_vm_console.py
+    mode: '0755'
+  when: python_script_generated.changed
+  delegate_to: localhost
 
 - name: Execute Python script
   no_log: true

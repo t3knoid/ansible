@@ -7,3 +7,9 @@
     - global
     - vms
   serial: 1
+
+  pre_tasks:
+    - name: Import pihole role
+      ansible.builtin.import_role:
+        name: pihole
+        tasks_from: add_to_local_dns.yml

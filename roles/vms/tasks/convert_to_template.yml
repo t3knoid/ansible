@@ -1,0 +1,14 @@
+---
+
+- name: Shutdown virtual machine before converting it to a template
+  ansible.builtin.include_tasks: "shutdown.yml"
+
+- name: Convert virtual machine into a template
+  community.general.proxmox_kvm:
+    api_host: "{{ global_proxmox_api_host }}"
+    api_user: "{{ global_proxmox_api_user }}"
+    api_password: "{{ global_proxmox_api_password }}"
+    name: "{{ vms_name }}"
+    node: "{{ vms_proxmox_node | string }}"
+    state: template
+  delegate_to: localhost
