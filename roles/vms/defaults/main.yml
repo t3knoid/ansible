@@ -27,3 +27,4 @@ vms_packages_list:
     - git
 vms_additional_packages: []
 vms_name: "{{ name | default(inventory_hostname) }}"
+vms_set_to_template: false
