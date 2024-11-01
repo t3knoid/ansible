@@ -6,10 +6,10 @@
     api_user: "{{ global_proxmox_api_user }}"
     api_password: "{{ global_proxmox_api_password }}"
     node: "{{ vms_proxmox_node }}"
-    clone: "{{ global_os['{{ vms_os }}'].template }}"
+    clone: "{{ global_os[vms_os].template }}"
     name: "{{ vms_name | default(inventory_hostname) }}"
     storage: linstor_storage
-    timeout: 500
+    timeout: 1000
     state: present
   delegate_to: localhost
   register: vms_cloned_vm_info
@@ -29,14 +29,14 @@
     size: "{{ vms_config.disk2.size | default(20) }}"
     state: present
   delegate_to: localhost
-  when: vms_config.vms_disk2 is defined
+  when: vms_config.disk2 is defined
 
-- name: Migrate new image
+- name: Migrate new image to target node
   community.general.proxmox_kvm:
     api_host: "{{ global_proxmox_api_host }}"
     api_user: "{{ global_proxmox_api_user }}"
     api_password: "{{ global_proxmox_api_password }}"
-    node: "{{ vms_migrate_to_node }}"
+    node: "{{ vms_proxmox_target_node }}"
     vmid: "{{ vms_cloned_vm_info.vmid  }}"
     migrate: true
     state: present
@@ -47,7 +47,7 @@
     api_host: "{{ global_proxmox_api_host }}"
     api_user: "{{ global_proxmox_api_user }}"
     api_password: "{{ global_proxmox_api_password }}"
-    node: "{{ vms_migrate_to_node }}"
+    node: "{{ vms_proxmox_target_node }}"
     name: "{{ vms_name | default(inventory_hostname) }}"
     config: current
   delegate_to: localhost
