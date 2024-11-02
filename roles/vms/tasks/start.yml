@@ -2,7 +2,7 @@
 
 - name: Get a list of vms
   ansible.builtin.uri:
-    url: 'https://{{ global_proxmox_api_host }}:8006/api2/json/nodes/{{ vms_proxmox_node }}/qemu'
+    url: 'https://{{ global_proxmox_api_host }}:8006/api2/json/cluster/resources?type=vm'
     method: GET
     headers:
       Authorization: "PVEAPIToken={{ global_proxmox_api_user }}!{{ global_proxmox_api_token_id }}={{ global_proxmox_api_token }}"
@@ -17,7 +17,7 @@
   with_items: "{{ vm_list.json.data }}"
   loop_control:
     label: "{{ item.name }}"
-  when: item.name == vms_name
+  when: item.name == inventory_hostname
 
 - name: Start VM
   ansible.builtin.uri:
