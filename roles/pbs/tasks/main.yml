@@ -1,0 +1,27 @@
+---
+
+- name: Configure apt sources.list
+  ansible.builtin.lineinfile:
+    path: /etc/apt/sources.list
+    line: |
+      # Proxmox Backup Server pbs-no-subscription repository provided by proxmox.com,
+      # NOT recommended for production use
+      deb http://download.proxmox.com/debian/pbs bookworm pbs-no-subscription
+    state: present
+
+- name: Download the Proxmox GPG key
+  ansible.builtin.get_url:
+    url: https://enterprise.proxmox.com/debian/proxmox-release-bookworm.gpg
+    dest: /etc/apt/trusted.gpg.d/proxmox-release-bookworm.gpg
+    mode: '0644'
+
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+
+- name: Proxmox Backup Server
+  ansible.builtin.apt:
+    name:
+      - proxmox-backup
+    state: present
+    update_cache: true
