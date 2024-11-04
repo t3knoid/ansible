@@ -3,6 +3,7 @@
 - name: Clone a VM
   hosts: vms
   gather_facts: false
+  become: true
   serial: 1
   roles:
     - global
