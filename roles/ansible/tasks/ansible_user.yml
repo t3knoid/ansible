@@ -18,14 +18,12 @@
     groups: ansible
     append: true
     shell: /bin/bash
-  become: true
 
 - name: Ensure sudoers.d directory exists
   ansible.builtin.file:
     path: /etc/sudoers.d
     state: directory
     mode: '0755'
-  become: true
 
 - name: Add 'ansible' group to sudoers with NOPASSWD
   ansible.builtin.lineinfile:
@@ -35,4 +33,4 @@
     line: '%ansible ALL=(ALL) NOPASSWD:ALL'
     mode: '0644'
     validate: 'visudo -cf %s'
-  become: true
+  
