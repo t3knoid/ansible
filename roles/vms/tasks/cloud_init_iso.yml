@@ -21,9 +21,6 @@
   delegate_to: localhost
   register: ssh_key
 
-- name: Include default variables from ad role
-  ansible.builtin.include_vars: ../../ad/defaults/main/main.yml
-
 - name: Copy user-data file
   ansible.builtin.template:
     src: "user-data.j2"
