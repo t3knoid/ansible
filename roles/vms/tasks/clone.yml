@@ -42,17 +42,16 @@
     state: present
   delegate_to: localhost
 
-- name: "Retrieve {{ inventory_hostname }} information"
-  community.general.proxmox_vm_info:
-    api_host: "{{ global_proxmox_api_host }}"
-    api_user: "{{ global_proxmox_api_user }}"
-    api_password: "{{ global_proxmox_api_password }}"
-    node: "{{ vms_proxmox_target_node }}"
-    name: "{{ vms_name | default(inventory_hostname) }}"
-    config: current
-  delegate_to: localhost
-  register: vms_current_vm_info
+- name: Configure hostname
+  ansible.builtin.command: hostnamectl hostname "{{ inventory_hostname }}"
+  register: vms_hostnamctl_retval
+  delegate_to: "{{ vms_clone_host }}"
 
-- name: "Display {{ inventory_hostname }} information"
-  debug:
-    var: vms_current_vm_info
+- name: Configure network settings for cloned VM
+  ansible.builtin.template:
+    src: 50-cloud-init.yaml.j2
+    dest: /etc/netplan/50-cloud-init.yaml
+  delegate_to: "{{ vms_clone_host }}"
+
+  notify:
+    - Restart virtual machine
