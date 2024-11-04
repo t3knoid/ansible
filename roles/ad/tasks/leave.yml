@@ -1,7 +1,7 @@
 ---
 
 - name: Discover domain
-  ansible.builtin.command: "realm discover {{ ad_domain_name }}"
+  ansible.builtin.command: "realm discover {{ global_domain_name }}"
   register: realm_discover_output
   changed_when: realm_discover_output.changed
 
@@ -24,7 +24,7 @@
 - name: Leave domain
   no_log: false
   ansible.builtin.expect:
-    command: "realm leave -U Administrator -v {{ ad_domain_name }}"
+    command: "realm leave -U Administrator -v {{ global_domain_name }}"
     responses:
       Password for Administrator: "{{ ad_administrator_password }}"
     echo: true

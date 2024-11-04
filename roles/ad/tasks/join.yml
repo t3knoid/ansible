@@ -10,8 +10,8 @@
 - name: Update /etc/resolv.conf with domain name
   ansible.builtin.lineinfile:
     path: /etc/resolv.conf
-    regexp: '^search {{ ad_domain_name }}$'
-    line: "search {{ ad_domain_name }}"
+    regexp: '^search {{ global_domain_name }}$'
+    line: "search {{ global_domain_name }}"
     state: present
 
 - name: Update /etc/resolv.conf with DNS servers
@@ -20,10 +20,10 @@
     regexp: '^nameserver {{ item }}$'
     line: "nameserver {{ item }}"
     state: present
-  loop: "{{ ad_dns_servers }}"
+  loop: "{{ global_dns_servers }}"
 
 - name: Discover domain
-  ansible.builtin.command: "realm discover {{ ad_domain_name }}"
+  ansible.builtin.command: "realm discover {{ global_domain_name }}"
   register: realm_discover_output
   changed_when: realm_discover_output.changed
 
@@ -55,7 +55,7 @@
 - name: Join machine to domain
   no_log: false
   ansible.builtin.expect:
-    command: "realm join -U Administrator -v {{ ad_domain_name }}"
+    command: "realm join -U Administrator -v {{ global_domain_name }}"
     responses:
       Password for Administrator: "{{ ad_administrator_password }}"
     echo: true
