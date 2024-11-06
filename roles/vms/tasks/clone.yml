@@ -1,11 +1,35 @@
 ---
 
+- name: Get a list of vms
+  ansible.builtin.uri:
+    url: 'https://{{ global_proxmox_api_host }}:8006/api2/json/cluster/resources?type=vm'
+    method: GET
+    headers:
+      Authorization: "PVEAPIToken={{ global_proxmox_api_user }}!{{ global_proxmox_api_token_id }}={{ global_proxmox_api_token }}"
+    follow_redirects: safe
+    validate_certs: false
+  register: vm_list
+  delegate_to: localhost
+
+- name: Get node where template is located
+  ansible.builtin.set_fact:
+    vms_proxmox_template_node: "{{ item.node }}"
+  with_items: "{{ vm_list.json.data }}"
+  loop_control:
+    label: "{{ item.name }}"
+  when: item.name == global_os[vms_os].template
+
+- name: Template not found
+  ansible.builtin.fail:
+    msg: "Template was not found in the Proxmox cluster. Exiting."
+  when: vms_proxmox_template_node is not defined
+
 - name: Clone Ubuntu 24.04 template
   community.general.proxmox_kvm:
     api_host: "{{ global_proxmox_api_host }}"
     api_user: "{{ global_proxmox_api_user }}"
     api_password: "{{ global_proxmox_api_password }}"
-    node: "{{ vms_proxmox_node }}"
+    node: "{{ vms_proxmox_template_node }}"
     clone: "{{ global_os[vms_os].template }}"
     name: "{{ vms_name | default(inventory_hostname) }}"
     storage: linstor_storage
@@ -14,6 +38,10 @@
   delegate_to: localhost
   register: vms_cloned_vm_info
 
+- name: Show vms_cloned_vm_info
+  ansible.builtin.debug:
+    var: vms_cloned_vm_info
+
 - name: Add second disk
   community.general.proxmox_disk:
     api_host: "{{ global_proxmox_api_host }}"
@@ -21,7 +49,7 @@
     api_token_id: "{{ global_proxmox_api_token_id }}"
     api_token_secret: "{{ global_proxmox_api_token }}"
     api_password: "{{ global_proxmox_api_password }}"
-    vmid: "{{ vms_cloned_vm_info.vmid  }}"
+    vmid: "{{ vms_cloned_vm_info.vmid }}"
     disk: virtio1
     backup: "{{ vms_config.disk2.backup | default(true) }}"
     cache: none
@@ -31,27 +59,100 @@
   delegate_to: localhost
   when: vms_config.disk2 is defined
 
+- name: Get a list of vms
+  ansible.builtin.uri:
+    url: 'https://{{ global_proxmox_api_host }}:8006/api2/json/cluster/resources?type=vm'
+    method: GET
+    headers:
+      Authorization: "PVEAPIToken={{ global_proxmox_api_user }}!{{ global_proxmox_api_token_id }}={{ global_proxmox_api_token }}"
+    follow_redirects: safe
+    validate_certs: false
+  register: vm_list
+  delegate_to: localhost
+
+- name: Get node where new virtual machine is located
+  ansible.builtin.set_fact:
+    vms_cloned_vm_node: "{{ item.node }}"
+  with_items: "{{ vm_list.json.data }}"
+  loop_control:
+    label: "{{ item.vmid }}"
+  when: item.vmid == vms_cloned_vm_info.vmid
+
+- name: Modify CPU cores
+  ansible.builtin.uri:
+    url: "https://{{ global_proxmox_api_host }}:8006/api2/json/nodes/{{ vms_cloned_vm_node }}/qemu/{{ vms_cloned_vm_info.vmid }}/config"
+    method: PUT
+    body:
+      cores: "{{ vms_config.cores }}"
+    body_format: json    
+    headers:
+      Authorization: "PVEAPIToken={{ global_proxmox_api_user }}!{{ global_proxmox_api_token_id }}={{ global_proxmox_api_token }}"
+    follow_redirects: safe
+    validate_certs: false
+  register: vms_cpu_cores_result
+  changed_when: vms_cpu_cores_result.status == 200
+  delegate_to: localhost
+
+- name: Modify memory
+  ansible.builtin.uri:
+    url: "https://{{ global_proxmox_api_host }}:8006/api2/json/nodes/{{ vms_cloned_vm_node }}/qemu/{{ vms_cloned_vm_info.vmid }}/config"
+    method: PUT
+    body:
+      memory: "{{ vms_config.memory }}"
+    body_format: json    
+    headers:
+      Authorization: "PVEAPIToken={{ global_proxmox_api_user }}!{{ global_proxmox_api_token_id }}={{ global_proxmox_api_token }}"
+    follow_redirects: safe
+    validate_certs: false
+  register: vms_memory_result
+  changed_when: vms_memory_result.status == 200
+  delegate_to: localhost
+
 - name: Migrate new image to target node
   community.general.proxmox_kvm:
     api_host: "{{ global_proxmox_api_host }}"
     api_user: "{{ global_proxmox_api_user }}"
     api_password: "{{ global_proxmox_api_password }}"
-    node: "{{ vms_proxmox_target_node }}"
+    node: "{{ vms_proxmox_node }}"
     vmid: "{{ vms_cloned_vm_info.vmid  }}"
     migrate: true
     state: present
   delegate_to: localhost
 
+- name: Start virtual machine
+  ansible.builtin.include_tasks: "start.yml"
+
+- name: Check if virtual machine has assigned IP address
+  ansible.builtin.ping:
+  ignore_unreachable: true
+  register: vms_ping_result
+
+- name: Set fact if we are able to ping the cloned virtual machine
+  ansible.builtin.set_fact:
+    vms_ip_address_set: false
+  when: vms_ping_result is not defined
+
+- name: Wait for virtual machine to be ready
+  ansible.builtin.wait_for:
+    port: 22
+    host: "{{ vms_ip_address_set | ternary(inventory_hostname, vms_clone_host) }}"
+    delay: 15
+    timeout: 60
+  delegate_to: localhost
+
 - name: Configure hostname
   ansible.builtin.command: hostnamectl hostname "{{ inventory_hostname }}"
   register: vms_hostnamctl_retval
-  delegate_to: "{{ vms_clone_host }}"
+  delegate_to: "{{ vms_ip_address_set | ternary(inventory_hostname, vms_clone_host) }}"
+  notify:
+    - Restart virtual machine
+    - Wait for virtual machine to come up
 
 - name: Configure network settings for cloned VM
   ansible.builtin.template:
     src: 50-cloud-init.yaml.j2
     dest: /etc/netplan/50-cloud-init.yaml
-  delegate_to: "{{ vms_clone_host }}"
-
+  delegate_to: "{{ vms_ip_address_set | ternary(inventory_hostname, vms_clone_host) }}"
   notify:
     - Restart virtual machine
+    - Wait for virtual machine to come up
