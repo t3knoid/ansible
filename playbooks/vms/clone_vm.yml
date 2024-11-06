@@ -9,6 +9,10 @@
     - global
 
   pre_tasks:
+    - name: Import delete_from_local_dns.yml from pihole role
+      ansible.builtin.import_role:
+        name: pihole
+        tasks_from: delete_from_local_dns.yml
     - name: Import add_to_local_dns.yml from pihole role
       ansible.builtin.import_role:
         name: pihole
