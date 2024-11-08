@@ -8,13 +8,13 @@
       Authorization: "PVEAPIToken={{ global_proxmox_api_user }}!{{ global_proxmox_api_token_id }}={{ global_proxmox_api_token }}"
     follow_redirects: safe
     validate_certs: false
-  register: vm_list
+  register: vms_vm_list
   delegate_to: localhost
 
 - name: Get vmid
   ansible.builtin.set_fact:
     vms_vmid: "{{ item.vmid }}"
-  with_items: "{{ vm_list.json.data }}"
+  with_items: "{{ vms_vm_list.json.data }}"
   loop_control:
     label: "{{ item.name }}"
   when: item.name == vms_name
@@ -22,7 +22,7 @@
 - name: Get node
   ansible.builtin.set_fact:
     vms_proxmox_node: "{{ item.node }}"
-  with_items: "{{ vm_list.json.data }}"
+  with_items: "{{ vms_vm_list.json.data }}"
   loop_control:
     label: "{{ item.name }}"
   when: item.name == inventory_hostname
