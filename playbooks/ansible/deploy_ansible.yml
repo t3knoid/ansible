@@ -4,4 +4,5 @@
   become: true
   become_user: root
   roles:
-    - ansible
+    - global
+    - ansible_setup

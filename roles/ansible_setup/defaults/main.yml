@@ -1,0 +1,7 @@
+---
+
+ansible_setup_ver: 10.5.0
+ansible_setup_callback_plugins:
+  - profile_tasks
+ansible_setup_home: "/ansible/dev/ansible"
+ansible_setup_config_path: "{{ ansible_setup_home }}/ansible.cfg"
