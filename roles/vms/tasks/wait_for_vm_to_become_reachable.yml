@@ -2,7 +2,7 @@
 
 - name: Wait for virtual machine to become reachable
   ansible.builtin.wait_for:
-    host: "{{ vms_proxmox_node }}"
+    host: "{{ inventory_hostname }}"
     port: 22
     delay: 5
     timeout: 300
