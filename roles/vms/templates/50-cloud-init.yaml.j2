@@ -7,7 +7,7 @@ network:
     ethernets:
         ens18:
             addresses:
-            - {{ ip_address }}/24
+            - {{ global_ip_address }}/24
             routes:
             - to: default
               via: {{ global_gateway }}

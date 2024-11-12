@@ -25,15 +25,15 @@
 
 - name: Remove existing known_host ip address entry
   ansible.builtin.known_hosts:
-    name: "{{ ip_address }}"
+    name: "{{ global_ip_address }}"
     path: ~/.ssh/known_hosts
     state: absent
   delegate_to: localhost
 
 - name: Add remote host key to known_hosts with ip address entry
   ansible.builtin.known_hosts:
-    key: "{{ lookup('pipe', 'ssh-keyscan -t rsa {{ ip_address }}') }}"
-    name: "{{ ip_address }}"
+    key: "{{ lookup('pipe', 'ssh-keyscan -t rsa {{ global_ip_address }}') }}"
+    name: "{{ global_ip_address }}"
     path: ~/.ssh/known_hosts
     state: present
   delegate_to: localhost

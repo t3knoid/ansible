@@ -23,7 +23,7 @@ autoinstall:
       version: 2
       ethernets:
         ens18:
-          addresses: [{{ ip_address }}/24]
+          addresses: [{{ global_ip_address }}/24]
           gateway4: {{ global_gateway }}
           nameservers:
             search: [{{ global_domain_name }}]
