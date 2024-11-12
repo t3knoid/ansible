@@ -1,0 +1,13 @@
+---
+- name: Install required virtual machine packages
+  hosts: vms
+  gather_facts: false
+  become: true
+  roles:
+    - global
+
+  tasks:
+    - name: Execute packages.yml from vms role
+      ansible.builtin.import_role:
+        name: vms
+        tasks_from: packages
