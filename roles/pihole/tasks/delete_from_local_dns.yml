@@ -12,7 +12,7 @@
       action=delete&
       reload=true&
       domain={{ inventory_hostname }}.refol.us&
-      ip={{ ip_address }}&
+      ip={{ global_ip_address }}&
       auth={{ pihole_api_token }}
 
 - name: Delete host from local DNS

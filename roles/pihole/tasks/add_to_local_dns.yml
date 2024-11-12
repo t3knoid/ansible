@@ -8,7 +8,7 @@
       action=add&
       reload=true&
       domain={{ inventory_hostname }}.refol.us&
-      ip={{ ip_address }}&
+      ip={{ global_ip_address }}&
       auth={{ pihole_api_token }}
 
 - name: Add host to local DNS
