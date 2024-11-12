@@ -3,6 +3,8 @@
 - name: Update Pi-hole local DNS
   hosts: all
   gather_facts: false
+  roles:
+    - global
 
   tasks:
     - name: Import pihole role
