@@ -1,7 +1,7 @@
 ---
 
 - name: Configure Add URL
-  no_log: true
+  no_log: false
   ansible.builtin.set_fact:
     pihole_add_host_url: |-
       http://{{ pihole_api_host }}/admin/api.php?customdns&
