@@ -3,8 +3,6 @@
   hosts: vms
   gather_facts: false
   become: true
-  roles:
-    - global
 
   tasks:
     - name: Execute packages.yml from vms role
