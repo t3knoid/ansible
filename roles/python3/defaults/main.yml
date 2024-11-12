@@ -8,3 +8,5 @@ python3_modules_to_install:
   - proxmoxer
   - ansible-lint
   - pexpect
+  - jmespath
+  - pip

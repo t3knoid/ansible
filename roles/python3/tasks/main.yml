@@ -6,7 +6,6 @@
     state: directory
     mode: "0774"
     group: "ansible"
-  become: true
 
 - name: Create Python virtual environment
   ansible.builtin.command: "python3 -m venv /opt/python_{{ python3_version }}"
@@ -23,4 +22,13 @@
     name: "{{ item }}"
     virtualenv: "/opt/python_{{ python3_version }}"
     state: present
+    umask: "002"
   loop: "{{ python3_modules_to_install }}"
+
+- name: Make sure the ansible group owns the environment
+  ansible.builtin.file:
+    path: "/opt/python_{{ python3_version }}"
+    state: directory
+    group: "ansible"
+    mode: "0775"
+    recurse: true
