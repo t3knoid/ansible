@@ -98,6 +98,3 @@
     disk: ide0
     state: absent
   delegate_to: localhost
-  notify:
-    - Restart virtual machine
-    - Wait for virtual machine to come up
