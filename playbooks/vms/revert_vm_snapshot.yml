@@ -6,7 +6,12 @@
     - global
 
   tasks:
-    - name: Import snapshot tasks from vms role
+    - name: Import snapshot_revert task from vms role
       ansible.builtin.import_role:
         name: vms
         tasks_from: snapshot_revert
+
+    - name: Import start task from vms role
+      ansible.builtin.import_role:
+        name: vms
+        tasks_from: start
