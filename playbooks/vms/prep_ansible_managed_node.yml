@@ -1,0 +1,6 @@
+- name: Prepare ansible managed node
+  hosts: all
+  gather_facts: true
+  become: true
+  roles:
+    - ansible_node

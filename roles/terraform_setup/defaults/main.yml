@@ -1,0 +1,5 @@
+---
+
+terraform_setup_version: 1.9.8
+terraform_setup_home: "/usr/local/bin"
+terraform_setup_os_arch: "linux_amd64"
