@@ -78,9 +78,26 @@
     backup: true
   become: true
 
+- name: Set fallback_homedir in /etc/sssd/sssd.conf not to use domain
+  ansible.builtin.lineinfile:
+    path: /etc/sssd/sssd.conf
+    regexp: "^fallback_homedir"
+    line: "fallback_homedir = %u"
+    mode: "0600"
+    backup: true
+  become: true
+
 - name: Restart SSSD service
   ansible.builtin.systemd:
     name: sssd
     state: restarted
     enabled: true
   become: true
+
+- name: Enable mkhomedir
+  ansible.builtin.command: pam-auth-update --enable mkhomedir
+  register: ad_mkhomedir_result
+
+- name: Show ad_mkhomedir_result
+  ansible.builtin.debug:
+    var: ad_mkhomedir_result
