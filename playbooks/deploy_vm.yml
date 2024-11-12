@@ -9,9 +9,6 @@
 - name: Configure Python3
   ansible.builtin.import_playbook: python/deploy_python3_venv.yml
 
-- name: Add current user to ansible group
-  ansible.builtin.import_playbook: ansible/add_ansible_user.yml
-
 - name: Add to active directory domain
   ansible.builtin.import_playbook: ad/join_domain.yml
 

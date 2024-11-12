@@ -1,0 +1,27 @@
+---
+
+- name: Install Terraform dependencies
+  ansible.builtin.apt:
+    name:
+      - gnupg
+      - software-properties-common
+      - curl
+      - unzip
+    state: present
+
+- name: Download Terraform
+  ansible.builtin.get_url:
+    url: "https://releases.hashicorp.com/terraform/{{ terraform_setup_version }}/terraform_{{ terraform_setup_version }}_{{ terraform_setup_os_arch }}.zip"
+    dest: "/tmp/terraform.zip"
+    mode: "0644"
+
+- name: Unzip terraform.zip
+  ansible.builtin.unarchive:
+    src: /tmp/terraform.zip
+    dest: "{{ terraform_setup_home }}"
+    remote_src: true
+
+- name: Make Terraform executable
+  ansible.builtin.file:
+    path: "{{ terraform_setup_home }}/terraform"
+    mode: "0755"
