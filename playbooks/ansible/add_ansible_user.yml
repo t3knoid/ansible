@@ -2,11 +2,10 @@
 
 - name: Add ansible user
   hosts: all
-  gather_facts: false
-  become: true
+  gather_facts: true
 
   tasks:
     - name: Import ansible role
       ansible.builtin.import_role:
-        name: ansible
+        name: ansible_setup
         tasks_from: ansible_user
