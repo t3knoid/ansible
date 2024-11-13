@@ -26,7 +26,7 @@
   loop_control:
     label: "{{ item.name }}"
   when: item.name == inventory_hostname
-  
+
 - name: Start VM
   ansible.builtin.uri:
     url: 'https://{{ global_proxmox_api_host }}:8006/api2/json/nodes/{{ vms_proxmox_node }}/qemu/{{ vms_vmid }}/status/start'
@@ -37,4 +37,3 @@
     validate_certs: false
   register: result
   delegate_to: localhost
-  when: vms_vmid is defined
