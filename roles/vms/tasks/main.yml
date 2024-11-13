@@ -1,82 +1,9 @@
 ---
 
-- name: Create new ubuntu virtual machine
-  community.general.proxmox_kvm:
-    api_host: "{{ global_proxmox_api_host }}"
-    api_user: "{{ global_proxmox_api_user }}"
-    api_password: "{{ global_proxmox_api_password }}"
-    vmid: "{{ vms_static_vmid | default('') | int }}"
-    node: "{{ vms_proxmox_node | string }}"
-    name: "{{ vms_name }}"
-    agent: "{{ vms_config.agent | string }}"
-    storage: "{{ vms_config.storage }}"
-    scsihw: "{{ vms_config.scsihw }}"
-    net:
-      net0: "virtio,bridge=vmbr0"
-    virtio:
-      virtio0: "{{ vms_config.disk_os.storage }}:{{ vms_config.disk_os.size }}"
-    ide:
-      ide2: "none,media=cdrom"
-    cpu: "{{ vms_config.cpu }}"
-    cores: "{{ vms_config.cores | string }}"
-    sockets: "{{ vms_config.sockets | int }}"
-    memory: "{{ vms_config.memory | int }}"
-    ostype: "{{ vms_config.ostype }}"
-    state: present
-  delegate_to: localhost
-  register: vms_new_vm_info
+- name: Include clone.yml
+  ansible.builtin.include_tasks: "clone.yml"
+  when: vms_clone | bool
 
-- name: Add second disk
-  community.general.proxmox_disk:
-    api_host: "{{ global_proxmox_api_host }}"
-    api_user: "{{ global_proxmox_api_user }}"
-    api_token_id: "{{ global_proxmox_api_token_id }}"
-    api_token_secret: "{{ global_proxmox_api_token }}"
-    api_password: "{{ global_proxmox_api_password }}"
-    vmid: "{{ vms_new_vm_info.vmid }}"
-    disk: virtio1
-    backup: "{{ vms_config.disk2.backup | default(true) }}"
-    cache: none
-    storage: "{{ vms_config.disk2.storage | default(local_thin) }}"
-    size: "{{ vms_config.disk2.size | default(20) }}"
-    state: present
-  delegate_to: localhost
-  when: vms_config.disk2 is defined
-
-# Assumes that the iso image is located in the local storage
-- name: Mount cd-rom installer image
-  community.general.proxmox_disk:
-    api_host: "{{ global_proxmox_api_host }}"
-    api_user: "{{ global_proxmox_api_user }}"
-    api_token_id: "{{ global_proxmox_api_token_id }}"
-    api_token_secret: "{{ global_proxmox_api_token }}"
-    api_password: "{{ global_proxmox_api_password }}"
-    vmid: "{{ vms_new_vm_info.vmid | int }}"
-    disk: ide2
-    media: "cdrom"
-    iso_image: "local:iso/{{ global_os[vms_os].iso }}"
-  delegate_to: localhost
-  when: vms_os is defined
-
-- name: Include autoinstall tasks
-  ansible.builtin.include_tasks: "autoinstall.yml"
-  when: vms_autoinstall
-
-- name: Include serial terminal tasks
-  ansible.builtin.include_tasks: "serial_terminal.yml"
-  when: vms_enable_serial_terminal
-
-- name: Eject installer media
-  community.general.proxmox_disk:
-    api_host: "{{ global_proxmox_api_host }}"
-    api_user: "{{ global_proxmox_api_user }}"
-    api_password: "{{ global_proxmox_api_password }}"
-    vmid: "{{ vms_new_vm_info.vmid | int }}"
-    disk: ide2
-    media: "cdrom"
-    state: present
-  delegate_to: localhost
-
-- name: Include convert_to_template.yml
-  ansible.builtin.include_tasks: "convert_to_template.yml"
-  when: vms_set_to_template
+- name: Include create.yml
+  ansible.builtin.include_tasks: "create.yml"
+  when: not vms_clone | bool
