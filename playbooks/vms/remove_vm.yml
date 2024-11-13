@@ -1,8 +1,5 @@
 ---
 
-- name: Stop the VM
-  ansible.builtin.import_playbook: stop_vm.yml
-
 - name: Remove VM hostname from local DNS entry
   ansible.builtin.import_playbook: ../dns/delete_dns_entry.yml
 
@@ -13,6 +10,16 @@
     - global
 
   tasks:
+    - name: Remove dns entry
+      ansible.builtin.import_role:
+        name: pihole
+        tasks_from: delete_from_local_dns.yml
+
+    - name: Stop vm
+      ansible.builtin.import_role:
+        name: vms
+        tasks_from: stop
+
     - name: Remove vm
       ansible.builtin.import_role:
         name: vms
