@@ -23,7 +23,7 @@
     label: "{{ item.name }}"
   when: item.name == global_os[vms_os].template
 
-- name: Template not found
+- name: Fail if template does not exist
   ansible.builtin.fail:
     msg: "Template was not found in the Proxmox cluster. Exiting."
   when: vms_proxmox_template_node is not defined
@@ -88,7 +88,7 @@
     method: PUT
     body:
       cores: "{{ vms_config.cores }}"
-    body_format: json    
+    body_format: json
     headers:
       Authorization: "PVEAPIToken={{ global_proxmox_api_user }}!{{ global_proxmox_api_token_id }}={{ global_proxmox_api_token }}"
     follow_redirects: safe
@@ -103,7 +103,7 @@
     method: PUT
     body:
       memory: "{{ vms_config.memory }}"
-    body_format: json    
+    body_format: json
     headers:
       Authorization: "PVEAPIToken={{ global_proxmox_api_user }}!{{ global_proxmox_api_token_id }}={{ global_proxmox_api_token }}"
     follow_redirects: safe
@@ -118,38 +118,49 @@
     api_user: "{{ global_proxmox_api_user }}"
     api_password: "{{ global_proxmox_api_password }}"
     node: "{{ vms_proxmox_node }}"
-    vmid: "{{ vms_vm_info.vmid  }}"
+    vmid: "{{ vms_vm_info.vmid }}"
     migrate: true
     state: present
   delegate_to: localhost
 
-- name: Start virtual machine
-  ansible.builtin.include_tasks: "start.yml"
+- name: Start VM
+  ansible.builtin.uri:
+    url: 'https://{{ global_proxmox_api_host }}:8006/api2/json/nodes/{{ vms_proxmox_node }}/qemu/{{ vms_vm_info.vmid }}/status/start'
+    method: POST
+    headers:
+      Authorization: "PVEAPIToken={{ global_proxmox_api_user }}!{{ global_proxmox_api_token_id }}={{ global_proxmox_api_token }}"
+    follow_redirects: safe
+    validate_certs: false
+  register: result
+  delegate_to: localhost
 
-## This gets set when the IP address of the cloned vm
-## has been configured and not set to the template IP address
+- name: Get network interface information using Proxmox agent API
+  ansible.builtin.uri:
+    url: 'https://{{ global_proxmox_api_host }}:8006/api2/json/nodes/{{ vms_proxmox_node }}/qemu/{{ vms_vm_info.vmid }}/agent/network-get-interfaces'
+    method: Get
+    headers:
+      Authorization: "PVEAPIToken={{ global_proxmox_api_user }}!{{ global_proxmox_api_token_id }}={{ global_proxmox_api_token }}"
+    follow_redirects: safe
+    validate_certs: false
+  register: vms_nic_result
+  retries: 5
+  delay: 5
+  until: vms_nic_result.status == 200
+  delegate_to: localhost
 
-- name: Check if virtual machine has assigned IP address
-  ansible.builtin.ping:
-  ignore_unreachable: true
-  register: vms_ping_result
-
-- name: Show vms_ping_result
-  ansible.builtin.debug:
-    var: vms_ping_result
-
-- name: Virtual machine ip address is configured
+- name: Set network_interface fact
   ansible.builtin.set_fact:
-    vms_ip_address_configured: true
-  when: (vms_ping_result.ping is defined) and vms_ping_result.ping == 'pong'
+    vms_network_interface: "{{ vms_nic_result.json | community.general.json_query('data.result[?name==`ens18`]') | first }}"
 
-- name: Set vms_ip_address fact
-  ansible.builtin.set_fact:
-    vms_ip_address: "{{ vms_ip_address_configured | ternary(inventory_hostname,vms_clone_host) }}"
+- name: Extract IPv4 address 
+  set_fact: 
+    vms_ip_address: "{{ item['ip-address'] }}"
+  loop: "{{ vms_network_interface['ip-addresses'] }}" 
+  when: item['ip-address-type'] == 'ipv4'
 
-- name: Show vms_ip_address
-  ansible.builtin.debug:
-    var: vms_ip_address
+- name: Show IPv4 address 
+  debug: 
+    msg: "The IPv4 address for interface {{ vms_network_interface.name }} is {{ vms_ip_address }}"
 
 - name: Wait for virtual machine to be ready
   ansible.builtin.wait_for:
