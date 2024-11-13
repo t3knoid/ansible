@@ -80,7 +80,7 @@
       Authorization: "PVEAPIToken={{ global_proxmox_api_user }}!{{ global_proxmox_api_token_id }}={{ global_proxmox_api_token }}"
     follow_redirects: safe
     validate_certs: false
-  retries: 30
+  retries: 60
   delay: 30
   until: vms_result.status == 200
   register: vms_result
