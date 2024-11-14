@@ -76,7 +76,10 @@
     media: "cdrom"
     state: present
   delegate_to: localhost
+  notify:
+    - Restart virtual machine
+    - Wait for virtual machine to come up
 
 - name: Include convert_to_template.yml
   ansible.builtin.include_tasks: "convert_to_template.yml"
-  when: vms_set_to_template
+  when: vms_set_to_template | bool
