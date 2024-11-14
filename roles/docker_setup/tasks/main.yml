@@ -1,0 +1,43 @@
+---
+
+- name: Uninstall conflicting packages
+  ansible.builtin.apt:
+    name:
+      - docker.io
+      - docker-doc
+      - docker-compose
+      - docker-compose-v2
+      - podman-docker
+      - containerd
+      - runc
+    autoremove: true
+    autoclean: true
+    state: absent
+
+- name: Install Docker packages
+  ansible.builtin.apt:
+    deb: "https://download.docker.com/linux/ubuntu/dists/{{ docker_setup_distro }}/pool/stable/{{ docker_setup_arch }}/{{ item }}"
+  loop: "{{ docker_setup_packages }}"
+
+- name: Start Docker service
+  ansible.builtin.service:
+    name: docker
+    enabled: true
+    state: started
+
+- name: Test Docker service
+  community.docker.docker_container:
+    name: hello-world
+    image: hello-world:latest
+    state: started
+  register: docker_setup_helloworld_retval
+
+- name: Show Docker test output on failure
+  ansible.builtin.debug:
+    var: docker_setup_helloworld_retval
+  when: docker_setup_helloworld_retval.failed | bool
+
+- name: Docker failure
+  ansible.builtin.fail:
+    msg: "Docker test failure."
+  when: docker_setup_helloworld_retval.failed | bool
