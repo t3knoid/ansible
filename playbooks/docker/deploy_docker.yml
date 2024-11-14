@@ -1,0 +1,9 @@
+---
+
+- name: Install Docker
+  hosts: docker
+  become: true
+  gather_facts: false
+  roles:
+    - global
+    - docker_setup
