@@ -1,0 +1,9 @@
+---
+
+- name: Install and configure postgresql
+  hosts: all
+  become: true
+  gather_facts: true
+  roles:
+    - global
+    - postgresql_setup
