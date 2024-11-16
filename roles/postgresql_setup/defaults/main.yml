@@ -2,3 +2,9 @@
 # defaults file for postgresql_setup
 
 postgresql_setup_version: 17
+
+postgresql_packages_to_install:
+  - postgresql
+  - libpq-dev
+  - python3-psycopg2
+  - acl

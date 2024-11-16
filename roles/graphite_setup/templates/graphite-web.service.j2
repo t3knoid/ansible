@@ -1,0 +1,16 @@
+# This is /etc/systemd/system/graphite-web.service
+[Unit]
+Description=graphite-web service
+Requires=graphite-web.socket
+
+[Service]
+ExecStart={{ graphite_setup_home }}/bin/gunicorn wsgi --pythonpath=/opt/python_{{ python3_version }}/site-packages/opt/graphite/webapp/graphite --bind {{ graphite_setup_gunicorn_host }}:{{ graphite_setup_gunicorn_port }}
+Restart=on-failure
+#User=graphite
+#Group=graphite
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s TERM $MAINPID
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

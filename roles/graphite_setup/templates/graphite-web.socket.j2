@@ -1,0 +1,10 @@
+# This is /etc/systemd/system/graphite-web.socket
+[Unit]
+Description=graphite-web socket
+
+[Socket]
+ListenStream=/run/graphite-api.sock
+ListenStream={{ graphite_setup_gunicorn_host }}:{{ graphite_setup_gunicorn_port }}
+
+[Install]
+WantedBy=sockets.target
