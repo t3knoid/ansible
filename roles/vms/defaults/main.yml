@@ -26,6 +26,7 @@ vms_packages_list:
     - parted
     - git
     - unzip
+    - acl
 vms_additional_packages: []
 vms_name: "{{ name | default(inventory_hostname) }}"
 vms_set_to_template: false

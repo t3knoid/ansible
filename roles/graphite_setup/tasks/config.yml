@@ -1,0 +1,65 @@
+---
+
+# see https://graphite.readthedocs.io/en/latest/config-webapp.html
+# nginx will proxy requests for Gunicorn
+
+- name: Install Gunicorn
+  ansible.builtin.pip:
+    name: gunicorn
+    virtualenv: "/opt/python_{{ python3_version }}"
+    extra_args: "--prefix={{ graphite_setup_home }}"
+    state: present
+
+- name: Configure Graphite systemd startup script
+  ansible.builtin.template:
+    src: "{{ item.key }}"
+    dest: "{{ item.value }}"
+    mode: "0644"
+  with_dict:
+    graphite-web.service.j2: /etc/systemd/system/graphite-web.socket
+    graphite-web.socket.j2: /etc/systemd/system/graphite-web.service
+
+# https://graphite.readthedocs.io/en/latest/config-database-setup.html
+
+- name: Copy local_settings.py
+  ansible.builtin.template:
+    src: local_settings.py.j2
+    dest: "{{ graphite_setup_home }}/lib/python3.12/site-packages/opt/graphite/webapp/graphite/local_settings.py"
+    mode: "0644"
+
+- name: Ensure PostgreSQL is installed
+  ansible.builtin.apt:
+    name: postgresql
+    state: present
+
+- name: Ensure PostgreSQL service is running
+  ansible.builtin.service:
+    name: postgresql
+    state: started
+    enabled: true
+
+- name: Create Graphite PostgreSQL database
+  community.postgresql.postgresql_db:
+    name: "{{ graphite_setup_pg_database }}"
+  become_user: postgres
+
+- name: Ensure Graphite database user is created
+  community.postgresql.postgresql_user:
+    name: "{{ graphite_setup_pg_user }}"
+    password: "{{ graphite_setup_pg_password }}"
+    state: present
+  become_user: postgres
+
+- name: Grant Graphite user ALL privilege to graphite database
+  community.postgresql.postgresql_privs:
+    database: "{{ graphite_setup_pg_database }}"
+    objs: ALL_IN_SCHEMA
+    roles: "{{ graphite_setup_pg_user }}"
+    state: present
+    privs: "ALL"
+  become_user: postgres
+
+- name: Restart PostgreSQL to apply changes
+  ansible.builtin.service:
+    name: postgresql
+    state: restarted

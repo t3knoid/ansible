@@ -1,0 +1,21 @@
+---
+
+vms_config:
+  agent: "1"
+  cores: "2"
+  cpu: host
+  memory: 2048
+  ostype: l26
+  scsihw: virtio-scsi-single
+  sockets: 1
+  storage: linstor_storage
+  disk_os: 
+    backup: true
+    size: 20
+    storage: linstor_storage
+
+vms_os: ubuntu_24_server
+vms_autoinstall: true
+vms_enable_serial_terminal: false
+vms_additional_packages: []
+python3_version: 3.12

@@ -1,0 +1,28 @@
+---
+# tasks file for graphite_setup
+# see https://graphite.readthedocs.io/en/latest/install-virtualenv.html
+
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+
+- name: Install required dev headers for Graphite-web and Carbon
+  ansible.builtin.apt:
+    name:
+      - python3-dev
+      - libcairo2-dev
+      - libffi-dev
+      - build-essential
+    state: present
+    update_cache: true
+
+- name: Install Graphite modules
+  ansible.builtin.pip:
+    name: "{{ item }}"
+    virtualenv: "/opt/python_{{ python3_version }}"
+    state: present
+    extra_args: "--prefix={{ graphite_setup_home }}"
+  loop: "{{ graphite_setup_modules_to_install }}"
+
+- name: Include config.yml
+  ansible.builtin.include_tasks: config.yml

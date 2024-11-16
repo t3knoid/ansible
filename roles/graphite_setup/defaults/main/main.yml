@@ -1,0 +1,20 @@
+---
+# defaults file for graphite_setup
+
+graphite_setup_whisper_version: master
+graphite_setup_carbon_version: master
+graphite_setup_graphite_web_version: master
+graphite_setup_modules_to_install:
+  - "https://github.com/graphite-project/whisper/tarball/{{ graphite_setup_whisper_version }}"
+  - "https://github.com/graphite-project/carbon/tarball/{{ graphite_setup_carbon_version }}"
+  - "https://github.com/graphite-project/graphite-web/tarball/{{ graphite_setup_graphite_web_version }}"
+graphite_setup_gunicorn_host: 127.0.0.1
+graphite_setup_gunicorn_port: 8080
+
+graphite_setup_home: "/opt/graphite"
+graphite_setup_pg_database: graphite_db
+graphite_setup_pg_user: graphite
+# graphite_setup_pg_password is in vault.yml
+graphite_setup_pg_packages:
+  - libpq-dev
+  - python3-psycopg2
