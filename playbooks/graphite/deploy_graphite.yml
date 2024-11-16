@@ -1,0 +1,10 @@
+---
+
+- name: Install and configure graphite
+  hosts: all
+  become: true
+  gather_facts: true
+  roles:
+    - global
+    - postgresql_setup
+    - graphite_setup
