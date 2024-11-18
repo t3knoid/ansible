@@ -34,4 +34,4 @@
     name: "{{ item }}"
     state: present
     update_cache: true
-  loop: "{{ postgresql_packages_to_install }}"
+  loop: "{{ postgresql_setup_packages_to_install }}"

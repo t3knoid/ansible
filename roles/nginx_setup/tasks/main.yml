@@ -14,17 +14,17 @@
     state: present
     update_cache: true
 
-- name: Create or update Nginx site configuration for code-server
+- name: Create or update Nginx site configuration
   ansible.builtin.copy:
-    dest: /etc/nginx/sites-available/{{ nginx_site_name }}
-    content: "{{ nginx_site_config }}"
+    dest: /etc/nginx/sites-available/{{ nginx_setup_site_name }}
+    content: "{{ nginx_setup_site_config }}"
     mode: "0644"
   notify: Restart nginx
 
 - name: Enable Nginx site configuration
   ansible.builtin.file:
-    src: "/etc/nginx/sites-available/{{ nginx_site_name }}"
-    dest: "/etc/nginx/sites-enabled/{{ nginx_site_name }}"
+    src: "/etc/nginx/sites-available/{{ nginx_setup_site_name }}"
+    dest: "/etc/nginx/sites-enabled/{{ nginx_setup_site_name }}"
     state: link
     force: true
   notify: Restart nginx
