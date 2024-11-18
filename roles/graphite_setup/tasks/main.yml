@@ -24,5 +24,8 @@
     extra_args: "--prefix={{ graphite_setup_home }}"
   loop: "{{ graphite_setup_modules_to_install }}"
 
-- name: Include config.yml
-  ansible.builtin.include_tasks: config.yml
+- name: Include webapp.yml
+  ansible.builtin.include_tasks: webapp.yml
+
+- name: Include whisper.yml
+  ansible.builtin.include_tasks: whisper.yml

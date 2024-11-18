@@ -6,5 +6,4 @@
   gather_facts: true
   roles:
     - global
-    - postgresql_setup
     - graphite_setup

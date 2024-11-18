@@ -1,11 +1,11 @@
 ---
 
-nginx_site_name: code-server
-nginx_site_config: |
+nginx_setup_site_name: code-server
+nginx_setup_site_config: |
   server {
     listen 80;
     listen [::]:80;
-    server_name {{ nginx_domain_name }};
+    server_name {{ nginx_setup_domain_name }};
     location / {
       proxy_pass http://localhost:8080/;
       proxy_set_header Host $http_host;
