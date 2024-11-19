@@ -43,6 +43,9 @@
 - name: Show latest snapshot
   ansible.builtin.debug:
     var: result.json.data[0]
+  when: result.json.data[0].name == "ansible_snapshot"
 
-
-
+- name: Show message if there is no snapshot
+  ansible.builtin.debug:
+    msg: "No snapshot available"
+  when: result.json.data[0].name != "ansible_snapshot"
