@@ -30,7 +30,6 @@
     name: "{{ item }}"
     virtualenv: "{{ graphite_setup_home }}"
     state: present
-    extra_args: "--prefix={{ graphite_setup_home }}"
   loop: "{{ graphite_setup_modules_to_install }}"
 
 - name: Include webapp.yml
