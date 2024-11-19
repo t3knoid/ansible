@@ -12,18 +12,10 @@
   register: python3_command_return
   changed_when: python3_command_return.rc !=0
 
-- name: Install Python pip
+- name: Upgrade Python pip
   ansible.builtin.command: "/opt/python_{{ python3_version }}/bin/pip install --upgrade pip"
   register: python3_install_pip
   changed_when: python3_install_pip.rc !=0
-
-- name: Install Python modules
-  ansible.builtin.pip:
-    name: "{{ item }}"
-    virtualenv: "/opt/python_{{ python3_version }}"
-    state: present
-    umask: "002"
-  loop: "{{ python3_modules_to_install }}"
 
 - name: Make sure the ansible group owns the environment
   ansible.builtin.file:
