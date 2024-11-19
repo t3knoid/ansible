@@ -29,6 +29,17 @@
     force: true
   notify: Restart nginx
 
+- name: Disable Nginx default site
+  ansible.builtin.file:
+    path: "/etc/nginx/sites-enabled/default"
+    state: absent
+
+- name: Make sure Nginx is started
+  ansible.builtin.service:
+    name: nginx
+    state: started
+  become: true
+
 # - name: Obtain and install SSL certificate with Certbot
 #   ansible.builtin.command: >
 #     certbot --non-interactive --redirect --agree-tos --nginx
@@ -39,4 +50,3 @@
 # - name: Show certbot_command_retval
 #   debug:
 #     var: certbot_command_retval
-

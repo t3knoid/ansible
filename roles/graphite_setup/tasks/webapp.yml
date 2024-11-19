@@ -29,9 +29,6 @@
 - name: Import Nginx role
   ansible.builtin.import_role:
     name: nginx_setup
-  vars:
-    nginx_setup_site_name: "{{ inventory_hostname }}"
-    nginx_setup_site_config: "{{ graphite_setup_nginx_site_config }}"
   become: true
 
 - name: Configure /var/log/nginx/graphite.access.log
