@@ -35,3 +35,9 @@
     state: present
     update_cache: true
   loop: "{{ postgresql_setup_packages_to_install }}"
+
+- name: Ensure PostgreSQL service is running
+  ansible.builtin.service:
+    name: postgresql
+    state: started
+    enabled: true
