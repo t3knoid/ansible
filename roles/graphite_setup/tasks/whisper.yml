@@ -14,22 +14,13 @@
   vars:
     nginx_setup_site_name: "{{ inventory_hostname }}"
     nginx_setup_site_config: "{{ graphite_setup_nginx_site_config }}"
-
-- name: Ensure PostgreSQL is installed
-  ansible.builtin.apt:
-    name: postgresql
-    state: present
-
-- name: Ensure PostgreSQL service is running
-  ansible.builtin.service:
-    name: postgresql
-    state: started
-    enabled: true
+  become: true
 
 - name: Create Graphite PostgreSQL database
   community.postgresql.postgresql_db:
     name: "{{ graphite_setup_pg_database }}"
   become_user: postgres
+  become: true
 
 - name: Ensure Graphite database user is created
   community.postgresql.postgresql_user:
@@ -37,6 +28,7 @@
     password: "{{ graphite_setup_pg_password }}"
     state: present
   become_user: postgres
+  become: true
 
 - name: Grant Graphite user ALL privilege to graphite database
   community.postgresql.postgresql_privs:
@@ -46,8 +38,10 @@
     state: present
     privs: "ALL"
   become_user: postgres
+  become: true
 
 - name: Restart PostgreSQL to apply changes
   ansible.builtin.service:
     name: postgresql
     state: restarted
+  become: true
