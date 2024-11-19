@@ -7,7 +7,6 @@
   ansible.builtin.pip:
     name: gunicorn
     virtualenv: "{{ graphite_setup_home }}"
-    extra_args: "--prefix={{ graphite_setup_home }}"
     umask: "0022"
     state: present
 
@@ -21,6 +20,20 @@
     graphite-web.socket.j2: /etc/systemd/system/graphite-web.socket
   become: true
  
+- name: Enable gunicorn service
+  ansible.builtin.service: 
+    name="graphite-web{{ (ansible_service_mgr == 'systemd') | ternary('.service', '') }}"
+    enabled=yes
+  become: true
+
+- name: Import Nginx role
+  ansible.builtin.import_role:
+    name: nginx_setup
+  vars:
+    nginx_setup_site_name: "{{ inventory_hostname }}"
+    nginx_setup_site_config: "{{ graphite_setup_nginx_site_config }}"
+  become: true
+
 - name: Configure /var/log/nginx/graphite.access.log
   ansible.builtin.file:
     path: /var/log/nginx/graphite.access.log
@@ -35,18 +48,4 @@
     state: touch
     owner: www-data
     mode: "0640"
-  become: true
-
-- name: Enable gunicorn service
-  ansible.builtin.service: 
-    name="graphite-web{{ (ansible_service_mgr == 'systemd') | ternary('.service', '') }}"
-    enabled=yes
-  become: true
-
-- name: Import Nginx role
-  ansible.builtin.import_role:
-    name: nginx_setup
-  vars:
-    nginx_setup_site_name: "{{ inventory_hostname }}"
-    nginx_setup_site_config: "{{ graphite_setup_nginx_site_config }}"
   become: true
