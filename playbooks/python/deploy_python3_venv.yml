@@ -1,8 +1,10 @@
 ---
 
-- name: Install Python3
+- name: Install Python3 Environment
   hosts: all
-  become: true
   gather_facts: false
-  roles:
-    - python3
+  tasks:
+    - name: Import venv.yml from python3 role
+      ansible.builtin.import_role:
+        name: python3
+        tasks_from: venv.yml
