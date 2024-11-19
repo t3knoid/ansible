@@ -2,18 +2,18 @@
 
 - name: Create virtual environment folder
   ansible.builtin.file:
-    path: "/opt/python_{{ python3_version }}"
+    path: "{{ python3_venv_folder }}"
     state: directory
     mode: "0777"
     group: "ansible"
   become: true
 
 - name: Create Python virtual environment
-  ansible.builtin.command: "python3 -m venv /opt/python_{{ python3_version }}"
+  ansible.builtin.command: "python3 -m venv {{ python3_venv_folder }}"
   register: python3_command_return
   changed_when: python3_command_return.rc !=0
 
 - name: Upgrade Python pip
-  ansible.builtin.command: "/opt/python_{{ python3_version }}/bin/pip install --upgrade pip"
+  ansible.builtin.command: "{{ python3_venv_folder}}/bin/pip install --upgrade pip"
   register: python3_install_pip
   changed_when: python3_install_pip.rc !=0

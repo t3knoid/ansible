@@ -18,18 +18,17 @@
     update_cache: true
   become: true
 
-- name: Create Graphite home folder
-  ansible.builtin.file:
-    path: "{{ graphite_setup_home }}"
-    state: directory
-    mode: "0777"
-    group: "ansible"
-  become: true
+- name: Import venv.yml from python3 role
+  ansible.builtin.import_role:
+    name: python3
+    tasks_from: venv.yml
+  vars:
+    python3_venv_folder: "{{ graphite_setup_home }}"
 
 - name: Install Graphite modules
   ansible.builtin.pip:
     name: "{{ item }}"
-    virtualenv: "/opt/python_{{ python3_version }}"
+    virtualenv: "{{ graphite_setup_home }}"
     state: present
     extra_args: "--prefix={{ graphite_setup_home }}"
   loop: "{{ graphite_setup_modules_to_install }}"
@@ -39,3 +38,4 @@
 
 - name: Include whisper.yml
   ansible.builtin.include_tasks: whisper.yml
+
