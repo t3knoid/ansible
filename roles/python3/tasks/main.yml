@@ -1,26 +1,22 @@
 ---
 
+- name: Add deadsnakes PPA repository
+  ansible.builtin.apt_repository:
+    repo: ppa:deadsnakes/ppa
+
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+
+- name: Install Python packages
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ python3_packages_to_install }}"
+
 - name: Create a directory for the virtual environment
   ansible.builtin.file:
     path: "/opt/python_{{ python3_version }}"
     state: directory
     mode: "0774"
     group: "ansible"
-
-- name: Create Python virtual environment
-  ansible.builtin.command: "python3 -m venv /opt/python_{{ python3_version }}"
-  register: python3_command_return
-  changed_when: python3_command_return.rc !=0
-
-- name: Upgrade Python pip
-  ansible.builtin.command: "/opt/python_{{ python3_version }}/bin/pip install --upgrade pip"
-  register: python3_install_pip
-  changed_when: python3_install_pip.rc !=0
-
-- name: Make sure the ansible group owns the environment
-  ansible.builtin.file:
-    path: "/opt/python_{{ python3_version }}"
-    state: directory
-    group: "ansible"
-    mode: "0775"
-    recurse: true

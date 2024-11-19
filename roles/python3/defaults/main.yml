@@ -1,3 +1,9 @@
 ---
 
 python3_version: 3.12
+python3_packages_to_install:
+  - python{{ python3_version }}
+  - python3-pip
+  - python3-requests
+  - python3-pexpect
+  - python3-venv
