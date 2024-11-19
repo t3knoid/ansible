@@ -1,12 +1,3 @@
 ---
 
 python3_version: 3.12
-
-python3_modules_to_install:
-  - requests
-  - pycdlib
-  - proxmoxer
-  - ansible-lint
-  - pexpect
-  - jmespath
-  - pip
