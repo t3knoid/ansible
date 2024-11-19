@@ -1,16 +1,12 @@
 ---
 
-- name: Install Ansible
+- name: Install Python modules
   ansible.builtin.pip:
-    name: ansible
+    name: "{{ item }}"
     virtualenv: "/opt/python_{{ python3_version }}"
     state: present
-
-- name: Install ansible-dev-tools (ansible-lint)
-  ansible.builtin.pip:
-    name: ansible-dev-tools
-    virtualenv: "/opt/python_{{ python3_version }}"
-    state: present
+    umask: "0022"
+  loop: "{{ ansible_setup_python_modules }}"
 
 - name: Configure ansible callback plugins
   ansible.builtin.lineinfile:

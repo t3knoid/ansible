@@ -5,6 +5,7 @@
 - name: Update apt cache
   ansible.builtin.apt:
     update_cache: true
+  become: true
 
 - name: Install required dev headers for Graphite-web and Carbon
   ansible.builtin.apt:
@@ -15,6 +16,15 @@
       - build-essential
     state: present
     update_cache: true
+  become: true
+
+- name: Create Graphite home folder
+  ansible.builtin.file:
+    path: "{{ graphite_setup_home }}"
+    state: directory
+    mode: "0777"
+    group: "ansible"
+  become: true
 
 - name: Install Graphite modules
   ansible.builtin.pip:
