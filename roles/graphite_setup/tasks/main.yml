@@ -11,11 +11,19 @@
   ansible.builtin.apt:
     name:
       - python3-dev
+      - python3-pip
       - libcairo2-dev
       - libffi-dev
       - build-essential
+      - libpq-dev
     state: present
     update_cache: true
+  become: true
+
+- name: Set PYTHONPATH environment variable
+  command: echo $PYTHONPATH
+  environment:
+    PYTHONPATH: "{{ graphite_setup_venv }}/lib/:{{ graphite_setup_home }}/webapp"
   become: true
 
 - name: Import venv.yml from python3 role
@@ -23,18 +31,57 @@
     name: python3
     tasks_from: venv.yml
   vars:
-    python3_venv_folder: "{{ graphite_setup_home }}"
+    python3_venv_folder: "{{ graphite_setup_venv }}"
 
-- name: Install Graphite modules
+- name: Install Whisper module
   ansible.builtin.pip:
-    name: "{{ item }}"
-    virtualenv: "{{ graphite_setup_home }}"
+    name: "https://github.com/graphite-project/whisper/tarball/{{ graphite_setup_whisper_version }}"
+    virtualenv: "{{ graphite_setup_venv }}"
     state: present
-  loop: "{{ graphite_setup_modules_to_install }}"
+    extra_args: >
+      --no-binary=:all:
+
+- name: Install Carbon module
+  ansible.builtin.pip:
+    name: "https://github.com/graphite-project/carbon/tarball/{{ graphite_setup_carbon_version }}"
+    virtualenv: "{{ graphite_setup_venv }}"
+    state: present
+    extra_args: >
+      --no-binary=:all:
+
+- name: Install Graphite-web module
+  ansible.builtin.pip:
+    name: "https://github.com/graphite-project/graphite-web/tarball/{{ graphite_setup_graphite_web_version }}"
+    virtualenv: "{{ graphite_setup_venv }}"
+    state: present
+    extra_args: >
+      --no-binary=:all:
+
+- name: Check if webapp is in its original location
+  ansible.builtin.stat:
+    path: "{{ graphite_setup_venv }}/lib/python{{ python3_version }}/site-packages/opt/graphite/webapp/graphite"
+  register: graphite_setup_original
+
+- name: Copy webapp to /opt/graphite/webapp
+  ansible.builtin.copy:
+    src: "{{ graphite_setup_venv }}/lib/python{{ python3_version }}/site-packages/opt/graphite/webapp/graphite"
+    dest: "{{ graphite_setup_venv }}/webapp/"
+    remote_src: true
+  when: graphite_setup_original.stat.exists
+
+- name: Delete original webapp folder
+  ansible.builtin.file:
+    path: "{{ graphite_setup_venv }}/lib/python{{ python3_version }}/site-packages/opt/"
+    state: absent
+  when: graphite_setup_original.stat.exists
+
+- name: Create log folder
+  ansible.builtin.file:
+    path: "{{ graphite_setup_home }}/storage/log/webapp"
+    state: directory
 
 - name: Include webapp.yml
   ansible.builtin.include_tasks: webapp.yml
 
 - name: Include whisper.yml
   ansible.builtin.include_tasks: whisper.yml
-

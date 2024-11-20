@@ -1,14 +1,25 @@
 ---
 
+# https://graphite.readthedocs.io/en/latest/config-local-settings.html
+
+- name: Copy local_settings.py
+  ansible.builtin.template:
+    src: local_settings.py.j2
+    dest: "{{ graphite_setup_home }}/webapp/graphite/local_settings.py"
+    mode: "0644"
+
 # see https://graphite.readthedocs.io/en/latest/config-webapp.html
 # nginx will proxy requests for Gunicorn
 
 - name: Install Gunicorn
   ansible.builtin.pip:
     name: gunicorn
-    virtualenv: "{{ graphite_setup_home }}"
+    virtualenv: "{{ graphite_setup_venv }}"
     umask: "0022"
     state: present
+    extra_args: >
+      --config-settings="--prefix={{ graphite_setup_venv }}"
+  become: false
 
 - name: Configure Graphite systemd startup script
   ansible.builtin.template:
@@ -19,11 +30,23 @@
     graphite-web.service.j2: /etc/systemd/system/graphite-web.service
     graphite-web.socket.j2: /etc/systemd/system/graphite-web.socket
   become: true
- 
+
+- name: Copy sample config file
+  ansible.builtin.copy:
+    src:  "{{ graphite_setup_venv }}/conf/graphite.wsgi.example"
+    dest: "{{ graphite_setup_venv }}/webapp/graphite/graphite_wsgi.py"
+    remote_src: true
+
 - name: Enable gunicorn service
-  ansible.builtin.service: 
-    name="graphite-web{{ (ansible_service_mgr == 'systemd') | ternary('.service', '') }}"
-    enabled=yes
+  ansible.builtin.service:
+    name: "graphite-web.service"
+    enabled: true
+  become: true
+
+- name: Start gunicorn service if not started
+  ansible.builtin.service:
+    name: "graphite-web.service"
+    state: started
   become: true
 
 - name: Import Nginx role
@@ -31,17 +54,17 @@
     name: nginx_setup
   become: true
 
-- name: Configure /var/log/nginx/graphite.access.log
+- name: Configure graphite web access log
   ansible.builtin.file:
-    path: /var/log/nginx/graphite.access.log
+    path: "{{ graphite_setup_web_access_log }}"
     state: touch
     owner: www-data
     mode: "0640"
   become: true
 
-- name: Configure /var/log/nginx/graphite.error.log
+- name: Configure graphite web error log
   ansible.builtin.file:
-    path: /var/log/nginx/graphite.error.log
+    path: "{{ graphite_setup_web_error_log }}"
     state: touch
     owner: www-data
     mode: "0640"

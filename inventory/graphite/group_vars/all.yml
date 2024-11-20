@@ -20,7 +20,8 @@ vms_enable_serial_terminal: false
 vms_additional_packages: []
 python3_version: 3.12
 
-graphite_setup_home: "/opt/graphite"
+graphite_virtual_env: "/opt/graphite"
+graphite_setup_home: "{{ graphite_virtual_env }}"
 graphite_setup_gunicorn_host: 127.0.0.1
 graphite_setup_gunicorn_port: 8080
 
@@ -37,8 +38,8 @@ nginx_setup_site_config: |
 
       root {{ graphite_setup_home }}/webapp;
 
-      access_log /var/log/nginx/graphite.access.log;
-      error_log  /var/log/nginx/graphite.error.log;
+      access_log {{ graphite_setup_web_access_log }};
+      error_log  {{ graphite_setup_web_error_log }};
 
       location = /favicon.ico {
           return 204;
@@ -65,4 +66,3 @@ nginx_setup_site_config: |
           proxy_pass http://{{ inventory_hostname }};
       }
   }
-
