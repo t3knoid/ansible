@@ -8,9 +8,8 @@ graphite_setup_gunicorn_host: 127.0.0.1
 graphite_setup_gunicorn_port: 8080
 graphite_setup_time_zone: "America/New_York"
 graphite_setup_venv: "/opt/graphite"
-#graphite_setup_home: "{{ graphite_setup_venv }}/lib/python{{ python3_version }}/site-packages/opt/graphite/"
 graphite_setup_home: "{{ graphite_setup_venv }}/webapp"
-graphite_setup_pg_database: graphite_db
+graphite_setup_pg_database: graphite
 graphite_setup_pg_user: graphite
 # graphite_setup_pg_password is in vault.yml
 graphite_setup_web_access_log: "/var/log/nginx/graphite.access.log"
