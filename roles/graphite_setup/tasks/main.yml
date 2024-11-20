@@ -62,26 +62,48 @@
     path: "{{ graphite_setup_venv }}/lib/python{{ python3_version }}/site-packages/opt/graphite/webapp/graphite"
   register: graphite_setup_original
 
+## Move graphite webapp to /opt/graphite/webapp
+
 - name: Copy webapp to /opt/graphite/webapp
   ansible.builtin.copy:
     src: "{{ graphite_setup_venv }}/lib/python{{ python3_version }}/site-packages/opt/graphite/webapp/graphite"
-    dest: "{{ graphite_setup_venv }}/webapp/"
+    dest: "{{ graphite_setup_home }}/webapp"
     remote_src: true
   when: graphite_setup_original.stat.exists
+  become: false
 
 - name: Delete original webapp folder
   ansible.builtin.file:
     path: "{{ graphite_setup_venv }}/lib/python{{ python3_version }}/site-packages/opt/"
     state: absent
   when: graphite_setup_original.stat.exists
+  become: false
 
 - name: Create log folder
   ansible.builtin.file:
     path: "{{ graphite_setup_home }}/storage/log/webapp"
     state: directory
+    mode: "0777"
+  become: false
 
 - name: Include webapp.yml
   ansible.builtin.include_tasks: webapp.yml
 
 - name: Include whisper.yml
   ansible.builtin.include_tasks: whisper.yml
+
+- name: Initalize configuration files
+  ansible.builtin.copy:
+    src: "{{ graphite_setup_venv }}/conf/{{ item }}.example"
+    dest: "{{ graphite_setup_venv }}/conf/{{ item }}"
+    remote_src: true
+    mode: "0644"
+  become: false
+  loop: "{{ graphite_setup_carbon_configs }}"
+
+- name: Start and enable graphite-web service
+  ansible.builtin.service:
+    name: graphite-web
+    enabled: true
+    state: started
+  become: true

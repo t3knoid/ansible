@@ -4,7 +4,7 @@ Description=graphite-web service
 Requires=graphite-web.socket
 
 [Service]
-ExecStart={{ graphite_setup_venv }}/bin/gunicorn graphite_wsgi:application --pythonpath={{ graphite_setup_home }}/webapp --bind {{ graphite_setup_gunicorn_host }}:{{ graphite_setup_gunicorn_port }}
+ExecStart={{ graphite_setup_venv }}/bin/gunicorn graphite_wsgi:application --pythonpath={{ graphite_setup_home }}/webapp/graphite --bind {{ graphite_setup_gunicorn_host }}:{{ graphite_setup_gunicorn_port }}
 Restart=on-failure
 #User=graphite
 #Group=graphite
