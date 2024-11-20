@@ -25,7 +25,9 @@
 - name: Add PostgreSQL repository
   ansible.builtin.lineinfile:
     path: /etc/apt/sources.list.d/pgdg.list
-    line: "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt {{ ansible_facts.distribution_release }}-pgdg main"
+    line: >
+      deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc]
+      https://apt.postgresql.org/pub/repos/apt {{ ansible_facts.distribution_release }}-pgdg main
     create: true
     mode: '0644'
 
@@ -36,8 +38,41 @@
     update_cache: true
   loop: "{{ postgresql_setup_packages_to_install }}"
 
+- name: Update pg_hba.conf to use md5 authentication
+  community.postgresql.postgresql_pg_hba:
+    dest: /etc/postgresql/{{ postgresql_setup_version }}/main/pg_hba.conf
+    contype: local
+    users: all
+    databases: all
+    method: md5
+
+- name: Update pg_hba.conf to allow password access using host ip address
+  community.postgresql.postgresql_pg_hba:
+    dest: /etc/postgresql/{{ postgresql_setup_version }}/main/pg_hba.conf
+    contype: host
+    users: all
+    source: "{{ hostvars[groups['pgdb'] | first]['ansible_default_ipv4']['address'] }}/32"
+    databases: all
+    method: md5
+
+- name: Update pg_hba.conf to allow password access using localhost
+  community.postgresql.postgresql_pg_hba:
+    dest: /etc/postgresql/{{ postgresql_setup_version }}/main/pg_hba.conf
+    contype: host
+    users: all
+    source: "127.0.0.1/32"
+    databases: all
+    method: md5
+
+- name: Modify listen_addresses in postgresql.conf
+  ansible.builtin.lineinfile:
+    path: "/etc/postgresql/{{ postgresql_setup_version }}/main/postgresql.conf"
+    regexp: '^#?listen_addresses\s*=\s*\S+'
+    line: "listen_addresses = '*'"
+    state: present
+
 - name: Ensure PostgreSQL service is running
   ansible.builtin.service:
     name: postgresql
-    state: started
+    state: restarted
     enabled: true

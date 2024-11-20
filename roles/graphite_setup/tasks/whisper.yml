@@ -17,10 +17,10 @@
     name: postgresql_setup
   become: true
 
-- name: Create Graphite PostgreSQL database
-  community.postgresql.postgresql_db:
-    name: "{{ graphite_setup_pg_database }}"
-  become_user: postgres
+- name: Ensure PostgreSQL is started
+  ansible.builtin.service:
+    name: postgresql
+    state: started
   become: true
 
 - name: Ensure Graphite database user is created
@@ -31,44 +31,26 @@
   become_user: postgres
   become: true
 
-- name: Grant Graphite user ALL privilege to graphite database
+- name: Create Graphite PostgreSQL database
+  community.postgresql.postgresql_db:
+    name: "{{ graphite_setup_pg_database }}"
+    owner: "{{ graphite_setup_pg_user }}"
+  become_user: postgres
+  become: true
+
+- name: Grant Graphite user ALL privileges to graphite database
   community.postgresql.postgresql_privs:
     database: "{{ graphite_setup_pg_database }}"
     objs: ALL_IN_SCHEMA
     roles: "{{ graphite_setup_pg_user }}"
     state: present
-    privs: "ALL"
+    privs: ALL
   become_user: postgres
   become: true
 
-- name: Update pg_hba.conf to use md5 authentication
-  community.postgresql.postgresql_pg_hba:
-    dest: /etc/postgresql/{{ postgresql_setup_version }}/main/pg_hba.conf
-    contype: local
-    users: all
-    databases: all
-    method: md5
-  become: true
-
-- name: Update pg_hba.conf to allow access using host ip address 
-  community.postgresql.postgresql_pg_hba:
-    dest: /etc/postgresql/{{ postgresql_setup_version }}/main/pg_hba.conf
-    contype: host
-    users: all
-    source: "{{ hostvars[groups['pgdb'] | first]['ansible_default_ipv4']['address'] }}/32"
-    databases: all
-    method: md5
-  become: true
-
-- name: Restart PostgreSQL to apply changes
-  ansible.builtin.service:
-    name: postgresql
-    state: restarted
-  become: true
-
-- name: Initialize database here
+- name: Initialize graphite database
   ansible.builtin.shell: |
-    {{ graphite_setup_venv }}/bin/django-admin.py migrate --settings=graphite.settings
+    {{ graphite_setup_venv }}/bin/django-admin migrate --settings=graphite.settings
   environment:
     PYTHONPATH: "{{ graphite_setup_venv }}/webapp"
   args:
