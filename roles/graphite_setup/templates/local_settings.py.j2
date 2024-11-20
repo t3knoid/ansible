@@ -248,11 +248,11 @@ DEFAULT_XFILES_FACTOR = 0
 
 DATABASES = {
     'default': {
-        'NAME': '{{ graphite_setup_home }}/storage/graphite.db',
+        'NAME': 'graphite',
         'ENGINE': 'django.db.backends.postgresql',
         'USER': '{{ graphite_setup_pg_user }}',
         'PASSWORD': '{{ graphite_setup_pg_password }}',
-        'HOST': '{{  hostvars[groups['pgdb'] | first]['ansible_default_ipv4']['address'] | default(127.0.0.1) }}',
+        'HOST': '{{ hostvars[groups['pgdb'] | first]['ansible_default_ipv4']['address'] | default(127.0.0.1) }}',
         'PORT': '5432'
     }
 }
