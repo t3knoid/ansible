@@ -5,9 +5,10 @@
 - name: Copy local_settings.py
   ansible.builtin.template:
     src: local_settings.py.j2
-    dest: "{{ graphite_setup_home }}/webapp/graphite/local_settings.py"
+    dest: "{{ graphite_setup_venv }}/webapp/graphite/local_settings.py"
     mode: "0644"
-
+  become: false
+  
 # see https://graphite.readthedocs.io/en/latest/config-webapp.html
 # nginx will proxy requests for Gunicorn
 
@@ -33,21 +34,11 @@
 
 - name: Copy sample config file
   ansible.builtin.copy:
-    src:  "{{ graphite_setup_venv }}/conf/graphite.wsgi.example"
+    src: "{{ graphite_setup_venv }}/conf/graphite.wsgi.example"
     dest: "{{ graphite_setup_venv }}/webapp/graphite/graphite_wsgi.py"
     remote_src: true
-
-- name: Enable gunicorn service
-  ansible.builtin.service:
-    name: "graphite-web.service"
-    enabled: true
-  become: true
-
-- name: Start gunicorn service if not started
-  ansible.builtin.service:
-    name: "graphite-web.service"
-    state: started
-  become: true
+    mode: "0644"
+  become: false
 
 - name: Import Nginx role
   ansible.builtin.import_role:

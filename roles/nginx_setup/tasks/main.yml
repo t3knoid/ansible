@@ -40,6 +40,15 @@
     state: started
   become: true
 
+- name: Modify worker_connections in nginx.conf
+  ansible.builtin.lineinfile:
+    path: /etc/nginx/nginx.conf
+    regexp: '^(\s*worker_connections\s+)\d+;'
+    line: '\1 {{ nginx_setup_worker_connections }};'
+    backrefs: true
+    backup: true
+    state: present
+  become: true
 # - name: Obtain and install SSL certificate with Certbot
 #   ansible.builtin.command: >
 #     certbot --non-interactive --redirect --agree-tos --nginx
