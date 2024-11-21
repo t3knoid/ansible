@@ -96,7 +96,6 @@
   ansible.builtin.copy:
     src: "{{ graphite_setup_venv }}/conf/{{ item }}.example"
     dest: "{{ graphite_setup_venv }}/conf/{{ item }}"
-    remote_src: true
     mode: "0644"
   become: false
   loop: "{{ graphite_setup_carbon_configs }}"
