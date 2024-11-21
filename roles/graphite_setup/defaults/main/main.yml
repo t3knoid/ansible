@@ -23,4 +23,14 @@ graphite_setup_carbon_configs:
   - rewrite-rules.conf
   - whitelist.conf
   - blacklist.conf
+graphite_setup_ldap_server: "192.168.2.251"
+graphite_setup_ldap_port: 389
+graphite_setup_ldap_use_tls: "False"
+graphite_setup_ldap_uri: ldap://192.168.2.251
+graphite_setup_ldap_search_base: "CN=Users,DC=refol,DC=us"
+graphite_setup_ldap_base_user: "CN=LDAP Bind User,OU=Service Accounts,DC=refol,DC=us"
+# graphite_setup_ldap_base_pass: See vault
+graphite_setup_ldap_user_query: "(sAMAccountName=%s)"
+graphite_setup_ldap_user_dn_template: "CN=%(username)s,CN=Users,DC=refol,DC=us"
+
 nginx_setup_worker_connections: 20000
