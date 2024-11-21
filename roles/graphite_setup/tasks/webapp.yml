@@ -8,13 +8,41 @@
     dest: "{{ graphite_setup_venv }}/webapp/graphite/local_settings.py"
     mode: "0644"
   become: false
-  
+
 # see https://graphite.readthedocs.io/en/latest/config-webapp.html
 # nginx will proxy requests for Gunicorn
 
 - name: Install Gunicorn
   ansible.builtin.pip:
     name: gunicorn
+    virtualenv: "{{ graphite_setup_venv }}"
+    umask: "0022"
+    state: present
+    extra_args: >
+      --config-settings="--prefix={{ graphite_setup_venv }}"
+  become: false
+
+# https://www.python-ldap.org/en/python-ldap-3.4.3/installing.html#installing
+
+- name: Install required packages for python-ldap
+  ansible.builtin.apt:
+    name:
+      - build-essential
+      - python3-dev
+      - libldap2-dev
+      - libsasl2-dev
+      # - slapd
+      - ldap-utils
+      - tox
+      - lcov
+      - valgrind
+    state: present
+    update_cache: true
+  become: true
+
+- name: Install python-ldap
+  ansible.builtin.pip:
+    name: python-ldap
     virtualenv: "{{ graphite_setup_venv }}"
     umask: "0022"
     state: present

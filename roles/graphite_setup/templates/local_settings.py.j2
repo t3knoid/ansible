@@ -166,34 +166,34 @@ DEFAULT_XFILES_FACTOR = 0
 #####################################
 #
 ## LDAP / ActiveDirectory authentication setup
-#USE_LDAP_AUTH = True
-#LDAP_SERVER = "ldap.mycompany.com"
-#LDAP_PORT = 389
-#LDAP_USE_TLS = False
+USE_LDAP_AUTH = True
+LDAP_SERVER = "{{ graphite_setup_ldap_server }}"
+LDAP_PORT = {{ graphite_setup_ldap_port }}
+LDAP_USE_TLS = {{ graphite_setup_ldap_use_tls }}
 
 ## Manual URI / query setup
-#LDAP_URI = "ldaps://ldap.mycompany.com:636"
-#LDAP_SEARCH_BASE = "OU=users,DC=mycompany,DC=com"
-#LDAP_BASE_USER = "CN=some_readonly_account,DC=mycompany,DC=com"
-#LDAP_BASE_PASS = "readonly_account_password"
-#LDAP_USER_QUERY = "(username=%s)"  #For Active Directory use "(sAMAccountName=%s)"
+LDAP_URI = "{{ graphite_setup_ldap_uri }}"
+LDAP_SEARCH_BASE = "{{ graphite_setup_ldap_search_base }}"
+LDAP_BASE_USER = "{{ graphite_setup_ldap_base_user }}"
+LDAP_BASE_PASS = "{{ graphite_setup_ldap_base_pass }}"
+LDAP_USER_QUERY = "{{ graphite_setup_ldap_user_query }}"  #For Active Directory use "(sAMAccountName=%s)"
 
 # User DN template to use for binding (and authentication) against the
 # LDAP server. %(username) is replaced with the username supplied at
 # graphite login.
-#LDAP_USER_DN_TEMPLATE = "CN=%(username)s,OU=users,DC=mycompany,DC=com"
+LDAP_USER_DN_TEMPLATE = "{{ graphite_setup_ldap_user_dn_template }}"
 
 # If you want to further customize the ldap connection options you should
 # directly use ldap.set_option to set the ldap module's global options.
 # For example:
 #
-#import ldap
+import ldap
 #ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_ALLOW) # Use ldap.OPT_X_TLS_DEMAND to force TLS
-#ldap.set_option(ldap.OPT_REFERRALS, 0) # Enable for Active Directory
+ldap.set_option(ldap.OPT_REFERRALS, 0) # Enable for Active Directory
 #ldap.set_option(ldap.OPT_X_TLS_CACERTDIR, "/etc/ssl/ca")
 #ldap.set_option(ldap.OPT_X_TLS_CERTFILE, "/etc/ssl/mycert.pem")
 #ldap.set_option(ldap.OPT_X_TLS_KEYFILE, "/etc/ssl/mykey.pem")
-#ldap.set_option(ldap.OPT_DEBUG_LEVEL, 65535) # To enable verbose debugging
+ldap.set_option(ldap.OPT_DEBUG_LEVEL, 65535) # To enable verbose debugging
 # See http://www.python-ldap.org/ for further details on these options.
 
 ## REMOTE_USER authentication. See: https://docs.djangoproject.com/en/dev/howto/auth-remote-user/
