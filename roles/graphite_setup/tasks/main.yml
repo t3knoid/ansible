@@ -106,3 +106,9 @@
     enabled: true
     state: started
   become: true
+
+- name: Include stop_carbon_cache.yml
+  ansible.builtin.include_tasks: stop_carbon_cache.yml
+
+- name: Include start_carbon_cache.yml
+  ansible.builtin.include_tasks: start_carbon_cache.yml
