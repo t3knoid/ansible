@@ -32,20 +32,20 @@ TIME_ZONE = '{{ graphite_setup_time_zone }}'
 # Logging
 # These can also be configured using Django's LOGGING:
 # https://docs.djangoproject.com/en/1.11/topics/logging/
-#LOG_ROTATION = True
-#LOG_ROTATION_COUNT = 1
-#LOG_RENDERING_PERFORMANCE = True
-#LOG_CACHE_PERFORMANCE = True
-#LOG_INFO_PERFORMANCE = False
+LOG_ROTATION = True
+LOG_ROTATION_COUNT = 1
+LOG_RENDERING_PERFORMANCE = True
+LOG_CACHE_PERFORMANCE = True
+LOG_INFO_PERFORMANCE = False
 
 # Filenames for log output, set to '-' to log to stderr
-#LOG_FILE_INFO = 'info.log'
-#LOG_FILE_EXCEPTION = 'exception.log'
-#LOG_FILE_CACHE = 'cache.log'
-#LOG_FILE_RENDERING = 'rendering.log'
+LOG_FILE_INFO = 'info.log'
+LOG_FILE_EXCEPTION = 'exception.log'
+LOG_FILE_CACHE = 'cache.log'
+LOG_FILE_RENDERING = 'rendering.log'
 
 # Enable full debug page display on exceptions (Internal Server Error pages)
-#DEBUG = True
+DEBUG = True
 
 # If using RRD files and rrdcached, set to the address or socket of the daemon
 #FLUSHRRDCACHED = 'unix:/var/run/rrdcached.sock'
@@ -193,7 +193,7 @@ ldap.set_option(ldap.OPT_REFERRALS, 0) # Enable for Active Directory
 #ldap.set_option(ldap.OPT_X_TLS_CACERTDIR, "/etc/ssl/ca")
 #ldap.set_option(ldap.OPT_X_TLS_CERTFILE, "/etc/ssl/mycert.pem")
 #ldap.set_option(ldap.OPT_X_TLS_KEYFILE, "/etc/ssl/mykey.pem")
-ldap.set_option(ldap.OPT_DEBUG_LEVEL, 65535) # To enable verbose debugging
+ldap.set_option(ldap.OPT_DEBUG_LEVEL, 255) # To enable verbose debugging
 # See http://www.python-ldap.org/ for further details on these options.
 
 ## REMOTE_USER authentication. See: https://docs.djangoproject.com/en/dev/howto/auth-remote-user/
