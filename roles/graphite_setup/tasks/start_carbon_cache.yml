@@ -1,0 +1,21 @@
+---
+
+- name: Start carbon-cache
+  ansible.builtin.command: "{{ graphite_setup_venv }}/bin/carbon-cache.py start"
+  args:
+    chdir: "{{ graphite_setup_venv }}"
+  register: graphite_setup_carbon_stop
+  ignore_errors: true
+  changed_when: false
+
+- name: Check if carbon-cache started
+  ansible.builtin.shell: |
+    ps aux | grep '[c]arbon-cache.py'
+    exit 0
+  register: graphite_setup_carbon_cache_status
+  changed_when: false
+
+- name: Display if carbon-cache started
+  ansible.builtin.debug:
+    msg: "carbon-cache started" 
+  when: graphite_setup_carbon_cache_status.stdout_lines | length > 0
