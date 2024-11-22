@@ -1,0 +1,10 @@
+---
+- name: Start carbon-cache
+  hosts: graphite
+  gather_facts: false
+
+  tasks:
+    - name: Import graphite_setup role
+      ansible.builtin.import_role:
+        name: graphite_setup
+        tasks_from: start_carbon_cache

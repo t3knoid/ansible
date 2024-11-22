@@ -1,0 +1,10 @@
+---
+- name: Restart carbon-cache
+  hosts: graphite
+  gather_facts: false
+
+- name: Include stop_carbon_cache.yml
+  ansible.builtin.import_playbook: stop_carbon_cache.yml
+
+- name: Include start_carbon_cache.yml
+  ansible.builtin.import_playbook: start_carbon_cache.yml
