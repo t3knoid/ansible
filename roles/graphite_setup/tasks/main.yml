@@ -94,7 +94,7 @@
 
 - name: Initalize configuration files
   ansible.builtin.copy:
-    src: "{{ graphite_setup_venv }}/conf/{{ item }}.example"
+    src: "{{ item }}"
     dest: "{{ graphite_setup_venv }}/conf/{{ item }}"
     mode: "0644"
   become: false
