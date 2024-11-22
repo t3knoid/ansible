@@ -1,20 +1,35 @@
 ---
 
+- name: Check carbon-cache status
+  ansible.builtin.shell: |
+    {{ graphite_setup_venv }}/bin/carbon-cache.py status
+    exit 0
+  args:
+    chdir: "{{ graphite_setup_venv }}"
+  register: graphite_setup_carbon_status
+  ignore_errors: true
+  changed_when: false
+
 - name: Stop carbon-cache
   ansible.builtin.command: "{{ graphite_setup_venv }}/bin/carbon-cache.py stop"
   args:
     chdir: "{{ graphite_setup_venv }}"
   register: graphite_setup_carbon_stop
   ignore_errors: true
+  changed_when: true
+  when: "'is running' in graphite_setup_carbon_status.stdout_lines[0]"
 
-- name: Check if carbon-cache stopped
+- name: Check if carbon-cache is running
   ansible.builtin.shell: |
-    ps aux | grep '[c]arbon-cache.py'
+    {{ graphite_setup_venv }}/bin/carbon-cache.py status
     exit 0
-  register: graphite_setup_carbon_cache_status
+  args:
+    chdir: "{{ graphite_setup_venv }}"
+  register: graphite_setup_carbon_status
+  ignore_errors: true
   changed_when: false
 
-- name: Display if carbon-cache is stopped
+- name: Display if carbon-cache stopped
   ansible.builtin.debug:
-    msg: "carbon-cache stopped" 
-  when: graphite_setup_carbon_cache_status.stdout_lines | length == 0
+    msg: "carbon-cache stopped"
+  when: "'is not running' in graphite_setup_carbon_status.stdout_lines[0]"
