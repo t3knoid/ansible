@@ -82,7 +82,7 @@
   ansible.builtin.lineinfile:
     path: /etc/sssd/sssd.conf
     regexp: "^fallback_homedir"
-    line: "fallback_homedir = %u"
+    line: "fallback_homedir = /home/%u"
     mode: "0600"
     backup: true
   become: true
