@@ -12,5 +12,9 @@
 - name: Add to active directory domain
   ansible.builtin.import_playbook: ad/join_domain.yml
 
-- name: Add to active directory domain
+- name: Prepare disks
   ansible.builtin.import_playbook: vms/prep_disk.yml
+
+- name: Convert to template
+  ansible.builtin.import_playbook: vms/convert_to_template.yml
+

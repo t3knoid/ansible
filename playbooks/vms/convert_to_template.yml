@@ -1,0 +1,12 @@
+---
+- name: Convert to template
+  hosts: template
+  gather_facts: false
+  roles:
+    - global
+
+  tasks:
+    - name: Import convert_to_template.yml from vms role
+      ansible.builtin.import_role:
+        name: vms
+        tasks_from: convert_to_template.yml
