@@ -1,0 +1,5 @@
+---
+
+aws_cli_user: terraform-svc
+aws_cli_region: "us-west-2"
+aws_cli_output: "json"

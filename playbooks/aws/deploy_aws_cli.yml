@@ -1,0 +1,7 @@
+---
+
+- name: Deploy AWS CLI
+  hosts: all
+  become: true
+  roles:
+    - aws_cli
