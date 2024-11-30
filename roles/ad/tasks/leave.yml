@@ -18,9 +18,6 @@
     name: python3-pexpect
     state: present
 
-- name: Load vault file
-  ansible.builtin.include_vars: vars/vault.yml
-
 - name: Leave domain
   no_log: false
   ansible.builtin.expect:
