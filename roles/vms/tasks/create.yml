@@ -26,21 +26,8 @@
   delegate_to: localhost
   register: vms_new_vm_info
 
-- name: Add second disk
-  community.general.proxmox_disk:
-    api_host: "{{ global_proxmox_api_host }}"
-    api_user: "{{ global_proxmox_api_user }}"
-    api_token_id: "{{ global_proxmox_api_token_id }}"
-    api_token_secret: "{{ global_proxmox_api_token }}"
-    api_password: "{{ global_proxmox_api_password }}"
-    vmid: "{{ vms_new_vm_info.vmid }}"
-    disk: virtio1
-    backup: "{{ vms_config.disk2.backup | default(true) }}"
-    cache: none
-    storage: "{{ vms_config.disk2.storage | default(local_thin) }}"
-    size: "{{ vms_config.disk2.size | default(20) }}"
-    state: present
-  delegate_to: localhost
+- name: Include add_disk tasks
+  ansible.builtin.include_tasks: "add_disk.yml"
   when: vms_config.disk2 is defined
 
 # Assumes that the iso image is located in the local storage
