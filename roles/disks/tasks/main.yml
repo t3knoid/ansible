@@ -55,7 +55,7 @@
 
     - name: Mount the first unformatted drive
       ansible.posix.mount:
-        path: /ansible
+        path: "{{ disks_mountpoint }}"
         src: "/dev/{{ unformatted_disks[0] }}1"
         fstype: ext4
         state: mounted
