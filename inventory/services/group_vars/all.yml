@@ -13,9 +13,14 @@ vms_config:
     backup: true
     size: 20
     storage: linstor_storage
-
+  disk2:
+    backup: true
+    size: 10
+    storage: linstor_storage
+  
 vms_os: ubuntu_24_server
 vms_autoinstall: true
 vms_enable_serial_terminal: false
 vms_additional_packages: []
+disks_mountpoint: "/config"
 python3_version: 3.12
