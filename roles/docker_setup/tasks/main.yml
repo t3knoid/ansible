@@ -41,3 +41,18 @@
   ansible.builtin.fail:
     msg: "Docker test failure."
   when: docker_setup_helloworld_retval.failed | bool
+
+- name: Stop Test Docker container
+  community.docker.docker_container:
+    name: hello-world
+    state: stopped
+
+- name: Remove Test Docker container
+  community.docker.docker_container:
+    name: hello-world
+    state: absent
+
+- name: Remove Test Docker image
+  community.docker.docker_image:
+    name: hello-world
+    state: absent
