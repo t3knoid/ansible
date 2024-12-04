@@ -1,0 +1,10 @@
+---
+
+- name: Deploy Sonarr
+  hosts: sonarr
+  become: true
+  roles:
+    - global
+    - users
+    - docker_setup
+    - sonarr_setup
