@@ -10,7 +10,14 @@ services:
       - TZ=Etc/UTC
       - BASE_URL=/ #optional
     volumes:
-      - /config:/config
+      - config:/config
     ports:
       - 3579:3579
     restart: unless-stopped
+volumes:
+  config:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /config
