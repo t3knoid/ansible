@@ -14,3 +14,4 @@ ansible_setup_python_modules:
   - ansible-lint
   - pexpect
   - jmespath
+  - passlib
