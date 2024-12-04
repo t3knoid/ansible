@@ -24,3 +24,8 @@ vms_enable_serial_terminal: false
 vms_additional_packages: []
 disks_mountpoint: "/config"
 python3_version: 3.12
+disks_disks:
+  vdb1:
+    mountpoint: "/config"
+    mountpoint_owner: "ansible"
+    mountpoint_group: "ansible"

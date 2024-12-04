@@ -1,3 +1,7 @@
 ---
 
-disks_mountpoint: "/ansible"
+disks_disks:
+  vdb1:
+    mountpoint: "/ansible"
+    mountpoint_owner: "ansible"
+    mountpoint_group: "ansible"
