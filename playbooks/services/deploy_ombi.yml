@@ -1,0 +1,10 @@
+---
+
+- name: Deploy Ombi
+  hosts: ombi
+  become: true
+  roles:
+    - global
+    - users
+    - docker_setup
+    - ombi_setup
