@@ -1,0 +1,9 @@
+---
+
+autofs_nfs_mounts:
+  - mount_name: music
+    server: 192.168.2.250:/mnt/Data/music
+  - mount_name: downloads
+    server: 192.168.2.250:/mnt/Data/downloads/complete
+  - mount_name: incomplete-downloads
+    server: 192.168.0.250:/mnt/Data/downloads/incomplete
