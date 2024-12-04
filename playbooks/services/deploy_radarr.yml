@@ -1,0 +1,11 @@
+---
+
+- name: Deploy Radarr
+  hosts: radarr
+  become: true
+  roles:
+    - global
+    - users
+    - autofs
+    - docker_setup
+    - radarr_setup
