@@ -17,6 +17,13 @@
   when: item.uid is defined
   with_items: "{{ users_list }}"
 
+- name: Set a user-defined user GID
+  ansible.builtin.group:
+    name: "{{ item.username }}"
+    gid: "{{ item.gid }}"
+  when: item.gid is defined
+  with_items: "{{ users_list }}"
+
 - name: Add user to sudoers
   ansible.builtin.lineinfile:
     path: /etc/sudoers
