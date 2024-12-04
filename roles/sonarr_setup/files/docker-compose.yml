@@ -1,0 +1,19 @@
+---
+
+services:
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    environment:
+      - PUID=2000
+      - PGID=2000
+      - TZ=Etc/UTC
+      - LANG=C.UTF-8
+      - LC_ALL=C.UTF-8
+    volumes:
+      - /config:/config
+      - /nfs/tvshows:/tv #optional
+      - /nfs/downloads:/downloads #optional
+    ports:
+      - 8989:8989
+    restart: unless-stopped
