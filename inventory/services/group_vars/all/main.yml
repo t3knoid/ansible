@@ -15,7 +15,7 @@ vms_config:
     storage: linstor_storage
   disk2:
     backup: true
-    size: 10
+    size: 20
     storage: linstor_storage
   
 vms_os: ubuntu_24_server
