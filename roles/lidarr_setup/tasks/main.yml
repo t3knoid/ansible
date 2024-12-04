@@ -1,0 +1,33 @@
+---
+
+- name: Verify config folder exists
+  ansible.builtin.stat:
+    path: "{{ lidarr_setup_config_dir }}"
+  register: lidarr_setup_config_dir_stat
+
+- name: Fail if config folder does not exists
+  ansible.builtin.fail:
+    msg: "{{ lidarr_setup_config_dir }}"
+  when: lidarr_setup_config_dir_stat is not defined
+
+- name: Copy docker-compose.yml to target machine
+  ansible.builtin.copy:
+    src: docker-compose.yml
+    dest: "{{ lidarr_setup_config_dir }}/docker-compose.yml"
+    mode: "0600"
+
+- name: Make sure docker service account has access to config dir
+  ansible.builtin.file:
+    path: "{{ lidarr_setup_config_dir }}"
+    owner: "{{ users_list[0].username }}"
+    group: "{{ users_list[0].username }}"
+    mode: "0755"
+    recurse: true
+
+- name: Stop Docker Container
+  ansible.builtin.command: docker-compose -f "{{ lidarr_setup_config_dir }}/docker-compose.yml" down
+  changed_when: false
+
+- name: Run Docker Container
+  ansible.builtin.command: docker-compose -f "{{ lidarr_setup_config_dir }}/docker-compose.yml" up -d
+  changed_when: false

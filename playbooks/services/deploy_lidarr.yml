@@ -1,0 +1,11 @@
+---
+
+- name: Deploy lidarr
+  hosts: lidarr
+  become: true
+  roles:
+    - global
+    - users
+    - autofs
+    - docker_setup
+    - lidarr_setup
