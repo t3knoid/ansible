@@ -16,7 +16,7 @@
 
 - name: Install Docker packages
   ansible.builtin.apt:
-    deb: "https://download.docker.com/linux/ubuntu/dists/{{ docker_setup_distro }}/pool/stable/{{ docker_setup_arch }}/{{ item }}"
+    deb: "{{ docker_setup_download_root }}/{{ docker_setup_distro }}/pool/stable/{{ docker_setup_arch }}/{{ item }}"
   loop: "{{ docker_setup_packages }}"
 
 - name: Start Docker service
