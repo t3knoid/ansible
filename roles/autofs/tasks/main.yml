@@ -1,0 +1,25 @@
+---
+
+- name: Install autofs
+  ansible.builtin.apt:
+    name: autofs
+    state: present
+    update_cache: true
+
+- name: Configure /etc/auto.master
+  ansible.builtin.template:
+    src: auto.master.j2
+    dest: /etc/auto.master
+    mode: '0644'
+    owner: root
+    group: root
+  notify: Restart autofs
+
+- name: Configure /etc/auto.nfs
+  ansible.builtin.template:
+    src: auto.nfs.j2
+    dest: "/etc/auto.nfs"
+    mode: '0644'
+    owner: root
+    group: root
+  notify: Restart autofs
