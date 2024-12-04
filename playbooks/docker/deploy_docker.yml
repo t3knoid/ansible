@@ -6,4 +6,5 @@
   gather_facts: false
   roles:
     - global
+    - users
     - docker_setup

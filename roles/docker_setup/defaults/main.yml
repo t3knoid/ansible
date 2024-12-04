@@ -1,15 +1,15 @@
 ---
-# defaults file for docker_setup
 
-docker_setup_arch: amd64
-docker_setup_distro: noble
-docker_setup_containerd_version: 1.7.23-1
+docker_setup_containerd_version: 1.7.24-1
 docker_setup_docker_ce_version: 27.3.1-1
 docker_setup_buildx_plugin_version: 0.17.1-1
-docker_setup_compose_plugin_version: 2.29.7-1
+docker_setup_docker_compose_plugin_version: 2.29.7-1
+docker_setup_arch: amd64
+docker_setup_distro: noble
+docker_setup_download_root: "https://download.docker.com/linux/ubuntu/dists"
 docker_setup_packages:
   - "containerd.io_{{ docker_setup_containerd_version }}_{{ docker_setup_arch }}.deb"
   - "docker-ce-cli_{{ docker_setup_docker_ce_version }}~ubuntu.24.04~{{ docker_setup_distro }}_{{ docker_setup_arch }}.deb"
   - "docker-ce_{{ docker_setup_docker_ce_version }}~ubuntu.24.04~{{ docker_setup_distro }}_{{ docker_setup_arch }}.deb"
   - "docker-buildx-plugin_{{ docker_setup_buildx_plugin_version }}~ubuntu.24.04~{{ docker_setup_distro }}_{{ docker_setup_arch }}.deb"
-  - "docker-compose-plugin_{{ docker_setup_compose_plugin_version }}~ubuntu.24.04~{{ docker_setup_distro }}_{{ docker_setup_arch }}.deb"
+  - "docker-compose-plugin_{{ docker_setup_docker_compose_plugin_version }}~ubuntu.24.04~{{ docker_setup_distro }}_{{ docker_setup_arch }}.deb"
