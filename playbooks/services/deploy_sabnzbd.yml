@@ -1,0 +1,11 @@
+---
+
+- name: Deploy Sabnzbd
+  hosts: sabnzbd
+  become: true
+  roles:
+    - global
+    - users
+    - autofs
+    - docker_setup
+    - sabnzbd_setup
