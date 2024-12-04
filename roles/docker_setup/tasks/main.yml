@@ -56,3 +56,6 @@
   community.docker.docker_image:
     name: hello-world
     state: absent
+
+- name: Install docker-compose
+  ansible.builtin.include_tasks: docker-compose_install.yml

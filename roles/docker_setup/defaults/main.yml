@@ -13,3 +13,4 @@ docker_setup_packages:
   - "docker-ce_{{ docker_setup_docker_ce_version }}~ubuntu.24.04~{{ docker_setup_distro }}_{{ docker_setup_arch }}.deb"
   - "docker-buildx-plugin_{{ docker_setup_buildx_plugin_version }}~ubuntu.24.04~{{ docker_setup_distro }}_{{ docker_setup_arch }}.deb"
   - "docker-compose-plugin_{{ docker_setup_docker_compose_plugin_version }}~ubuntu.24.04~{{ docker_setup_distro }}_{{ docker_setup_arch }}.deb"
+docker_setup_compose_version: v2.31.0
