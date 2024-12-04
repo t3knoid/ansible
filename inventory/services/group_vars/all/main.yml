@@ -27,5 +27,5 @@ python3_version: 3.12
 disks_disks:
   vdb1:
     mountpoint: "/config"
-    mountpoint_owner: "ansible"
-    mountpoint_group: "ansible"
+    mountpoint_owner: "{{ users_list[0].username }}" # See vault
+    mountpoint_group: "{{ users_list[0].username }}"
