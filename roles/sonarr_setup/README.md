@@ -9,5 +9,6 @@ Requirements
 This role requires the following roles:
 
 - global
+- autofs
 - users
 - docker_setup
