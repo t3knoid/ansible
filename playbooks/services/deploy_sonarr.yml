@@ -6,5 +6,6 @@
   roles:
     - global
     - users
+    - autofs
     - docker_setup
     - sonarr_setup
