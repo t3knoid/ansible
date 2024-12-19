@@ -3,3 +3,5 @@
 terraform_setup_version: 1.10.0
 terraform_setup_home: "/usr/local/bin"
 terraform_setup_os_arch: "linux_amd64"
+
+terraform_setup_proxmox_provider_version: 3.0.1-rc6

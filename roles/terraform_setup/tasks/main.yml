@@ -25,3 +25,20 @@
   ansible.builtin.file:
     path: "{{ terraform_setup_home }}/terraform"
     mode: "0755"
+
+- name: Include ansible role vars
+  ansible.builtin.include_vars:
+    file: ../ansible_setup/defaults/main.yml
+
+- name: Configure Terraform configuration file
+  ansible.builtin.template:
+    src: main.tf.j2
+    dest: "{{ ansible_setup_home }}/main.tf"
+    mode: '0644'
+
+- name: Initialize Terraform
+  ansible.builtin.command: terraform init
+  args:
+    chdir: "{{ ansible_setup_home }}"
+  register: terraform_init
+  changed_when: terraform_init.rc != 0
