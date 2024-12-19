@@ -11,4 +11,5 @@ provider "proxmox" {
   api_url = "https://{{ global_proxmox_api_host }}:{{ global_proxmox_api_port }}/api2/json"
   username = "{{ global_proxmox_api_user }}"
   token    = "{{ global_proxmox_api_token }}"
+  pm_tls_insecure = true
 }
