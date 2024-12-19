@@ -1,7 +1,8 @@
 ---
 
 - name: Deploy Terraform
-  hosts: all
+  hosts: terraform
   become: true
   roles:
+    - global
     - terraform_setup
