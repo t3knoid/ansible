@@ -8,7 +8,9 @@
     groups: "{{ item.groups | join(',') }}"
     shell: /bin/bash
     state: present
+  when: users_list is defined
   with_items: "{{ users_list }}"
+
 
 - name: Set a user-defined user ID
   ansible.builtin.user:
