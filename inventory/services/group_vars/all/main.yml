@@ -22,7 +22,6 @@ vms_os: ubuntu_24_server
 vms_autoinstall: true
 vms_enable_serial_terminal: false
 vms_additional_packages: []
-disks_mountpoint: "/config"
 python3_version: 3.12
 disks_disks:
   vdb1:
