@@ -1,5 +1,23 @@
 ---
 
+vms_config:
+  agent: "1"
+  cores: "2"
+  cpu: host
+  memory: 2048
+  ostype: l26
+  scsihw: virtio-scsi-single
+  sockets: 1
+  storage: linstor_storage
+  disk_os: 
+    backup: true
+    size: 20
+    storage: linstor_storage
+  disk2:
+    backup: true
+    size: 20
+    storage: linstor_storage
+
 autofs_nfs_mounts:
   - mount_name: books
     server: 192.168.2.250:/mnt/Data/books
