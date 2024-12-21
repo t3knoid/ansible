@@ -17,11 +17,14 @@ vms_config:
     backup: true
     size: 20
     storage: linstor_storage
-
-autofs_nfs_mounts:
-  - mount_name: tvshows
-    server: 192.168.2.250:/mnt/Data/tvshows
-  - mount_name: downloads
-    server: 192.168.2.250:/mnt/Data/downloads/complete
-  - mount_name: incomplete-downloads
-    server: 192.168.0.250:/mnt/Data/downloads/incomplete
+  
+vms_os: ubuntu_24_server
+vms_autoinstall: true
+vms_enable_serial_terminal: false
+vms_additional_packages: []
+python3_version: 3.12
+disks_disks:
+  vdb1:
+    mountpoint: "/config"
+    mountpoint_owner: "ansible"
+    mountpoint_group: "ansible"
