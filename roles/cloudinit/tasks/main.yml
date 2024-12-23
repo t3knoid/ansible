@@ -1,0 +1,41 @@
+---
+
+- name: Ensure wget is installed
+  ansible.builtin.apt:
+    name: wget
+    state: present
+
+- name: Download Ubuntu cloud image
+  ansible.builtin.get_url:
+    url: "{{ cloudinit_download_url }}/{{ cloudinit_download_image }}"
+    dest: "{{ cloudinit_download_dest }}"
+    mode: '0644'
+
+- name: Get a list of vmid
+  ansible.builtin.import_role:
+    name: vms
+    tasks_from: get_vms_vmid.yml
+
+- name: Check if VM with specified VMID exists
+  ansible.builtin.set_fact:
+    cloudinit_vm_exists: "{{ (vms_vm_list.json.data | json_query('[?vmid==`' + cloudinit_vmid|string + '`]')) | length > 0 }}"
+
+- name: Remove existing virtual machine
+  ansible.builtin.command: "qm destroy {{ cloudinit_vmid }} --purge"
+  args:
+    removes: "/var/lib/vz/images/{{ cloudinit_vmid }}"
+  changed_when: false
+
+- name: Ensure VM is created
+  ansible.builtin.command: "qm create {{ cloudinit_vmid }} --memory {{ cloudinit_memory_mb }} --net0 virtio,bridge=vmbr0 --scsihw virtio-scsi-pci"
+  args:
+    creates: "{{ cloudinit_vmid }}"
+  changed_when: false
+
+- name: Set SCSI disk for VM
+  ansible.builtin.command: "qm set {{ cloudinit_vmid }} --scsi0 {{ cloudinit_storage }}:0,import-from={{ cloudinit_download_dest }}"
+  changed_when: false
+
+- name: Add Cloud-Init CD-ROM drive
+  ansible.builtin.command: "qm set {{ cloudinit_vmid }} --ide2 {{ cloudinit_storage }}:cloudinit"
+  changed_when: false

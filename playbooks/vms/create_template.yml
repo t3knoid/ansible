@@ -1,0 +1,9 @@
+---
+
+- name: Create a Template
+  hosts: template
+  gather_facts: false
+  roles:
+    - global
+    - cloudinit
+  become: true

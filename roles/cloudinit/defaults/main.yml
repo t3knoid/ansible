@@ -1,0 +1,8 @@
+---
+
+cloudinit_download_url: https://cloud-images.ubuntu.com/noble/current
+cloudinit_download_image: noble-server-cloudimg-amd64.img
+cloudinit_download_dest: "/tmp/{{ cloudinit_download_image }}"
+cloudinit_vmid: 9500
+cloudinit_memory_mb: 2048
+cloudinit_storage: local
