@@ -39,3 +39,15 @@
 - name: Add Cloud-Init CD-ROM drive
   ansible.builtin.command: "qm set {{ cloudinit_vmid }} --ide2 {{ cloudinit_storage }}:cloudinit"
   changed_when: false
+
+- name: Set to boot from scsi0
+  ansible.builtin.command: "qm set {{ cloudinit_vmid }} --boot order=scsi0"
+  changed_when: false
+
+- name: Configure serial console as a display
+  ansible.builtin.command: "qm set {{ cloudinit_vmid }} --serial0 socket --vga serial0"
+  changed_when: false
+
+- name: Configure virtual machine into a template
+  ansible.builtin.command: "qm template {{ cloudinit_vmid }}"
+  changed_when: false
