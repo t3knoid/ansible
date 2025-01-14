@@ -1,15 +1,29 @@
 ---
 
-- name: Ensure wget is installed
+- name: Ensure required packages are installed
   ansible.builtin.apt:
-    name: wget
-    state: present
+    pkg:
+      - wget
+      - libguestfs-tools
 
 - name: Download Ubuntu cloud image
   ansible.builtin.get_url:
     url: "{{ cloudinit_download_url }}/{{ cloudinit_download_image }}"
     dest: "{{ cloudinit_download_dest }}"
     mode: '0644'
+
+- name: Customize image
+  ansible.builtin.shell: |
+    virt-customize -a {{ cloudinit_download_dest }} --update
+    virt-customize -a {{ cloudinit_download_dest }} --install qemu-guest-agent
+    virt-customize -a {{ cloudinit_download_dest }} --run-command 'useradd --shell /bin/bash ansible'
+    virt-customize -a {{ cloudinit_download_dest }} --run-command 'mkdir -p /home/ansible'
+    virt-customize -a {{ cloudinit_download_dest }} --run-command 'echo ansible:{{ global_vm_template_user_password }} | chpasswd'
+    virt-customize -a {{ cloudinit_download_dest }} --run-command 'chown -R ansible:ansible /home/ansible'
+    virt-customize -a {{ cloudinit_download_dest }} --run-command 'echo "%ansible ALL=(ALL) NOPASSWD:ALL" > /target/etc/sudoers.d/99_ansible'
+    # important step so your clones get unique mac address / network details.
+    virt-customize -a {{ cloudinit_download_dest }} --run-command '>/etc/machine-id'
+  changed_when: false
 
 - name: Get a list of vmid
   ansible.builtin.import_role:
@@ -51,3 +65,8 @@
 - name: Configure virtual machine into a template
   ansible.builtin.command: "qm template {{ cloudinit_vmid }}"
   changed_when: false
+
+- name: Cleanup Cloud-Init image
+  ansible.builtin.file:
+    path: "{{ cloudinit_download_dest }}"
+    state: absent
