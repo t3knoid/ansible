@@ -5,68 +5,75 @@
     pkg:
       - wget
       - libguestfs-tools
+  delegate_to: "{{ vms_proxmox_node }}"
 
 - name: Download Ubuntu cloud image
   ansible.builtin.get_url:
-    url: "{{ cloudinit_download_url }}/{{ cloudinit_download_image }}"
+    url: "{{ global_os[vms_os].cloudinit_download_url }}/{{ global_os[vms_os].cloudinit_img }}"
     dest: "{{ cloudinit_download_dest }}"
     mode: '0644'
+  delegate_to: "{{ vms_proxmox_node }}"
 
 - name: Customize image
   ansible.builtin.shell: |
     virt-customize -a {{ cloudinit_download_dest }} --update
     virt-customize -a {{ cloudinit_download_dest }} --install qemu-guest-agent
-    virt-customize -a {{ cloudinit_download_dest }} --run-command 'useradd --shell /bin/bash ansible'
-    virt-customize -a {{ cloudinit_download_dest }} --run-command 'mkdir -p /home/ansible'
-    virt-customize -a {{ cloudinit_download_dest }} --run-command 'echo ansible:{{ global_vm_template_user_password }} | chpasswd'
-    virt-customize -a {{ cloudinit_download_dest }} --run-command 'chown -R ansible:ansible /home/ansible'
-    virt-customize -a {{ cloudinit_download_dest }} --run-command 'echo "%ansible ALL=(ALL) NOPASSWD:ALL" > /target/etc/sudoers.d/99_ansible'
-    # important step so your clones get unique mac address / network details.
     virt-customize -a {{ cloudinit_download_dest }} --run-command '>/etc/machine-id'
   changed_when: false
+  delegate_to: "{{ vms_proxmox_node }}"
 
 - name: Get a list of vmid
   ansible.builtin.import_role:
     name: vms
     tasks_from: get_vms_vmid.yml
+  delegate_to: "{{ vms_proxmox_node }}"
 
 - name: Check if VM with specified VMID exists
   ansible.builtin.set_fact:
     cloudinit_vm_exists: "{{ (vms_vm_list.json.data | json_query('[?vmid==`' + cloudinit_vmid|string + '`]')) | length > 0 }}"
+  delegate_to: "{{ vms_proxmox_node }}"
 
 - name: Remove existing virtual machine
   ansible.builtin.command: "qm destroy {{ cloudinit_vmid }} --purge"
   args:
     removes: "/var/lib/vz/images/{{ cloudinit_vmid }}"
   changed_when: false
+  delegate_to: "{{ vms_proxmox_node }}"
 
 - name: Ensure VM is created
-  ansible.builtin.command: "qm create {{ cloudinit_vmid }} --memory {{ cloudinit_memory_mb }} --net0 virtio,bridge=vmbr0 --scsihw virtio-scsi-pci"
+  ansible.builtin.command: "qm create {{ cloudinit_vmid }} --name {{ vms_name }} --memory {{ cloudinit_memory_mb }} --net0 virtio,bridge=vmbr0 --scsihw virtio-scsi-pci --agent enabled=1"
   args:
     creates: "{{ cloudinit_vmid }}"
   changed_when: false
+  delegate_to: "{{ vms_proxmox_node }}"
 
 - name: Set SCSI disk for VM
   ansible.builtin.command: "qm set {{ cloudinit_vmid }} --scsi0 {{ cloudinit_storage }}:0,import-from={{ cloudinit_download_dest }}"
   changed_when: false
+  delegate_to: "{{ vms_proxmox_node }}"
 
 - name: Add Cloud-Init CD-ROM drive
   ansible.builtin.command: "qm set {{ cloudinit_vmid }} --ide2 {{ cloudinit_storage }}:cloudinit"
   changed_when: false
+  delegate_to: "{{ vms_proxmox_node }}"
 
 - name: Set to boot from scsi0
   ansible.builtin.command: "qm set {{ cloudinit_vmid }} --boot order=scsi0"
   changed_when: false
+  delegate_to: "{{ vms_proxmox_node }}"
 
 - name: Configure serial console as a display
   ansible.builtin.command: "qm set {{ cloudinit_vmid }} --serial0 socket --vga serial0"
   changed_when: false
+  delegate_to: "{{ vms_proxmox_node }}"
 
 - name: Configure virtual machine into a template
   ansible.builtin.command: "qm template {{ cloudinit_vmid }}"
   changed_when: false
+  delegate_to: "{{ vms_proxmox_node }}"
 
 - name: Cleanup Cloud-Init image
   ansible.builtin.file:
     path: "{{ cloudinit_download_dest }}"
     state: absent
+  delegate_to: "{{ vms_proxmox_node }}"

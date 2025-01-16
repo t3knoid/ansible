@@ -8,7 +8,9 @@ global_os:
         distro: ubuntu
         type: server
         iso: ubuntu-24.04.1-live-server-amd64.iso
-        template: ubuntu-server-24.04
+        cloudinit_download_url: https://cloud-images.ubuntu.com/noble/current
+        cloudinit_img: noble-server-cloudimg-amd64.img
+        template: ubuntu-server-24.04-cloudinit
         version: 24.4
     win_2022_server:
         distro: windows
@@ -28,3 +30,4 @@ global_dns_servers:
     - 192.168.2.251
     - 192.168.2.252
 global_gateway: 192.168.2.1
+global_timezone: "America/New_York"
