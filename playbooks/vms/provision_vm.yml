@@ -1,12 +1,23 @@
 ---
 - name: Provision a VM
-  hosts: pvenodes
+  hosts: vms
   gather_facts: false
   roles:
     - global
+  serial: 1
 
   tasks:
-    - name: Clone vm
+    - name: Provision vm
       ansible.builtin.import_role:
         name: vms
-        tasks_from: clone
+        tasks_from: provision
+
+  pre_tasks:
+    - name: Import delete_from_local_dns.yml from pihole role
+      ansible.builtin.import_role:
+        name: pihole
+        tasks_from: delete_from_local_dns.yml
+    - name: Import add_to_local_dns.yml from pihole role
+      ansible.builtin.import_role:
+        name: pihole
+        tasks_from: add_to_local_dns.yml
