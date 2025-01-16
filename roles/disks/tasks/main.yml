@@ -4,8 +4,12 @@
   ansible.builtin.set_fact:
     disks: "{{ ansible_devices.keys() | select('match', '^vd[a-z]$') | list }}"
 
+- name: Show disks
+  ansible.builtin.debug:
+    var: disks
+
 - name: Check filesystem type
-  ansible.builtin.command: "lsblk -f /dev/{{ item }}"
+  ansible.builtin.command: "lsblk -f -l /dev/{{ item }}"
   register: disk_check
   ignore_errors: true
   loop: "{{ disks }}"
@@ -16,8 +20,12 @@
     unformatted_disks: "{{ unformatted_disks | default([]) + [item.item] }}"
   when: "'ext4' not in item.stdout and 'xfs' not in item.stdout"
   loop_control:
-    label: "{{ item.item }}"
+    label: "{{ item.stdout }}"
   loop: "{{ disk_check.results }}"
+
+- name: Show unformatted_disks
+  ansible.builtin.debug:
+    var: unformatted_disks
 
 - name: Create an ext4 primary partition
   when: unformatted_disks is defined
@@ -39,20 +47,34 @@
     dev: "/dev/{{ item }}1"
   with_items: "{{ unformatted_disks }}"
 
+- name: Set fact for formatted disks
+  ansible.builtin.set_fact:
+    formatted_disks: "{{ formatted_disks | default([]) + [item.stdout_lines[2].split()[0]] }}"
+  when: "'ext4' in item.stdout"
+  loop_control:
+    label: "{{ item.stdout }}"
+  loop: "{{ disk_check.results }}"
+
+- name: Show formatted_disks
+  ansible.builtin.debug:
+    var: formatted_disks
+
 - name: Ensure mountpoint exists
   ansible.builtin.file:
-    path: "{{ item.value.mountpoint }}"
+    path: "{{ item.mountpoint }}"
     state: directory
-    group: "{{ item.value.mountpoint_group }}"
-    owner: "{{ item.value.mountpoint_owner }}"
+    group: "{{ item.mountpoint_group }}"
+    owner: "{{ item.mountpoint_owner }}"
     mode: "0777"
-  with_dict: "{{ disks_disks }}"
+  with_items: "{{ disks_disk_mounts }}"
 
 - name: Mount disks
   ansible.posix.mount:
-    path: "{{ item.value.mountpoint }}"
-    src: "/dev/{{ item.key }}"
+    path: "{{ item[0].mountpoint }}"
+    src: "/dev/{{ item[1] }}"
     fstype: ext4
     state: mounted
     boot: true
-  with_dict: "{{ disks_disks }}"
+  with_nested:
+    - "{{ disks_disk_mounts }}"
+    - "{{ formatted_disks }}"
