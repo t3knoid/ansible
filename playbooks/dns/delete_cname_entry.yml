@@ -1,0 +1,16 @@
+---
+
+- name: Delete Pi-hole CNAME entry
+  hosts: all
+  gather_facts: false
+  roles:
+    - global
+
+  tasks:
+    - name: Import pihole role
+      ansible.builtin.import_role:
+        name: pihole
+        tasks_from: delete_cname_record.yml
+      when:
+        - pihole_cname_domain is defined
+        - pihole_cname_target_domain is defined

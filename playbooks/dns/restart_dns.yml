@@ -1,0 +1,13 @@
+---
+
+- name: Restart DNS
+  hosts: all
+  gather_facts: false
+  roles:
+    - global
+
+  tasks:
+    - name: Import pihole role
+      ansible.builtin.import_role:
+        name: pihole
+        tasks_from: restartdns.yml
