@@ -1,7 +1,10 @@
 ---
 
 - name: Create a new VM
-  ansible.builtin.import_playbook: vms/create_vm.yml
+  ansible.builtin.import_playbook: vms/provision_vm.yml
+
+- name: Prep Ansible node
+  ansible.builtin.import_playbook: ansible/prep_ansible_node.yml
 
 - name: Install Python3
   ansible.builtin.import_playbook: python/deploy_python3.yml
@@ -14,7 +17,3 @@
 
 - name: Prepare disks
   ansible.builtin.import_playbook: vms/prep_disk.yml
-
-- name: Convert to template
-  ansible.builtin.import_playbook: vms/convert_to_template.yml
-
