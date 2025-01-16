@@ -1,6 +1,6 @@
 ---
 
-- name: Add disks to VM
+- name: Add users to VM
   hosts: all
   gather_facts: false
   become: true
