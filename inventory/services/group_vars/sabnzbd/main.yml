@@ -31,3 +31,6 @@ autofs_nfs_mounts:
     server: 192.168.2.250:/mnt/Data/downloads/complete
   - mount_name: incomplete-downloads
     server: 192.168.2.250:/mnt/Data/downloads/incomplete
+
+pihole_cname_domain: sabnzbd.refol.us
+pihole_cname_target_domain: xpenology.refol.us
