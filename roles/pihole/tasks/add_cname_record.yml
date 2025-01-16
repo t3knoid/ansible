@@ -1,0 +1,32 @@
+---
+
+- name: Configure Add CNAME URL
+  no_log: false
+  ansible.builtin.set_fact:
+    pihole_add_cname_url: |-
+      http://{{ pihole_api_host }}/admin/api.php?customcname&
+      action=add&
+      reload=true&
+      domain={{ pihole_cname_domain }}&
+      target={{ pihole_cname_target_domain }}&
+      auth={{ pihole_api_token }}
+    when:
+      - pihole_cname_domain is defined
+      - pihole_cname_target_domain is defined
+
+- name: Add CNAME entry
+  no_log: true
+  ansible.builtin.uri:
+    url: "{{ pihole_add_cname_url | split('\n') | join }}"
+    method: GET
+    return_content: true
+  register: result
+  delegate_to: localhost
+  changed_when: result.json.success | bool
+  when:
+    - pihole_add_cname_url is defined
+
+- name: Display API response
+  ansible.builtin.debug:
+    var: result.json.message
+  when: result.json.message != ''
