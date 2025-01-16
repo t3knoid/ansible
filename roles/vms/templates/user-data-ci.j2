@@ -1,0 +1,28 @@
+#cloud-config
+# see example, https://cloudinit.readthedocs.io/en/latest/reference/examples.html
+preserve_hostname: false
+create_hostname_file: false
+hostname: {{ inventory_hostname }}
+prefer_fqdn_over_hostname: false
+manage_etc_hosts: true
+fqdn: {{ inventory_hostname }}.{{ global_domain_name }}
+users:
+  - default
+  - name: {{ global_vm_template_user }}
+    gecos: Ansible user
+    groups: users,admin,wheel
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+    passwd: {{ global_vm_template_user_crypted_password }}
+    lock_passwd: false
+chpasswd:
+  expire: False
+ssh_pwauth: true
+package_update: true
+package_upgrade: true
+
+timezone: {{ global_timezone }}
+
+allow_public_ssh_keys: true
+disable_root: true
+
