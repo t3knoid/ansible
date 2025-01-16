@@ -1,0 +1,7 @@
+---
+
+- name: Restart DNS
+  ansible.builtin.command: pihole restartdns
+  become: true
+  delegate_to: "{{ pihole_api_host }}"
+  run_once: true
