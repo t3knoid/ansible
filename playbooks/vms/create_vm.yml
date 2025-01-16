@@ -7,6 +7,7 @@
     - global
     - vms
   serial: 1
+  become: true
 
   pre_tasks:
     - name: Import delete_from_local_dns.yml from pihole role
