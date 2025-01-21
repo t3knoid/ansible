@@ -6,37 +6,7 @@
     - global
 
   tasks:
-    - name: Get a list of nodes
-      ansible.builtin.uri:
-        url: 'https://{{ global_proxmox_api_host }}:8006/api2/json/cluster/resources?type=node'
-        method: GET
-        headers:
-          Authorization: "PVEAPIToken={{ global_proxmox_api_user }}!{{ global_proxmox_api_token_id }}={{ global_proxmox_api_token }}"
-        follow_redirects: safe
-        validate_certs: false
-      register: vms_nodes
-      delegate_to: localhost
-
-    - name: Extract node list
-      ansible.builtin.set_fact:
-        vms_node_list: "{{ vms_nodes.json.data | json_query('[].node') }}"
-
-    - name: Get a list of vms
-      ansible.builtin.uri:
-        url: 'https://{{ global_proxmox_api_host }}:8006/api2/json/nodes/{{ item }}/qemu'
-        method: GET
-        headers:
-          Authorization: "PVEAPIToken={{ global_proxmox_api_user }}!{{ global_proxmox_api_token_id }}={{ global_proxmox_api_token }}"
-        follow_redirects: safe
-        validate_certs: false
-      register: vms_vm_items
-      delegate_to: localhost
-      loop: "{{ vms_node_list }}"
-
-    - name: Construct json_query statement
-      ansible.builtin.set_fact:
-        vms_jquery: "[?json.data[?name== '{{ inventory_hostname }}']].item"
-
-    - name: Show vms_vm_list
-      ansible.builtin.debug:
-        msg: "{{ inventory_hostname }} is hosted in {{ vms_vm_items.results | json_query(vms_jquery) | first }}"
+    - name: Import get_vms_proxmox_node task from vms role
+      ansible.builtin.import_role:
+        name: vms
+        tasks_from: get_vms_proxmox_node
