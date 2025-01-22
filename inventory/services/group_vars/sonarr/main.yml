@@ -21,10 +21,13 @@ vms_config:
 autofs_nfs_mounts:
   - mount_name: tvshows
     server: 192.168.2.250:/mnt/Data/tvshows
+    mount_options: -rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys
   - mount_name: downloads
     server: 192.168.2.250:/mnt/Data/downloads/complete
+    mount_options: -rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys
   - mount_name: incomplete-downloads
     server: 192.168.0.250:/mnt/Data/downloads/incomplete
+    mount_options: -rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys
 
 pihole_cname_domain: sonarr.refol.us
 pihole_cname_target_domain: xpenology.refol.us
