@@ -1,0 +1,12 @@
+---
+- name: Migrate a VM
+  hosts: vms
+  gather_facts: false
+  roles:
+    - global
+
+  tasks:
+    - name: Migrate vm
+      ansible.builtin.import_role:
+        name: vms
+        tasks_from: migrate.yml
