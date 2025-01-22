@@ -31,10 +31,16 @@
   ansible.builtin.set_fact:
     vms_jquery: "[?json.data[?name== '{{ inventory_hostname }}']].item"
 
-- name: Set vms_proxmox_node fact
+- name: Find the node
   ansible.builtin.set_fact:
-    vms_proxmox_node: "{{ vms_vm_items.results | json_query(vms_jquery) | first }}"
+    vms_found_node: "{{ vms_vm_items.results | json_query(vms_jquery) | flatten }}"
+
+- name: Set vms_proxmox_node
+  ansible.builtin.set_fact:
+    vms_proxmox_node: "{{ vms_found_node | first }}"
+  when: vms_found_node | length > 0
 
 - name: Show Proxmox node where host is located
   ansible.builtin.debug:
     msg: "{{ inventory_hostname }} is hosted in {{ vms_proxmox_node }}"
+  when: vms_found_node | length > 0
