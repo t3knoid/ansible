@@ -35,6 +35,6 @@
   ansible.builtin.set_fact:
     vms_proxmox_node: "{{ vms_vm_items.results | json_query(vms_jquery) | first }}"
 
-- name: Show vms_vm_list
+- name: Show Proxmox node where host is located
   ansible.builtin.debug:
     msg: "{{ inventory_hostname }} is hosted in {{ vms_proxmox_node }}"
