@@ -1,20 +1,46 @@
 ---
 
-- name: Get a list of vms
+- name: Get a list of nodes
   ansible.builtin.uri:
-    url: 'https://{{ global_proxmox_api_host }}:8006/api2/json/cluster/resources?type=vm'
+    url: 'https://{{ global_proxmox_api_host }}:8006/api2/json/cluster/resources?type=node'
     method: GET
     headers:
       Authorization: "PVEAPIToken={{ global_proxmox_api_user }}!{{ global_proxmox_api_token_id }}={{ global_proxmox_api_token }}"
     follow_redirects: safe
     validate_certs: false
-  register: vms_vm_list
+  register: vms_nodes
   delegate_to: localhost
 
-- name: Get vmid
+- name: Extract node list
   ansible.builtin.set_fact:
-    vms_vmid: "{{ item.vmid }}"
-  with_items: "{{ vms_vm_list.json.data }}"
-  loop_control:
-    label: "{{ item.name }}"
-  when: item.name == inventory_hostname
+    vms_node_list: "{{ vms_nodes.json.data | json_query('[].node') }}"
+
+- name: Get a list of vms
+  ansible.builtin.uri:
+    url: 'https://{{ global_proxmox_api_host }}:8006/api2/json/nodes/{{ item }}/qemu'
+    method: GET
+    headers:
+      Authorization: "PVEAPIToken={{ global_proxmox_api_user }}!{{ global_proxmox_api_token_id }}={{ global_proxmox_api_token }}"
+    follow_redirects: safe
+    validate_certs: false
+  register: vms_vm_items
+  delegate_to: localhost
+  loop: "{{ vms_node_list }}"
+
+- name: Construct json_query statement to find the vmid
+  ansible.builtin.set_fact:
+    vms_jquery: "[*].json.data[?name=='{{ inventory_hostname }}'].vmid"
+
+- name: Find the vmid
+  ansible.builtin.set_fact:
+    vms_found_vmid: "{{ vms_vm_items.results | json_query(vms_jquery) | flatten }}"
+
+- name: Set vms_vmid
+  set_fact:
+    vms_vmid: "{{ vms_found_vmid | first }}"
+  when: vms_found_vmid | length > 0
+
+- name: Show vms_vmid
+  ansible.builtin.debug:
+    msg: "{{ inventory_hostname }} has a vmid of {{ vms_vmid }}"
+  when: vms_found_vmid | length > 0
