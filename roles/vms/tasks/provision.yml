@@ -52,28 +52,6 @@
   delegate_to: localhost
   register: vms_sshkey
 
-# https://pve.proxmox.com/wiki/Storage:_Directory
-- name: Make sure /var/lib/vz/snippets folder exists
-  ansible.builtin.file:
-    path: "/var/lib/vz/snippets"
-    state: directory
-  become: true
-  delegate_to: "{{ vms_proxmox_template.node }}"
-
-- name: Copy user cloud-init file
-  template:
-    src: user-data-ci.j2
-    dest: "/var/lib/vz/snippets/{{ inventory_hostname }}-user-data-ci.yml"
-  become: true
-  delegate_to: "{{ vms_proxmox_template.node }}"
-
-- name: Copy network cloud-init file
-  template:
-    src: network-data-ci.j2
-    dest: "/var/lib/vz/snippets/{{ inventory_hostname }}-network-data-ci.yml"
-    become: true
-  delegate_to: "{{ vms_proxmox_template.node }}"
-
 - name: Clone Ubuntu 24.04 template
   community.general.proxmox_kvm:
     api_host: "{{ global_proxmox_api_host }}"
@@ -141,7 +119,7 @@
   delegate_to: localhost
   register: vms_increase_disk_size
 
-- name: Show vms_vm_info
+- name: Show vms_increase_disk_size
   ansible.builtin.debug:
     var: vms_increase_disk_size
 
@@ -162,35 +140,8 @@
   delegate_to: localhost
   when: vms_config.disk2 is defined
 
-- name: Get a list of vms
-  ansible.builtin.uri:
-    url: 'https://{{ global_proxmox_api_host }}:8006/api2/json/cluster/resources?type=vm'
-    method: GET
-    headers:
-      Authorization: "PVEAPIToken={{ global_proxmox_api_user }}!{{ global_proxmox_api_token_id }}={{ global_proxmox_api_token }}"
-    follow_redirects: safe
-    validate_certs: false
-  register: vms_vm_list
-  delegate_to: localhost
-
-- name: Get node where new virtual machine is located using vmid
-  ansible.builtin.set_fact:
-    vms_vm_node: "{{ item.node }}"
-  with_items: "{{ vms_vm_list.json.data }}"
-  loop_control:
-    label: "{{ item.vmid }}"
-  when: item.vmid == (vms_vm_info.vmid | int)
-
-- name: Migrate new image to target node
-  community.general.proxmox_kvm:
-    api_host: "{{ global_proxmox_api_host }}"
-    api_user: "{{ global_proxmox_api_user }}"
-    api_password: "{{ global_proxmox_api_password }}"
-    node: "{{ vms_proxmox_node }}"
-    vmid: "{{ vms_vmid | int }}"
-    migrate: true
-    state: present
-  delegate_to: localhost
+- name: Start virtual machine
+  ansible.builtin.include_tasks: "migrate.yml"
 
 - name: Start virtual machine
   ansible.builtin.include_tasks: "start.yml"
