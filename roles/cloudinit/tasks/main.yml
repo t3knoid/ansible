@@ -34,8 +34,11 @@
 
 - name: Remove existing virtual machine
   ansible.builtin.command: "qm destroy {{ cloudinit_vmid }} --purge"
+  args:
+    removes: "/var/lib/vz/images/{{ cloudinit_vmid }}/base-{{ cloudinit_vmid }}-disk-0.raw"
   changed_when: false
   delegate_to: "{{ vms_proxmox_node }}"
+  when: cloudinit_vm_exists
 
 - name: Ensure VM is created
   ansible.builtin.command: >
@@ -45,11 +48,13 @@
     --scsihw {{ cloudinit_scsi_controller_model }} \
     --agent enabled=1 \
     --cpu cputype={{ cloudinit_cpu_type }}
+  args:
+    creates: "/var/lib/vz/images/{{ cloudinit_vmid }}/base-{{ cloudinit_vmid }}-disk-0.raw"
   changed_when: false
   delegate_to: "{{ vms_proxmox_node }}"
 
-- name: Set SCSI disk for VM
-  ansible.builtin.command: "qm set {{ cloudinit_vmid }} --scsi0 {{ cloudinit_storage }}:0,import-from={{ cloudinit_download_dest }}"
+- name: Set virtio disk for VM
+  ansible.builtin.command: "qm set {{ cloudinit_vmid }} --virtio0 {{ cloudinit_storage }}:0,import-from={{ cloudinit_download_dest }}"
   changed_when: false
   delegate_to: "{{ vms_proxmox_node }}"
 
@@ -59,7 +64,7 @@
   delegate_to: "{{ vms_proxmox_node }}"
 
 - name: Set to boot from scsi0
-  ansible.builtin.command: "qm set {{ cloudinit_vmid }} --boot order=scsi0"
+  ansible.builtin.command: "qm set {{ cloudinit_vmid }} --boot order=virtio0"
   changed_when: false
   delegate_to: "{{ vms_proxmox_node }}"
 

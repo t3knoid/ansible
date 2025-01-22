@@ -15,6 +15,10 @@
   register: vms_vm_list
   delegate_to: localhost
 
+- name: Show vms_vm_list
+  debug:
+    var: vms_vm_list
+
 - name: Get node where virtual machine template is located
   ansible.builtin.set_fact:
     vms_proxmox_template: "{{ item }}"
@@ -26,6 +30,14 @@
 - name: Show vms_proxmox_template
   ansible.builtin.debug:
     var: vms_proxmox_template
+
+- name: Store boot disk size
+  ansible.builtin.set_fact:
+    vms_boot_disk_size: '{{ vms_proxmox_template.maxdisk | human_readable(unit="G") | split() | first }}'
+
+- name: Show vms_vm_info
+  ansible.builtin.debug:
+    var: vms_boot_disk_size
 
 - name: Fail if template does not exist
   ansible.builtin.fail:
@@ -78,12 +90,20 @@
   delegate_to: localhost
   register: vms_vm_info
 
+- name: Store new virtual machine vmid
+  ansible.builtin.set_fact:
+    vms_vmid: "{{ vms_vm_info.vmid }}"
+
+- name: Show vms_vm_info
+  ansible.builtin.debug:
+    var: vms_vmid
+
 - name: Update Ubuntu 24.04 template
   community.general.proxmox_kvm:
     api_host: "{{ global_proxmox_api_host }}"
     api_user: "{{ global_proxmox_api_user }}"
     api_password: "{{ global_proxmox_api_password }}"
-    vmid: "{{ vms_vm_info.vmid }}"
+    vmid: "{{ vms_vmid | int }}"
     node: "{{ vms_proxmox_template.node }}"
     timeout: 1000
     cores: "{{ vms_config.cores }}"
@@ -91,7 +111,7 @@
     memory: "{{ vms_config.memory }}"
     cpu: "{{ vms_config.cpu }}"
     ostype: "{{ vms_config.ostype }}"
-    bootdisk: scsi0
+    bootdisk: virtio0
     serial:
       serial0: socket
     vga: serial0
@@ -103,9 +123,27 @@
   delegate_to: localhost
   register: vms_vm_info
 
+- name: Store new virtual machine vmid
+  ansible.builtin.set_fact:
+    vms_disk_size_increase: "{{ vms_config.disk_os.size | int - vms_boot_disk_size | int }}"
+
+- name: Increase boot disk size
+  community.general.proxmox_disk:
+    api_host: "{{ global_proxmox_api_host }}"
+    api_user: "{{ global_proxmox_api_user }}"
+    api_password: "{{ global_proxmox_api_password }}"
+    api_token_id: "{{ global_proxmox_api_token_id }}"
+    api_token_secret: "{{ global_proxmox_api_token }}"
+    vmid: "{{ vms_vmid | int }}"
+    disk: "{{ vms_config.disk_os.disk }}"
+    size: "+{{ vms_disk_size_increase}}G"  # 3.584G is the original disk size
+    state: resized
+  delegate_to: localhost
+  register: vms_increase_disk_size
+
 - name: Show vms_vm_info
   ansible.builtin.debug:
-    var: vms_vm_info
+    var: vms_increase_disk_size
 
 - name: Add second disk
   community.general.proxmox_disk:
@@ -114,7 +152,7 @@
     api_token_id: "{{ global_proxmox_api_token_id }}"
     api_token_secret: "{{ global_proxmox_api_token }}"
     api_password: "{{ global_proxmox_api_password }}"
-    vmid: "{{ vms_vm_info.vmid }}"
+    vmid: "{{ vms_vmid | int }}"
     disk: virtio1
     backup: "{{ vms_config.disk2.backup | default(true) }}"
     cache: none
@@ -149,7 +187,7 @@
     api_user: "{{ global_proxmox_api_user }}"
     api_password: "{{ global_proxmox_api_password }}"
     node: "{{ vms_proxmox_node }}"
-    vmid: "{{ vms_vm_info.vmid }}"
+    vmid: "{{ vms_vmid | int }}"
     migrate: true
     state: present
   delegate_to: localhost
