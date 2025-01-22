@@ -31,7 +31,7 @@
   ansible.builtin.set_fact:
     vms_jquery: "[?json.data[?name== '{{ inventory_hostname }}']].item"
 
-- name: Show vms_vm_list
+- name: Set vms_proxmox_node fact
   ansible.builtin.set_fact:
     vms_proxmox_node: "{{ vms_vm_items.results | json_query(vms_jquery) | first }}"
 
