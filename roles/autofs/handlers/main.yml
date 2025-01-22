@@ -1,5 +1,5 @@
 ---
 - name: Restart autofs
-  service:
+  ansible.builtin.service:
     name: autofs
     state: restarted
