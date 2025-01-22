@@ -36,7 +36,7 @@
     vms_found_vmid: "{{ vms_vm_items.results | json_query(vms_jquery) | flatten }}"
 
 - name: Set vms_vmid
-  set_fact:
+  ansible.builtin.set_fact:
     vms_vmid: "{{ vms_found_vmid | first }}"
   when: vms_found_vmid | length > 0
 
