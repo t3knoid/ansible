@@ -1,0 +1,11 @@
+---
+
+argument_specs:
+  # roles/ansible_setup/tasks/main.yml entry point
+  main:
+    short_description: Main entry point for the ansible_setup role
+    description:
+      - This is the main entrypoint for the ansible_setup role.
+      - It installs and configures Ansible.
+    author:
+      - Frank Refol
