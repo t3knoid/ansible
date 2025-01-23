@@ -63,7 +63,7 @@
   changed_when: false
   delegate_to: "{{ vms_proxmox_node }}"
 
-- name: Set to boot from scsi0
+- name: Set to boot from virtio0
   ansible.builtin.command: "qm set {{ cloudinit_vmid }} --boot order=virtio0"
   changed_when: false
   delegate_to: "{{ vms_proxmox_node }}"
