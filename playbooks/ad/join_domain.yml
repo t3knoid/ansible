@@ -10,4 +10,3 @@
     - name: Import ad role
       ansible.builtin.import_role:
         name: ad
-        tasks_from: join
