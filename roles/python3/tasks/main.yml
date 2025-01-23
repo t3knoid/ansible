@@ -14,9 +14,5 @@
     state: present
   loop: "{{ python3_packages_to_install }}"
 
-- name: Create a directory for the virtual environment
-  ansible.builtin.file:
-    path: "/opt/python_{{ python3_version }}"
-    state: directory
-    mode: "0774"
-    group: "ansible"
+- name: Include venv.yml tasks
+  ansible.builtin.include_tasks: venv.yml
