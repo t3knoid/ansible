@@ -10,10 +10,13 @@
 
 - name: Create Python virtual environment
   ansible.builtin.command: "python3 -m venv {{ python3_venv_folder }}"
+  args:
+    creates: "{{ python3_venv_folder }}/bin/activate"
   register: python3_command_return
   changed_when: python3_command_return.rc !=0
 
 - name: Upgrade Python pip
-  ansible.builtin.command: "{{ python3_venv_folder}}/bin/pip install --upgrade pip"
-  register: python3_install_pip
-  changed_when: python3_install_pip.rc !=0
+  ansible.builtin.pip:
+    name:
+    virtualenv: "{{ python3_venv_folder }}"
+    state: latest
