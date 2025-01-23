@@ -1,31 +1,25 @@
 ---
 
-- name: Find all disks
-  ansible.builtin.set_fact:
-    disks: "{{ ansible_devices.keys() | select('match', '^vd[a-z]$') | list }}"
+- name: Run lsblk command to get disk info
+  ansible.builtin.command: lsblk -J -o NAME,TYPE,FSTYPE
+  register: lsblk_output
+  changed_when: lsblk_output is defined
 
-- name: Show disks
+- name: Display lsblk output
   ansible.builtin.debug:
-    var: disks
+    msg: "{{ lsblk_output.stdout }}"
 
-- name: Check filesystem type
-  ansible.builtin.command: "lsblk -f -l /dev/{{ item }}"
-  register: disk_check
-  ignore_errors: true
-  loop: "{{ disks }}"
-  changed_when: disk_check is defined
-
-- name: Set fact for unformatted disks
+- name: Find unformatted disks
   ansible.builtin.set_fact:
-    unformatted_disks: "{{ unformatted_disks | default([]) + [item.item] }}"
-  when: "'ext4' not in item.stdout and 'xfs' not in item.stdout"
-  loop_control:
-    label: "{{ item.stdout }}"
-  loop: "{{ disk_check.results }}"
+    unformatted_disks: >
+      {{
+        lsblk_output.stdout | from_json |
+        json_query("blockdevices[?children == null && type == 'disk'].name")
+      }}
 
-- name: Show unformatted_disks
+- name: Display unformatted disks
   ansible.builtin.debug:
-    var: unformatted_disks
+    msg: "Unformatted disks: {{ unformatted_disks }}"
 
 - name: Create an ext4 primary partition
   when: unformatted_disks is defined
@@ -47,17 +41,26 @@
     dev: "/dev/{{ item }}1"
   with_items: "{{ unformatted_disks }}"
 
-- name: Set fact for formatted disks
-  ansible.builtin.set_fact:
-    formatted_disks: "{{ formatted_disks | default([]) + [item.stdout_lines[2].split()[0]] }}"
-  when: "'ext4' in item.stdout"
-  loop_control:
-    label: "{{ item.stdout }}"
-  loop: "{{ disk_check.results }}"
+- name: Run lsblk command to get disk info
+  ansible.builtin.command: lsblk -J -o NAME,TYPE,FSTYPE,MOUNTPOINTS
+  register: lsblk_output
+  changed_when: lsblk_output is defined
 
-- name: Show formatted_disks
+- name: Display lsblk output
   ansible.builtin.debug:
-    var: formatted_disks
+    msg: "{{ lsblk_output.stdout }}"
+
+- name: Find ummounted disks
+  ansible.builtin.set_fact:
+    unmounted_disks: >
+      {{
+        lsblk_output.stdout | from_json |
+        json_query("blockdevices[].children[?fstype=='ext4' && mountpoints[0]==null].name") | flatten
+      }}
+
+- name: Display ummounted disks
+  ansible.builtin.debug:
+    msg: "Unmounted disks: {{ unmounted_disks }}"
 
 - name: Ensure mountpoint exists
   ansible.builtin.file:
@@ -77,4 +80,4 @@
     boot: true
   with_nested:
     - "{{ disks_disk_mounts }}"
-    - "{{ formatted_disks }}"
+    - "{{ unmounted_disks }}"
