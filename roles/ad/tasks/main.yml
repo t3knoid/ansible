@@ -24,16 +24,16 @@
 
 - name: Discover domain
   ansible.builtin.command: "realm discover {{ global_domain_name }}"
-  register: realm_discover_output
-  changed_when: realm_discover_output.changed
+  register: ad_realm_discover_output
+  changed_when: ad_realm_discover_output.changed
 
-- name: Show realm_discover_output
+- name: Show ad_realm_discover_output
   ansible.builtin.debug:
-    var: realm_discover_output.stdout_lines
+    var: ad_realm_discover_output.stdout_lines
 
 - name: Find configured value
   ansible.builtin.set_fact:
-    ad_configured: "{{ realm_discover_output.stdout_lines | select('search', '^\\s*configured:') | map('regex_replace', '^\\s*configured:\\s*', '') }}"
+    ad_configured: "{{ ad_realm_discover_output.stdout_lines | select('search', '^\\s*configured:') | map('regex_replace', '^\\s*configured:\\s*', '') }}"
 
 - name: Display "configured" value
   ansible.builtin.set_fact:
@@ -60,13 +60,13 @@
       Password for Administrator: "{{ ad_administrator_password }}"
     echo: true
   become: true
-  register: realm_join_output
-  changed_when: realm_join_output.changed
+  register: ad_realm_join_output
+  changed_when: ad_realm_join_output.changed
   when: not ad_configured
 
-- name: Show realm_join_output
+- name: Show ad_realm_join_output
   ansible.builtin.debug:
-    var: realm_join_output.stdout_lines
+    var: ad_realm_join_output.stdout_lines
   when: not ad_configured
 
 - name: Set use_fully_qualified_names in /etc/sssd/sssd.conf to False
@@ -97,6 +97,7 @@
 - name: Enable mkhomedir
   ansible.builtin.command: pam-auth-update --enable mkhomedir
   register: ad_mkhomedir_result
+  changed_when: ad_mkhomedir_result.changed
 
 - name: Show ad_mkhomedir_result
   ansible.builtin.debug:
