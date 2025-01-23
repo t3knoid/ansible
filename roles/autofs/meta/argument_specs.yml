@@ -1,0 +1,12 @@
+---
+
+argument_specs:
+  # roles/autofs/tasks/main.yml entry point
+  main:
+    short_description: Main entry point for the autofs role
+    description:
+      - This is the main entrypoint for the autofs role.
+      - It installs and configures autofs and related mount points.
+    author:
+      - Frank Refol
+
