@@ -1,0 +1,17 @@
+---
+
+argument_specs:
+  # roles/ad/tasks/main.yml entry point
+  main:
+    short_description: Main entry point for the ad role
+    description:
+      - This is the main entrypoint for the ad role.
+      - It installs the required packages in order for a node to join an active directory domain.
+      - Use the user ansible (e.g. -u ansible) when using this role
+    author:
+      - Frank Refol
+  # roles/ad/tasks/leave.yml entry point
+  alternate:
+    short_description: Entry point to use when leaving a domain
+    description:
+      - Use this entry point when leaving a domain
