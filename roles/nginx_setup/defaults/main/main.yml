@@ -1,0 +1,8 @@
+---
+
+nginx_setup_site_name: "{{ inventory_hostname }}"
+nginx_setup_worker_connections: 768
+nginx_setup_homedir: /data/nginx
+nginx_setup_access_log: "{{ nginx_setup_homedir }}/log/access.log"
+
+nginx_setup_letsencrypt_homedir: /data/letsencrypt
