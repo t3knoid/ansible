@@ -88,10 +88,6 @@
   register: certbot_setup_cert_pem
   with_items: "{{ nginx_setup_sites }}"
 
-- name: Show certbot_setup_cert_pem
-  ansible.builtin.debug:
-    var: certbot_setup_cert_pem.results
-
 - name: Create a private keys
   community.crypto.openssl_privatekey:
     path: "{{ nginx_setup_letsencrypt_homedir }}/live/{{ certbot_setup_cert.item.server_name }}/privkey.pem"
