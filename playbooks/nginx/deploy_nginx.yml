@@ -2,4 +2,5 @@
   hosts: nginx
   become: true
   roles:
+    - global
     - nginx_setup
