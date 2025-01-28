@@ -5,40 +5,112 @@
   ansible.builtin.apt:
     update_cache: true
 
-- name: Install nginx, certbot, and python3-certbot-nginx
+- name: Install nginx
   ansible.builtin.apt:
     name:
       - nginx
-      - certbot
-      - python3-certbot-nginx
     state: present
     update_cache: true
 
-- name: Create or update Nginx site configuration
-  ansible.builtin.copy:
-    dest: /etc/nginx/sites-available/{{ nginx_setup_site_name }}
-    content: "{{ nginx_setup_site_config }}"
+- name: Ensure custom nginx folders exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
     mode: "0644"
+  with_items:
+    - "{{ nginx_setup_homedir }}"
+    - "{{ nginx_setup_homedir }}/log"
+    - "{{ nginx_setup_homedir }}/sites-enabled"
+    - "{{ nginx_setup_homedir }}/sites-available"
+    - "{{ nginx_setup_letsencrypt_homedir }}"
+
+- name: Modify error.log path in nginx.conf
+  ansible.builtin.lineinfile:
+    path: /etc/nginx/nginx.conf
+    regexp: '^\s*error_log\s+'
+    line: '\g<0> {{ nginx_setup_homedir }}/log/error.log;'
+    backrefs: true
+  notify: Restart nginx
+
+- name: Modify access.log path in nginx.conf
+  ansible.builtin.lineinfile:
+    path: /etc/nginx/nginx.conf
+    regexp: '^\s*access_log\s+'
+    line: '\g<0> {{ nginx_setup_homedir }}/log/access.log;'
+    backrefs: true
+  notify: Restart nginx
+
+- name: Modify sites-enabled path in nginx.conf
+  ansible.builtin.lineinfile:
+    path: /etc/nginx/nginx.conf
+    regexp: '^\s*include\s+/etc/nginx/sites-enabled/\*;'
+    line: '        include {{ nginx_setup_homedir }}/sites-enabled/*;'
+  notify: Restart nginx
+
+- name: Create or update Nginx site configuration
+  ansible.builtin.template:
+    src: site.conf.j2
+    dest: "{{ nginx_setup_homedir }}/sites-available/{{ item.server_name }}.conf"
+    mode: "0644"
+  with_items: "{{ nginx_setup_sites }}"
   notify: Restart nginx
 
 - name: Enable Nginx site configuration
   ansible.builtin.file:
-    src: "/etc/nginx/sites-available/{{ nginx_setup_site_name }}"
-    dest: "/etc/nginx/sites-enabled/{{ nginx_setup_site_name }}"
+    src: "{{ nginx_setup_homedir }}/sites-available/{{ item.server_name }}.conf"
+    dest: "{{ nginx_setup_homedir }}/sites-enabled/{{ item.server_name }}.conf"
     state: link
     force: true
+  with_items: "{{ nginx_setup_sites }}"
   notify: Restart nginx
 
 - name: Disable Nginx default site
   ansible.builtin.file:
-    path: "/etc/nginx/sites-enabled/default"
+    path: "{{ nginx_setup_homedir }}/sites-enabled/default"
     state: absent
 
-- name: Make sure Nginx is started
-  ansible.builtin.service:
-    name: nginx
-    state: started
-  become: true
+- name: Create .htpasswd
+  ansible.builtin.copy:
+    content: "{{ nginx_setup_user_name }}:{{ nginx_setup_password }}"
+    dest: "{{ nginx_setup_homedir }}/.htpasswd"
+    mode: "0644"
+
+- name: Ensure certificate host folders exist
+  ansible.builtin.file:
+    path: "{{ nginx_setup_letsencrypt_homedir }}/live/{{ item.server_name }}"
+    state: directory
+    mode: "0644"
+  with_items: "{{ nginx_setup_sites }}"
+
+- name: Check if certificate is present
+  ansible.builtin.stat:
+    path: "{{ nginx_setup_letsencrypt_homedir }}/live/{{ item.server_name }}/cert.pem"
+  register: certbot_setup_cert_pem
+  with_items: "{{ nginx_setup_sites }}"
+
+- name: Show certbot_setup_cert_pem
+  ansible.builtin.debug:
+    var: certbot_setup_cert_pem.results
+
+- name: Create a private keys
+  community.crypto.openssl_privatekey:
+    path: "{{ nginx_setup_letsencrypt_homedir }}/live/{{ certbot_setup_cert.item.server_name }}/privkey.pem"
+    size: 2048
+    state: present
+  loop: "{{ certbot_setup_cert_pem.results }}"
+  when: not certbot_setup_cert.stat.exists
+  loop_control:
+    loop_var: certbot_setup_cert
+
+- name: Create a self-signed certificates
+  community.crypto.x509_certificate:
+    path: "{{ nginx_setup_letsencrypt_homedir }}/live/{{ certbot_setup_cert.item.server_name }}/cert.pem"
+    privatekey_path: "{{ nginx_setup_letsencrypt_homedir }}/live/{{ certbot_setup_cert.item.server_name }}/privkey.pem"
+    provider: selfsigned
+  loop: "{{ certbot_setup_cert_pem.results }}"
+  when: not certbot_setup_cert.stat.exists
+  loop_control:
+    loop_var: certbot_setup_cert
 
 - name: Modify worker_connections in nginx.conf
   ansible.builtin.lineinfile:
@@ -49,13 +121,9 @@
     backup: true
     state: present
   become: true
-# - name: Obtain and install SSL certificate with Certbot
-#   ansible.builtin.command: >
-#     certbot --non-interactive --redirect --agree-tos --nginx
-#     -d {{ nginx_domain_name }} -m 11518894+t3knoid@users.noreply.github.com
-#   notify: Restart nginx
-#   register: certbot_command_retval
 
-# - name: Show certbot_command_retval
-#   debug:
-#     var: certbot_command_retval
+- name: Make sure Nginx is started
+  ansible.builtin.service:
+    name: nginx
+    state: started
+  become: true

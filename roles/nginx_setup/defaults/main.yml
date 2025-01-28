@@ -1,4 +1,0 @@
----
-
-nginx_setup_site_name: "{{ inventory_hostname }}"
-nginx_setup_worker_connections: 768
