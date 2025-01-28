@@ -12,6 +12,20 @@
     state: present
     update_cache: true
 
+- name: Add upstream block to nginx.conf
+  ansible.builtin.blockinfile:
+    path: /etc/nginx/nginx.conf
+    marker: "# {mark} ANSIBLE MANAGED BLOCK"
+    block: |
+      upstream secondary {
+      {% for server in groups['secondary'] %}
+        server {{ server }}:80;
+      {% endfor %}
+      }
+    insertafter: "http {"
+  when: "'primary' in group_names"
+  notify: Restart nginx
+
 - name: Ensure custom nginx folders exist
   ansible.builtin.file:
     path: "{{ item }}"
@@ -54,6 +68,15 @@
     mode: "0644"
   with_items: "{{ nginx_setup_sites }}"
   notify: Restart nginx
+
+- name: Modify primary Nginx site configuration if in load-balanced configuration
+  ansible.builtin.lineinfile:
+    path: "{{ nginx_setup_homedir }}/sites-available/{{ item.server_name }}.conf"
+    regexp: '^\s*proxy_pass\s+.*;'
+    line: '        proxy_pass http://secondary;'
+  with_items: "{{ nginx_setup_sites }}"
+  notify: Restart nginx
+  when: "'primary' in group_names"
 
 - name: Enable Nginx site configuration
   ansible.builtin.file:
