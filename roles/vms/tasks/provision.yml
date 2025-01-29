@@ -76,13 +76,16 @@
   ansible.builtin.debug:
     var: vms_vmid
 
-- name: Update Ubuntu 24.04 template
+- name: Include get_vms_proxmox_node tasks
+  ansible.builtin.include_tasks: "get_vms_proxmox_node.yml"
+
+- name: Update vm
   community.general.proxmox_kvm:
     api_host: "{{ global_proxmox_api_host }}"
     api_user: "{{ global_proxmox_api_user }}"
     api_password: "{{ global_proxmox_api_password }}"
     vmid: "{{ vms_vmid | int }}"
-    node: "{{ vms_proxmox_template.node }}"
+    node: "{{ vms_proxmox_node }}"
     timeout: 1000
     cores: "{{ vms_config.cores }}"
     sockets: "{{ vms_config.sockets }}"
