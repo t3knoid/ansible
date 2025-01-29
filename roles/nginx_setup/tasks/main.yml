@@ -25,6 +25,7 @@
     insertafter: "http {"
   when: "'primary' in group_names"
   notify: Restart nginx
+  tags: nginx_setup_config
 
 - name: Ensure custom nginx folders exist
   ansible.builtin.file:
@@ -50,6 +51,7 @@
     line: '\g<0> {{ nginx_setup_homedir }}/log/error.log;'
     backrefs: true
   notify: Restart nginx
+  tags: nginx_setup_config
 
 - name: Modify access.log path in nginx.conf
   ansible.builtin.lineinfile:
@@ -58,6 +60,7 @@
     line: '\g<0> {{ nginx_setup_homedir }}/log/access.log;'
     backrefs: true
   notify: Restart nginx
+  tags: nginx_setup_config
 
 - name: Modify sites-enabled path in nginx.conf
   ansible.builtin.lineinfile:
@@ -65,6 +68,7 @@
     regexp: '^\s*include\s+/etc/nginx/sites-enabled/\*;'
     line: '        include {{ nginx_setup_homedir }}/sites-enabled/*;'
   notify: Restart nginx
+  tags: nginx_setup_config
 
 - name: Create or update Nginx site configuration
   ansible.builtin.template:
@@ -76,6 +80,7 @@
     label: "{{ nginx_setup_site.server_name }}"
     loop_var: nginx_setup_site
   notify: Restart nginx
+  tags: nginx_setup_config
 
 - name: Modify primary Nginx site configuration if in load-balanced configuration
   ansible.builtin.lineinfile:
@@ -88,6 +93,7 @@
     loop_var: nginx_setup_site
   notify: Restart nginx
   when: "'primary' in group_names"
+  tags: nginx_setup_config
 
 - name: Enable Nginx site configuration
   ansible.builtin.file:
@@ -100,6 +106,7 @@
     label: "{{ nginx_setup_site.server_name }}"
     loop_var: nginx_setup_site
   notify: Restart nginx
+  tags: nginx_setup_config
 
 - name: Disable Nginx default site
   ansible.builtin.file:
@@ -164,9 +171,11 @@
     backup: true
     state: present
   become: true
+  tags: nginx_setup_config
 
 - name: Make sure Nginx is started
   ansible.builtin.service:
     name: nginx
     state: started
   become: true
+  tags: nginx_setup_config
