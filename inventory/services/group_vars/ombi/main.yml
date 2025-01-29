@@ -1,0 +1,24 @@
+---
+
+vms_config:
+  agent: "1"
+  cores: "2"
+  cpu: host
+  memory: 2048
+  ostype: l26
+  scsihw: virtio-scsi-single
+  sockets: 1
+  storage: linstor_storage
+  disk_os:
+    disk: virtio0
+    backup: true
+    size: 20
+    storage: linstor_storage
+  disk2:
+    disk: virtio0
+    backup: true
+    size: 20
+    storage: linstor_storage
+
+pihole_cname_domain: ombi.refol.us
+pihole_cname_target_domain: rproxy-0.refol.us
