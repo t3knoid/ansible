@@ -9,11 +9,13 @@ vms_config:
   scsihw: virtio-scsi-single
   sockets: 1
   storage: linstor_storage
-  disk_os: 
+  disk_os:
+    disk: virtio0
     backup: true
     size: 30
     storage: linstor_storage
   disk2:
+    disk: virtio0
     backup: true
     size: 30
     storage: linstor_storage
