@@ -133,10 +133,6 @@
     label: "{{ nginx_setup_site.server_name }}"
     loop_var: nginx_setup_site
 
-- name: Show nginx_setup_cert_pem
-  debug:
-    var: nginx_setup_cert_pem.results
-
 - name: Create private keys
   community.crypto.openssl_privatekey:
     path: "{{ nginx_setup_letsencrypt_homedir }}/live/{{ nginx_setup_cert.nginx_setup_site.server_name }}/privkey.pem"
