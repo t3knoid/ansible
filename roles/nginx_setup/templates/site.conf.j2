@@ -7,8 +7,8 @@ server {
 
     server_name {{ nginx_setup_site.server_name }};
 
-    ssl_certificate {{ nginx_setup_letsencrypt_homedir }}/live/{{ nginx_setup_site.server_name }}/cert.pem;
-    ssl_certificate_key {{ nginx_setup_letsencrypt_homedir }}/live/{{ nginx_setup_site.server_name }}/privkey.pem;  
+    ssl_certificate {{ nginx_setup_letsencrypt_homedir }}/{{ nginx_setup_cert_dir }}/{{ nginx_setup_site.server_name }}/cert.pem;
+    ssl_certificate_key {{ nginx_setup_letsencrypt_homedir }}/{{ nginx_setup_cert_dir }}/{{ nginx_setup_site.server_name }}/privkey.pem;  
 
 {% for ip in nginx_setup_site.allow_list %}
     allow {{ ip }};

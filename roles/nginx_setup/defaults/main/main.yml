@@ -6,3 +6,4 @@ nginx_setup_homedir: /data/nginx
 nginx_setup_access_log: "{{ nginx_setup_homedir }}/log/access.log"
 
 nginx_setup_letsencrypt_homedir: /data/letsencrypt
+nginx_setup_cert_dir: live # Set this to dummy on first deploy, afterwards, set to live
