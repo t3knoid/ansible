@@ -7,4 +7,5 @@ python3_packages_to_install:
   - python3-requests
   - python3-pexpect
   - python3-venv
+  - python3-passlib
 python3_venv_folder: "/opt/python_{{ python3_version }}"

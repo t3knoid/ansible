@@ -5,12 +5,12 @@ server {
     listen 443 ssl http2;
     listen [::]:443 ssl http2;
 
-    server_name {{ item.server_name }};
+    server_name {{ nginx_setup_site.server_name }};
 
-    ssl_certificate {{ nginx_setup_letsencrypt_homedir }}/live/{{ item.server_name }}/cert.pem;
-    ssl_certificate_key {{ nginx_setup_letsencrypt_homedir }}/live/{{ item.server_name }}/privkey.pem;  
+    ssl_certificate {{ nginx_setup_letsencrypt_homedir }}/live/{{ nginx_setup_site.server_name }}/cert.pem;
+    ssl_certificate_key {{ nginx_setup_letsencrypt_homedir }}/live/{{ nginx_setup_site.server_name }}/privkey.pem;  
 
-{% for ip in item.allow_list %}
+{% for ip in nginx_setup_site.allow_list %}
     allow {{ ip }};
 {% endfor %}
 
@@ -23,7 +23,7 @@ server {
         # enable for basic auth
         auth_basic "Restricted";
         auth_basic_user_file /data/nginx/.htpasswd;
-        proxy_pass {{ item.proxy_pass }}:{{ item.port }};
+        proxy_pass {{ nginx_setup_site.proxy_pass }}:{{ nginx_setup_site.port }};
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection $http_connection;
