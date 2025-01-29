@@ -1,0 +1,7 @@
+- name: Generate certificates
+  hosts: certbot
+  gather_facts: false
+  become: true
+  roles:
+    - global
+    - certs

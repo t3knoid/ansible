@@ -1,0 +1,61 @@
+---
+
+- name: Ensure custom certbot folders exist
+  ansible.builtin.file:
+    path: "{{ certs_folder }}"
+    state: directory
+    mode: "0755"
+    owner: www-data
+    group: www-data
+  loop:
+    - "{{ certs_home }}"
+    - "{{ certs_home }}/log"
+    - "{{ certs_home }}/work"
+  loop_control:
+    label: "{{ certs_folder }}"
+    loop_var: certs_folder
+
+- name: Extract server domain names
+  ansible.builtin.set_fact:
+    certs_domain_names: "{{ global_sites | map(attribute='server_name') | list }}"
+
+- name: Display server names
+  ansible.builtin.debug:
+    msg: "{{ certs_domain_names }}"
+
+- name: Set certs_email_arg for no email by default
+  ansible.builtin.set_fact:
+    certs_email_arg: "--register-unsafely-without-email"
+
+- name: Set email_arg for non-empty email
+  ansible.builtin.set_fact:
+    certs_email_arg: "--email {{ certs_email }}"
+  when: certs_email is defined and certs_email | length > 0
+
+- name: Determine the staging argument
+  ansible.builtin.set_fact:
+    certs_staging_arg: "--staging"
+  when: certs_staging != "0"
+
+- name: Request certificates for each domain name
+  ansible.builtin.command: >
+    certbot certonly --key-type rsa --nginx
+    {{ certs_staging_arg }}
+    {{ certs_email_arg }}
+    -d {{ item }}
+    --rsa-key-size {{ certs_rsa_key_size }}
+    --agree-tos
+    --force-renewal
+    --config-dir {{ certs_home }}
+    --work-dir {{ certs_home }}/work
+    --logs-dir {{ certs_home }}/log
+
+  loop: "{{ certs_domain_names }}"
+  loop_control:
+    label: "{{ item }}"
+  register: certs_certbot_output
+  changed_when: false
+
+- name: Debug certbot_output
+  ansible.builtin.debug:
+    var: certs_certbot_output
