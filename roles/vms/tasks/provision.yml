@@ -156,3 +156,7 @@
 
 - name: Update known_hosts file
   ansible.builtin.include_tasks: "known_hosts.yml"
+
+- name: Wait for cloud-init to finish
+  ansible.builtin.command: cloud-init status --wait
+  changed_when: false
