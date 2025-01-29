@@ -32,10 +32,14 @@
     certs_email_arg: "--email {{ certs_email }}"
   when: certs_email is defined and certs_email | length > 0
 
-- name: Determine the staging argument
+- name: Set to staging by default
   ansible.builtin.set_fact:
     certs_staging_arg: "--staging"
-  when: certs_staging != "0"
+
+- name: Set to live
+  ansible.builtin.set_fact:
+    certs_staging_arg: ""
+  when: certs_staging == 0
 
 - name: Request certificates for each domain name
   ansible.builtin.command: >
