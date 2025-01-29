@@ -1,8 +1,5 @@
 ---
 
-- name: Remove VM hostname from local DNS entry
-  ansible.builtin.import_playbook: ../dns/delete_dns_entry.yml
-
 - name: Remove the VM
   hosts: vms
   gather_facts: false
@@ -11,13 +8,18 @@
 
   tasks:
 
+    - name: The following virtual machines will be removed
+      ansible.builtin.debug:
+        msg: "{{ ansible_play_hosts }}"
+
     - name: Confirm virtual machine removal
-      pause:
+      ansible.builtin.pause:
         prompt: "Are you sure you want to proceed? (yes/no)"
       register: confirm_remove
       when: confirm_remove is not defined or confirm_remove == "yes"
 
-    - meta: end_play
+    - name: Exit
+      ansible.builtin.meta: end_play
       when: confirm_remove.user_input | default('yes') != 'yes'
 
     - name: Remove dns entry
