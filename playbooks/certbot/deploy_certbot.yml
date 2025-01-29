@@ -1,0 +1,10 @@
+---
+
+- name: Deploy certbot
+  hosts: certbot
+  become: true
+  roles:
+    - global
+    - users
+    - python3
+    - certbot_setup

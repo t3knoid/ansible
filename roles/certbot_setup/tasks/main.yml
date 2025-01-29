@@ -1,0 +1,14 @@
+---
+
+- name: Install Certbot and Certbot Nginx plugin
+  ansible.builtin.pip:
+    name:
+      - certbot
+      - certbot-nginx
+    virtualenv: "{{ python3_venv_folder }}"
+    state: present
+- name: Create symbolic link for Certbot command
+  ansible.builtin.file:
+    src: "{{ python3_venv_folder }}/bin/certbot"
+    dest: /usr/bin/certbot
+    state: link
