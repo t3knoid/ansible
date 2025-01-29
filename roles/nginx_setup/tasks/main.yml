@@ -71,7 +71,7 @@
     src: site.conf.j2
     dest: "{{ nginx_setup_homedir }}/sites-available/{{ nginx_setup_site.server_name }}.conf"
     mode: "0644"
-  loop: "{{ nginx_setup_sites }}"
+  loop: "{{ global_sites }}"
   loop_control:
     label: "{{ nginx_setup_site.server_name }}"
     loop_var: nginx_setup_site
@@ -82,7 +82,7 @@
     path: "{{ nginx_setup_homedir }}/sites-available/{{ nginx_setup_site.server_name }}.conf"
     regexp: '^\s*proxy_pass\s+.*;'
     line: '        proxy_pass http://secondary;'
-  loop: "{{ nginx_setup_sites }}"
+  loop: "{{ global_sites }}"
   loop_control:
     label: "{{ nginx_setup_site.server_name }}"
     loop_var: nginx_setup_site
@@ -95,7 +95,7 @@
     dest: "{{ nginx_setup_homedir }}/sites-enabled/{{ nginx_setup_site.server_name }}.conf"
     state: link
     force: true
-  loop: "{{ nginx_setup_sites }}"
+  loop: "{{ global_sites }}"
   loop_control:
     label: "{{ nginx_setup_site.server_name }}"
     loop_var: nginx_setup_site
@@ -119,7 +119,7 @@
     path: "{{ nginx_setup_letsencrypt_homedir }}/live/{{ nginx_setup_site.server_name }}"
     state: directory
     mode: "0644"
-  loop: "{{ nginx_setup_sites }}"
+  loop: "{{ global_sites }}"
   loop_control:
     label: "{{ nginx_setup_site.server_name }}"
     loop_var: nginx_setup_site
@@ -128,7 +128,7 @@
   ansible.builtin.stat:
     path: "{{ nginx_setup_letsencrypt_homedir }}/live/{{ nginx_setup_site.server_name }}/cert.pem"
   register: nginx_setup_cert_pem
-  loop: "{{ nginx_setup_sites }}"
+  loop: "{{ global_sites }}"
   loop_control:
     label: "{{ nginx_setup_site.server_name }}"
     loop_var: nginx_setup_site
