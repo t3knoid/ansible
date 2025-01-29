@@ -1,0 +1,18 @@
+#cloud-config
+# See https://cloudinit.readthedocs.io/en/latest/reference/network-config-format-v2.html
+network:
+  version: 2
+  ethernets:
+    ens18:
+      addresses: 
+        - {{ global_ip_address }}/24
+      routes: # https://netplan.readthedocs.io/en/latest/netplan-yaml/#default-routes
+      - to: default
+        via: {{ global_gateway }}
+      nameservers:
+        search:
+          - {{ global_domain_name }}
+        addresses:
+          {% for dns_server in global_dns_servers -%}
+            - {{ dns_server }}
+          {% endfor -%}
