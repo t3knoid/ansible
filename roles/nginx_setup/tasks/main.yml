@@ -116,7 +116,7 @@
 
 - name: Ensure certificate host folders exist
   ansible.builtin.file:
-    path: "{{ nginx_setup_letsencrypt_homedir }}/live/{{ nginx_setup_site.server_name }}"
+    path: "{{ nginx_setup_letsencrypt_homedir }}/{{ nginx_setup_cert_dir }}/{{ nginx_setup_site.server_name }}"
     state: directory
     mode: "0644"
   loop: "{{ global_sites }}"
@@ -126,7 +126,7 @@
 
 - name: Check if certificate is present
   ansible.builtin.stat:
-    path: "{{ nginx_setup_letsencrypt_homedir }}/live/{{ nginx_setup_site.server_name }}/cert.pem"
+    path: "{{ nginx_setup_letsencrypt_homedir }}/{{ nginx_setup_cert_dir }}/{{ nginx_setup_site.server_name }}/cert.pem"
   register: nginx_setup_cert_pem
   loop: "{{ global_sites }}"
   loop_control:
@@ -135,7 +135,7 @@
 
 - name: Create private keys
   community.crypto.openssl_privatekey:
-    path: "{{ nginx_setup_letsencrypt_homedir }}/live/{{ nginx_setup_cert.nginx_setup_site.server_name }}/privkey.pem"
+    path: "{{ nginx_setup_letsencrypt_homedir }}/{{ nginx_setup_cert_dir }}/{{ nginx_setup_cert.nginx_setup_site.server_name }}/privkey.pem"
     size: 2048
     state: present
   loop: "{{ nginx_setup_cert_pem.results }}"
@@ -146,8 +146,8 @@
 
 - name: Create self-signed certificates
   community.crypto.x509_certificate:
-    path: "{{ nginx_setup_letsencrypt_homedir }}/live/{{ nginx_setup_cert.nginx_setup_site.server_name }}/cert.pem"
-    privatekey_path: "{{ nginx_setup_letsencrypt_homedir }}/live/{{ nginx_setup_cert.nginx_setup_site.server_name }}/privkey.pem"
+    path: "{{ nginx_setup_letsencrypt_homedir }}/{{ nginx_setup_cert_dir }}/{{ nginx_setup_cert.nginx_setup_site.server_name }}/cert.pem"
+    privatekey_path: "{{ nginx_setup_letsencrypt_homedir }}/{{ nginx_setup_cert_dir }}/{{ nginx_setup_cert.nginx_setup_site.server_name }}/privkey.pem"
     provider: selfsigned
   loop: "{{ nginx_setup_cert_pem.results }}"
   when: not nginx_setup_cert.stat.exists
