@@ -28,15 +28,20 @@
 
 - name: Ensure custom nginx folders exist
   ansible.builtin.file:
-    path: "{{ item }}"
+    path: "{{ nginx_folder }}"
     state: directory
-    mode: "0644"
-  with_items:
+    mode: "0755"
+    owner: www-data
+    group: www-data
+  loop:
     - "{{ nginx_setup_homedir }}"
     - "{{ nginx_setup_homedir }}/log"
     - "{{ nginx_setup_homedir }}/sites-enabled"
     - "{{ nginx_setup_homedir }}/sites-available"
     - "{{ nginx_setup_letsencrypt_homedir }}"
+  loop_control:
+    label: "{{ nginx_folder }}"
+    loop_var: nginx_folder
 
 - name: Modify error.log path in nginx.conf
   ansible.builtin.lineinfile:
@@ -64,27 +69,36 @@
 - name: Create or update Nginx site configuration
   ansible.builtin.template:
     src: site.conf.j2
-    dest: "{{ nginx_setup_homedir }}/sites-available/{{ item.server_name }}.conf"
+    dest: "{{ nginx_setup_homedir }}/sites-available/{{ nginx_setup_site.server_name }}.conf"
     mode: "0644"
-  with_items: "{{ nginx_setup_sites }}"
+  loop: "{{ nginx_setup_sites }}"
+  loop_control:
+    label: "{{ nginx_setup_site.server_name }}"
+    loop_var: nginx_setup_site
   notify: Restart nginx
 
 - name: Modify primary Nginx site configuration if in load-balanced configuration
   ansible.builtin.lineinfile:
-    path: "{{ nginx_setup_homedir }}/sites-available/{{ item.server_name }}.conf"
+    path: "{{ nginx_setup_homedir }}/sites-available/{{ nginx_setup_site.server_name }}.conf"
     regexp: '^\s*proxy_pass\s+.*;'
     line: '        proxy_pass http://secondary;'
-  with_items: "{{ nginx_setup_sites }}"
+  loop: "{{ nginx_setup_sites }}"
+  loop_control:
+    label: "{{ nginx_setup_site.server_name }}"
+    loop_var: nginx_setup_site
   notify: Restart nginx
   when: "'primary' in group_names"
 
 - name: Enable Nginx site configuration
   ansible.builtin.file:
-    src: "{{ nginx_setup_homedir }}/sites-available/{{ item.server_name }}.conf"
-    dest: "{{ nginx_setup_homedir }}/sites-enabled/{{ item.server_name }}.conf"
+    src: "{{ nginx_setup_homedir }}/sites-available/{{ nginx_setup_site.server_name }}.conf"
+    dest: "{{ nginx_setup_homedir }}/sites-enabled/{{ nginx_setup_site.server_name }}.conf"
     state: link
     force: true
-  with_items: "{{ nginx_setup_sites }}"
+  loop: "{{ nginx_setup_sites }}"
+  loop_control:
+    label: "{{ nginx_setup_site.server_name }}"
+    loop_var: nginx_setup_site
   notify: Restart nginx
 
 - name: Disable Nginx default site
@@ -96,40 +110,54 @@
   ansible.builtin.copy:
     content: "{{ nginx_setup_user_name }}:{{ nginx_setup_password }}"
     dest: "{{ nginx_setup_homedir }}/.htpasswd"
+    owner: www-data
+    group: www-data
     mode: "0644"
 
 - name: Ensure certificate host folders exist
   ansible.builtin.file:
-    path: "{{ nginx_setup_letsencrypt_homedir }}/live/{{ item.server_name }}"
+    path: "{{ nginx_setup_letsencrypt_homedir }}/live/{{ nginx_setup_site.server_name }}"
     state: directory
     mode: "0644"
-  with_items: "{{ nginx_setup_sites }}"
+  loop: "{{ nginx_setup_sites }}"
+  loop_control:
+    label: "{{ nginx_setup_site.server_name }}"
+    loop_var: nginx_setup_site
 
 - name: Check if certificate is present
   ansible.builtin.stat:
-    path: "{{ nginx_setup_letsencrypt_homedir }}/live/{{ item.server_name }}/cert.pem"
-  register: certbot_setup_cert_pem
-  with_items: "{{ nginx_setup_sites }}"
+    path: "{{ nginx_setup_letsencrypt_homedir }}/live/{{ nginx_setup_site.server_name }}/cert.pem"
+  register: nginx_setup_cert_pem
+  loop: "{{ nginx_setup_sites }}"
+  loop_control:
+    label: "{{ nginx_setup_site.server_name }}"
+    loop_var: nginx_setup_site
 
-- name: Create a private keys
+- name: Show nginx_setup_cert_pem
+  debug:
+    var: nginx_setup_cert_pem.results
+
+- name: Create private keys
   community.crypto.openssl_privatekey:
-    path: "{{ nginx_setup_letsencrypt_homedir }}/live/{{ certbot_setup_cert.item.server_name }}/privkey.pem"
+    path: "{{ nginx_setup_letsencrypt_homedir }}/live/{{ nginx_setup_cert.nginx_setup_site.server_name }}/privkey.pem"
     size: 2048
     state: present
-  loop: "{{ certbot_setup_cert_pem.results }}"
-  when: not certbot_setup_cert.stat.exists
+  loop: "{{ nginx_setup_cert_pem.results }}"
+  when: not nginx_setup_cert.stat.exists
   loop_control:
-    loop_var: certbot_setup_cert
+    label: "{{ nginx_setup_cert.nginx_setup_site.server_name }}"
+    loop_var: nginx_setup_cert
 
-- name: Create a self-signed certificates
+- name: Create self-signed certificates
   community.crypto.x509_certificate:
-    path: "{{ nginx_setup_letsencrypt_homedir }}/live/{{ certbot_setup_cert.item.server_name }}/cert.pem"
-    privatekey_path: "{{ nginx_setup_letsencrypt_homedir }}/live/{{ certbot_setup_cert.item.server_name }}/privkey.pem"
+    path: "{{ nginx_setup_letsencrypt_homedir }}/live/{{ nginx_setup_cert.nginx_setup_site.server_name }}/cert.pem"
+    privatekey_path: "{{ nginx_setup_letsencrypt_homedir }}/live/{{ nginx_setup_cert.nginx_setup_site.server_name }}/privkey.pem"
     provider: selfsigned
-  loop: "{{ certbot_setup_cert_pem.results }}"
-  when: not certbot_setup_cert.stat.exists
+  loop: "{{ nginx_setup_cert_pem.results }}"
+  when: not nginx_setup_cert.stat.exists
   loop_control:
-    loop_var: certbot_setup_cert
+    label: "{{ nginx_setup_cert.nginx_setup_site.server_name }}"
+    loop_var: nginx_setup_cert
 
 - name: Modify worker_connections in nginx.conf
   ansible.builtin.lineinfile:

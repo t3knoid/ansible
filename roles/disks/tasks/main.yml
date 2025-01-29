@@ -68,7 +68,7 @@
     state: directory
     group: "{{ item.mountpoint_group }}"
     owner: "{{ item.mountpoint_owner }}"
-    mode: "0777"
+    mode: "0755"
   with_items: "{{ disks_disk_mounts }}"
 
 - name: Mount disks
