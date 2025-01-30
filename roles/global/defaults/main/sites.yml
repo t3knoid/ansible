@@ -9,6 +9,12 @@ global_sites:
       - 192.168.2.0/24
       - 24.105.250.200
       - 96.246.156.141
+    nginx_setup_api_location_block: |
+      # Allow the API External Access via NGINX
+          location ~ /lidarr/api {
+              auth_basic off;
+              proxy_pass http://{{ global_ip_addresses['lidarr-0'] }}:8686;
+          }
   - server_name: ombi.refol.us
     port: 3579
     proxy_pass: "http://{{ global_ip_addresses['xpenology'] }}"
@@ -25,6 +31,12 @@ global_sites:
       - 192.168.2.0/24
       - 24.105.250.200
       - 96.246.156.141
+    nginx_setup_api_location_block: |
+      # Allow the API External Access via NGINX
+          location ~ /radarr/api {
+              auth_basic off;
+              proxy_pass http://{{ global_ip_addresses['radarr-0'] }}:7878;
+          }
   - server_name: sabnzbd.refol.us
     port: 8080
     proxy_pass: "http://{{ global_ip_addresses['sabnzbd-0'] }}"
@@ -41,3 +53,9 @@ global_sites:
       - 192.168.2.0/24
       - 24.105.250.200
       - 96.246.156.141
+    nginx_setup_api_location_block: |
+      # Allow the API External Access via NGINX
+          location ~ /sonarr/api {
+              auth_basic off;
+              proxy_pass http://{{ global_ip_addresses['lidarr-0'] }}:8989;
+          }
