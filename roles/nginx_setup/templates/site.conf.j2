@@ -14,20 +14,24 @@ server {
     allow {{ ip }};
 {% endfor %}
 
-    deny all;
+    # deny all;
     satisfy any;
 
     index index.html index.htm index.php;
 
     location / {
         # enable for basic auth
-        auth_basic "Restricted";
-        auth_basic_user_file /data/nginx/.htpasswd;
+        # auth_basic "Restricted";
+        # auth_basic_user_file /data/nginx/.htpasswd;
         proxy_pass {{ nginx_setup_site.proxy_pass }}:{{ nginx_setup_site.port }};
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_redirect off;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection $http_connection;
-        try_files $uri $uri/ /index.html /index.php$is_args$args =404;
     }
 
     # deny access to .htaccess/.htpasswd files
@@ -40,4 +44,7 @@ server {
 	allow all;
     }  
 
+{% if nginx_setup_site.nginx_setup_api_location_block is defined %}
+    {{ nginx_setup_site.nginx_setup_api_location_block }}
+{% endif %}
 }
