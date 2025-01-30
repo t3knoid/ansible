@@ -1,0 +1,20 @@
+---
+
+services:
+  radarr:
+    image: lscr.io/linuxserver/lazylibrarian:latest
+    container_name: lazylibrarian
+    environment:
+      - PUID=2000
+      - PGID=2000
+      - TZ=Etc/UTC
+      - LANG=C.UTF-8
+      - LC_ALL=C.UTF-8
+      - DOCKER_MODS=linuxserver/mods:lazylibrarian-ffmpeg|ghcr.io/linuxserver/mods:universal-calibre #optional
+    volumes:
+      - /config:/config
+      - /nfs/books:/books 
+      - /nfs/downloads:/downloads #optional
+    ports:
+      - 5299:5299
+    restart: unless-stopped
