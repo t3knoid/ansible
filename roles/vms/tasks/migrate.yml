@@ -30,6 +30,7 @@
     node: "{{ vms_proxmox_node }}"
     vmid: "{{ vms_vmid | int }}"
     migrate: true
+    timeout: 300
     state: present
   delegate_to: localhost
 
