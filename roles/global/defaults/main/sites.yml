@@ -59,3 +59,11 @@ global_sites:
               auth_basic off;
               proxy_pass http://{{ global_ip_addresses['lidarr-0'] }}:8989;
           }
+  - server_name: truenas.refol.us
+    port: 80
+    proxy_pass: "http://{{ global_ip_addresses['truenas-01'] }}"
+    allow_list:
+      - 192.168.0.0/24
+      - 192.168.2.0/24
+      - 24.105.250.200
+      - 96.246.156.141

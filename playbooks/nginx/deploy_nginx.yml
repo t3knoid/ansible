@@ -1,6 +1,7 @@
 - name: Deploy nginx
   hosts: nginx
   become: true
+  gather_facts: false
   roles:
     - global
     - nginx_setup
