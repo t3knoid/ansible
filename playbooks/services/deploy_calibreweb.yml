@@ -1,0 +1,11 @@
+---
+
+- name: Deploy Calibreweb
+  hosts: calibreweb
+  become: true
+  roles:
+    - global
+    - users
+    - autofs
+    - docker_setup
+    - calibreweb_setup
