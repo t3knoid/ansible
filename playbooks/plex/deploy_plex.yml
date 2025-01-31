@@ -1,0 +1,9 @@
+---
+
+- name: Install and configure Plex Media Server
+  hosts: all
+  become: true
+  roles:
+    - global
+    - autofs
+    - plex_setup
