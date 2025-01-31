@@ -7,22 +7,26 @@ server {
 
     server_name {{ nginx_setup_site.server_name }};
 
-    ssl_certificate {{ nginx_setup_letsencrypt_homedir }}/{{ nginx_setup_cert_dir }}/{{ nginx_setup_site.server_name }}/cert.pem;
-    ssl_certificate_key {{ nginx_setup_letsencrypt_homedir }}/{{ nginx_setup_cert_dir }}/{{ nginx_setup_site.server_name }}/privkey.pem;  
+    ssl_certificate {{ nginx_setup_certroot }}/{{ nginx_setup_site.server_name }}/cert.pem;
+    ssl_certificate_key {{ nginx_setup_certroot }}/{{ nginx_setup_site.server_name }}/privkey.pem;  
 
+{% if nginx_setup_site.restricted %}
 {% for ip in nginx_setup_site.allow_list %}
     allow {{ ip }};
 {% endfor %}
 
-    # deny all;
+    deny all;
     satisfy any;
+{% endif %}
 
     index index.html index.htm index.php;
 
     location / {
+{% if nginx_setup_site.restricted %}
         # enable for basic auth
-        # auth_basic "Restricted";
-        # auth_basic_user_file /data/nginx/.htpasswd;
+        auth_basic "Restricted";
+        auth_basic_user_file /data/nginx/.htpasswd;
+{% endif %}
         proxy_pass {{ nginx_setup_site.proxy_pass }}:{{ nginx_setup_site.port }};
         proxy_set_header Host $host;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
