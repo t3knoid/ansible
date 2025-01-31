@@ -1,0 +1,105 @@
+---
+
+- name: Stage certs
+  ansible.builtin.copy:
+    src: "{{ certs_home }}/live/"
+    dest: "{{ certs_stage }}/"
+    remote_src: true
+    owner: www-data
+    group: www-data
+    follow: true
+
+- name: Find all directories
+  ansible.builtin.find:
+    paths: "{{ certs_stage }}/"
+    recurse: true
+    file_type: directory
+  register: certs_stage_directories
+
+- name: Set mode of all directories
+  ansible.builtin.file:
+    path: "{{ file.path }}"
+    mode: '0755'
+  loop: "{{ certs_stage_directories.files }}"
+  loop_control:
+    label: "{{ file.path }}"
+    loop_var: file
+
+- name: Initialize certs_lnk_source_list
+  ansible.builtin.set_fact:
+    certs_source_list: {}
+
+- name: Create stage folders
+  ansible.builtin.file:
+    path: "{{ certs_stage }}/{{ nginx_setup_site.server_name }}"
+    mode: "0755"
+    state: directory
+    owner: www-data
+    group: www-data
+  loop: "{{ global_sites }}"
+  loop_control:
+    label: "{{ nginx_setup_site.server_name }}"
+    loop_var: nginx_setup_site
+
+- name: Get cert.pem stat
+  ansible.builtin.stat:
+    path: "{{ certs_home }}/live/{{ nginx_setup_site.server_name }}/cert.pem"
+    follow: false
+  register: certs_cert_pem_stat
+  loop: "{{ global_sites }}"
+  loop_control:
+    label: "{{ nginx_setup_site.server_name }}"
+    loop_var: nginx_setup_site
+
+- name: Get cert.pem symlink source paths
+  ansible.builtin.set_fact:
+    certs_source_list: "{{ certs_source_list | combine({certs_lnk_source.nginx_setup_site.server_name: certs_lnk_source.stat.lnk_source}) }}"
+  loop: "{{ certs_cert_pem_stat.results }}"
+  when: certs_lnk_source.stat.islnk
+  loop_control:
+    label: "{{ certs_lnk_source.nginx_setup_site.server_name }}"
+    loop_var: certs_lnk_source
+
+- name: Copy cert.pem files
+  no_log: false
+  ansible.builtin.copy:
+    src: "{{ item.value }}"
+    dest: "{{ certs_stage }}/{{ item.key }}/cert.pem"
+    mode: "0644"
+    owner: www-data
+    group: www-data
+    remote_src: true
+  loop: "{{ certs_source_list | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+
+- name: Get privkey.pem stat
+  ansible.builtin.stat:
+    path: "{{ certs_home }}/live/{{ nginx_setup_site.server_name }}/privkey.pem"
+    follow: false
+  register: certs_privkey_pem_stat
+  loop: "{{ global_sites }}"
+  loop_control:
+    label: "{{ nginx_setup_site.server_name }}"
+    loop_var: nginx_setup_site
+
+- name: Get privkey.pem symlink source paths
+  ansible.builtin.set_fact:
+    certs_source_list: "{{ certs_source_list | combine({ certs_lnk_source.nginx_setup_site.server_name:certs_lnk_source.stat.lnk_source }) }}"
+  loop: "{{ certs_privkey_pem_stat.results }}"
+  when: certs_lnk_source.stat.islnk
+  loop_control:
+    label: "{{ certs_lnk_source.nginx_setup_site.server_name }}"
+    loop_var: certs_lnk_source
+
+- name: Copy privkey.pem files
+  ansible.builtin.copy:
+    src: "{{ item.value }}"
+    dest: "{{ certs_stage }}/{{ item.key }}/privkey.pem"
+    mode: "0644"
+    owner: www-data
+    group: www-data
+    remote_src: true
+  loop: "{{ certs_source_list | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"

@@ -1,0 +1,87 @@
+---
+
+- name: Ensure custom nginx folders exist
+  ansible.builtin.file:
+    path: "{{ nginx_folder }}"
+    state: directory
+    mode: "0755"
+    owner: www-data
+    group: www-data
+  loop:
+    - "{{ nginx_setup_homedir }}"
+    - "{{ nginx_setup_homedir }}/log"
+    - "{{ nginx_setup_homedir }}/sites-enabled"
+    - "{{ nginx_setup_homedir }}/sites-available"
+    - "{{ nginx_setup_certroot }}"
+  loop_control:
+    label: "{{ nginx_folder }}"
+    loop_var: nginx_folder
+  tags:
+    - nginx_setup_config
+    - nginx_setup_certs
+
+- name: Add upstream block to nginx.conf
+  ansible.builtin.blockinfile:
+    path: /etc/nginx/nginx.conf
+    marker: "# {mark} ANSIBLE MANAGED BLOCK"
+    block: |
+      upstream secondary {
+      {% for server in groups['secondary'] %}
+        server {{ server }}:80;
+      {% endfor %}
+      }
+    insertafter: "http {"
+  when: "'primary' in group_names"
+  notify: Restart nginx
+  tags: nginx_setup_config
+
+- name: Modify error.log path in nginx.conf
+  ansible.builtin.lineinfile:
+    path: /etc/nginx/nginx.conf
+    regexp: '^\s*error_log\s+'
+    line: '\g<0> {{ nginx_setup_homedir }}/log/error.log;'
+    backrefs: true
+  notify: Restart nginx
+  tags: nginx_setup_config
+
+- name: Modify access.log path in nginx.conf
+  ansible.builtin.lineinfile:
+    path: /etc/nginx/nginx.conf
+    regexp: '^\s*access_log\s+'
+    line: '\g<0> {{ nginx_setup_homedir }}/log/access.log;'
+    backrefs: true
+  notify: Restart nginx
+  tags: nginx_setup_config
+
+- name: Modify worker_connections in nginx.conf
+  ansible.builtin.lineinfile:
+    path: /etc/nginx/nginx.conf
+    regexp: '^(\s*worker_connections\s+)\d+;'
+    line: '\1 {{ nginx_setup_worker_connections }};'
+    backrefs: true
+    backup: true
+    state: present
+  become: true
+  tags: nginx_setup_config
+
+- name: Disable Nginx default site
+  ansible.builtin.file:
+    path: "{{ nginx_setup_homedir }}/sites-enabled/default"
+    state: absent
+  tags: nginx_setup_config
+
+- name: Modify sites-enabled path in nginx.conf
+  ansible.builtin.lineinfile:
+    path: /etc/nginx/nginx.conf
+    regexp: '^\s*include\s+/etc/nginx/sites-enabled/\*;'
+    line: '        include {{ nginx_setup_homedir }}/sites-enabled/*;'
+  notify: Restart nginx
+  tags: nginx_setup_config
+
+- name: Create .htpasswd
+  ansible.builtin.copy:
+    content: "{{ nginx_setup_user_name }}:{{ nginx_setup_password }}"
+    dest: "{{ nginx_setup_homedir }}/.htpasswd"
+    owner: www-data
+    group: www-data
+    mode: "0644"

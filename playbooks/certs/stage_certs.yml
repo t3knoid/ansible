@@ -1,0 +1,12 @@
+- name: Stage certificates
+  hosts: certbot
+  gather_facts: false
+  become: true
+  roles:
+    - global
+
+  tasks:
+    - name: Include stage.yml from certs role
+      ansible.builtin.import_role:
+        name: certs
+        tasks_from: stage.yml
