@@ -1,0 +1,44 @@
+---
+
+vms_config:
+  agent: "1"
+  cores: "2"
+  cpu: host
+  memory: 2048
+  ostype: l26
+  scsihw: virtio-scsi-single
+  sockets: 1
+  storage: linstor_storage
+  disk_os:
+    disk: virtio0
+    backup: true
+    size: 20
+    storage: linstor_storage
+
+vms_os: ubuntu_24_server
+vms_autoinstall: true
+vms_enable_serial_terminal: false
+vms_additional_packages: []
+python3_version: 3.12
+
+plex_setup_version: "1.41.3.9314-a0bfb8370"
+
+autofs_nfs_mounts:
+  - mount_name: music
+    server: 192.168.2.250:/mnt/Data/music
+    mount_options: -rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys
+  - mount_name: books
+    server: 192.168.2.250:/mnt/Data/books
+    mount_options: -rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys
+  - mount_name: tvshows
+    server: 192.168.2.250:/mnt/Data/tvshows
+    mount_options: -rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys
+  - mount_name: movies  
+    server: 192.168.2.250:/mnt/Data/movies
+    mount_options: -rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys
+  - mount_name: downloads
+    server: 192.168.2.250:/mnt/Data/downloads/complete
+    mount_options: -rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys
+  - mount_name: incomplete-downloads
+    server: 192.168.2.250:/mnt/Data/downloads/incomplete
+    mount_options: -rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys

@@ -1,0 +1,19 @@
+---
+
+- name: Download Plex Media Server package
+  ansible.builtin.get_url:
+    url: "{{ plex_setup_download_url }}"
+    dest: "/tmp/{{ plex_setup_package }}"
+    mode: '0644'
+  notify: Restart Plex Media Server
+
+- name: Install Plex Media Server
+  ansible.builtin.apt:
+    deb: "/tmp/{{ plex_setup_package }}"
+  notify: Restart Plex Media Server
+
+- name: Ensure Plex Media Server is started
+  ansible.builtin.service:
+    name: plexmediaserver
+    state: started
+    enabled: true
