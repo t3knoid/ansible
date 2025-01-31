@@ -20,21 +20,6 @@
     - nginx_setup_config
     - nginx_setup_certs
 
-- name: Add upstream block to nginx.conf
-  ansible.builtin.blockinfile:
-    path: /etc/nginx/nginx.conf
-    marker: "# {mark} ANSIBLE MANAGED BLOCK"
-    block: |
-      upstream secondary {
-      {% for server in groups['secondary'] %}
-        server {{ server }}:80;
-      {% endfor %}
-      }
-    insertafter: "http {"
-  when: "'primary' in group_names"
-  notify: Restart nginx
-  tags: nginx_setup_config
-
 - name: Modify error.log path in nginx.conf
   ansible.builtin.lineinfile:
     path: /etc/nginx/nginx.conf

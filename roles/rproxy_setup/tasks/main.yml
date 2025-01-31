@@ -1,0 +1,13 @@
+---
+
+- name: Include nginx variables
+  ansible.builtin.include_vars:
+    dir: ../../../roles/nginx_setup/defaults/main
+
+- name: Include sites.yml tasks
+  ansible.builtin.include_tasks: sites.yml
+  tags: rproxy_sites
+
+- name: Include certs.yml tasks
+  ansible.builtin.include_tasks: certs.yml
+  tags: rproxy_setup_certs
