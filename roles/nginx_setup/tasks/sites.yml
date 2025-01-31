@@ -1,0 +1,26 @@
+---
+
+- name: Create or update Nginx site configuration
+  ansible.builtin.template:
+    src: site.conf.j2
+    dest: "{{ nginx_setup_homedir }}/sites-available/{{ nginx_setup_site.server_name }}.conf"
+    mode: "0644"
+  loop: "{{ global_sites }}"
+  loop_control:
+    label: "{{ nginx_setup_site.server_name }}"
+    loop_var: nginx_setup_site
+  notify: Restart nginx
+  tags: nginx_setup_sites
+
+- name: Enable Nginx site configuration
+  ansible.builtin.file:
+    src: "{{ nginx_setup_homedir }}/sites-available/{{ nginx_setup_site.server_name }}.conf"
+    dest: "{{ nginx_setup_homedir }}/sites-enabled/{{ nginx_setup_site.server_name }}.conf"
+    state: link
+    force: true
+  loop: "{{ global_sites }}"
+  loop_control:
+    label: "{{ nginx_setup_site.server_name }}"
+    loop_var: nginx_setup_site
+  notify: Restart nginx
+  tags: nginx_setup_sites
