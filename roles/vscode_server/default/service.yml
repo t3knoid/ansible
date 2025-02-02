@@ -1,0 +1,7 @@
+---
+
+name: Install vscode as a service
+command: >
+  code tunnel service install 
+  --accept-server-license-terms 
+  --name "vscode-remote-tunnel"
