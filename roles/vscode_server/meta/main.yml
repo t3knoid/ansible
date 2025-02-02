@@ -1,0 +1,11 @@
+---
+dependencies: []
+
+galaxy_info:
+  author: Frank Refol
+  description: Install and configure Microsoft repository for VSCode.
+  platforms:
+    - name: Ubuntu
+      versions:
+        - "20.04"
+        - "22.04"
