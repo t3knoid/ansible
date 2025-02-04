@@ -61,7 +61,7 @@
     loop_var: certs_lnk_source
 
 - name: Copy cert.pem files
-  no_log: false
+  no_log: true
   ansible.builtin.copy:
     src: "{{ item.value }}"
     dest: "{{ certs_stage }}/{{ item.key }}/cert.pem"

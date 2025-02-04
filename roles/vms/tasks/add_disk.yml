@@ -5,6 +5,7 @@
   when: vms_vmid is not defined
 
 - name: Add second disk
+  no_log: true
   community.general.proxmox_disk:
     api_host: "{{ global_proxmox_api_host }}"
     api_user: "{{ global_proxmox_api_user }}"
