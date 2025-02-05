@@ -1,36 +1,63 @@
 ---
+
 - name: Install wget and gpg
-  apt:
+  ansible.builtin.apt:
     name:
       - wget
       - gpg
     state: present
     update_cache: true
 
+- name: Cleanup first
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "/tmp/packages.microsoft.asc"
+    - "/tmp/packages.microsoft.gpg"
+    - "/tmp/packages.microsoft.asc.gpg"
+
 - name: Download the Microsoft GPG key
-  get_url:
+  ansible.builtin.get_url:
     url: "{{ vscode_server_microsoft_key_url }}"
     dest: "/tmp/packages.microsoft.asc"
     mode: '0644'
 
 - name: Convert Microsoft GPG key to .gpg format
-  command:
+  ansible.builtin.command:
     cmd: "gpg --dearmor /tmp/packages.microsoft.asc"
-    creates: "/tmp/packages.microsoft.gpg"
+    creates: "/tmp/packages.microsoft.asc.gpg"
 
 - name: Install Microsoft GPG key
-  copy:
-    src: "/tmp/packages.microsoft.gpg"
+  ansible.builtin.copy:
+    src: "/tmp/packages.microsoft.asc.gpg"
     dest: "{{ vscode_server_keyring_path }}"
     mode: '0644'
+    remote_src: true
 
 - name: Add Microsoft VSCode repository to sources list
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "{{ vscode_server_vscode_repo_file }}"
     line: "deb [arch=amd64,arm64,armhf signed-by={{ vscode_server_keyring_path }}] {{ vscode_server_microsoft_repo_url }} stable main"
     create: true
+    mode: "0644"
 
 - name: Clean up the downloaded GPG file
-  file:
+  ansible.builtin.file:
     path: "/tmp/packages.microsoft.asc"
     state: absent
+
+- name: Install VSCode
+  ansible.builtin.apt:
+    name:
+      - code
+    state: present
+    update_cache: true
+
+- name: Install vscode as a service
+  ansible.builtin.debug:
+    msg: |
+      Execute the following command to execute code as a service.
+
+       code tunnel user login --provider github
+       code tunnel service install --accept-server-license-terms --name {{ inventory_hostname }}_remote
