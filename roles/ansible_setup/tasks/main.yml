@@ -34,11 +34,17 @@
         group: ansible
       with_items: "{{ ansible_setup_path_levels }}"
 
-- name: Initialize ansible config with default settings
-  ansible.builtin.command: |
-    bash -c "source {{ python3_venv_folder }}/bin/activate && ansible-config init --disabled > {{ ansible_setup_home }}/ansible.cfg"
-  args:
-    creates: "{{ ansible_setup_home }}/ansible.cfg"
+- name: Initialize ansible.cfg
+  ansible.builtin.template:
+    src: ansible.cfg.j2
+    dest: "{{ ansible_setup_home }}/ansible.cfg"
+    mode: "0664"
+
+- name: Create vault password file
+  ansible.builtin.template:
+    src: vault_pass.txt.j2
+    dest: "~/.vault_pass.txt"
+    mode: "0664"
 
 - name: Ensure ansible.cfg has proper ownership
   ansible.builtin.file:
@@ -46,11 +52,3 @@
     owner: ansible
     group: ansible
     state: file
-
-- name: Configure ansible callback plugins
-  ansible.builtin.lineinfile:
-    path: "{{ ansible_setup_config_path }}"
-    regexp: '^;?callbacks_enabled\s*='
-    line: "callbacks_enabled = {{ ansible_setup_callback_plugins | join(',') }}"
-    state: present
-    mode: "0664"
