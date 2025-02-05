@@ -8,6 +8,27 @@
     umask: "0022"
   loop: "{{ ansible_setup_python_modules }}"
 
+- name: Ansible home exists
+  ansible.builtin.file:
+    path: "{{ ansible_setup_home }}"
+    state: directory
+    mode: "0664"
+    owner: ansible
+    group: ansible
+
+- name: Initialize ansible config with default settings
+  ansible.builtin.command: |
+    bash -c "source {{ python3_venv_folder }}/bin/activate && ansible-config init --disabled > {{ ansible_setup_home }}/ansible.cfg"
+  args:
+    creates: "{{ ansible_setup_home }}/ansible.cfg"
+
+- name: Ensure ansible.cfg has proper ownership
+  ansible.builtin.file:
+    path: "{{ ansible_setup_home }}/ansible.cfg"
+    owner: ansible
+    group: ansible
+    state: file
+
 - name: Configure ansible callback plugins
   ansible.builtin.lineinfile:
     path: "{{ ansible_setup_config_path }}"
