@@ -5,6 +5,12 @@
     name: ansible
     state: present
 
+- name: Add current user to ansible group
+  ansible.builtin.user:
+    name: "{{ lookup('env', 'USER') }}"
+    groups: ansible
+    append: true
+
 - name: Ensure sudoers.d directory exists
   ansible.builtin.file:
     path: /etc/sudoers.d
