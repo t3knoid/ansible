@@ -1,7 +1,8 @@
 ---
 
-- name: Start virtual machine
+- name: Include get_vms_vmid tasks
   ansible.builtin.include_tasks: "get_vms_vmid.yml"
+  when: vms_vmid is not defined
 
 - name: Get a list of vms
   ansible.builtin.uri:
