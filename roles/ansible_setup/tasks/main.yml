@@ -8,13 +8,31 @@
     umask: "0022"
   loop: "{{ ansible_setup_python_modules }}"
 
-- name: Ansible home exists
-  ansible.builtin.file:
-    path: "{{ ansible_setup_home }}"
-    state: directory
-    mode: "0664"
-    owner: ansible
-    group: ansible
+- name: Ensure Ansible home exists and each folder level has proper access
+  block:
+    - name: Split the path into components
+      ansible.builtin.set_fact:
+        ansible_setup_path_components: "{{ ansible_setup_home.split('/') | select('!=', '') | list }}"
+
+    - name: Initialize ansible_setup_path_levels
+      ansible.builtin.set_fact:
+        ansible_setup_path_levels: []
+
+    - name: Build path levels array
+      ansible.builtin.set_fact:
+        ansible_setup_path_levels: "{{ ansible_setup_path_levels + [ansible_setup_current_path] }}"
+      loop: "{{ range(1, ansible_setup_path_components | length + 1) | list }}"
+      vars:
+        ansible_setup_current_path: "/{{ ansible_setup_path_components[:item] | join('/') }}"
+
+    - name: Ansible home exists
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        mode: "0770"
+        owner: ansible
+        group: ansible
+      with_items: "{{ ansible_setup_path_levels }}"
 
 - name: Initialize ansible config with default settings
   ansible.builtin.command: |
@@ -34,6 +52,5 @@
     path: "{{ ansible_setup_config_path }}"
     regexp: '^;?callbacks_enabled\s*='
     line: "callbacks_enabled = {{ ansible_setup_callback_plugins | join(',') }}"
-    # create: true
     state: present
     mode: "0664"
