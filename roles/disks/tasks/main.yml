@@ -65,10 +65,10 @@
 - name: Ensure mountpoint exists
   ansible.builtin.file:
     path: "{{ item.mountpoint }}"
-    state: directory
     group: "{{ item.mountpoint_group }}"
     owner: "{{ item.mountpoint_owner }}"
-    mode: "0755"
+    state: directory
+    mode: "0775"
   with_items: "{{ disks_disk_mounts }}"
 
 - name: Mount disks
@@ -81,3 +81,12 @@
   with_nested:
     - "{{ disks_disk_mounts }}"
     - "{{ unmounted_disks }}"
+
+- name: Ensure mounted disk has proper ownership
+  ansible.builtin.file:
+    path: "{{ item.mountpoint }}"
+    owner: "{{ item.mountpoint_group }}"
+    group: "{{ item.mountpoint_owner }}"
+    state: directory
+    mode: "0775"
+  with_items: "{{ disks_disk_mounts }}"
