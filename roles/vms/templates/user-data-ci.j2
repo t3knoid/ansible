@@ -10,7 +10,7 @@ users:
   - default
   - name: {{ global_vm_template_user }}
     gecos: Ansible user
-    groups: users,admin,wheel
+    groups: users,admin
     sudo: ALL=(ALL) NOPASSWD:ALL
     shell: /bin/bash
     passwd: {{ global_vm_template_user_crypted_password }}
