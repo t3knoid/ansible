@@ -35,10 +35,6 @@
   ansible.builtin.set_fact:
     vms_boot_disk_size: '{{ vms_proxmox_template.maxdisk | human_readable(unit="G") | split() | first }}'
 
-- name: Show vms_vm_info
-  ansible.builtin.debug:
-    var: vms_boot_disk_size
-
 - name: Fail if template does not exist
   ansible.builtin.fail:
     msg: "Template was not found in the Proxmox cluster. Exiting."
@@ -68,11 +64,11 @@
   delegate_to: localhost
   register: vms_vm_info
 
-- name: Store new virtual machine vmid
-  ansible.builtin.set_fact:
-    vms_vmid: "{{ vms_vm_info.vmid }}"
+- name: Include get_vms_vmid tasks
+  ansible.builtin.include_tasks: "get_vms_vmid.yml"
+  when: vms_vmid is not defined
 
-- name: Show vms_vm_info
+- name: Show vms_vmid
   ansible.builtin.debug:
     var: vms_vmid
 
@@ -104,7 +100,11 @@
   delegate_to: localhost
   register: vms_vm_info
 
-- name: Store new virtual machine vmid
+- name: Show vms_vm_info
+  ansible.builtin.debug:
+    var: vms_vm_info
+
+- name: Store additional boot disk size
   ansible.builtin.set_fact:
     vms_disk_size_increase: "{{ vms_config.disk_os.size | int - vms_boot_disk_size | int }}"
 
@@ -126,22 +126,8 @@
   ansible.builtin.debug:
     var: vms_increase_disk_size
 
-- name: Add second disk
-  community.general.proxmox_disk:
-    api_host: "{{ global_proxmox_api_host }}"
-    api_user: "{{ global_proxmox_api_user }}"
-    api_token_id: "{{ global_proxmox_api_token_id }}"
-    api_token_secret: "{{ global_proxmox_api_token }}"
-    api_password: "{{ global_proxmox_api_password }}"
-    vmid: "{{ vms_vmid | int }}"
-    disk: virtio1
-    backup: "{{ vms_config.disk2.backup | default(true) }}"
-    cache: none
-    storage: "{{ vms_config.disk2.storage | default(local_thin) }}"
-    size: "{{ vms_config.disk2.size | default(20) }}"
-    state: present
-  delegate_to: localhost
-  when: vms_config.disk2 is defined
+- name: Include add_disk.yml tasks
+  ansible.builtin.include_tasks: "add_disk.yml"    
 
 - name: Start virtual machine
   ansible.builtin.include_tasks: "start.yml"
