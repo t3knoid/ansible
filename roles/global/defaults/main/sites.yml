@@ -9,6 +9,7 @@ global_sites:
       - 192.168.2.0/24
       - 24.105.250.200
       - 96.246.156.141
+    restricted: false
     nginx_setup_api_location_block: |
       # Allow the API External Access via NGINX
           location ~ /lidarr/api {
@@ -17,12 +18,13 @@ global_sites:
           }
   - server_name: ombi.refol.us
     port: 3579
-    proxy_pass: "http://{{ global_ip_addresses['xpenology'] }}"
+    proxy_pass: "http://{{ global_ip_addresses['ombi-0'] }}"
     allow_list:
       - 192.168.0.0/24
       - 192.168.2.0/24
       - 24.105.250.200
       - 96.246.156.141
+    restricted: false
   - server_name: radarr.refol.us
     port: 7878
     proxy_pass: "http://{{ global_ip_addresses['radarr-0'] }}"
@@ -31,6 +33,7 @@ global_sites:
       - 192.168.2.0/24
       - 24.105.250.200
       - 96.246.156.141
+    restricted: false
     nginx_setup_api_location_block: |
       # Allow the API External Access via NGINX
           location ~ /radarr/api {
@@ -45,6 +48,7 @@ global_sites:
       - 192.168.2.0/24
       - 24.105.250.200
       - 96.246.156.141
+    restricted: false
   - server_name: sonarr.refol.us
     port: 8989
     proxy_pass: "http://{{ global_ip_addresses['sonarr-0'] }}"
@@ -53,6 +57,7 @@ global_sites:
       - 192.168.2.0/24
       - 24.105.250.200
       - 96.246.156.141
+    restricted: false
     nginx_setup_api_location_block: |
       # Allow the API External Access via NGINX
           location ~ /sonarr/api {
@@ -67,6 +72,7 @@ global_sites:
       - 192.168.2.0/24
       - 24.105.250.200
       - 96.246.156.141
+    restricted: false
   - server_name: lazy.refol.us
     port: 5299
     proxy_pass: "http://{{ global_ip_addresses['lazy-0'] }}"
@@ -75,6 +81,7 @@ global_sites:
       - 192.168.2.0/24
       - 24.105.250.200
       - 96.246.156.141
+    restricted: false
   - server_name: books.refol.us
     port: 8083
     proxy_pass: "http://{{ global_ip_addresses['calibre-0'] }}"
@@ -83,3 +90,4 @@ global_sites:
       - 192.168.2.0/24
       - 24.105.250.200
       - 96.246.156.141
+    restricted: false
