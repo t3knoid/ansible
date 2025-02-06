@@ -1,0 +1,10 @@
+interface=ens18
+bind-interfaces
+domain=refol
+dhcp-range=ens18,192.168.2.220,192.168.2.229,255.255.255.0,6h
+dhcp-option=option:router,192.168.2.1
+dhcp-option=option:dns-server,192.168.2.252
+dhcp-option=option:dns-server,8.8.8.8
+enable-tftp
+tftp-root={{ pxeserver_setup_tftp_dir }}
+dhcp-boot=pxelinux.0

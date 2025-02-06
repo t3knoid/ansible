@@ -1,0 +1,103 @@
+---
+
+- name: Include reset_dns.yml tasks
+  ansible.builtin.include_tasks: reset_dns.yml
+
+- name: Create tftp root directory
+  ansible.builtin.file:
+    path: "{{ pxeserver_setup_tftp_dir }}"
+    state: directory
+    mode: "0755"
+    owner: www-data
+    group: www-data
+
+- name: Install required packages
+  ansible.builtin.apt:
+    name:
+      - syslinux-common
+      - unzip
+      - dnsmasq
+    state: present
+
+- name: Download and extract netboot tarball
+  ansible.builtin.unarchive:
+    src: "{{ pxeserver_setup_releases_url }}/{{ pxeserver_setup_netboot_tarball }}"
+    dest: "/tmp"
+    remote_src: true
+    mode: "0644"
+    owner: www-data
+    group: www-data
+    creates: "/tmp/amd64/pxelinux.cfg"
+
+- name: Copy netboot files to tftp root folder
+  ansible.builtin.copy:
+    src: "/tmp/amd64/"
+    dest: "{{ pxeserver_setup_tftp_dir }}"
+    directory_mode: u=rwx,g=rx,o=rx
+    mode: u=rw,g=rw,o=r
+    remote_src: true
+
+- name: Find all directories
+  ansible.builtin.find:
+    paths: "{{ pxeserver_setup_tftp_dir }}"
+    recurse: true
+    file_type: directory
+  register: dir_list
+
+- name: Ensure tftp folders has proper access
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: u=rwx,g=rx,o=rx
+    owner: www-data
+    group: www-data
+  loop: "{{ dir_list.files | json_query('[*].path') }}"
+
+- name: Ensure tftp root directory has proper access
+  ansible.builtin.file:
+    path: "{{ pxeserver_setup_tftp_dir }}"
+    state: directory
+    mode: u=rwx,g=rx,o=rx
+    owner: www-data
+    group: www-data
+
+- name: Configure dnsmasq server
+  ansible.builtin.template:
+    src: dnsmasq.conf.j2
+    dest: /etc/dnsmasq.conf
+    mode: "0640"
+    owner: www-data
+    group: www-data
+  notify: Restart dnsmaq
+
+- name: Include nginx variables
+  ansible.builtin.include_vars:
+    dir: ../../../roles/nginx_setup/defaults/main
+
+- name: Configure Nginx default server
+  ansible.builtin.template:
+    src: nginx.conf.j2
+    dest: "{{ nginx_setup_homedir }}/sites-available/default"
+    mode: "0640"
+    owner: www-data
+    group: www-data
+  notify: Restart nginx
+
+- name: Enable Nginx default configuration
+  ansible.builtin.file:
+    src: "{{ nginx_setup_homedir }}/sites-available/default"
+    dest: "{{ nginx_setup_homedir }}/sites-enabled/default"
+    state: link
+    force: true
+
+- name: Ensure dnsmaq service is running
+  ansible.builtin.service:
+    name: dnsmasq
+    state: started
+    enabled: true
+
+- name: Ensure nginx service is running
+  ansible.builtin.service:
+    name: nginx
+    state: started
+    enabled: true
