@@ -1,0 +1,27 @@
+---
+
+- name: Enable DNS in /etc/systemd/resolved.conf
+  ansible.builtin.lineinfile:
+    path: /etc/systemd/resolved.conf
+    regexp: '^#?DNS='
+    line: 'DNS=8.8.8.8'
+    state: present
+
+- name: Disable DNSStubListener in /etc/systemd/resolved.conf
+  ansible.builtin.lineinfile:
+    path: /etc/systemd/resolved.conf
+    regexp: '^#?DNSStubListener='
+    line: 'DNSStubListener=no'
+    state: present
+
+- name: Create softlink to boot loader cd-boot-images-amd64
+  ansible.builtin.file:
+    src: /run/systemd/resolve/resolv.conf
+    dest: /etc/resolv.conf
+    state: link
+    mode: "0640"
+
+- name: Reboot virtual machine
+  ansible.builtin.include_role:
+    name: vms
+    tasks_from: reboot.yml

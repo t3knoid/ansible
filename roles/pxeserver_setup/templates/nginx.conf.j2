@@ -1,0 +1,13 @@
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    root {{ pxeserver_setup_tftp_dir }};
+    index index.html;
+
+    server_name _;
+
+    location / {
+        autoindex on;
+    }
+}
