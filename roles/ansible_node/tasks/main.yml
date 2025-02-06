@@ -26,3 +26,8 @@
     line: '%ansible ALL=(ALL) NOPASSWD:ALL'
     mode: '0644'
     validate: 'visudo -cf %s'
+
+- name: Reboot virtual machine
+  ansible.builtin.include_role:
+    name: vms
+    tasks_from: reboot.yml
