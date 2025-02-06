@@ -4,8 +4,3 @@
   ansible.builtin.include_tasks:
     file: ../tasks/reboot.yml
   when: not vms_set_to_template
-
-- name: Wait for virtual machine to come up
-  ansible.builtin.include_tasks:
-    file: ../tasks/wait_for_vm_to_become_reachable.yml
-  when: not vms_set_to_template
