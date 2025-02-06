@@ -1,0 +1,7 @@
+---
+
+pxeserver_setup_ip: "{{ ansible_default_ipv4.address }}"
+pxeserver_setup_tftp_dir: "/data/tftpboot"
+pxeserver_setup_releases_url: "https://releases.ubuntu.com/noble"
+pxeserver_setup_netboot_tarball: "ubuntu-24.04.1-netboot-amd64.tar.gz"
+pxeserver_setup_live_server_iso: "{{ pxeserver_setup_releases_url }}/ubuntu-24.04.1-live-server-amd64.iso"

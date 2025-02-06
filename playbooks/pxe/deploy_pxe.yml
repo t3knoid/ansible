@@ -1,0 +1,10 @@
+---
+
+- name: Deploy PXE server
+  hosts: pxe
+  become: true
+  gather_facts: false
+  roles:
+    - global
+    - nginx_setup
+    - pxeserver_setup
