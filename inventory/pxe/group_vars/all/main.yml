@@ -6,19 +6,19 @@ vms_config:
   cpu: host
   memory: 2048
   ostype: l26
-  scsihw: virtio-scsi-single
+  scsihw: local
   sockets: 1
-  storage: linstor_storage
+  storage: local
   disk_os:
     disk: virtio0
     backup: true
     size: 20
-    storage: linstor_storage
+    storage: local
   disk2:
-    disk: virtio0
+    disk: virtio1
     backup: true
     size: 30
-    storage: linstor_storage
+    storage: local
 
 vms_os: ubuntu_24_server
 vms_autoinstall: true
