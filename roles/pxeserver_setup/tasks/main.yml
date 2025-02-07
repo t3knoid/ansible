@@ -29,6 +29,15 @@
     group: www-data
     creates: "/tmp/amd64/pxelinux.cfg"
 
+- name: Download live server ISO
+  ansible.builtin.get_url:
+    url: "{{ pxeserver_setup_live_server_iso }}"
+    dest: "{{ pxeserver_setup_tftp_dir }}"
+    force: false
+    mode: u=rw,g=rw,o=r
+    owner: www-data
+    group: www-data
+
 - name: Copy netboot files to tftp root folder
   ansible.builtin.copy:
     src: "/tmp/amd64/"
@@ -66,6 +75,53 @@
     src: dnsmasq.conf.j2
     dest: /etc/dnsmasq.conf
     mode: "0640"
+    owner: www-data
+    group: www-data
+  notify: Restart dnsmaq
+
+- name: Add or update IP reservation in dnsmasq.conf
+  ansible.builtin.lineinfile:
+    path: /etc/dnsmasq.conf
+    state: present
+    regexp: "^dhcp-host={{ item.mac_address }}"
+    line: 'dhcp-host={{ item.mac_address }},{{ item.ip_address }}'
+    create: true
+    mode: "0640"
+    owner: www-data
+    group: www-data
+  loop: '{{ pxeserver_setup_ip_reservations }}'
+  notify:
+    - Restart dnsmaq
+
+- name: Create empty meta-data file
+  ansible.builtin.file:
+    path: "{{ pxeserver_setup_tftp_dir }}/meta-data"
+    state: touch
+    mode: u=rw,g=rw,o=r
+    owner: www-data
+    group: www-data
+
+# This ensures that the current Ansible user can
+# connect via ssh into the new virtual machine
+- name: Generate Ansible user ssh key if needed
+  community.crypto.openssh_keypair:
+    path: ~/.ssh/id_rsa
+  delegate_to: localhost
+  register: ssh_key
+
+- name: Copy user-data file
+  ansible.builtin.template:
+    src: "user-data.j2"
+    dest: "{{ pxeserver_setup_tftp_dir }}/user-data"
+    mode: u=rw,g=rw,o=r
+    owner: www-data
+    group: www-data
+
+- name: Configure pxelinux.cfg/default
+  ansible.builtin.template:
+    src: default.j2
+    dest: "{{ pxeserver_setup_tftp_dir }}/pxelinux.cfg/default"
+    mode: u=rw,g=rw,o=rw
     owner: www-data
     group: www-data
   notify: Restart dnsmaq

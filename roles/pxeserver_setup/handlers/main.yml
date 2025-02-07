@@ -1,16 +1,11 @@
 ---
 
-- name: Restart tftp
-  service:
-    name: tftpd-hpa
-    state: restarted
-
 - name: Restart dnsmaq
-  service:
+  ansible.builtin.service:
     name: dnsmasq
     state: restarted
 
 - name: Restart nginx
-  service:
+  ansible.builtin.service:
     name: nginx
     state: restarted
