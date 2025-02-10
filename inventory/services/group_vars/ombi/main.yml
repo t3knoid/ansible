@@ -13,7 +13,7 @@ vms_config:
     disk: virtio0
     backup: true
     size: 20
-    storage: linstor_storage
+    storage: local
 
 pihole_cname_domain: ombi.refol.us
 pihole_cname_target_domain: rproxy-0.refol.us
