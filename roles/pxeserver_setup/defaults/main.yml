@@ -1,11 +1,16 @@
 ---
 
 pxeserver_setup_ip: "{{ global_ip_address }}"
+pxeserver_setup_host: "{{ groups['pxe'][0] | default(inventory_hostname) }}"
 pxeserver_setup_tftp_dir: "/data/tftpboot"
 pxeserver_setup_releases_url: "https://releases.ubuntu.com/noble"
 pxeserver_setup_netboot_tarball: "ubuntu-24.04.1-netboot-amd64.tar.gz"
 pxeserver_setup_live_server_iso: "{{ pxeserver_setup_releases_url }}/ubuntu-24.04.1-live-server-amd64.iso"
 pxeserver_setup_iso_url: "http://{{ pxeserver_setup_ip }}/ubuntu-24.04.1-live-server-amd64.iso"
+pxeserver_setup_interface: "ens18"
+pxeserver_setup_hostname: "{{ inventory_hostname }}"
+pxeserver_setup_hostip: "{{ ansible_default_ipv4.address | default(192.168.2.220) }}"
+pxeserver_setup_dhcp_range: "{{ pxeserver_setup_hostip }},{{ pxeserver_setup_hostip }},255.255.255.0" # note only 1 ip address
+pxeserver_setup_dhcp_lease: "6h"
 pxeserver_setup_ip_reservations:
-  - { mac_address: 'BC:24:11:96:38:04', ip_address: '192.168.2.229' }
-  - { mac_address: '7C:83:34:BE:2D:C5', ip_address: '192.168.2.220' }
+  - { mac_address: 'BC:24:11:71:2D:34', ip_address: '192.168.2.220' }
