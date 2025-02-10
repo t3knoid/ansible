@@ -31,3 +31,22 @@ global_dns_servers:
     - 192.168.2.252
 global_gateway: 192.168.2.1
 global_timezone: "America/New_York"
+global_packages_list:
+    - vim
+    - net-tools
+    - realmd
+    - sssd
+    - sssd-tools
+    - sshpass
+    - libnss-sss
+    - libpam-sss
+    - adcli
+    - samba-common-bin
+    - oddjob
+    - oddjob-mkhomedir
+    - packagekit
+    - qemu-guest-agent
+    - parted
+    - git
+    - unzip
+    - acl
