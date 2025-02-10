@@ -8,7 +8,7 @@ autoinstall:
     variant: ""
     toggle: null
   identity:
-    hostname: {{ inventory_hostname }}
+    hostname: {{ pxeserver_setup_hostname }}
     realname: Template user
     username: {{ global_vm_template_user }}
     password: {{ global_vm_template_user_crypted_password }}
