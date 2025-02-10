@@ -70,28 +70,8 @@
     owner: www-data
     group: www-data
 
-- name: Configure dnsmasq server
-  ansible.builtin.template:
-    src: dnsmasq.conf.j2
-    dest: /etc/dnsmasq.conf
-    mode: "0640"
-    owner: www-data
-    group: www-data
-  notify: Restart dnsmaq
-
-- name: Add or update IP reservation in dnsmasq.conf
-  ansible.builtin.lineinfile:
-    path: /etc/dnsmasq.conf
-    state: present
-    regexp: "^dhcp-host={{ item.mac_address }}"
-    line: 'dhcp-host={{ item.mac_address }},{{ item.ip_address }}'
-    create: true
-    mode: "0640"
-    owner: www-data
-    group: www-data
-  loop: '{{ pxeserver_setup_ip_reservations }}'
-  notify:
-    - Restart dnsmaq
+- name: Include configure.yml tasks
+  ansible.builtin.include_tasks: configure.yml
 
 - name: Create empty meta-data file
   ansible.builtin.file:
