@@ -1,0 +1,12 @@
+- name: Configure PXE
+  hosts: pxe
+  gather_facts: true
+  become: true
+  roles:
+    - global
+
+  tasks:
+    - name: Include configure.yml from pxeserver_setup role
+      ansible.builtin.import_role:
+        name: pxeserver_setup
+        tasks_from: configure.yml
