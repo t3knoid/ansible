@@ -21,7 +21,7 @@
 
 - name: Download and extract netboot tarball
   ansible.builtin.unarchive:
-    src: "{{ pxeserver_setup_releases_url }}/{{ pxeserver_setup_netboot_tarball }}"
+    src: "{{ global_os[vms_os].release_download_url }}/{{ global_os[vms_os].tarball }}"
     dest: "/tmp"
     remote_src: true
     mode: "0644"
@@ -31,7 +31,7 @@
 
 - name: Download live server ISO
   ansible.builtin.get_url:
-    url: "{{ pxeserver_setup_live_server_iso }}"
+    url: "{{ global_os[vms_os].release_download_url }}/{{ global_os[vms_os].iso }}"
     dest: "{{ pxeserver_setup_tftp_dir }}"
     force: false
     mode: u=rw,g=rw,o=r
