@@ -1,17 +1,21 @@
 ---
 
+- name: Set DNS servers
+  ansible.builtin.set_fact:
+    pxeserver_setup_dns_servers: "{{ global_dns_servers | join(' ') }}"
+
 - name: Enable DNS in /etc/systemd/resolved.conf
   ansible.builtin.lineinfile:
     path: /etc/systemd/resolved.conf
-    regexp: '^#?DNS='
-    line: 'DNS=8.8.8.8'
+    regexp: "^#?DNS="
+    line: "DNS={{ pxeserver_setup_dns_servers }}"
     state: present
 
 - name: Disable DNSStubListener in /etc/systemd/resolved.conf
   ansible.builtin.lineinfile:
     path: /etc/systemd/resolved.conf
-    regexp: '^#?DNSStubListener='
-    line: 'DNSStubListener=no'
+    regexp: "^#?DNSStubListener="
+    line: "DNSStubListener=no"
     state: present
 
 - name: Create softlink to boot loader cd-boot-images-amd64

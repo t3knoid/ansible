@@ -25,3 +25,53 @@
     - Restart dnsmaq
   delegate_to: "{{ pxeserver_setup_host }}"
 
+- name: Create empty meta-data file
+  ansible.builtin.file:
+    path: "{{ pxeserver_setup_tftp_dir }}/meta-data"
+    state: touch
+    mode: u=rw,g=rw,o=r
+    owner: www-data
+    group: www-data
+  delegate_to: "{{ pxeserver_setup_host }}"
+
+# This ensures that the current Ansible user can
+# connect via ssh into the new virtual machine
+- name: Generate Ansible user ssh key if needed
+  community.crypto.openssh_keypair:
+    path: ~/.ssh/id_rsa
+  delegate_to: localhost
+  register: ssh_key
+
+- name: Copy user-data file
+  ansible.builtin.template:
+    src: "user-data.j2"
+    dest: "{{ pxeserver_setup_tftp_dir }}/user-data"
+    mode: u=rw,g=rw,o=r
+    owner: www-data
+    group: www-data
+  delegate_to: "{{ pxeserver_setup_host }}"
+
+- name: Show pxeserver_setup_host
+  debug:
+    var: global_ip_addresses['{{ pxeserver_setup_host }}']
+
+- name: Show pxeserver_setup_ip
+  debug:
+    var: pxeserver_setup_ip
+
+- name: Configure pxelinux.cfg/default
+  ansible.builtin.template:
+    src: default.j2
+    dest: "{{ pxeserver_setup_tftp_dir }}/pxelinux.cfg/default"
+    mode: u=rw,g=rw,o=rw
+    owner: www-data
+    group: www-data
+  notify: Restart dnsmaq
+  delegate_to: "{{ pxeserver_setup_host }}"
+
+- name: Ensure dnsmaq service is running
+  ansible.builtin.service:
+    name: dnsmasq
+    state: started
+    enabled: true
+  delegate_to: "{{ pxeserver_setup_host }}"

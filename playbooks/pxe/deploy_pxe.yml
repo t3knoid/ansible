@@ -3,7 +3,7 @@
 - name: Deploy PXE server
   hosts: pxe
   become: true
-  gather_facts: false
+  gather_facts: true
   roles:
     - global
     - nginx_setup
