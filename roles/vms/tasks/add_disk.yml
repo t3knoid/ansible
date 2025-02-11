@@ -17,6 +17,7 @@
     backup: "{{ vms_config.disk2.backup | default(true) }}"
     cache: none
     storage: "{{ vms_config.disk2.storage | default(local_thin) }}"
+    format: qcow2
     size: "{{ vms_config.disk2.size | default(20) }}"
     state: present
   delegate_to: localhost
