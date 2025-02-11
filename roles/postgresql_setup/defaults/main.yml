@@ -8,3 +8,5 @@ postgresql_setup_packages_to_install:
   - libpq-dev
   - python3-psycopg2
   - acl
+
+postgresql_setup_data_dir: /data/pgdata
