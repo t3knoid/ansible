@@ -1,0 +1,29 @@
+---
+
+- name: Include nginx variables
+  ansible.builtin.include_vars:
+    dir: ../../../roles/nginx_setup/defaults/main
+
+- name: Configure Nginx default server
+  ansible.builtin.template:
+    src: nginx.conf.j2
+    dest: "{{ nginx_setup_homedir }}/sites-available/default"
+    mode: "0640"
+    owner: www-data
+    group: www-data
+  notify: Restart nginx
+
+- name: Enable Nginx default configuration
+  ansible.builtin.file:
+    src: "{{ nginx_setup_homedir }}/sites-available/default"
+    dest: "{{ nginx_setup_homedir }}/sites-enabled/default"
+    state: link
+    force: true
+  delegate_to: "{{ pxeserver_setup_host }}"
+
+- name: Ensure nginx service is running
+  ansible.builtin.service:
+    name: nginx
+    state: started
+    enabled: true
+  delegate_to: "{{ pxeserver_setup_host }}"
