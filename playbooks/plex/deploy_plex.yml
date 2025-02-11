@@ -1,9 +1,13 @@
 ---
 
 - name: Install and configure Plex Media Server
-  hosts: all
+  hosts: plex
   become: true
   roles:
     - global
+    - ad
     - autofs
+    - python3
+    - users
+    - ansible_node
     - plex_setup
