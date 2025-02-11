@@ -4,25 +4,6 @@
 
 vms_proxmox_node: pve-0
 vms_autoinstall: false
-vms_packages_list:
-    - vim
-    - net-tools
-    - realmd
-    - sssd
-    - sssd-tools
-    - sshpass
-    - libnss-sss
-    - libpam-sss
-    - adcli
-    - samba-common-bin
-    - oddjob
-    - oddjob-mkhomedir
-    - packagekit
-    - qemu-guest-agent
-    - parted
-    - git
-    - unzip
-    - acl
 vms_additional_packages: []
 vms_name: "{{ name | default(inventory_hostname) }}"
 vms_set_to_template: false
