@@ -6,16 +6,17 @@
     password: "{{ item.password | password_hash('sha512') }}"
     update_password: always
     groups: "{{ item.groups | join(',') }}"
-    shell: /bin/bash
+    shell: "{{ item.shell | default('/bin/bash') }}"
+    uid: "{{ item.uid }}"
     state: present
   when: users_list is defined
   with_items: "{{ users_list }}"
 
-- name: Set a user-defined user ID
+- name: Set a user-defined home folder
   ansible.builtin.user:
     name: "{{ item.username }}"
-    uid: "{{ item.uid }}"
-  when: item.uid is defined
+    home: "{{ item.home }}"
+  when: item.home is defined
   with_items: "{{ users_list }}"
 
 - name: Set a user-defined user GID
