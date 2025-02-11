@@ -38,7 +38,7 @@ autoinstall:
     authorized-keys: 
       - {{ ssh_key.public_key }}
   packages: 
-  {% for package in vms_packages_list | union(vms_additional_packages) -%}
+  {% for package in global_packages_list | union(vms_additional_packages) -%}
   - {{ package }}
   {% endfor -%} 
   late-commands:
