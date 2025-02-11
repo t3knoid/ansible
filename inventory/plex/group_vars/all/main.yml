@@ -5,6 +5,9 @@ python3_version: 3.12
 plex_setup_version: "1.41.3.9314-a0bfb8370"
 
 autofs_nfs_mounts:
+  - mount_name: photos
+    server: 192.168.2.250:/mnt/Data/photos
+    mount_options: -rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys
   - mount_name: music
     server: 192.168.2.250:/mnt/Data/music
     mount_options: -rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys
