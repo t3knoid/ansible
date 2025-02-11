@@ -58,8 +58,10 @@
     clone: "{{ vms_proxmox_template.name }}"
     full: true
     storage: "{{ vms_config.storage }}"
+    format: qcow2
     timeout: 1000
     ostype: "{{ vms_config.ostype }}"
+    agent: true
     state: present
   delegate_to: localhost
   register: vms_vm_info
