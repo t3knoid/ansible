@@ -1,5 +1,17 @@
 ---
 
+- name: Stop dnsmaq
+  ansible.builtin.service:
+    name: dnsmasq
+    state: stopped
+  delegate_to: "{{ pxeserver_setup_host }}"
+
+- name: Remove /var/lib/misc/dnsmasq.leases
+  ansible.builtin.file:
+    path: /var/lib/misc/dnsmasq.leases
+    state: absent
+  delegate_to: "{{ pxeserver_setup_host }}"
+
 - name: Configure dnsmasq server
   ansible.builtin.template:
     src: dnsmasq.conf.j2
