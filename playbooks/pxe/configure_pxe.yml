@@ -1,6 +1,6 @@
 - name: Configure PXE
-  hosts: pxe
-  gather_facts: true
+  hosts: pxe_client
+  gather_facts: false
   become: true
   roles:
     - global

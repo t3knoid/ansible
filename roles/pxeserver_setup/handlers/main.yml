@@ -4,8 +4,10 @@
   ansible.builtin.service:
     name: dnsmasq
     state: restarted
+  delegate_to: "{{ pxeserver_setup_host }}"
 
 - name: Restart nginx
   ansible.builtin.service:
     name: nginx
     state: restarted
+  delegate_to: "{{ pxeserver_setup_host }}"

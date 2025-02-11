@@ -2,4 +2,4 @@ DEFAULT install
 LABEL install
   KERNEL linux
   INITRD initrd
-  APPEND root=/dev/ram0 ramdisk_size=1500000 ip=dhcp iso-url={{ pxeserver_setup_iso_url }} autoinstall ds=nocloud-net;s=http://{{ pxeserver_setup_ip }} cloud-config-url=/dev/null fsck.mode=skip ---
+  APPEND root=/dev/ram0 ramdisk_size=1500000 ip=dhcp iso-url={{ pxeserver_setup_iso_url }} autoinstall ds=nocloud-net;s=http://{{ pxeserver_setup_iso_url }} cloud-config-url=/dev/null fsck.mode=skip ---
