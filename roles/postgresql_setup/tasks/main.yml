@@ -44,14 +44,6 @@
     name: postgresql
     state: stopped
 
-- name: Create directory /usr/share/postgresql-common/pgdg
-  ansible.builtin.file:
-    path: /usr/share/postgresql-common/pgdg
-    state: directory
-    owner: postgres
-    group: postgres
-    mode: '0755'
-
 - name: Delete default PostgreSQL data directory
   ansible.builtin.file:
     path: /var/lib/postgresql/{{ postgresql_setup_version }}/main
@@ -74,19 +66,9 @@
     regexp: "^data_directory ="
     line: "data_directory = '{{ postgresql_setup_data_dir }}'"
 
-# - name: Update PostgreSQL systemd service file
-#   ansible.builtin.lineinfile:
-#     path: "/lib/systemd/system/postgresql.service"
-#     regexp: "^ExecStart=.*$"
-#     line: "ExecStart=/usr/lib/postgresql/{{ postgresql_setup_version }}/bin/postgres -D {{ postgresql_setup_data_dir }}"
-
-# - name: Reload systemd to apply changes
-#   ansible.builtin.systemd:
-#     daemon_reload: true
-
 - name: Update pg_hba.conf to use md5 authentication
   community.postgresql.postgresql_pg_hba:
-    dest: "{{ postgresql_setup_data_dir }}/pg_hba.conf"
+    dest: "/etc/postgresql/{{ postgresql_setup_version }}/main/pg_hba.conf"
     contype: local
     users: all
     databases: all
@@ -94,7 +76,7 @@
 
 - name: Update pg_hba.conf to allow password access using host ip address
   community.postgresql.postgresql_pg_hba:
-    dest: "{{ postgresql_setup_data_dir }}/pg_hba.conf"
+    dest: "/etc/postgresql/{{ postgresql_setup_version }}/main/pg_hba.conf"
     contype: host
     users: all
     source: "{{ hostvars[groups['pgdb'] | first]['ansible_default_ipv4']['address'] }}/32"
@@ -103,7 +85,7 @@
 
 - name: Update pg_hba.conf to allow password access using localhost
   community.postgresql.postgresql_pg_hba:
-    dest: "{{ postgresql_setup_data_dir }}/pg_hba.conf"
+    dest: "/etc/postgresql/{{ postgresql_setup_version }}/main/pg_hba.conf"
     contype: host
     users: all
     source: "127.0.0.1/32"
@@ -112,7 +94,7 @@
 
 - name: Modify listen_addresses in postgresql.conf
   ansible.builtin.lineinfile:
-    path: "{{ postgresql_setup_data_dir }}/postgresql.conf"
+    path: "/etc/postgresql/{{ postgresql_setup_version }}/main/postgresql.conf"
     regexp: '^#?listen_addresses\s*=\s*\S+'
     line: "listen_addresses = '*'"
     state: present
