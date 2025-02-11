@@ -17,3 +17,8 @@ vms_config:
 
 pihole_cname_domain: ombi.refol.us
 pihole_cname_target_domain: rproxy-0.refol.us
+
+# See vault for the following variables
+# postgresql_setup_db_name
+# postgresql_setup_db_user
+# postgresql_setup_db_password
