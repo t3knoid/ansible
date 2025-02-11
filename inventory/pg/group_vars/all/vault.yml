@@ -1,0 +1,10 @@
+---
+
+users_list:
+  - username: postgres
+    password: postgres
+    uid: 3000
+    gid: 3000
+    groups:
+      - ansible
+    visudo: true
