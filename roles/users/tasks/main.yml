@@ -5,11 +5,17 @@
     name: "{{ item.username }}"
     password: "{{ item.password | password_hash('sha512') }}"
     update_password: always
-    groups: "{{ item.groups | join(',') }}"
     shell: "{{ item.shell | default('/bin/bash') }}"
     uid: "{{ item.uid }}"
     state: present
   when: users_list is defined
+  with_items: "{{ users_list }}"
+
+- name: Join groups
+  ansible.builtin.user:
+    name: "{{ item.username }}"
+    groups: "{{ item.groups | join(',') }}"
+  when: item.groups is defined
   with_items: "{{ users_list }}"
 
 - name: Set a user-defined home folder
