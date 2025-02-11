@@ -4,5 +4,5 @@
   ansible.builtin.apt:
     autoclean: true
     autoremove: true
-    name: "{{ vms_packages_list }}"
+    name: "{{ global_packages_list }}"
     state: present
