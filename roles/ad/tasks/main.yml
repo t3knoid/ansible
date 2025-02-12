@@ -102,3 +102,16 @@
 - name: Show ad_mkhomedir_result
   ansible.builtin.debug:
     var: ad_mkhomedir_result
+
+- name: Reboot machine and send a message
+  ansible.builtin.reboot:
+    msg: "Reboot initiated by Ansible"
+    connect_timeout: 30
+
+- name: Wait for machine to become reachable
+  ansible.builtin.wait_for:
+    host: "{{ inventory_hostname }}"
+    port: 22
+    delay: 5
+    timeout: 300
+  delegate_to: localhost
