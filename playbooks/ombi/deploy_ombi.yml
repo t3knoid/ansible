@@ -1,0 +1,39 @@
+---
+
+- name: Deploy Ombi
+  hosts: ombi,pgdb
+  become: true
+  gather_facts: true
+  vars:
+    ombi_setup_pgdb_ip: "{{ hostvars[groups['pgdb'] | first]['ansible_default_ipv4']['address'] }}"
+
+  tasks:
+    - name: Include global role
+      ansible.builtin.include_role:
+        name: global
+
+    - name: Include users role
+      ansible.builtin.include_role:
+        name: users
+      when: "'pgdb' in group_names"
+
+    - name: Import ombi_setup role database task
+      ansible.builtin.include_role:
+        name: ombi_setup
+        tasks_from: database
+      when: "'pgdb' in group_names"
+
+    - name: Include users role
+      ansible.builtin.include_role:
+        name: users
+      when: "'ombi' in group_names"
+
+    - name: Include docker_setup role
+      ansible.builtin.include_role:
+        name: docker_setup
+      when: "'ombi' in group_names"
+
+    - name: Include ombi_setup role
+      ansible.builtin.include_role:
+        name: ombi_setup
+      when: "'ombi' in group_names"
