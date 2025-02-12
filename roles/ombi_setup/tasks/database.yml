@@ -1,0 +1,33 @@
+---
+
+- name: Ensure PostgreSQL is installed
+  ansible.builtin.apt:
+    name: postgresql
+    state: present
+
+- name: Start and enable PostgreSQL service
+  ansible.builtin.systemd:
+    name: postgresql
+    state: started
+    enabled: true
+
+- name: Ensure PostgreSQL Python library is installed
+  ansible.builtin.apt:
+    name: python3-psycopg2
+    state: present
+
+- name: Create the PostgreSQL user
+  community.postgresql.postgresql_user:
+    name: "{{ ombi_setup_db_user }}"
+    password: "{{ ombi_setup_db_password }}"
+    state: present
+  become: true
+  become_user: postgres
+
+- name: Create the PostgreSQL database
+  community.postgresql.postgresql_db:
+    name: "{{ ombi_setup_db_name }}"
+    owner: "{{ ombi_setup_db_user }}"
+    state: present
+  become: true
+  become_user: postgres

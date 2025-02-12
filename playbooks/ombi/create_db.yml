@@ -1,0 +1,14 @@
+---
+
+- name: Create postgresql database
+  hosts: pgdb
+  become: true
+  gather_facts: true
+  roles:
+    - global
+
+  tasks:
+    - name: Import ombi_setup role database task
+      ansible.builtin.import_role:
+        name: ombi_setup
+        tasks_from: database

@@ -14,11 +14,26 @@ vms_config:
     backup: true
     size: 20
     storage: local
+  disk2:
+    disk: virtio1
+    backup: true
+    size: 10
+    storage: local
 
 pihole_cname_domain: ombi.refol.us
 pihole_cname_target_domain: rproxy-0.refol.us
 
+postgresql_setup_version: 17
+
+vms_os: ubuntu_24_server
+vms_autoinstall: true
+vms_enable_serial_terminal: false
+vms_additional_packages: []
+python3_version: 3.12
+disks_disk_mounts:
+  - { mountpoint: "/config", mountpoint_owner: "{{ users_list[0].username }}", mountpoint_group: "{{ users_list[0].username }}" }
+
 # See vault for the following variables
-# postgresql_setup_db_name
-# postgresql_setup_db_user
-# postgresql_setup_db_password
+# ombi_setup_db_name
+# ombi_setup_db_user
+# ombi_setup_db_password
