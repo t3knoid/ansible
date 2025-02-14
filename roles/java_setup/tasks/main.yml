@@ -1,0 +1,30 @@
+---
+- name: Download Oracle Java
+  ansible.builtin.get_url:
+    url: "https://download.oracle.com/java/{{ java_setup_major_version }}/latest/{{ java_setup_package }}"
+    dest: "/tmp/{{ java_setup_package }}"
+    mode: '0644'
+
+- name: Install Oracle Java
+  ansible.builtin.apt:
+    deb: "/tmp/{{ java_setup_package }}"
+    state: present
+
+- name: Set Java alternatives
+  community.general.alternatives:
+    name: java
+    path: "/usr/lib/jvm/jdk-{{ java_setup_version }}-oracle-x64/bin/java"
+    priority: 100
+
+- name: Set javac alternatives
+  community.general.alternatives:
+    name: javac
+    path: "/usr/lib/jvm/jdk-{{ java_setup_version }}-oracle-x64/bin/javac"
+    priority: 100
+
+- name: Ensure Java home is set
+  ansible.builtin.lineinfile:
+    path: /etc/profile.d/java.sh
+    line: "export JAVA_HOME=/usr/lib/jvm/jdk-{{ java_setup_version }}"
+    create: true
+    mode: "0640"
