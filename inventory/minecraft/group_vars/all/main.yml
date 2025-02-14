@@ -1,0 +1,35 @@
+---
+
+vms_config:
+  agent: "1"
+  cores: "2"
+  cpu: host
+  memory: 4096
+  ostype: l26
+  scsihw: virtio-scsi-single
+  sockets: 1
+  storage: local
+  disk_os:
+    disk: virtio0
+    backup: true
+    size: 20
+    storage: local
+  disk2:
+    disk: virtio1
+    backup: true
+    size: 20
+    storage: local
+
+pihole_cname_domain: minecraft.refol.us
+pihole_cname_target_domain: rproxy-0.refol.us
+
+postgresql_setup_version: 17
+
+vms_os: ubuntu_24_server
+vms_autoinstall: true
+vms_enable_serial_terminal: false
+vms_additional_packages: []
+python3_version: 3.12
+disks_disk_mounts:
+  -   - { mountpoint: "/minecraft", mountpoint_owner: "ansible", mountpoint_group: "ansible" }
+
