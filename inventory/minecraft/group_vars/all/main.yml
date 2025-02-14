@@ -21,9 +21,10 @@ vms_config:
     storage: local
 
 pihole_cname_domain: minecraft.refol.us
-pihole_cname_target_domain: rproxy-0.refol.us
+pihole_cname_target_domain: minecraft-0.refol.us
 
 postgresql_setup_version: 17
+java_setup_version: 23.0.2
 
 vms_os: ubuntu_24_server
 vms_autoinstall: true
