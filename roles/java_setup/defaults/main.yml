@@ -1,0 +1,6 @@
+---
+
+java_setup_version: 23.0.2
+java_setup_major_version: "{{ java_setup_version.split('.')[0] }}"
+java_setup_url: "https://download.oracle.com/java/{{ java_setup_major_version }}{{ java_setup_major_version }}/latest/"
+java_setup_package: "jdk-{{ java_setup_major_version }}_linux-x64_bin.deb"
