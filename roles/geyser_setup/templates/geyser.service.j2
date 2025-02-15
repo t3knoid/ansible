@@ -1,0 +1,12 @@
+[Unit]
+Description=Geyser Standalone
+After=network.target
+
+[Service]
+User=root
+WorkingDirectory={{ minecraft_setup_homedir }}
+ExecStart=/usr/bin/java -Xmx{{ geyser_setup_java_xmx }}M -Xms{{ geyser_setup_java_xms }}M -jar {{ geyser_setup_jar }}
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

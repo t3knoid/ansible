@@ -1,0 +1,13 @@
+[Unit]
+Description=Bedrock Server
+After=network.target
+
+[Service]
+User=root
+WorkingDirectory={{ bedrock_setup_homedir }}
+Environment=LD_LIBRARY_PATH={{ bedrock_setup_homedir }}:$LD_LIBRARY_PATH
+ExecStart={{ bedrock_setup_homedir }}/bedrock_server
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

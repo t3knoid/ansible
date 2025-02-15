@@ -1,0 +1,6 @@
+---
+
+geyser_setup_url: https://download.geysermc.org/v2/projects/geyser/versions/latest/builds/latest/downloads/standalone
+geyser_setup_port: 19132
+geyser_setup_java_xmx: 1024
+geyser_setup_java_xms: 128
