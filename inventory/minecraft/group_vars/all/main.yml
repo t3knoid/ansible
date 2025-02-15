@@ -32,5 +32,15 @@ vms_enable_serial_terminal: false
 vms_additional_packages: []
 python3_version: 3.12
 disks_disk_mounts:
-  -   - { mountpoint: "/minecraft", mountpoint_owner: "ansible", mountpoint_group: "ansible" }
+  - { mountpoint: "/minecraft", mountpoint_owner: "ansible", mountpoint_group: "ansible" }
 
+minecraft_setup_java_xmx: 2048
+minecraft_setup_java_xms: 256
+minecraft_setup_version: 1.21.4
+minecraft_setup_port: 25565
+
+geyser_setup_java_xmx: 1024
+geyser_setup_java_xms: 128
+geyser_setup_port: 19132
+
+bedrock_setup_version: 1.21.60.10

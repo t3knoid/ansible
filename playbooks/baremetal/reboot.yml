@@ -1,0 +1,12 @@
+---
+- name: Reboot a machine
+  hosts: all
+  gather_facts: false
+  roles:
+    - global
+
+  tasks:
+    - name: Reboot vm
+      ansible.builtin.import_role:
+        name: vms
+        tasks_from: reboot

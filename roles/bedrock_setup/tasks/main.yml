@@ -1,0 +1,47 @@
+---
+
+- name: Create Bedrock server directory
+  ansible.builtin.file:
+    path: "{{ bedrock_setup_homedir }}"
+    state: directory
+    mode: '0755'
+
+- name: Download Bedrock server archive
+  ansible.builtin.unarchive:
+    src: "{{ bedrock_setup_download_url }}/{{ bedrock_setup_download_archive }}"
+    dest: "{{ bedrock_setup_homedir }}"
+    remote_src: true
+    mode: "0640"
+
+- name: Set bedrock_server executable
+  ansible.builtin.file:
+    path: "{{ bedrock_setup_homedir }}/bedrock_server"
+    mode: "0755"
+
+- name: Configure Bedrock server.properties
+  ansible.builtin.lineinfile:
+    path: "{{ bedrock_setup_homedir }}/server.properties"
+    regexp: "^{{ item.key }}="
+    line: "{{ item.key }}={{ item.value }}"
+    state: present
+  loop: "{{ bedrock_setup_server_props }}"
+
+- name: Create systemd service file for Bedrock
+  ansible.builtin.template:
+    src: bedrock.service.j2
+    dest: /etc/systemd/system/bedrock.service
+    mode: "0640"
+
+- name: Reload systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: Enable Bedrock service
+  ansible.builtin.systemd:
+    name: bedrock
+    enabled: true
+
+- name: Start Bedrock service
+  ansible.builtin.systemd:
+    name: bedrock
+    state: restarted

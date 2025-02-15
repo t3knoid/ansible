@@ -1,0 +1,45 @@
+---
+
+- name: Create Minecraft server directory
+  ansible.builtin.file:
+    path: "{{ minecraft_setup_homedir }}"
+    state: directory
+    mode: '0755'
+
+- name: Download Minecraft server jar
+  ansible.builtin.get_url:
+    url: "{{ minecraft_setup_download_url }}"
+    dest: "{{ minecraft_setup_homedir }}/minecraft_server.{{ minecraft_setup_version }}.jar"
+    mode: "0640"
+
+- name: Accept EULA
+  ansible.builtin.copy:
+    content: "eula=true"
+    dest: "{{ minecraft_setup_homedir }}/eula.txt"
+    mode: "0640"
+
+- name: Create server.properties file
+  ansible.builtin.template:
+    src: server.properties.j2
+    dest: "{{ minecraft_setup_homedir }}/server.properties"
+    mode: "0640"
+
+- name: Create systemd service file for Minecraft
+  ansible.builtin.template:
+    src: minecraft.service.j2
+    dest: /etc/systemd/system/minecraft.service
+    mode: "0640"
+
+- name: Reload systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: Enable Minecraft service
+  ansible.builtin.systemd:
+    name: minecraft
+    enabled: true
+
+- name: Start Minecraft service
+  ansible.builtin.systemd:
+    name: minecraft
+    state: restarted
