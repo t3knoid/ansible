@@ -1,0 +1,8 @@
+---
+
+- hosts: minecraft
+  become: true
+
+  roles:
+    - java_setup
+    - minecraft_setup

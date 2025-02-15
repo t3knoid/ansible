@@ -1,0 +1,7 @@
+---
+
+minecraft_setup_version: 1.21.4
+minecraft_setup_port: 25565
+minecraft_setup_download_url: https://piston-data.mojang.com/v1/objects/4707d00eb834b446575d89a61a11b5d548d8c001/server.jar
+minecraft_setup_java_xmx: 2048
+minecraft_setup_java_xms: 256

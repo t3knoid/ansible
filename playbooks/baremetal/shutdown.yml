@@ -1,0 +1,10 @@
+---
+- name: Shutdown a machine
+  hosts: all
+  gather_facts: false
+  roles:
+    - global
+
+  tasks:
+    - name: Unconditionally shut down the machine with all defaults
+      community.general.shutdown:

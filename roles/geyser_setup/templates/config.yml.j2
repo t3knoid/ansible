@@ -1,0 +1,18 @@
+bedrock: 
+   # The IP address that will listen for connections. 
+   # Generally, you should only uncomment and change this if you want to limit what IPs can connect to your server. 
+   #address: 0.0.0.0 
+
+   # The port that will listen for connections. This is the port that Bedrock players will use to connect to your server.
+   port: {{ geyser_setup_port }}
+
+remote:
+   # The IP address of the remote (Java Edition) server
+   # If it is "auto", for standalone version the remote address will be set to 127.0.0.1.
+   address: auto
+
+   # The port of the remote (Java Edition) server
+   port: {{ minecraft_setup_port }}
+   
+   # Authentication type. Can be offline, online, or floodgate (see https://github.com/GeyserMC/Geyser/wiki/Floodgate).
+   auth-type: online
