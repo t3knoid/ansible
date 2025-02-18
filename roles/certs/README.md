@@ -6,7 +6,7 @@ The certs role uses [certbot](https://certbot.eff.org/instructions?ws=nginx&os=p
 Requirements
 ------------
 
-This role requires the nginx and certbot roles to be deployed on the target host.
+This role requires the nginx and certbot roles to be deployed on the target host. A minimum playbook must include the global role to execute prior to the certs role. Ensure that there are A or CNAME records for server_names defined in the global/defaults/main/sites.yml. 
 
 Role variables
 --------------
@@ -19,13 +19,18 @@ Role variables
 In order to create certificate, make sure to set the certs_staging to 0. Use the -e option on the ansible-playbook command-line.
 
 ```bash
-ansible-playbook -i $INV playbooks/generate_certs.yml -e "certs_staging=0" -k
+ansible-playbook -i $INV playbooks/certs/generate_certs.yml -k
+```
+
+To stage the generated certificates to the staging folder with the nginx server configurations expects them, execute the following command.
+```bash
+ansible-playbook -i $INV playbooks/certs/stage_certs.yml -k
 ```
 
 Dependencies
 ------------
 
-None
+This role depends on the certbot and nginx roles applied to the target host (i.e., [certbot] inventory group).
 
 Example Playbook
 ----------------
