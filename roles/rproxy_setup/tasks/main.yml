@@ -4,6 +4,18 @@
   ansible.builtin.include_vars:
     dir: ../../../roles/nginx_setup/defaults/main
 
+- name: Add upstream block to /etc/nginx/nginx.conf
+  ansible.builtin.blockinfile:
+    path: /etc/nginx/nginx.conf
+    insertafter: "http {"
+    block: |
+      upstream backend {
+        server {{ hostvars[groups['rproxy_primary'][0]]['ansible_hostname'] }}:80 max_fails=3 fail_timeout=5s;
+        server {{ hostvars[groups['rproxy_secondary'][0]]['ansible_hostname'] }}:80 backup;
+      }
+    marker: "# {mark} ANSIBLE MANAGED BLOCK"
+  when: inventory_hostname in groups['rproxy_main']
+
 - name: Include sites.yml tasks
   ansible.builtin.include_tasks: sites.yml
   tags: rproxy_sites

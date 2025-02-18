@@ -1,7 +1,7 @@
 - name: Deploy Reverse Proxy
   hosts: nginx,certbot
   become: true
-  gather_facts: false
+  gather_facts: true
   roles:
     - global
     - nginx_setup
