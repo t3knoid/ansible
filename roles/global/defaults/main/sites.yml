@@ -73,21 +73,21 @@ global_sites:
       - 24.105.250.200
       - 96.246.156.141
     restricted: false
-  - server_name: lazy.refol.us
-    port: 5299
-    proxy_pass: "http://{{ global_ip_addresses['lazy-0'] }}"
-    allow_list:
-      - 192.168.0.0/24
-      - 192.168.2.0/24
-      - 24.105.250.200
-      - 96.246.156.141
-    restricted: false
-  - server_name: books.refol.us
-    port: 8083
-    proxy_pass: "http://{{ global_ip_addresses['calibre-0'] }}"
-    allow_list:
-      - 192.168.0.0/24
-      - 192.168.2.0/24
-      - 24.105.250.200
-      - 96.246.156.141
-    restricted: false
+  # - server_name: lazy.refol.us
+  #   port: 5299
+  #   proxy_pass: "http://{{ global_ip_addresses['lazy-0'] }}"
+  #   allow_list:
+  #     - 192.168.0.0/24
+  #     - 192.168.2.0/24
+  #     - 24.105.250.200
+  #     - 96.246.156.141
+  #   restricted: false
+  # - server_name: books.refol.us
+  #   port: 8083
+  #   proxy_pass: "http://{{ global_ip_addresses['calibre-0'] }}"
+  #   allow_list:
+  #     - 192.168.0.0/24
+  #     - 192.168.2.0/24
+  #     - 24.105.250.200
+  #     - 96.246.156.141
+  #   restricted: false
