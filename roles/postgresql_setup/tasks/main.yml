@@ -88,9 +88,11 @@
     dest: "/etc/postgresql/{{ postgresql_setup_version }}/main/pg_hba.conf"
     contype: host
     users: all
-    source: "{{ hostvars[groups['pgclient'] | first]['ansible_default_ipv4']['address'] }}/32"
+    source: "{{ global_ip_addresses[item] }}/32"
     databases: all
     method: md5
+  loop: "{{ groups['pgclient'] }}"
+
   notify: Start PostgreSQL
 
 - name: Modify listen_addresses in postgresql.conf
