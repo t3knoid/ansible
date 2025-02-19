@@ -1,0 +1,13 @@
+[Unit]
+Description=Nebula Sync Service
+After=network.target
+
+[Service]
+ExecStart={{ nebulasync_setup_installdir }}/nebula-sync run --env-file {{ nebulasync_setup_envfilepath }}
+WorkingDirectory={{ nebulasync_setup_installdir }}
+Restart=always
+User=nobody
+Group=nogroup
+
+[Install]
+WantedBy=multi-user.target
