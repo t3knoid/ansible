@@ -1,0 +1,49 @@
+---
+
+- name: Ensure PostgreSQL is installed
+  ansible.builtin.apt:
+    name: postgresql
+    state: present
+
+- name: Start and enable PostgreSQL service
+  ansible.builtin.systemd:
+    name: postgresql
+    state: started
+    enabled: true
+
+- name: Ensure PostgreSQL Python library is installed
+  ansible.builtin.apt:
+    name: python3-psycopg2
+    state: present
+
+- name: Create the PostgreSQL user
+  community.postgresql.postgresql_user:
+    name: "{{ radarr_setup_db_user }}"
+    password: "{{ radarr_setup_db_password }}"
+    state: present
+  become: true
+  become_user: postgres
+  notify: Start PostgreSQL
+
+- name: Create the PostgreSQL main database
+  community.postgresql.postgresql_db:
+    name: "{{ radarr_setup_db_main }}"
+    owner: "{{ radarr_setup_db_user }}"
+    state: present
+  become: true
+  become_user: postgres
+  notify: Start PostgreSQL
+
+- name: Create the PostgreSQL log database
+  community.postgresql.postgresql_db:
+    name: "{{ radarr_setup_db_log }}"
+    owner: "{{ radarr_setup_db_user }}"
+    state: present
+  become: true
+  become_user: postgres
+  notify: Start PostgreSQL
+
+- name: Ensure PostgreSQL service is restarted
+  ansible.builtin.service:
+    name: postgresql
+    state: restarted

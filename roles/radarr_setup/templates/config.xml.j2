@@ -1,0 +1,23 @@
+<Config>
+  <BindAddress>*</BindAddress>
+  <Port>{{ radarr_setup_port }}</Port>
+  <SslPort>{{ radarr_setup_ssl_port }}</SslPort>
+  <EnableSsl>False</EnableSsl>
+  <LaunchBrowser>True</LaunchBrowser>
+  <ApiKey>c07e006959b44593952c18f6be3a734c</ApiKey>
+  <AuthenticationMethod>Forms</AuthenticationMethod>
+  <AuthenticationRequired>DisabledForLocalAddresses</AuthenticationRequired>
+  <Branch>master</Branch>
+  <LogLevel>{{ radarr_setup_debug_level }}</LogLevel>
+  <SslCertPath></SslCertPath>
+  <SslCertPassword></SslCertPassword>
+  <UrlBase></UrlBase>
+  <InstanceName>Radarr</InstanceName>
+  <UpdateMechanism>Docker</UpdateMechanism>
+  <PostgresUser>{{ radarr_setup_db_user }}</PostgresUser>
+  <PostgresPassword>{{ radarr_setup_db_password }}</PostgresPassword>
+  <PostgresPort>{{ radarr_setup_pg_port }}</PostgresPort>
+  <PostgresHost>{{ radarr_setup_pg_host }}</PostgresHost>
+  <PostgresMainDb>{{ radarr_setup_db_main }}</PostgresMainDb>
+  <PostgresLogDb>{{ radarr_setup_db_log }}</PostgresLogDb>
+</Config>
