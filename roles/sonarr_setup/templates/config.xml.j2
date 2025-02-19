@@ -1,0 +1,23 @@
+<Config>
+  <BindAddress>*</BindAddress>
+  <Port>{{ sonarr_setup_port }}</Port>
+  <SslPort>9898</SslPort>
+  <EnableSsl>False</EnableSsl>
+  <LaunchBrowser>True</LaunchBrowser>
+  <ApiKey>aa3653c131864c19acc27004431a2db0</ApiKey>
+  <AuthenticationMethod>Forms</AuthenticationMethod>
+  <AuthenticationRequired>DisabledForLocalAddresses</AuthenticationRequired>
+  <Branch>main</Branch>
+  <LogLevel>{{ sonarr_setup_debug_level }}</LogLevel>
+  <SslCertPath></SslCertPath>
+  <SslCertPassword></SslCertPassword>
+  <UrlBase></UrlBase>
+  <InstanceName>Sonarr</InstanceName>
+  <UpdateMechanism>Docker</UpdateMechanism>
+  <PostgresUser>{{ sonarr_setup_db_user }}</PostgresUser>
+  <PostgresPassword>{{ sonarr_setup_db_password }}</PostgresPassword>
+  <PostgresPort>{{ sonarr_setup_pg_port }}</PostgresPort>
+  <PostgresHost>{{ sonarr_setup_pg_host }}</PostgresHost>
+  <PostgresMainDb>{{ sonarr_setup_db_main }}</PostgresMainDb>
+  <PostgresLogDb>{{ sonarr_setup_db_log }}</PostgresLogDb>
+</Config>

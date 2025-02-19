@@ -1,0 +1,20 @@
+---
+
+services:
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    environment:
+      - PUID=2000
+      - PGID=2000
+      - TZ=Etc/UTC
+      - LANG=C.UTF-8
+      - LC_ALL=C.UTF-8
+    volumes:
+      - /config:/config
+{% for mount in autofs_nfs_mounts %}
+      - /nfs/{{ mount.mount_name }}:{{ mount.container_path }}
+{% endfor %}
+    ports:
+      - {{ sonarr_setup_port }}:{{ sonarr_setup_port }}
+    restart: unless-stopped
