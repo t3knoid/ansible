@@ -1,0 +1,15 @@
+---
+
+radarr_setup_config_dir: "/config"
+radarr_setup_port: 7878
+radarr_setup_ssl_port: 8787
+radarr_setup_debug_level: debug
+
+radarr_setup_pg_port: 5432
+radarr_setup_pg_host: "{{ global_ip_addresses[groups['pgdb'][0]] }}"
+
+# See vault for the following variables
+# radarr_setup_db_main
+# radarr_setup_db_log
+# radarr_setup_db_user
+# radarr_setup_db_password
