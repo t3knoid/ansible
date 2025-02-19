@@ -1,7 +1,7 @@
 ---
 
 - name: Install and configure postgresql
-  hosts: pgclient,pgdb
+  hosts: pgdb
   become: true
   gather_facts: true
   roles:

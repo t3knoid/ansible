@@ -1,0 +1,15 @@
+---
+
+sonarr_setup_config_dir: "/config"
+sonarr_setup_port: 8989
+sonarr_setup_ssl_port: 9898
+sonarr_setup_debug_level: debug
+
+sonarr_setup_pg_port: 5432
+sonarr_setup_pg_host: "{{ global_ip_addresses[groups['pgdb'][0]] }}"
+
+# See vault for the following variables
+# sonarr_setup_db_main
+# sonarr_setup_db_log
+# sonarr_setup_db_user
+# sonarr_setup_db_password
