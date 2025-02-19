@@ -1,0 +1,43 @@
+---
+
+- name: Download the latest release of nebula-sync
+  ansible.builtin.get_url:
+    url: "{{ nebulasync_setup_download }}"
+    dest: "/tmp/{{ nebulasync_setup_archive }}"
+    mode: "0640"
+
+- name: Extract the downloaded tarball
+  ansible.builtin.unarchive:
+    src: "/tmp/{{ nebulasync_setup_archive }}"
+    dest: "{{ nebulasync_setup_installdir }}"
+    remote_src: true
+
+- name: Clean up the tarball
+  ansible.builtin.file:
+    path: "/tmp/{{ nebulasync_setup_archive }}"
+    state: absent
+
+- name: Create environment file
+  ansible.builtin.lineinfile:
+    path: "{{ nebulasync_setup_envfilepath }}"
+    regexp: "^{{ property.key }}="
+    line: "{{ property.key }}={{ property.value }}"
+    state: present
+    create: true
+    mode: "0644"
+  loop: "{{ nebulasync_setup_settings }}"
+  loop_control:
+    label: "{{ property.key }}"
+    loop_var: property
+
+- name: Create service file
+  ansible.builtin.template:
+    src: nebula-sync.service.j2
+    dest: /etc/systemd/system/nebula-sync.service
+    mode: "0640"
+  notify: Restart nebula-sync service
+
+- name: Ensure nebula-sync service is started
+  ansible.builtin.systemd:
+    name: nebula-sync
+    state: restarted

@@ -1,0 +1,32 @@
+---
+
+nebulasync_setup_version: 0.2.5
+nebulasync_setup_archive: "nebula-sync_{{ nebulasync_setup_version }}_linux_amd64.tar.gz"
+nebulasync_setup_download: "https://github.com/lovelaze/nebula-sync/releases/download/v{{ nebulasync_setup_version }}/{{ nebulasync_setup_archive }}"
+nebulasync_setup_installdir: "/usr/local/bin"
+nebulasync_setup_envfilepath: "/etc/nebula-sync.env"
+nebulasync_setup_primary: "{{ global_ip_addresses[groups['primary_dns'][0]] }}|{{ nebulasync_setup_primary_password }}"
+nebulasync_setup_replicas: "{{ global_ip_addresses[groups['secondary_dns'][0]] }}|{{ nebulasync_setup_replicas_password }}"
+
+# Settings
+
+nebulasync_setup_settings:
+  - { key: 'PRIMARY', value: "{{ nebulasync_setup_primary }}" }
+  - { key: 'REPLICAS', value: "{{ nebulasync_setup_replicas }}" }
+  - { key: 'CRON', value: '0 * * * *' }
+  - { key: 'TZ', value: 'Americas/New_York' }
+  - { key: 'FULL_SYNC', value: 'true' } # Settings after this are only set if FULL_SYNC=false
+  - { key: 'SYNC_CONFIG_DNS', value: 'false' }
+  - { key: 'SYNC_CONFIG_NTP', value: 'false' }
+  - { key: 'SYNC_CONFIG_RESOLVER', value: 'false' }
+  - { key: 'SYNC_CONFIG_DATABASE', value: 'false' }
+  - { key: 'SYNC_CONFIG_MISC', value: 'false' }
+  - { key: 'SYNC_CONFIG_DEBUG', value: 'false' }
+  - { key: 'SYNC_GRAVITY_DHCP_LEASES', value: 'false' }
+  - { key: 'SYNC_GRAVITY_GROUP', value: 'false' }
+  - { key: 'SYNC_GRAVITY_AD_LIST', value: 'false' }
+  - { key: 'SYNC_GRAVITY_AD_LIST_BY_GROUP', value: 'false' }
+  - { key: 'SYNC_GRAVITY_DOMAIN_LIST', value: 'false' }
+  - { key: 'SYNC_GRAVITY_DOMAIN_LIST_BY_GROUP', value: 'false' }
+  - { key: 'SYNC_GRAVITY_CLIENT', value: 'false' }
+  - { key: 'SYNC_GRAVITY_CLIENT_BY_GROUP', value: 'false' }
