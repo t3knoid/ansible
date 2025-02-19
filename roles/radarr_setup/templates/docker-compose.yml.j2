@@ -12,8 +12,9 @@ services:
       - LC_ALL=C.UTF-8
     volumes:
       - /config:/config
-      - /nfs/movies:/movies #optional
-      - /nfs/downloads:/downloads #optional
+{% for mount in autofs_nfs_mounts %}
+      - /nfs/{{ mount.mount_name }}:{{ mount.container_path }}
+{% endfor %}
     ports:
-      - 7878:7878
+      - {{ radarr_setup_port }}:{{ radarr_setup_port }}
     restart: unless-stopped
