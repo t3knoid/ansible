@@ -1,0 +1,6 @@
+---
+
+- name: Restart nebula-sync service
+  ansible.builtin.systemd:
+    name: nebula-sync
+    state: restarted
