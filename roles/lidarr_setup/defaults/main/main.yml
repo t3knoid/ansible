@@ -1,0 +1,15 @@
+---
+
+lidarr_setup_config_dir: "/config"
+lidarr_setup_port: 8686
+lidarr_setup_ssl_port: 6868
+lidarr_setup_debug_level: debug
+
+lidarr_setup_pg_port: 5432
+lidarr_setup_pg_host: "{{ global_ip_addresses[groups['pgdb'][0]] }}"
+
+# See vault for the following variables
+# lidarr_setup_db_main
+# lidarr_setup_db_log
+# lidarr_setup_db_user
+# lidarr_setup_db_password
