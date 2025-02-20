@@ -1,0 +1,14 @@
+---
+
+- name: Start sonarr
+  hosts: sonarr
+  become: true
+  gather_facts: true
+  roles:
+    - global
+
+  tasks:
+    - name: Import sonarr_setup role database task
+      ansible.builtin.import_role:
+        name: sonarr_setup
+        tasks_from: start

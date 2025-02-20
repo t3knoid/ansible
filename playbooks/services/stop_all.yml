@@ -1,0 +1,11 @@
+---
+
+- name: Stop lidarr
+  ansible.builtin.import_playbook: stop_lidarr.yml
+
+- name: Stop radarr
+  ansible.builtin.import_playbook: stop_radarr.yml
+
+- name: Stop sonarr
+  ansible.builtin.import_playbook: stop_sonarr.yml
+
