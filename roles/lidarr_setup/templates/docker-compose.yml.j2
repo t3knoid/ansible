@@ -12,8 +12,9 @@ services:
       - LC_ALL=C.UTF-8
     volumes:
       - /config:/config
-      - /nfs/music:/music #optional
-      - /nfs/downloads:/downloads #optional
+{% for mount in autofs_nfs_mounts %}
+      - /nfs/{{ mount.mount_name }}:{{ mount.container_path }}
+{% endfor %}
     ports:
-      - 8686:8686
+      - {{ lidarr_setup_port }}:{{ lidarr_setup_port }}
     restart: unless-stopped

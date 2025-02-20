@@ -1,0 +1,23 @@
+<Config>
+  <BindAddress>*</BindAddress>
+  <Port>{{ lidarr_setup_port }}</Port>
+  <SslPort>{{ lidarr_setup_ssl_port }}</SslPort>
+  <EnableSsl>False</EnableSsl>
+  <LaunchBrowser>True</LaunchBrowser>
+  <ApiKey>a250b03b4bae492293094a1e01b9df18</ApiKey>
+  <AuthenticationMethod>Forms</AuthenticationMethod>
+  <AuthenticationRequired>DisabledForLocalAddresses</AuthenticationRequired>
+  <Branch>master</Branch>
+  <LogLevel>debug</LogLevel>
+  <SslCertPath></SslCertPath>
+  <SslCertPassword></SslCertPassword>
+  <UrlBase></UrlBase>
+  <InstanceName>Lidarr</InstanceName>
+  <UpdateMechanism>Docker</UpdateMechanism>
+  <PostgresUser>{{ lidarr_setup_db_user }}</PostgresUser>
+  <PostgresPassword>{{ lidarr_setup_db_password }}</PostgresPassword>
+  <PostgresPort>{{ lidarr_setup_pg_port }}</PostgresPort>
+  <PostgresHost>{{ lidarr_setup_pg_host }}</PostgresHost>
+  <PostgresMainDb>{{ lidarr_setup_db_main }}</PostgresMainDb>
+  <PostgresLogDb>{{ lidarr_setup_db_log }}</PostgresLogDb>
+</Config>
