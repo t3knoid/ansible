@@ -1,0 +1,6 @@
+---
+
+- name: Stop Docker Container
+  ansible.builtin.command: docker-compose -f "{{ sonarr_setup_config_dir }}/docker-compose.yml" down
+  changed_when: false
+  

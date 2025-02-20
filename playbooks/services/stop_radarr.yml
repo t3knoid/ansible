@@ -1,0 +1,14 @@
+---
+
+- name: Stop lidarr
+  hosts: lidarr
+  become: true
+  gather_facts: true
+  roles:
+    - global
+
+  tasks:
+    - name: Import lidarr_setup role database task
+      ansible.builtin.import_role:
+        name: lidarr_setup
+        tasks_from: stop
