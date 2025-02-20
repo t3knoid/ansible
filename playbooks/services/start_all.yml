@@ -1,0 +1,11 @@
+---
+
+- name: Start lidarr
+  ansible.builtin.import_playbook: start_lidarr.yml
+
+- name: Start radarr
+  ansible.builtin.import_playbook: start_radarr.yml
+
+- name: Start sonarr
+  ansible.builtin.import_playbook: start_sonarr.yml
+
