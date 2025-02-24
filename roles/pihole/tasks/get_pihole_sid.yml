@@ -1,0 +1,21 @@
+---
+
+- name: Get Pi-hole Session ID
+  no_log: false
+  ansible.builtin.uri:
+    url: "http://{{ pihole_api_host }}/api/auth"
+    method: POST
+    body_format: json
+    body: >
+      {
+        "password":"{{ pihole_password }}"
+      }
+    return_content: true
+  register: result
+  delegate_to: localhost
+  changed_when: result.status ==  200
+
+- name: Store Session ID
+  ansible.builtin.set_fact:
+    pihole_sid: "{{ result.json.session.sid }}"
+  when: not result.failed | bool
