@@ -15,6 +15,9 @@
   delegate_to: localhost
   changed_when: result.status ==  200
 
+- name: Include delete_session_id.yml tasks
+  ansible.builtin.include_tasks: delete_session_id.yml
+
 - name: Show Pi-hole configuration
   ansible.builtin.debug:
     var: result

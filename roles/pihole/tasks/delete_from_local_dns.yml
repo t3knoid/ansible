@@ -34,23 +34,8 @@
     pihole_error_msg: "{{ result_hosts_op.msg }}"
   when: result_hosts_op.status != 204 and result_hosts_op.json.error is not defined
 
-- name: Add pause before deleting session ID
-  ansible.builtin.pause:
-    seconds: 5
-
-- name: Delete Session ID
-  no_log: false
-  ansible.builtin.uri:
-    url: "http://{{ pihole_api_host }}/api/auth"
-    method: DELETE
-    headers:
-      sid: "{{ pihole_sid }}"
-    return_content: false
-    status_code: 204
-  register: session_delete
-  delegate_to: localhost
-  changed_when: session_delete.failed | bool
-  when: pihole_sid is defined
+- name: Include delete_session_id.yml tasks
+  ansible.builtin.include_tasks: delete_session_id.yml
 
 - name: Add host dns entry operation failure
   ansible.builtin.fail:
