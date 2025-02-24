@@ -3,19 +3,18 @@
 - name: Include get_pihole_sid.yml tasks
   ansible.builtin.include_tasks: get_pihole_sid.yml
 
-- name: Call Pi-hole restartdns api
+- name: Get hosts using config/dns/hosts api
   no_log: false
   ansible.builtin.uri:
-    url: "http://{{ pihole_api_host }}/api/action/restartdns"
-    method: POST
+    url: "http://{{ pihole_api_host }}/api/config/dns/hosts"
+    method: GET
     headers:
       sid: "{{ pihole_sid }}"
     return_content: true
-    status_code: [200,401]
   register: result
   delegate_to: localhost
   changed_when: result.status ==  200
 
-- name: Show restart command result
+- name: Show hosts
   ansible.builtin.debug:
-    var: result.json.status
+    var: result.json.config.dns.hosts

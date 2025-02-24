@@ -1,31 +1,58 @@
 ---
 
-- name: Import global role
-  ansible.builtin.import_role:
-    name: global
+- name: Include get_pihole_sid.yml tasks
+  ansible.builtin.include_tasks: get_pihole_sid.yml
 
-- name: Configure Delete URL
-  no_log: true
+- name: Set dns host entry
   ansible.builtin.set_fact:
-    pihole_delete_host_url: |-
-      http://{{ pihole_api_host }}/admin/api.php?customdns&
-      action=delete&
-      reload=true&
-      domain={{ inventory_hostname }}.refol.us&
-      ip={{ global_ip_address }}&
-      auth={{ pihole_api_token }}
+    pihole_host_entry: "{{ global_ip_address }} {{ inventory_hostname }}.{{ global_domain_name }}"
 
-- name: Delete host from local DNS
-  no_log: true
+- name: Encode Cname entry
+  ansible.builtin.set_fact:
+    pihole_host_entry_url_encoded: "{{ pihole_host_entry | urlencode() }}"
+
+- name: Delete DNS host entry using config/dns/hosts api
+  no_log: false
   ansible.builtin.uri:
-    url: "{{ pihole_delete_host_url | split('\n') | join }}"
-    method: GET
+    url: "http://{{ pihole_api_host }}/api/config/dns/hosts/{{ pihole_host_entry_url_encoded }}"
+    method: DELETE
+    headers:
+      sid: "{{ pihole_sid }}"
     return_content: true
-  register: result
+    status_code: [204, 404]
+  register: result_hosts_op
   delegate_to: localhost
-  changed_when: result.json.success | bool
+  changed_when: result_hosts_op.status ==  204
 
-- name: Display API response
-  ansible.builtin.debug:
-    var: result.json.message
-  when: result.json.message != ''
+- name: Store error message if operation is not successful
+  ansible.builtin.set_fact:
+    pihole_error_msg: "{{ result_hosts_op.json.error.message }}"
+  when: result_hosts_op.status != 204 and result_hosts_op.json.error is defined
+
+- name: Show message if operation is not successful
+  ansible.builtin.set_fact:
+    pihole_error_msg: "{{ result_hosts_op.msg }}"
+  when: result_hosts_op.status != 204 and result_hosts_op.json.error is not defined
+
+- name: Add pause before deleting session ID
+  ansible.builtin.pause:
+    seconds: 5
+
+- name: Delete Session ID
+  no_log: false
+  ansible.builtin.uri:
+    url: "http://{{ pihole_api_host }}/api/auth"
+    method: DELETE
+    headers:
+      sid: "{{ pihole_sid }}"
+    return_content: false
+    status_code: 204
+  register: session_delete
+  delegate_to: localhost
+  changed_when: session_delete.failed | bool
+  when: pihole_sid is defined
+
+- name: Add host dns entry operation failure
+  ansible.builtin.fail:
+    msg: "{{ pihole_error_msg }}"
+  when: result_hosts_op.status != 204
