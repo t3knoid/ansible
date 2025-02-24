@@ -1,7 +1,7 @@
 ---
 
-- name: Restart DNS
-  hosts: dns
+- name: Get Pi-hole cname records
+  hosts: primary_dns
   gather_facts: false
   roles:
     - global
@@ -10,4 +10,4 @@
     - name: Import pihole role
       ansible.builtin.import_role:
         name: pihole
-        tasks_from: restartdns.yml
+        tasks_from: get_cname_records.yml
