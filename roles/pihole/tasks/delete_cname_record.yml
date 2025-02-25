@@ -32,15 +32,10 @@
     pihole_error_msg: "{{ result_cname_op.json.error.message }}"
   when: result_cname_op.status != 204 and result_cname_op.json.error is defined
 
-- name: Show message if operation is not successful
+- name: Store message if json.error is not defined and operation is not successful
   ansible.builtin.set_fact:
       pihole_error_msg: "{{ result_cname_op.msg }}"
   when: result_cname_op.status != 204 and result_cname_op.json.error is not defined
 
 - name: Include delete_session_id.yml tasks
   ansible.builtin.include_tasks: delete_session_id.yml
-
-- name: Delete cname operation failure
-  ansible.builtin.fail:
-    msg: "{{ pihole_error_msg }}"
-  when: result_cname_op.status != 204
