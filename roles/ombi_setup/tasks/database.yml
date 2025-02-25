@@ -23,6 +23,7 @@
     state: present
   become: true
   become_user: postgres
+  notify: Start PostgreSQL
 
 - name: Create the PostgreSQL database
   community.postgresql.postgresql_db:
@@ -31,3 +32,19 @@
     state: present
   become: true
   become_user: postgres
+  notify: Start PostgreSQL
+
+- name: Update pg_hba.conf to allow password access using host ip address
+  community.postgresql.postgresql_pg_hba:
+    dest: "/etc/postgresql/{{ postgresql_setup_version }}/main/pg_hba.conf"
+    contype: host
+    users: all
+    source: "{{ global_ip_address }}/32"
+    databases: all
+    method: md5
+  notify: Start PostgreSQL
+
+- name: Ensure PostgreSQL service is restarted
+  ansible.builtin.service:
+    name: postgresql
+    state: restarted
