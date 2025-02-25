@@ -1,0 +1,29 @@
+---
+
+- name: Update the Ubuntu apt package index
+  ansible.builtin.apt:
+    update_cache: true
+
+- name: Upgrade all Ubuntu packages to the latest version
+  ansible.builtin.apt:
+    upgrade: dist
+
+- name: Remove unused Ubuntu packages
+  ansible.builtin.apt:
+    autoremove: true
+
+- name: Check if a restart is required
+  ansible.builtin.stat:
+    path: /var/run/reboot-required
+  register: linux_updates_reboot_required
+
+- name: Reboot is required
+  ansible.builtin.pause:
+    seconds: 30
+    prompt: "Rebooting the target host in 30 seconds."
+  when: linux_updates_reboot_required.stat.exists
+
+- name: Reboot the server if required
+  ansible.builtin.reboot:
+    connect_timeout: 60
+  when: linux_updates_reboot_required.stat.exists

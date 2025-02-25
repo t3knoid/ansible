@@ -1,0 +1,4 @@
+---
+
+- name: Include specific operating system update task file
+  ansible.builtin.include_tasks: "update_{{ ansible_distribution | lower }}.yml"
