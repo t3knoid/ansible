@@ -1,6 +1,16 @@
 ---
 
-- name: Start PostgreSQL
+- name: Restart PostgreSQL
   ansible.builtin.service:
     name: postgresql
-    state: started
+    state: restarted
+
+- name: Restart Semaphore
+  ansible.builtin.service:
+    name: semaphore
+    state: restarted
+
+- name: Restart Semaphore Runner
+  ansible.builtin.service:
+    name: semaphore.runner
+    state: restarted

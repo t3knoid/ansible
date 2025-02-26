@@ -5,3 +5,7 @@
 
 - name: Include configure.yml tasks
   ansible.builtin.include_tasks: configure.yml
+
+- name: Include runner.yml tasks
+  ansible.builtin.include_tasks: runner.yml
+  when: semaphoreui_setup_use_remote_runner

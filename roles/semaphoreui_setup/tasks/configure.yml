@@ -24,6 +24,14 @@
     group: semaphore
     mode: u=rw,g=rw,o=r
 
+- name: Create vault password file
+  ansible.builtin.copy:
+    content: "{{ ansible_setup_vault_password }}"
+    dest: "{{ semaphoreui_setup_tmpdir }}/.vault_pass.txt"
+    owner: semaphore
+    group: semaphore
+    mode: "0664"
+
 - name: Create config.json
   ansible.builtin.template:
     src: config.json.j2
@@ -31,6 +39,7 @@
     owner: semaphore
     group: semaphore
     mode: u=rw,g=rw,o=r
+  notify: Restart Semaphore Runner
 
 - name: Create systemd service file
   ansible.builtin.template:
@@ -64,18 +73,14 @@
     content: "{{ semaphoreui_setup_admin_pw }}"
     dest: "{{ semaphoreui_setup_homedir }}/.{{ semaphoreui_setup_admin }}"
     mode: '0600'
-  when: not semaphoreui_setup_password_file.stat.exists 
+  when: not semaphoreui_setup_password_file.stat.exists
 
 - name: Show message on how to find admin password
   ansible.builtin.debug:
     msg: "Admin password is available in {{ semaphoreui_setup_homedir }}/.admin"
 
-- name: Enable semaphore service
-  ansible.builtin.systemd:
-    name: semaphore
-    enabled: true
-
-- name: Start semaphore service
+- name: Start and enable semaphore service
   ansible.builtin.systemd:
     name: semaphore
     state: started
+    enabled: true

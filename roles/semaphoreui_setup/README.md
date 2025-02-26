@@ -13,11 +13,13 @@ Role Variables
 
 - semaphoreui_setup_version - The version of Semaphore UI to install
 - semaphoreui_setup_python_packages - A list of Python packages required by Ansible
-- semaphoreui_setup_homedir: Semaphore home directory
-- semaphoreui_setup_tmpdir: Semaphore temp folder
+- semaphoreui_setup_homedir - Semaphore home directory
+- semaphoreui_setup_tmpdir - Semaphore temp folder
 - semaphoreui_setup_etcdir: Semaphore configuration folder
-- semaphoreui_setup_pgdb_ip: IP address of the Postgres database host
-- semaphoreui_setup_pgclient_ip: IP address of the Postgres client
+- semaphoreui_setup_pgdb_ip - IP address of the Postgres database host
+- semaphoreui_setup_pgclient_ip - IP address of the Postgres client
+- semaphoreui_setup_port - The port Semaphore listens to
+- semaphoreui_setup_use_remote_runner - Set to false if not using a remote runner (i.e., Semaphore tasks are in the same host as server.)
 
 The following are in the vault.yml file.
 
