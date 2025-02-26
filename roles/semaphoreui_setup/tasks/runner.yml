@@ -1,0 +1,38 @@
+---
+
+- name: Ensure temp folder exists
+  ansible.builtin.file:
+    path: "{{ semaphoreui_setup_tmpdir }}"
+    state: directory
+    owner: semaphore
+    group: semaphore
+    mode: u=rwX,g=rX,o=rX
+
+- name: Ensure config folder exists
+  ansible.builtin.file:
+    path: "{{ semaphoreui_setup_etcdir }}"
+    state: directory
+    owner: semaphore
+    group: semaphore
+    mode: u=rwX,g=rX,o=rX
+
+- name: Create config.json
+  ansible.builtin.template:
+    src: config.runner.json.j2
+    dest: "{{ semaphoreui_setup_etcdir }}/config.runner.json"
+    owner: semaphore
+    group: semaphore
+    mode: u=rw,g=rw,o=r
+  notify: Restart Semaphore Runner
+
+- name: Create Semaphore Runner systemd service file
+  ansible.builtin.template:
+    src: semaphore.runner.service.j2
+    dest: "/etc/systemd/system/semaphore.runner.service"
+    mode: u=rw,g=rw,o=r
+
+- name: Start and enable Semaphore Runner service
+  ansible.builtin.systemd:
+    name: semaphore.runner
+    state: started
+    enabled: true
