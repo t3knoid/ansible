@@ -38,9 +38,13 @@
     dest: "/etc/systemd/system/semaphore.service"
     mode: u=rw,g=rw,o=r
 
+- name: Generate a random password
+  ansible.builtin.set_fact:
+    semaphoreui_setup_admin_pw: "{{ lookup('password', '/dev/null length=16 chars=ascii_letters,digits') }}"
+
 - name: Add Semaphore admin user
-  command: >
-    /usr/bin/semaphore user add --admin 
+  ansible.builtin.shell: >
+    /usr/bin/semaphore user add --admin
     --login "{{ semaphoreui_setup_admin }}"
     --password "{{ semaphoreui_setup_admin_pw }}"
     --name "{{ semaphoreui_setup_admin_name }}"
@@ -48,6 +52,23 @@
     --config "{{ semaphoreui_setup_etcdir }}/config.json"
   args:
     chdir: "{{ semaphoreui_setup_etcdir }}"
+    creates: "{{ semaphoreui_setup_homedir }}/.{{ semaphoreui_setup_admin }}"
+
+- name: Check if the password file exists
+  ansible.builtin.stat:
+    path: "{{ semaphoreui_setup_homedir }}/.{{ semaphoreui_setup_admin }}"
+  register: semaphoreui_setup_password_file
+
+- name: Save the generated password to a file
+  ansible.builtin.copy:
+    content: "{{ semaphoreui_setup_admin_pw }}"
+    dest: "{{ semaphoreui_setup_homedir }}/.{{ semaphoreui_setup_admin }}"
+    mode: '0600'
+  when: not semaphoreui_setup_password_file.stat.exists 
+
+- name: Show message on how to find admin password
+  ansible.builtin.debug:
+    msg: "Admin password is available in {{ semaphoreui_setup_homedir }}/.admin"
 
 - name: Enable semaphore service
   ansible.builtin.systemd:
