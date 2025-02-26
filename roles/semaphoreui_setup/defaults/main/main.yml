@@ -1,0 +1,20 @@
+---
+
+semaphoreui_setup_version: 2.12.14
+semaphoreui_setup_installer: "semaphore_{{ semaphoreui_setup_version }}_linux_amd64.deb"
+
+semaphoreui_setup_python_packages:
+  - ansible-dev-tools
+  - requests
+  - pycdlib
+  - proxmoxer
+  - ansible-lint
+  - pexpect
+  - jmespath
+  - passlib
+
+semaphoreui_setup_homedir: /ansible/semaphore
+semaphoreui_setup_tmpdir: "{{ semaphoreui_setup_homedir }}/tmp"
+semaphoreui_setup_etcdir: "{{ semaphoreui_setup_homedir }}/etc"
+semaphoreui_setup_pgdb_ip: "{{ global_ip_addresses[groups['pgdb'][0]] }}"
+semaphoreui_setup_pgclient_ip: "{{ global_ip_addresses[groups['pgclient'][0]] }}"

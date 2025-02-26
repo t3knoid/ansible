@@ -1,0 +1,60 @@
+---
+
+- name: Ensure temp folder exists
+  ansible.builtin.file:
+    path: "{{ semaphoreui_setup_tmpdir }}"
+    state: directory
+    owner: semaphore
+    group: semaphore
+    mode: u=rwX,g=rX,o=rX
+
+- name: Ensure config folder exists
+  ansible.builtin.file:
+    path: "{{ semaphoreui_setup_etcdir }}"
+    state: directory
+    owner: semaphore
+    group: semaphore
+    mode: u=rwX,g=rX,o=rX
+
+- name: Create Python requirements.txt
+  ansible.builtin.template:
+    src: requirements.txt.j2
+    dest: "{{ semaphoreui_setup_etcdir }}/requirements.txt"
+    owner: semaphore
+    group: semaphore
+    mode: u=rw,g=rw,o=r
+
+- name: Create config.json
+  ansible.builtin.template:
+    src: config.json.j2
+    dest: "{{ semaphoreui_setup_etcdir }}/config.json"
+    owner: semaphore
+    group: semaphore
+    mode: u=rw,g=rw,o=r
+
+- name: Create systemd service file
+  ansible.builtin.template:
+    src: semaphore.service.j2
+    dest: "/etc/systemd/system/semaphore.service"
+    mode: u=rw,g=rw,o=r
+
+- name: Add Semaphore admin user
+  command: >
+    /usr/bin/semaphore user add --admin 
+    --login "{{ semaphoreui_setup_admin }}"
+    --password "{{ semaphoreui_setup_admin_pw }}"
+    --name "{{ semaphoreui_setup_admin_name }}"
+    --email "{{ semaphoreui_setup_admin_email }}"
+    --config "{{ semaphoreui_setup_etcdir }}/config.json"
+  args:
+    chdir: "{{ semaphoreui_setup_etcdir }}"
+
+- name: Enable semaphore service
+  ansible.builtin.systemd:
+    name: semaphore
+    enabled: true
+
+- name: Start semaphore service
+  ansible.builtin.systemd:
+    name: semaphore
+    state: started

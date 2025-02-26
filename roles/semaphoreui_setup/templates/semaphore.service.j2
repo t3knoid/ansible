@@ -1,0 +1,19 @@
+[Unit]
+Description=Semaphore Ansible
+Documentation=https://docs.semaphoreui.com
+Wants=network-online.target
+After=network-online.target
+ConditionPathExists=/usr/bin/semaphore
+ConditionPathExists={{ semaphoreui_setup_etcdir }}/config.json
+
+[Service]
+User=semaphore
+Group=semaphore
+ExecReload=/bin/kill -HUP $MAINPID
+ExecStart=/bin/bash -c 'source {{ python3_venv_folder }}/bin/activate && /usr/bin/semaphore server --config={{ semaphoreui_setup_etcdir }}/config.json'
+SyslogIdentifier=semaphore
+Restart=always
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target
