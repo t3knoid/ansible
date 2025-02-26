@@ -5,7 +5,7 @@
   gather_facts: false
   roles:
     - global
-
+  strategy: linear
   tasks:
     - name: Import pihole role
       ansible.builtin.import_role:
@@ -14,3 +14,4 @@
       when:
         - pihole_cname_domain is defined
         - pihole_cname_target_domain is defined
+      run_once: true
