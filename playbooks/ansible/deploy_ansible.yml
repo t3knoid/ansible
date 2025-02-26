@@ -5,4 +5,15 @@
   become_user: root
   roles:
     - global
-    - ansible_setup
+    - ansible_node
+
+  tasks:
+    - name: Import venv.yml from python3 role
+      ansible.builtin.import_role:
+        name: python3
+        tasks_from: venv.yml
+
+    - name: Import ansible_setup role
+      ansible.builtin.import_role:
+        name: ansible_setup
+      when: "'ansible' in group_names"
