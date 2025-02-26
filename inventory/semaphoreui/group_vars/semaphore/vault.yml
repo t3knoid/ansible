@@ -1,0 +1,10 @@
+---
+
+users_list:
+  - username: semaphore
+    password: 6Scouts-excuse
+    uid: 3000
+    gid: 3000
+    groups:
+      - semaphore
+    visudo: true

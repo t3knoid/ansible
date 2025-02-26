@@ -1,0 +1,4 @@
+# Add additional Python packages that is required by Ansible
+{% for package in semaphoreui_setup_python_packages %}
+{{ package }}
+{% endfor %}

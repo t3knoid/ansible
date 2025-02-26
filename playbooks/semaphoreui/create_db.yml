@@ -1,0 +1,14 @@
+---
+
+- name: Create Semaphore UI postgresql database
+  hosts: pgdb
+  become: true
+  gather_facts: true
+  roles:
+    - global
+
+  tasks:
+    - name: Import semaphoreui_setup role database task
+      ansible.builtin.import_role:
+        name: semaphoreui_setup
+        tasks_from: database
