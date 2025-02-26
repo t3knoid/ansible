@@ -1,5 +1,5 @@
 - name: Deploy Reverse Proxy
-  hosts: nginx,certbot
+  hosts: rproxy
   become: true
   gather_facts: true
   roles:
