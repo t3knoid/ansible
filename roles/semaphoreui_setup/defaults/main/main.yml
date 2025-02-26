@@ -18,3 +18,5 @@ semaphoreui_setup_tmpdir: "{{ semaphoreui_setup_homedir }}/tmp"
 semaphoreui_setup_etcdir: "{{ semaphoreui_setup_homedir }}/etc"
 semaphoreui_setup_pgdb_ip: "{{ global_ip_addresses[groups['pgdb'][0]] }}"
 semaphoreui_setup_pgclient_ip: "{{ global_ip_addresses[groups['pgclient'][0]] }}"
+semaphoreui_setup_port: 3000
+semaphoreui_setup_use_remote_runner: false
