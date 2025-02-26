@@ -1,0 +1,20 @@
+---
+
+- name: Initialize download url
+  ansible.builtin.set_fact:
+    semaphoreui_setup_download_url: "{{ semaphoreui_setup_url }}/v{{ semaphoreui_setup_version }}/{{ semaphoreui_setup_installer }}"
+
+- name: Download SemaphoreUI installer file
+  ansible.builtin.get_url:
+    url: "{{ semaphoreui_setup_download_url }}"
+    dest: "/tmp/{{ semaphoreui_setup_installer }}"
+    mode: "0640"
+
+- name: Install SemaphoreUI .deb package
+  ansible.builtin.apt:
+    deb: "/tmp/{{ semaphoreui_setup_installer }}"
+
+- name: Remove downloaded .deb file
+  ansible.builtin.file:
+    path: "/tmp/{{ semaphoreui_setup_installer }}"
+    state: absent
