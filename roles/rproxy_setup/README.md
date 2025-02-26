@@ -6,10 +6,6 @@ rproxy_setup configures reverse proxy with failover support using nginx. This ro
         [rproxy_main]
         rproxy-0
 
-        [rproxy_backend]
-        rproxy-1
-        rproxy-2
-
         [rproxy_primary]
         rproxy-1
 
