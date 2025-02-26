@@ -1,0 +1,3 @@
+---
+
+postgresql_setup_data_dir: /ansible/pgdata
