@@ -31,3 +31,6 @@ postgresql_setup_version: 17
 nginx_setup_disable_default_site: true
 disks_disk_mounts:
   - { mountpoint: "/ansible", mountpoint_owner: "{{ users_list[0].username }}", mountpoint_group: "{{ users_list[0].username }}" }
+
+pihole_cname_domain: code.refol.us
+pihole_cname_target_domain: rproxy-0.refol.us
