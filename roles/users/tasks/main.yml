@@ -10,6 +10,8 @@
     state: present
   when: users_list is defined
   with_items: "{{ users_list }}"
+  loop_control:
+    label: "{{ item.username }}"
 
 - name: Join groups
   ansible.builtin.user:
