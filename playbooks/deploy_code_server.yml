@@ -1,9 +1,10 @@
 ---
 
 - name: Install and configure code-server
-  hosts: all
+  hosts: nginx,code_server
   become: true
   gather_facts: true
   roles:
     - global
+    - nginx_setup
     - code_server

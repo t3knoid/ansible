@@ -4,7 +4,7 @@
 
 - name: Stop the code-server package
   ansible.builtin.systemd:
-    name: "code-server@{{ ansible_user_id }}"
+    name: "code-server@{{ code_server_user }}"
     state: stopped
 
 - name: Download code-server package
@@ -20,9 +20,16 @@
     deb: "/tmp/code-server_{{ code_server_version }}_amd64.deb"
     state: present
 
+- name: Create code-server config.yaml
+  ansible.builtin.template:
+    src: config.yaml.j2
+    dest: "/home/{{ code_server_user }}/.config/code-server/config.yaml"
+    mode: "0644"
+  notify: Restart code server
+
 - name: Enable and start code-server service
   ansible.builtin.systemd:
-    name: "code-server@{{ ansible_user_id }}"
+    name: "code-server@{{ code_server_user }}"
     enabled: true
     state: started
 
@@ -30,3 +37,18 @@
   ansible.builtin.file:
     path: "/tmp/code-server_{{ code_server_version }}_amd64.deb"
     state: absent
+
+- name: Create or update Nginx site configuration
+  ansible.builtin.template:
+    src: code-server.conf.j2
+    dest: "{{ nginx_setup_homedir }}/sites-available/code-server.conf"
+    mode: "0644"
+  notify: Restart nginx
+
+- name: Enable Nginx site configuration
+  ansible.builtin.file:
+    src: "{{ nginx_setup_homedir }}/sites-available/code-server.conf"
+    dest: "{{ nginx_setup_homedir }}/sites-enabled/code-server.conf"
+    state: link
+    force: true
+  notify: Restart nginx
