@@ -25,6 +25,7 @@
 - name: Add PostgreSQL repository
   ansible.builtin.lineinfile:
     path: /etc/apt/sources.list.d/pgdg.list
+    regexp: '^deb \[signed-by=\/usr\/share\/postgresql-common\/pgdg\/apt\.postgresql\.org\.asc\] https:\/\/apt\.postgresql\.org\/pub\/repos\/apt {{ ansible_facts.distribution_release }}-pgdg main$'
     line: >
       deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc]
       https://apt.postgresql.org/pub/repos/apt {{ ansible_facts.distribution_release }}-pgdg main
