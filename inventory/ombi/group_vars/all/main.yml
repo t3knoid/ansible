@@ -38,3 +38,16 @@ disks_disk_mounts:
 # ombi_setup_db_name
 # ombi_setup_db_user
 # ombi_setup_db_password
+
+nginx_setup_disable_default_site: true
+
+rproxy_setup_sites:
+  - server_name: ombi.refol.us
+    port: 3579
+    proxy_pass: "http://{{ global_ip_addresses['ombi-0'] }}"
+    allow_list:
+      - 192.168.0.0/24
+      - 192.168.2.0/24
+      - 24.105.250.200
+      - 70.107.117.124
+    restricted: false
