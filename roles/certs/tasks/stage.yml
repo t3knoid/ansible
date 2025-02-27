@@ -72,6 +72,7 @@
   loop: "{{ certs_source_list | dict2items }}"
   loop_control:
     label: "{{ item.key }}"
+  notify: Restart nginx
 
 - name: Get privkey.pem stat
   ansible.builtin.stat:
@@ -103,3 +104,4 @@
   loop: "{{ certs_source_list | dict2items }}"
   loop_control:
     label: "{{ item.key }}"
+  notify: Restart nginx
