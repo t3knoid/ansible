@@ -1,12 +1,12 @@
 ---
 
-- name: Include nginx variables
-  ansible.builtin.include_vars:
-    dir: ../../../roles/nginx_setup/defaults/main
+# - name: Include nginx variables
+#   ansible.builtin.include_vars:
+#     dir: ../../../roles/nginx_setup/defaults/main
 
-- name: Add upstream block to /etc/nginx/nginx.conf
+- name: Add upstream block to "{{ nginx_setup_conf }}"
   ansible.builtin.blockinfile:
-    path: /etc/nginx/nginx.conf
+    path: "{{ nginx_setup_conf }}"
     insertafter: "http {"
     block: |
       upstream backend {
@@ -15,11 +15,3 @@
       }
     marker: "# {mark} ANSIBLE MANAGED BLOCK"
   when: inventory_hostname in groups['rproxy_main']
-
-- name: Include sites.yml tasks
-  ansible.builtin.include_tasks: sites.yml
-  tags: rproxy_sites
-
-- name: Include certs.yml tasks
-  ansible.builtin.include_tasks: certs.yml
-  tags: rproxy_setup_certs

@@ -18,9 +18,9 @@
     - nginx_setup_config
     - nginx_setup_certs
 
-- name: Make sure Nginx is started
+- name: Enable nginx
   ansible.builtin.service:
     name: nginx
     state: started
+    enabled: true
   become: true
-  tags: nginx_setup_config

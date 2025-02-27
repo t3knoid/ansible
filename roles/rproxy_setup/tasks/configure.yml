@@ -1,11 +1,40 @@
 ---
 
+# - name: Include nginx variables
+#   ansible.builtin.include_vars:
+#     dir: ../../../roles/nginx_setup/defaults/main
+
+- name: Create or update Nginx site configuration
+  ansible.builtin.template:
+    src: site.conf.j2
+    dest: "{{ nginx_setup_homedir }}/sites-available/{{ rproxy_setup_site.server_name }}.conf"
+    mode: "0644"
+  loop: "{{ rproxy_setup_sites }}"
+  loop_control:
+    label: "{{ rproxy_setup_site.server_name }}"
+    loop_var: rproxy_setup_site
+  notify: Restart nginx
+  tags: rproxy_setup_sites
+
+- name: Enable Nginx site configuration
+  ansible.builtin.file:
+    src: "{{ nginx_setup_homedir }}/sites-available/{{ rproxy_setup_site.server_name }}.conf"
+    dest: "{{ nginx_setup_homedir }}/sites-enabled/{{ rproxy_setup_site.server_name }}.conf"
+    state: link
+    force: true
+  loop: "{{ rproxy_setup_sites }}"
+  loop_control:
+    label: "{{ rproxy_setup_site.server_name }}"
+    loop_var: rproxy_setup_site
+  notify: Restart nginx
+  tags: rproxy_setup_sites
+
 - name: Ensure certificate host folders exist
   ansible.builtin.file:
     path: "{{ nginx_setup_certroot }}/{{ rproxy_setup_site.server_name }}"
     state: directory
     mode: "0644"
-  loop: "{{ global_sites }}"
+  loop: "{{ rproxy_setup_sites }}"
   loop_control:
     label: "{{ rproxy_setup_site.server_name }}"
     loop_var: rproxy_setup_site
@@ -15,7 +44,7 @@
   ansible.builtin.stat:
     path: "{{ nginx_setup_certroot }}/{{ rproxy_setup_site.server_name }}/cert.pem"
   register: rproxy_setup_cert_pem
-  loop: "{{ global_sites }}"
+  loop: "{{ rproxy_setup_sites }}"
   loop_control:
     label: "{{ rproxy_setup_site.server_name }}"
     loop_var: rproxy_setup_site
@@ -43,4 +72,5 @@
   loop_control:
     label: "{{ rproxy_setup_cert.rproxy_setup_site.server_name }}"
     loop_var: rproxy_setup_cert
+  notify: Restart nginx
   tags: rproxy_setup_certs
