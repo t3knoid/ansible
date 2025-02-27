@@ -15,14 +15,6 @@
     label: "{{ certs_folder }}"
     loop_var: certs_folder
 
-- name: Extract server domain names
-  ansible.builtin.set_fact:
-    certs_domain_names: "{{ global_sites | map(attribute='server_name') | list }}"
-
-- name: Display server names
-  ansible.builtin.debug:
-    msg: "{{ certs_domain_names }}"
-
 - name: Set certs_email_arg for no email by default
   ansible.builtin.set_fact:
     certs_email_arg: "--register-unsafely-without-email"
@@ -35,31 +27,23 @@
 - name: Set to staging by default
   ansible.builtin.set_fact:
     certs_staging_arg: "--staging"
-
-- name: Set to live
-  ansible.builtin.set_fact:
-    certs_staging_arg: ""
-  when: certs_staging == 0
+  when: certs_staging
 
 - name: Request certificates for each domain name
   ansible.builtin.command: >
     certbot certonly --key-type rsa --nginx
     {{ certs_staging_arg }}
     {{ certs_email_arg }}
-    -d {{ item }}
+    -d {{ site.server_name }}
     --rsa-key-size {{ certs_rsa_key_size }}
     --agree-tos
     --force-renewal
     --config-dir {{ certs_home }}
     --work-dir {{ certs_home }}/work
     --logs-dir {{ certs_home }}/log
-
-  loop: "{{ certs_domain_names }}"
+  loop: "{{ rproxy_setup_sites }}"
   loop_control:
-    label: "{{ item }}"
+    label: "{{ site.server_name }}"
+    loop_var: site
   register: certs_certbot_output
   changed_when: false
-
-- name: Debug certbot_output
-  ansible.builtin.debug:
-    var: certs_certbot_output
