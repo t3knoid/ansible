@@ -3,3 +3,16 @@
 pihole_cname_entries:
   - domain: truenas.refol.us 
     target: lb-0.refol.us
+
+nginx_setup_disable_default_site: true
+
+rproxy_setup_sites:
+  - server_name: truenas.refol.us
+    port: 80
+    proxy_pass: "http://{{ global_ip_addresses['truenas-01'] }}"
+    allow_list:
+      - 192.168.0.0/24
+      - 192.168.2.0/24
+      - 24.105.250.200
+      - 70.107.117.124
+    restricted: false
