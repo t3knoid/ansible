@@ -22,7 +22,7 @@
 
 - name: Modify error.log path in nginx.conf
   ansible.builtin.lineinfile:
-    path: /etc/nginx/nginx.conf
+    path: "{{ nginx_setup_conf }}"
     regexp: '^\s*error_log\s+'
     line: '\g<0> {{ nginx_setup_homedir }}/log/error.log;'
     backrefs: true
@@ -31,7 +31,7 @@
 
 - name: Modify access.log path in nginx.conf
   ansible.builtin.lineinfile:
-    path: /etc/nginx/nginx.conf
+    path: "{{ nginx_setup_conf }}"
     regexp: '^\s*access_log\s+'
     line: '\g<0> {{ nginx_setup_homedir }}/log/access.log;'
     backrefs: true
@@ -40,7 +40,7 @@
 
 - name: Modify worker_connections in nginx.conf
   ansible.builtin.lineinfile:
-    path: /etc/nginx/nginx.conf
+    path: "{{ nginx_setup_conf }}"
     regexp: '^(\s*worker_connections\s+)\d+;'
     line: '\1 {{ nginx_setup_worker_connections }};'
     backrefs: true
@@ -58,7 +58,7 @@
 
 - name: Modify sites-enabled path in nginx.conf
   ansible.builtin.lineinfile:
-    path: /etc/nginx/nginx.conf
+    path: "{{ nginx_setup_conf }}"
     regexp: '^\s*include\s+/etc/nginx/sites-enabled/\*;'
     line: '        include {{ nginx_setup_homedir }}/sites-enabled/*;'
   notify: Restart nginx
