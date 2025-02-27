@@ -13,7 +13,7 @@
     return_content: true
   register: result
   delegate_to: localhost
-  changed_when: result.status ==  200
+  changed_when: false
 
 - name: Store Session ID
   ansible.builtin.set_fact:
