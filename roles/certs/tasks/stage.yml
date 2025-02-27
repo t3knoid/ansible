@@ -36,7 +36,7 @@
     state: directory
     owner: www-data
     group: www-data
-  loop: "{{ global_sites }}"
+  loop: "{{ rproxy_setup_sites }}"
   loop_control:
     label: "{{ nginx_setup_site.server_name }}"
     loop_var: nginx_setup_site
@@ -46,7 +46,7 @@
     path: "{{ certs_home }}/live/{{ nginx_setup_site.server_name }}/cert.pem"
     follow: false
   register: certs_cert_pem_stat
-  loop: "{{ global_sites }}"
+  loop: "{{ rproxy_setup_sites }}"
   loop_control:
     label: "{{ nginx_setup_site.server_name }}"
     loop_var: nginx_setup_site
@@ -78,7 +78,7 @@
     path: "{{ certs_home }}/live/{{ nginx_setup_site.server_name }}/privkey.pem"
     follow: false
   register: certs_privkey_pem_stat
-  loop: "{{ global_sites }}"
+  loop: "{{ rproxy_setup_sites }}"
   loop_control:
     label: "{{ nginx_setup_site.server_name }}"
     loop_var: nginx_setup_site
