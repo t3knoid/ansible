@@ -1,33 +1,5 @@
 ---
 
-- name: Stage certs
-  ansible.builtin.copy:
-    src: "{{ certs_home }}/live/"
-    dest: "{{ certs_stage }}/"
-    remote_src: true
-    owner: www-data
-    group: www-data
-    follow: true
-
-- name: Find all directories
-  ansible.builtin.find:
-    paths: "{{ certs_stage }}/"
-    recurse: true
-    file_type: directory
-  register: certs_stage_directories
-
-- name: Set mode of all directories
-  ansible.builtin.file:
-    path: "{{ file.path }}"
-    mode: '0755'
-  loop: "{{ certs_stage_directories.files }}"
-  loop_control:
-    label: "{{ file.path }}"
-    loop_var: file
-
-- name: Initialize certs_lnk_source_list
-  ansible.builtin.set_fact:
-    certs_source_list: {}
 
 - name: Create stage folders
   ansible.builtin.file:
@@ -40,6 +12,10 @@
   loop_control:
     label: "{{ nginx_setup_site.server_name }}"
     loop_var: nginx_setup_site
+
+- name: Initialize certs_lnk_source_list
+  ansible.builtin.set_fact:
+    certs_source_list: {}
 
 - name: Get cert.pem stat
   ansible.builtin.stat:
