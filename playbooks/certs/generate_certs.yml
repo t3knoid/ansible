@@ -4,8 +4,4 @@
   become: true
   roles:
     - global
-    - users
-    - python3
-    - certbot_setup
-    - nginx_setup
     - certs
