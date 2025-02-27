@@ -16,7 +16,7 @@ Role variables
 - certs_staging: 1 # Set to 1 if you're testing your setup to avoid hitting request limits
 - certs_home: /data/letsencrypt
 
-In order to create certificate, make sure to set the certs_staging to 0. Use the -e option on the ansible-playbook command-line.
+In order to create certificate, make sure to set the certs_staging to false.
 
 ```bash
 ansible-playbook -i $INV playbooks/certs/generate_certs.yml -k
@@ -31,6 +31,11 @@ Dependencies
 ------------
 
 This role depends on the certbot and nginx roles applied to the target host (i.e., [certbot] inventory group).
+
+The inventory file must define the certs group which would contain the location of the certificates. 
+
+[certs]
+rproxy-0 
 
 Example Playbook
 ----------------

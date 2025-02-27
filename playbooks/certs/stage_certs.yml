@@ -1,5 +1,5 @@
 - name: Stage certificates
-  hosts: certbot
+  hosts: certs
   gather_facts: false
   become: true
   roles:
