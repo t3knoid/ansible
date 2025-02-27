@@ -20,8 +20,9 @@ vms_config:
     size: 10
     storage: local
 
-pihole_cname_domain: ombi.refol.us
-pihole_cname_target_domain: rproxy-0.refol.us
+pihole_cname_entries:
+  - domain: ombi.refol.us
+    target: rproxy-0.refol.us
 
 postgresql_setup_version: 17
 

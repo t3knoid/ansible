@@ -20,8 +20,9 @@ vms_config:
     size: 20
     storage: local
 
-pihole_cname_domain: minecraft.refol.us
-pihole_cname_target_domain: minecraft-0.refol.us
+pihole_cname_entries:
+  - domain: minecraft.refol.us
+    target: minecraft-0.refol.us
 
 postgresql_setup_version: 17
 java_setup_version: 23.0.2
