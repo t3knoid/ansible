@@ -1,0 +1,15 @@
+---
+
+- name: Deploy Reverse Proxy
+  hosts: rproxy
+  become: true
+  gather_facts: true
+  roles:
+    - global
+    - nginx_setup
+
+  tasks:
+    - name: Import rproxy role
+      ansible.builtin.import_role:
+        name: rproxy_setup
+        tasks_from: configure.yml
