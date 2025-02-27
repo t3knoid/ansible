@@ -11,7 +11,5 @@
       ansible.builtin.import_role:
         name: pihole
         tasks_from: delete_cname_record.yml
-      when:
-        - pihole_cname_domain is defined
-        - pihole_cname_target_domain is defined
+      when: pihole_cname_entries is defined
       run_once: true

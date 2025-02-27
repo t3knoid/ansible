@@ -1,4 +1,5 @@
 ---
 
-pihole_cname_domain: truenas.refol.us
-pihole_cname_target_domain: lb-0.refol.us
+pihole_cname_entries:
+  - domain: truenas.refol.us 
+    target: lb-0.refol.us

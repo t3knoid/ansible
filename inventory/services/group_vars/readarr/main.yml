@@ -30,5 +30,6 @@ autofs_nfs_mounts:
     mount_options: -rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys
     server: 192.168.0.250:/mnt/Data/downloads/incomplete
 
-pihole_cname_domain: readarr.refol.us
-pihole_cname_target_domain: xpenology.refol.us
+pihole_cname_entries:
+  - domain: readarr.refol.us
+    target: xpenology.refol.us
