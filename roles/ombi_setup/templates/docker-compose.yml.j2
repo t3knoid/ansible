@@ -12,7 +12,7 @@ services:
     volumes:
       - config:/config
     ports:
-      - 3579:3579
+      - {{ ombi_setup_port }}:{{ ombi_setup_port }}
     restart: unless-stopped
 volumes:
   config:

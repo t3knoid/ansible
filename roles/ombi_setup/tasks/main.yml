@@ -24,6 +24,14 @@
     group: "{{ users_list[0].username }}"
     mode: "0600"
 
+- name: Copy docker-compose.yml to target machine
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ radarr_setup_config_dir }}/docker-compose.yml"
+    owner: "{{ users_list[0].username }}"
+    group: "{{ users_list[0].username }}"
+    mode: "0640"
+
 - name: Make sure docker service account has access to config dir
   ansible.builtin.file:
     path: "{{ ombi_setup_config_dir }}"

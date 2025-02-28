@@ -1,14 +1,14 @@
 {
   "OmbiDatabase": {
     "Type": "Postgres",
-    "ConnectionString": "Host={{ ombi_setup_pgdb_ip }};Port=5432;Database={{ ombi_setup_db_name }};Username={{ ombi_setup_db_user }};Password={{ ombi_setup_db_password }}"
+    "ConnectionString": "Host={{ ombi_setup_pgdb_ip }};Port={{ ombi_setup_pg_port }};Database={{ ombi_setup_db_name }};Username={{ ombi_setup_db_user }};Password={{ ombi_setup_db_password }}"
   },
   "SettingsDatabase": {
     "Type": "Postgres",
-    "ConnectionString": "Host={{ ombi_setup_pgdb_ip }};Port=5432;Database={{ ombi_setup_db_name }};Username={{ ombi_setup_db_user }};Password={{ ombi_setup_db_password }}"
+    "ConnectionString": "Host={{ ombi_setup_pgdb_ip }};Port={{ ombi_setup_pg_port }};Database={{ ombi_setup_db_name }};Username={{ ombi_setup_db_user }};Password={{ ombi_setup_db_password }}"
   },
   "ExternalDatabase": {
     "Type": "Postgres",
-    "ConnectionString": "Host={{ ombi_setup_pgdb_ip }};Port=5432;Database={{ ombi_setup_db_name }};Username={{ ombi_setup_db_user }};Password={{ ombi_setup_db_password }}"
+    "ConnectionString": "Host={{ ombi_setup_pgdb_ip }};Port={{ ombi_setup_pg_port }};Database={{ ombi_setup_db_name }};Username={{ ombi_setup_db_user }};Password={{ ombi_setup_db_password }}"
   }
 }
