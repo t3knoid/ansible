@@ -21,8 +21,8 @@ vms_config:
     storage: local
 
 pihole_cname_entries:
-  - domain: minecraft.refol.us
-    target: minecraft-0.refol.us
+  - domain: bedrock.refol.us
+    target: minecraft-1.refol.us
 
 postgresql_setup_version: 17
 java_setup_version: 23.0.2
