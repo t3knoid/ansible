@@ -21,7 +21,8 @@ The following is a list of inventories.
 
 ## Roles
 
-| Role | Description |
-|------|-------------|
-| vms  | Contains related tasks to manage virtual machines |
+| Role | Description | Status |
+|------|-------------|--------|
+| vms  | Contains related tasks to manage virtual machines | Active |
+
 
