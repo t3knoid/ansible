@@ -32,6 +32,12 @@
     dest: /etc/systemd/system/bedrock.service
     mode: "0640"
 
+- name: Copy server icon
+  ansible.builtin.copy:
+    src: server-icon.png
+    dest: "{{ bedrock_setup_homedir }}"
+    mode: "0640"
+
 - name: Reload systemd daemon
   ansible.builtin.systemd:
     daemon_reload: true
