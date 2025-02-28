@@ -1,7 +1,7 @@
 ---
 
 - name: Add Pi-hole CNAME entry
-  hosts: all
+  hosts: cname
   gather_facts: false
   roles:
     - global
@@ -12,4 +12,3 @@
         name: pihole
         tasks_from: add_cname_record.yml
       when: pihole_cname_entries is defined
-      run_once: true
