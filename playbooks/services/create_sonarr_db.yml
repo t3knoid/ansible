@@ -1,7 +1,7 @@
 ---
 
 - name: Create postgresql database
-  hosts: pgdb
+  hosts: sonarr
   become: true
   gather_facts: true
   roles:
