@@ -10,12 +10,6 @@
     msg: "{{ ombi_setup_config_dir }}"
   when: ombi_setup_config_dir_stat is not defined
 
-- name: Copy docker-compose.yml to target machine
-  ansible.builtin.copy:
-    src: docker-compose.yml
-    dest: "{{ ombi_setup_config_dir }}/docker-compose.yml"
-    mode: "0600"
-
 - name: Copy database.json to target machine
   ansible.builtin.template:
     src: database.json.j2
