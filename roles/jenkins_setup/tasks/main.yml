@@ -1,21 +1,92 @@
 ---
 
+- name: Create Jenkins home folder
+  ansible.builtin.file:
+    path: "{{ jenkins_setup_home }}"
+    mode: "0774"
+    owner: "{{ users_list[0].username }}"
+    group: "{{ users_list[0].username }}"
+    state: directory
+
 - name: Add Jenkins apt repository key
   ansible.builtin.get_url:
     url: "{{ jenkins_setup_repo_key_url }}"
+    dest: "{{ jenkins_setup_repo_key_local }}"
     mode: '0644'
     force: true
 
-- name: Add Jenkins apt repository
-  ansible.builtin.apt_repository:
-    repo: "deb https://pkg.jenkins.io/debian-stable binary/"
-    state: present
+- name: Remove existing Jenkins repo key
+  ansible.builtin.file:
+    path: "{{ jenkins_setup_repo_key_local }}"
 
 - name: Update apt repository
-  ansible.builtin.apt:
-    update_cache: true
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by={{ jenkins_setup_repo_key_local }}] https://pkg.jenkins.io/debian-stable binary/"
+    update_cache: false
+    filename: jenkins
+    mode: "0644"
+    state: present
 
 - name: Install Jenkins
   ansible.builtin.apt:
     name: jenkins
+    update_cache: true
     state: present
+
+- name: Modify JENKINS_HOME environment variable
+  ansible.builtin.lineinfile:
+    path: /usr/lib/systemd/system/jenkins.service
+    regexp: '^Environment="JENKINS_HOME='
+    line: 'Environment="JENKINS_HOME={{ jenkins_setup_home }}"'
+    state: present
+
+- name: Set Jenkins WorkingDirectory
+  ansible.builtin.lineinfile:
+    path: /usr/lib/systemd/system/jenkins.service
+    regexp: '^WorkingDirectory='
+    line: 'WorkingDirectory={{ jenkins_setup_home }}'
+    state: present
+
+- name: Set Java options
+  ansible.builtin.lineinfile:
+    path: /usr/lib/systemd/system/jenkins.service
+    regexp: '^Environment="JAVA_OPTS='
+    line: 'Environment="JAVA_OPTS={{ jenkins_setup_javaopts }}"'
+    state: present
+
+- name: Set Jenkins port to listen to
+  ansible.builtin.lineinfile:
+    path: /usr/lib/systemd/system/jenkins.service
+    regexp: '^Environment="JENKINS_PORT='
+    line: 'Environment="JENKINS_PORT={{ jenkins_setup_port }}"'
+    state: present
+
+- name: Set Jenkins user
+  ansible.builtin.lineinfile:
+    path: /usr/lib/systemd/system/jenkins.service
+    regexp: '^User='
+    line: 'User={{ users_list[0].username }}'
+    state: present
+
+- name: Set Jenkins group
+  ansible.builtin.lineinfile:
+    path: /usr/lib/systemd/system/jenkins.service
+    regexp: '^Group='
+    line: 'Group={{ users_list[0].username }}'
+    state: present
+
+- name: Set Jenkins port to listen to
+  ansible.builtin.lineinfile:
+    path: /usr/lib/systemd/system/jenkins.service
+    regexp: '^Environment="JENKINS_PORT='
+    line: 'Environment="JENKINS_PORT={{ jenkins_setup_port }}"'
+    state: present
+
+- name: Reload systemd to apply changes
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: Restart Jenkins service
+  ansible.builtin.systemd:
+    name: jenkins
+    state: restarted

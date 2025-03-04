@@ -4,5 +4,7 @@
 jenkins_setup_version: 2.492.1
 jenkins_setup_war: "https://get-jenkins.io/war-stable/{{ jenkins_setup_version }}/jenkins.war"
 jenkins_setup_home: /data/jenkins
-jenkins_setup_repo_key_url: https://pkg.jenkins.io/debian-stable/jenkins.io.key
+jenkins_setup_repo_key_url: https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
 jenkins_setup_repo_key_local: /etc/apt/trusted.gpg.d/jenkins.asc
+jenkins_setup_javaopts: "-Djava.awt.headless=true -Xms{{ jenkins_setup_java_xms | default(512) }}m -Xmx{{ jenkins_setup_java_xmx | default(512) }}m"
+jenkins_setup_port: 8080
