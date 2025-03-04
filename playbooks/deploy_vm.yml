@@ -3,6 +3,9 @@
 - name: Create a new VM
   ansible.builtin.import_playbook: vms/provision_vm.yml
 
+- name: Create users
+  ansible.builtin.import_playbook: vms/add_users.yml
+
 - name: Add to active directory domain
   ansible.builtin.import_playbook: ad/join_domain.yml
 
