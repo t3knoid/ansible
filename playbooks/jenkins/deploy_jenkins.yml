@@ -1,0 +1,10 @@
+---
+
+- name: Deploy Jenkins
+  hosts: jenkins
+  become: true
+
+  roles:
+    - global
+    - java_setup
+    - jenkins_setup

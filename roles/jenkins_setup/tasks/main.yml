@@ -1,0 +1,21 @@
+---
+
+- name: Add Jenkins apt repository key
+  ansible.builtin.get_url:
+    url: "{{ jenkins_setup_repo_key_url }}"
+    mode: '0644'
+    force: true
+
+- name: Add Jenkins apt repository
+  ansible.builtin.apt_repository:
+    repo: "deb https://pkg.jenkins.io/debian-stable binary/"
+    state: present
+
+- name: Update apt repository
+  ansible.builtin.apt:
+    update_cache: true
+
+- name: Install Jenkins
+  ansible.builtin.apt:
+    name: jenkins
+    state: present
