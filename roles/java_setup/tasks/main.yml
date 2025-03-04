@@ -22,6 +22,11 @@
     deb: "/tmp/{{ java_setup_package }}"
     state: present
 
+- name: Remove Java Download
+  ansible.builtin.file:
+    path: "/tmp/{{ java_setup_package }}"
+    state: absent
+
 - name: Set Java alternatives
   community.general.alternatives:
     name: java
