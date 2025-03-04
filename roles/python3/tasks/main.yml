@@ -1,8 +1,19 @@
 ---
 
-- name: Add deadsnakes PPA repository
+- name: Add deadsnakes apt repository key.
+  ansible.builtin.get_url:
+    url: "{{ python3_repo_key_url }}"
+    dest: "{{ python3_repo_key_local }}"
+    mode: '0644'
+    force: true
+
+- name: Add deadsnakes apt repository.
   ansible.builtin.apt_repository:
-    repo: ppa:deadsnakes/ppa
+    repo: "deb [signed-by={{ python3_repo_key_local }}] https://ppa.launchpadcontent.net/deadsnakes/ppa/ubuntu noble main"
+    filename: deadsnakes.list
+    mode: "0644"
+    update_cache: false
+    state: present
 
 - name: Update apt cache
   ansible.builtin.apt:
