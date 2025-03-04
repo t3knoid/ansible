@@ -1,0 +1,11 @@
+---
+
+users_list:
+  - username: jenkins
+    password: seedy2$Dewar
+    uid: 5000
+    gid: 5000
+    groups:
+      - jenkins
+    visudo: true
+ 

@@ -1,0 +1,8 @@
+---
+# defaults file for jenkins_setup
+
+jenkins_setup_version: 2.492.1
+jenkins_setup_war: "https://get-jenkins.io/war-stable/{{ jenkins_setup_version }}/jenkins.war"
+jenkins_setup_home: /data/jenkins
+jenkins_setup_repo_key_url: https://pkg.jenkins.io/debian-stable/jenkins.io.key
+jenkins_setup_repo_key_local: /etc/apt/trusted.gpg.d/jenkins.asc
