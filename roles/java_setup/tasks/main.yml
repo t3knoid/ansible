@@ -1,4 +1,16 @@
 ---
+
+- name: Remove default-jdk package
+  ansible.builtin.apt:
+    name: default-jdk
+    state: absent
+
+- name: Remove other Java versions
+  ansible.builtin.apt:
+    name: "*jdk*"
+    state: absent
+    autoremove: true
+
 - name: Download Oracle Java
   ansible.builtin.get_url:
     url: "https://download.oracle.com/java/{{ java_setup_major_version }}/latest/{{ java_setup_package }}"
