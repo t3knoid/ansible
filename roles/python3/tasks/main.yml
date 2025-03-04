@@ -10,7 +10,7 @@
 - name: Add deadsnakes apt repository.
   ansible.builtin.apt_repository:
     repo: "deb [signed-by={{ python3_repo_key_local }}] https://ppa.launchpadcontent.net/deadsnakes/ppa/ubuntu noble main"
-    filename: deadsnakes.list
+    filename: deadsnakes
     mode: "0644"
     update_cache: false
     state: present
