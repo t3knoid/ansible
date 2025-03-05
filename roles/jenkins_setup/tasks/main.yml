@@ -16,6 +16,11 @@
     owner: "{{ users_list[0].username }}"
     group: "{{ users_list[0].username }}"
 
+- name: Remove existing Jenkins repo key
+  ansible.builtin.file:
+    path: "{{ jenkins_setup_repo_key_local }}"
+    state: absent
+
 - name: Add Jenkins apt repository key
   ansible.builtin.get_url:
     url: "{{ jenkins_setup_repo_key_url }}"
@@ -23,9 +28,10 @@
     mode: '0644'
     force: true
 
-- name: Remove existing Jenkins repo key
+- name: Remove existing Jenkins repo list file
   ansible.builtin.file:
-    path: "{{ jenkins_setup_repo_key_local }}"
+    path: " /etc/apt/sources.list.d/jenkins"
+    state: absent
 
 - name: Update apt repository
   ansible.builtin.apt_repository:
