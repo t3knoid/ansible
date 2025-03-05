@@ -1,0 +1,11 @@
+---
+
+- name: Install and configure code-server
+  hosts: omada
+  become: true
+  gather_facts: true
+  roles:
+    - global
+    - java_setup
+    - mongodb_setup
+    - oc_setup

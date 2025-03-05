@@ -1,0 +1,9 @@
+---
+
+oc_setup_java_major_version: "{{ java_setup_version.split('.')[0] | default(11) }}"
+
+oc_setup_commons_daemon_version: 1.4.1
+oc_setup_commons_daemon_package: commons-daemon-{{ oc_setup_commons_daemon_version }}-src.tar.gz
+oc_setup_commons_daemon_root_url: https://archive.apache.org/dist/commons/daemon/source/
+oc_setup_version: 5.15.6.7
+oc_setup_download_url: "https://static.tp-link.com/upload/software/2024/202412/20241224/Omada_SDN_Controller_v{{ oc_setup_version }}_linux_x64.deb"
