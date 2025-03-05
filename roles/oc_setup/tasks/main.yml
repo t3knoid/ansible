@@ -1,0 +1,54 @@
+---
+
+- name: Install dependencies for JSVC
+  ansible.builtin.apt:
+    name:
+      - autoconf
+      - make
+      - gcc
+    state: present
+
+# - name: Download JSVC source code
+#   ansible.builtin.get_url:
+#     url: "{{ oc_setup_commons_daemon_root_url }}/{{ oc_setup_commons_daemon_package }}"
+#     dest: /tmp/{{ oc_setup_commons_daemon_package }}
+#     mode: "0644"
+
+- name: Extract JSVC source code
+  ansible.builtin.unarchive:
+    src: "{{ oc_setup_commons_daemon_root_url }}/{{ oc_setup_commons_daemon_package }}"
+    dest: /opt/
+    remote_src: true
+    mode: "0644"
+
+- name: Remove existing JSVC softlink
+  ansible.builtin.file:
+    path: /usr/bin/jsvc
+    state: absent
+
+- name: Build and install JSVC
+  ansible.builtin.shell: |
+    cd /opt/commons-daemon-{{ oc_setup_commons_daemon_version }}-src/src/native/unix
+    sh support/buildconf.sh
+    ./configure --with-java=/usr/lib/jvm/java-{{ oc_setup_java_major_version }}-amazon-corretto
+    make
+    ln -s $(pwd)/jsvc /usr/bin/jsvc
+  args:
+    creates: /opt/commons-daemon-{{ oc_setup_commons_daemon_version }}-src/src/native/unix/jsvc
+  changed_when: true
+
+- name: Cleanup JSVC download
+  ansible.builtin.file:
+    path: /tmp/{{ oc_setup_commons_daemon_package }}
+    state: absent
+
+- name: Download Omada Controller package
+  ansible.builtin.get_url:
+    url: "{{ oc_setup_download_url }}"
+    dest: "/tmp/{{ oc_setup_download_url.split('/')[-1] }}"
+    mode: "0644"
+
+- name: Install Omada Controller
+  ansible.builtin.apt:
+    deb: "/tmp/{{ oc_setup_download_url.split('/')[-1] }}"
+    dpkg_options: ignore-depends=jsvc
