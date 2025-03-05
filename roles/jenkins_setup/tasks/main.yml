@@ -8,6 +8,14 @@
     group: "{{ users_list[0].username }}"
     state: directory
 
+- name: Copy config.yaml
+  ansible.builtin.copy:
+    src: jenkins.yaml
+    dest: "{{ jenkins_setup_home }}/jenkins.yaml"
+    mode: "0644"
+    owner: "{{ users_list[0].username }}"
+    group: "{{ users_list[0].username }}"
+
 - name: Add Jenkins apt repository key
   ansible.builtin.get_url:
     url: "{{ jenkins_setup_repo_key_url }}"
@@ -32,6 +40,12 @@
     name: jenkins
     update_cache: true
     state: present
+
+- name: Download jenkins-cli.jar
+  ansible.builtin.get_url:
+    url: "http://localhost:8080/jnlpJars/jenkins-cli.jar"
+    dest: /tmp/jenkins-cli.jar
+    mode: "0644"
 
 - name: Modify JENKINS_HOME environment variable
   ansible.builtin.lineinfile:
@@ -90,3 +104,25 @@
   ansible.builtin.systemd:
     name: jenkins
     state: restarted
+
+- name: Read default admin password
+  ansible.builtin.slurp:
+    src: "{{ jenkins_setup_home }}/secrets/initialAdminPassword"
+  register: jenkins_setup_admin_pwd
+
+- name: Install plugins
+  ansible.builtin.command: >
+    java -jar /tmp/jenkins-cli.jar
+    -s http://localhost:8080/
+    -auth admin:{{ jenkins_setup_admin_pwd['content'] | b64decode }}
+    install-plugin {{ item }}
+  loop: "{{ jenkins_setup_plugins }}"
+  changed_when: false
+
+- name: Safe restart Jenkins
+  ansible.builtin.command: >
+    java -jar /tmp/jenkins-cli.jar
+    -s http://localhost:8080/
+    -auth admin:{{ jenkins_setup_admin_pwd['content'] | b64decode }}
+    safe-restart
+  changed_when: false
