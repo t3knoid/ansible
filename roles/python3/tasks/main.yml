@@ -1,15 +1,36 @@
 ---
 
-- name: Add deadsnakes apt repository key.
-  ansible.builtin.get_url:
-    url: "{{ python3_repo_key_url }}"
-    dest: "{{ python3_repo_key_local }}"
-    mode: '0644'
-    force: true
+- name: Remove legacy Deadsnakes repo list file
+  ansible.builtin.file:
+    path: "/etc/apt/sources.list.d/ppa_deadsnakes_ppa_noble.list"
+    state: absent
+
+- name: Ensure gnupg is installed
+  ansible.builtin.apt:
+    name:
+      - gnupg
+    state: present
 
 - name: Remove existing Python3 repo key
   ansible.builtin.file:
     path: "{{ python3_repo_key_local }}"
+
+- name: Download deadsnakes key
+  ansible.builtin.get_url:
+    url: "{{ python3_repo_key_url }}"
+    dest: "/tmp/{{ python3_repo_key_url.split('/')[-1] }}"
+    mode: '0644'
+    force: true
+
+- name: Convert Deadsnakes key to keyring format
+  ansible.builtin.command: sudo gpg -o {{ python3_repo_key_local }} --dearmor /tmp/{{ python3_repo_key_url.split('/')[-1] }}
+  args:
+    creates: "{{ python3_repo_key_local }}"
+
+- name: Remove existing Deadsnakes repo list file
+  ansible.builtin.file:
+    path: "/etc/apt/sources.list.d/deadsnakes"
+    state: absent
 
 - name: Add deadsnakes apt repository.
   ansible.builtin.apt_repository:
