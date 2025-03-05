@@ -19,7 +19,7 @@
     force: true
 
 - name: Convert MongoDB GPG key to keyring format
-  ansible.builtin.command: sudo gpg -o {{ mongodb_setup_repo_key_local }} --dearmor //tmp/{{ mongodb_setup_repo_key_url.split('/')[-1] }}
+  ansible.builtin.command: sudo gpg -o {{ mongodb_setup_repo_key_local }} --dearmor /tmp/{{ mongodb_setup_repo_key_url.split('/')[-1] }}
   args:
     creates: "{{ mongodb_setup_repo_key_local }}"
 
