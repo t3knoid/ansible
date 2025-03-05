@@ -13,7 +13,6 @@ jenkins_setup_javaopts: >
   -Xmx{{ jenkins_setup_java_xmx | default(512) }}m
 jenkins_setup_port: 8080
 jenkins_setup_plugins:
-  - ace-editor
   - apache-httpcomponents-client-4-api
   - authentication-tokens
   - blueocean
@@ -22,7 +21,7 @@ jenkins_setup_plugins:
   - blueocean-commons
   - blueocean-config
   - blueocean-core-js
-  - blueocean-dashboard 
+  - blueocean-dashboard
   - blueocean-display-url
   - blueocean-events
   - blueocean-git-pipeline
@@ -81,7 +80,6 @@ jenkins_setup_plugins:
   - pipeline-stage-tags-metadata
   - plain-credentials
   - plugin-util-api
-  - popper2-api
   - pubsub-light
   - scm-api
   - script-security
