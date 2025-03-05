@@ -1,0 +1,8 @@
+---
+
+- name: Deploy Mongodb
+  hosts: mongodb
+  become: true
+
+  roles:
+    - mongodb_setup

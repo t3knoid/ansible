@@ -1,0 +1,53 @@
+---
+
+- name: Ensure gnupg is installed
+  ansible.builtin.apt:
+    name:
+      - gnupg
+    state: present
+
+- name: Remove existing Mongodb repo key
+  ansible.builtin.file:
+    path: "{{ mongodb_setup_repo_key_local }}"
+    state: absent
+
+- name: Download MongoDB GPG key
+  ansible.builtin.get_url:
+    url: "{{ mongodb_setup_repo_key_url }}"
+    dest: "/tmp/{{ mongodb_setup_repo_key_url.split('/')[-1] }}"
+    mode: '0644'
+    force: true
+
+- name: Convert MongoDB GPG key to keyring format
+  ansible.builtin.command: sudo gpg -o {{ mongodb_setup_repo_key_local }} --dearmor //tmp/{{ mongodb_setup_repo_key_url.split('/')[-1] }}
+  args:
+    creates: "{{ mongodb_setup_repo_key_local }}"
+
+- name: Remove existing Mongodb repo list file
+  ansible.builtin.file:
+    path: "/etc/apt/sources.list.d/mongodb-org-8.0.list"
+    state: absent
+
+- name: Update apt repository
+  ansible.builtin.apt_repository:
+    repo: "deb [ arch=amd64,arm64 signed-by={{ mongodb_setup_repo_key_local }}] https://repo.mongodb.org/apt/ubuntu noble/mongodb-org/8.0 multiverse"
+    update_cache: false
+    filename: mongodb-org-8.0
+    mode: "0644"
+    state: present
+
+- name: Update APT package cache
+  ansible.builtin.apt:
+    update_cache: true
+
+- name: Install MongoDB
+  ansible.builtin.apt:
+    name:
+      - mongodb-org
+    state: present
+
+- name: Enable and start the MongoDB service
+  ansible.builtin.service:
+    name: mongodb
+    enabled: true
+    state: started
