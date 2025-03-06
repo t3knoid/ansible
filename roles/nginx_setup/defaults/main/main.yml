@@ -6,3 +6,4 @@ nginx_setup_homedir: /data/nginx
 nginx_setup_access_log: "{{ nginx_setup_homedir }}/log/access.log"
 nginx_setup_conf: /etc/nginx/nginx.conf
 nginx_setup_certroot: /data/certs
+nginx_setup_disable_default_site: true
