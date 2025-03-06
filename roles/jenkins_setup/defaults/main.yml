@@ -100,3 +100,4 @@ jenkins_setup_plugins:
   - workflow-step-api
   - workflow-support
   - configuration-as-code
+  - active-directory
