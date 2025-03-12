@@ -9,8 +9,8 @@
     state: directory
 
 - name: Copy config.yaml
-  ansible.builtin.copy:
-    src: jenkins.yaml
+  ansible.builtin.template:
+    src: jenkins.yaml.j2
     dest: "{{ jenkins_setup_home }}/jenkins.yaml"
     mode: "0644"
     owner: "{{ users_list[0].username }}"
@@ -47,37 +47,52 @@
     update_cache: true
     state: present
 
-- name: Download jenkins-cli.jar
-  ansible.builtin.get_url:
-    url: "http://localhost:8080/jnlpJars/jenkins-cli.jar"
-    dest: /tmp/jenkins-cli.jar
+- name: Stop Jenkins service
+  ansible.builtin.systemd:
+    name: jenkins
+    state: stopped
+
+- name: Create init.groovy.d folder
+  ansible.builtin.file:
+    path: "{{ jenkins_setup_home }}/init.groovy.d"
+    state: directory
+    mode: "0755"
+    owner: "{{ users_list[0].username }}"
+    group: "{{ users_list[0].username }}"
+
+- name: Copy create_admin_account.groovy
+  ansible.builtin.template:
+    src: create_admin_account.groovy.j2
+    dest: "{{ jenkins_setup_home }}/init.groovy.d/create_admin_account.groovy"
     mode: "0644"
+    owner: "{{ users_list[0].username }}"
+    group: "{{ users_list[0].username }}"
 
 - name: Modify JENKINS_HOME environment variable
   ansible.builtin.lineinfile:
     path: /usr/lib/systemd/system/jenkins.service
-    regexp: '^Environment="JENKINS_HOME='
+    regexp: '^Environment="JENKINS_HOME=*'
     line: 'Environment="JENKINS_HOME={{ jenkins_setup_home }}"'
     state: present
 
 - name: Set Jenkins WorkingDirectory
   ansible.builtin.lineinfile:
     path: /usr/lib/systemd/system/jenkins.service
-    regexp: '^WorkingDirectory='
+    regexp: '^WorkingDirectory=*'
     line: 'WorkingDirectory={{ jenkins_setup_home }}'
     state: present
 
 - name: Set Java options
   ansible.builtin.lineinfile:
     path: /usr/lib/systemd/system/jenkins.service
-    regexp: '^Environment="JAVA_OPTS='
+    regexp: '^Environment="JAVA_OPTS=*'
     line: 'Environment="JAVA_OPTS={{ jenkins_setup_javaopts }}"'
     state: present
 
 - name: Set Jenkins port to listen to
   ansible.builtin.lineinfile:
     path: /usr/lib/systemd/system/jenkins.service
-    regexp: '^Environment="JENKINS_PORT='
+    regexp: '^Environment="JENKINS_PORT=*'
     line: 'Environment="JENKINS_PORT={{ jenkins_setup_port }}"'
     state: present
 
@@ -106,29 +121,35 @@
   ansible.builtin.systemd:
     daemon_reload: true
 
-- name: Restart Jenkins service
+- name: Start Jenkins service
   ansible.builtin.systemd:
     name: jenkins
-    state: restarted
+    state: started
 
-- name: Read default admin password
-  ansible.builtin.slurp:
-    src: "{{ jenkins_setup_home }}/secrets/initialAdminPassword"
-  register: jenkins_setup_admin_pwd
+- name: Download jenkins-cli.jar
+  ansible.builtin.get_url:
+    url: "http://localhost:8080/jnlpJars/jenkins-cli.jar"
+    dest: "{{ jenkins_setup_home }}/jenkins-cli.jar"
+    mode: "0644"
+
+# - name: Read default admin password
+#   ansible.builtin.slurp:
+#     src: "{{ jenkins_setup_home }}/secrets/initialAdminPassword"
+#   register: jenkins_setup_admin_pwd
 
 - name: Install plugins
   ansible.builtin.command: >
-    java -jar /tmp/jenkins-cli.jar
+    java -jar {{ jenkins_setup_home }}/jenkins-cli.jar
     -s http://localhost:8080/
-    -auth admin:{{ jenkins_setup_admin_pwd['content'] | b64decode }}
+    -auth {{ jenkins_setup_admin_username }}:{{ jenkins_setup_admin_password }}
     install-plugin {{ item }}
   loop: "{{ jenkins_setup_plugins }}"
   changed_when: false
 
 - name: Safe restart Jenkins
   ansible.builtin.command: >
-    java -jar /tmp/jenkins-cli.jar
+    java -jar {{ jenkins_setup_home }}/jenkins-cli.jar
     -s http://localhost:8080/
-    -auth admin:{{ jenkins_setup_admin_pwd['content'] | b64decode }}
+    -auth {{ jenkins_setup_admin_username }}:{{ jenkins_setup_admin_password }}
     safe-restart
   changed_when: false
