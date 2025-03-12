@@ -1,5 +1,10 @@
 ---
 
+- name: Remove legacy deadsnakes.list file
+  ansible.builtin.file:
+    path: "/etc/apt/sources.list.d/deadsnakes.list"
+    state: absent
+
 - name: Remove existing Deadsnakes repo list file
   ansible.builtin.file:
     path: "/etc/apt/sources.list.d/deadsnakes-ubuntu-ppa-noble.sources"
