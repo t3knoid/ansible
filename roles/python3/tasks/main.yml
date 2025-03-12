@@ -1,41 +1,14 @@
 ---
 
-- name: Remove legacy Deadsnakes repo list file
-  ansible.builtin.file:
-    path: "/etc/apt/sources.list.d/ppa_deadsnakes_ppa_noble.list"
-    state: absent
-
-- name: Ensure gnupg is installed
-  ansible.builtin.apt:
-    name:
-      - gnupg
-    state: present
-
-- name: Remove existing Python3 repo key
-  ansible.builtin.file:
-    path: "{{ python3_repo_key_local }}"
-
-- name: Download deadsnakes key
-  ansible.builtin.get_url:
-    url: "{{ python3_repo_key_url }}"
-    dest: "/tmp/{{ python3_repo_key_url.split('/')[-1] }}"
-    mode: '0644'
-    force: true
-
-- name: Convert Deadsnakes key to keyring format
-  ansible.builtin.command: sudo gpg -o {{ python3_repo_key_local }} --dearmor /tmp/{{ python3_repo_key_url.split('/')[-1] }}
-  args:
-    creates: "{{ python3_repo_key_local }}"
-
 - name: Remove existing Deadsnakes repo list file
   ansible.builtin.file:
-    path: "/etc/apt/sources.list.d/deadsnakes"
+    path: "/etc/apt/sources.list.d/deadsnakes-ubuntu-ppa-noble.sources"
     state: absent
 
 - name: Add deadsnakes apt repository.
   ansible.builtin.apt_repository:
-    repo: "deb [signed-by={{ python3_repo_key_local }}] https://ppa.launchpadcontent.net/deadsnakes/ppa/ubuntu noble main"
-    filename: deadsnakes
+    repo: ppa:deadsnakes/ppa
+    filename: deadsnakes-ubuntu-ppa-noble.sources
     mode: "0644"
     update_cache: false
     state: present
