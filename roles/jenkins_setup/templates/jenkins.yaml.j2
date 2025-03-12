@@ -1,0 +1,142 @@
+---
+
+jenkins:
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+  crumbIssuer:
+    standard:
+      excludeClientIPFromCrumb: true
+  disableRememberMe: false
+  disabledAdministrativeMonitors:
+  - "jenkins.diagnostics.ControllerExecutorsNoAgents"
+  - "hudson.util.DoubleLaunchChecker"
+  - "org.jenkinsci.plugins.rolestrategy.NamingStrategyAdministrativeMonitor"
+  labelAtoms:
+  - name: "built-in"
+  markupFormatter: "plainText"
+  mode: NORMAL
+  myViewsTabBar: "standard"
+  nodeMonitors:
+  - "architecture"
+  - "clock"
+  - diskSpace:
+      freeSpaceThreshold: "1GiB"
+      freeSpaceWarningThreshold: "2GiB"
+  - "swapSpace"
+  - tmpSpace:
+      freeSpaceThreshold: "1GiB"
+      freeSpaceWarningThreshold: "2GiB"
+  - "responseTime"
+  numExecutors: 2
+  primaryView:
+    all:
+      name: "all"
+  projectNamingStrategy: "standard"
+  quietPeriod: 5
+  remotingSecurity:
+    enabled: true
+  scmCheckoutRetryCount: 0
+  securityRealm:
+    activeDirectory:
+      bindPassword: "{{ jenkins_setup_bind_pw }}"
+      customDomain: true
+      domains:
+      - bindName: "{{ jenkins_setup_bind_name }}"
+        bindPassword: "{{ jenkins_setup_bind_pw }}"
+        name: "{{ jenkins_setup_domain_name }}"
+        servers: "{{ jenkins_setup_domain_controller }}:{{ jenkins_setup_ldap_require_tls | ternary('3269', '3268') }}"
+        tlsConfiguration: JDK_TRUSTSTORE
+      groupLookupStrategy: TOKENGROUPS
+      internalUsersDatabase:
+        jenkinsInternalUser: "{{ jenkins_setup_admin }}"
+      removeIrrelevantGroups: true
+      requireTLS: {{ jenkins_setup_ldap_require_tls | default(false) }}"
+      startTls: true
+  slaveAgentPort: -1
+  systemMessage: "Jenkins managed via Configuration as Code"
+  updateCenter:
+    sites:
+    - id: "default"
+      url: "https://updates.jenkins.io/update-center.json"
+  views:
+  - all:
+      name: "all"
+  viewsTabBar: "standard"
+globalCredentialsConfiguration:
+  configuration:
+    providerFilter: "none"
+    typeFilter: "none"
+appearance:
+  prism:
+    theme: PRISM
+security:
+  apiToken:
+    creationOfLegacyTokenEnabled: false
+    tokenGenerationOnCreationEnabled: false
+    usageStatisticsEnabled: true
+  cps:
+    hideSandbox: false
+  gitHooks:
+    allowedOnAgents: false
+    allowedOnController: false
+  gitHostKeyVerificationConfiguration:
+    sshHostKeyVerificationStrategy: "knownHostsFileVerificationStrategy"
+  sSHD:
+    port: -1
+  scriptApproval:
+    forceSandbox: false
+unclassified:
+  bitbucketEndpointConfiguration:
+    endpoints:
+    - bitbucketCloudEndpoint:
+        enableCache: false
+        manageHooks: false
+        repositoriesCacheDuration: 0
+        teamCacheDuration: 0
+  buildDiscarders:
+    configuredBuildDiscarders:
+    - "jobBuildDiscarder"
+  fingerprints:
+    fingerprintCleanupDisabled: false
+    storage: "file"
+  gitHubConfiguration:
+    apiRateLimitChecker: ThrottleForNormalize
+  gitHubPluginConfig:
+    hookUrl: "https://{{ rproxy_setup_sites[0].server_name }}/github-webhook/"
+  junitTestResultStorage:
+    storage: "file"
+  location:
+    adminAddress: "address not configured yet <nobody@nowhere>"
+    url: "https://{{ rproxy_setup_sites[0].server_name }}/"
+  mailer:
+    charset: "UTF-8"
+    useSsl: false
+    useTls: false
+  pollSCM:
+    pollingThreadCount: 10
+  scmGit:
+    addGitTagAction: false
+    allowSecondFetch: false
+    createAccountBasedOnEmail: false
+    disableGitToolChooser: false
+    hideCredentials: false
+    showEntireCommitSummaryInChanges: false
+    useExistingAccountWithSameEmail: false
+tool:
+  git:
+    installations:
+    - home: "git"
+      name: "Default"
+  mavenGlobalConfig:
+    globalSettingsProvider: "standard"
+    settingsProvider: "standard"
+credentials:
+  system:
+    domainCredentials:
+    - credentials:
+      - usernamePassword:
+          id: "{{ jenkins_setup_admin }}"
+          password: "{{ jenkins_setup_admin_pw }}"
+          scope: SYSTEM
+          username: "{{ jenkins_setup_admin_name }}"
