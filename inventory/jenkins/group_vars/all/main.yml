@@ -36,6 +36,10 @@ java_setup_version: 21.0.6.7.1
 
 nginx_setup_disable_default_site: true
 
+jenkins_setup_domain_name: "refol.us"
+jenkins_setup_domain_controller: 192.168.2.251
+jenkins_setup_ldap_require_tls: false
+
 rproxy_setup_sites:
   - server_name: jenkins.refol.us
     port: 8080
