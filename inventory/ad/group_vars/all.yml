@@ -1,0 +1,37 @@
+---
+
+vms_config:
+  agent: "1"
+  cores: "4"
+  cpu: host
+  memory: 2048
+  ostype: win11
+  scsihw: virtio-scsi-single
+  sockets: 1
+  storage: linstor_storage
+  disk_os:
+    disk: virtio0
+    backup: true
+    size: 30
+    storage: linstor_storage
+
+vms_os: win_2022_server
+vms_autoinstall: false
+vms_enable_serial_terminal: false
+vms_additional_packages: []
+python3_version: 3.12
+
+pihole_cname_entries:
+  - domain: refol.us
+    target: rproxy-0.refol.us
+
+rproxy_setup_sites:
+  - server_name: refol.us
+    port: 80
+    proxy_pass: "http://{{ global_ip_addresses['ad0'] }}"
+    allow_list:
+      - 192.168.0.0/24
+      - 192.168.2.0/24
+      - 24.105.250.200
+      - 70.107.117.124
+    restricted: false
