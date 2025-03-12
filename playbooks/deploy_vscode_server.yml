@@ -1,7 +1,7 @@
 ---
 
 - name: Install and configure code-server
-  hosts: all
+  hosts: vscode
   become: true
   gather_facts: true
   roles:
