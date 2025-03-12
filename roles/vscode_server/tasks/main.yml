@@ -54,10 +54,12 @@
     state: present
     update_cache: true
 
-- name: Install vscode as a service
-  ansible.builtin.debug:
-    msg: |
-      Execute the following command to execute code as a service.
+- name: Create script to enable the Code Tunnel Service
+  ansible.builtin.copy:
+    dest: /usr/sbin/enable-vscode-tunnel-service
+    mode: "0755"
+    content: code tunnel service install --accept-server-license-terms --name {{ inventory_hostname }}_remote
 
-       code tunnel user login --provider github
-       code tunnel service install --accept-server-license-terms --name {{ inventory_hostname }}_remote
+- name: Show instruction on enabling vscode tunnel service
+  ansible.builtin.debug:
+    msg: "Execute /usr/sbin/enable-vscode-tunnel-service"
