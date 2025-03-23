@@ -1,6 +1,6 @@
 ---
 
-bedrock_setup_version: 1.21.60.10
+bedrock_setup_version: 1.21.62.01
 bedrock_setup_download_url: https://www.minecraft.net/bedrockdedicatedserver/bin-linux
 bedrock_setup_download_archive: bedrock-server-{{ bedrock_setup_version }}.zip
 
@@ -12,5 +12,4 @@ bedrock_setup_server_props:
   - { key: 'max-players', value: '10' }
   - { key: 'difficulty', value: 'easy' }
   - { key: 'content-log-file-enabled', value: 'false' }
-  - { key: 'allow-cheats', value: 'false' }
   - { key: 'allow-cheats', value: 'false' }
