@@ -6,7 +6,7 @@
     "pass": "{{ semaphoreui_setup_db_password }}"
   },
   "dialect": "postgres",
-  "use_remote_runner": {{ semaphoreui_setup_use_remote_runner }},
+  "use_remote_runner": {{ semaphoreui_setup_use_remote_runner | string | lower }},
   "runner_registration_token": "{{ semaphoreui_setup_runner_token }}",
   "cookie_hash": "7eWpFEBs0qDR4m3HtZUUiNMAtuHmxfllkMND5MC5pbY=",
   "cookie_encryption": "71qXCYKxpXRkBezn6dXfQeTcXl9HLXtDjWCGRbMx9pE=",
