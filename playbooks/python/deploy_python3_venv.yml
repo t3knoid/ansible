@@ -1,7 +1,7 @@
 ---
 
 - name: Install Python3 Environment
-  hosts: all
+  hosts: vms
   gather_facts: false
   tasks:
     - name: Import venv.yml from python3 role
