@@ -15,10 +15,6 @@
   register: vms_vm_list
   delegate_to: localhost
 
-- name: Show vms_vm_list
-  debug:
-    var: vms_vm_list
-
 - name: Get node where virtual machine template is located
   ansible.builtin.set_fact:
     vms_proxmox_template: "{{ item }}"
