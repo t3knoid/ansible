@@ -14,3 +14,4 @@
   ansible.builtin.service:
     name: semaphore.runner
     state: restarted
+  when: semaphoreui_setup_use_remote_runner
