@@ -13,6 +13,7 @@
 - name: Install SemaphoreUI .deb package
   ansible.builtin.apt:
     deb: "/tmp/{{ semaphoreui_setup_installer }}"
+  notify: Restart Semaphore
 
 - name: Remove downloaded .deb file
   ansible.builtin.file:
