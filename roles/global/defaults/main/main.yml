@@ -29,8 +29,8 @@ global_os:
 
 global_domain_name: "refol.us"
 global_dns_servers:
-    - 192.168.2.251
     - 192.168.2.252
+    - 192.168.2.251
 global_gateway: 192.168.2.1
 global_timezone: "America/New_York"
 global_packages_list:
