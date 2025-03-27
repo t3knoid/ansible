@@ -50,3 +50,4 @@
 - name: Clean up temp folder
   ansible.builtin.file:
     path: "{{ ruby_setup_archive_extractdir }}"
+    state: absent
