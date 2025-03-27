@@ -1,0 +1,52 @@
+---
+
+# https://www.redmineadvisor.com/articles/6_0/install/ubuntu24/
+
+- name: Check if /usr/local/bin/ruby exists
+  ansible.builtin.stat:
+    path: /usr/local/bin/ruby
+  register: ruby_setup_bin
+
+- name: Print a message when Ruby binary is found
+  ansible.builtin.debug:
+    msg: "Ruby binary found"
+  when: ruby_setup_bin.stat.exists
+
+- name: Execute Ruby -v
+  ansible.builtin.shell: ruby -v
+  register: ruby_setup_version_out
+  when: ruby_setup_bin.stat.exists
+  changed_when: false
+
+- name: Extract Installed Ruby version
+  ansible.builtin.set_fact: 
+    ruby_setup_installed_version: "{{ (ruby_setup_version_out.stdout | split())[1] }}"
+  when: ruby_setup_bin.stat.exists
+
+- name: Show ruby_setup_installed_version
+  ansible.builtin.debug: 
+    var: ruby_setup_installed_version
+  when: ruby_setup_installed_version is defined
+
+- name: Download and extract Ruby source code
+  ansible.builtin.unarchive:
+    src: "{{ ruby_setup_download_url }}"
+    dest: "/tmp/"
+    remote_src: true
+    creates: "{{ ruby_setup_archive_extractdir }}"
+  when: (ruby_setup_installed_version is not defined) or (ruby_setup_installed_version != ruby_setup_version)
+
+- name: Build Ruby
+  ansible.builtin.shell: |
+    cd {{ ruby_setup_archive_extractdir }}
+    ./configure --disable-install-doc
+    make
+    make install
+  args:
+    executable: /bin/bash
+  when: (ruby_setup_installed_version is not defined) or (ruby_setup_installed_version != ruby_setup_version)
+  changed_when: true
+
+- name: Clean up temp folder
+  ansible.builtin.file:
+    path: "{{ ruby_setup_archive_extractdir }}"
