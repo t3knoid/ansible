@@ -1,0 +1,7 @@
+---
+
+- name: Restart PostgreSQL
+  ansible.builtin.service:
+    name: postgresql
+    state: restarted
+  delegate_to: "{{ redmine_setup_pg_host }}"

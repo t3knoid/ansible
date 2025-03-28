@@ -1,0 +1,27 @@
+# Configuration to allow access to Redmine's image files, CSS files, etc.
+# By default in Apache 2.4, access to all files on the server is forbidden.
+
+<Directory "{{ redmine_setup_www_publicdir }}">
+  Require all granted
+</Directory>
+
+# Basic configuration for Passenger.
+# Describe the configuration displayed by passenger-install-apache2-module --snippet.
+# The settings below will vary depending on the environment, so do not simply copy these lines as is, but always use the ones displayed by `passenger-install-apache2-module --snippet`.
+
+# This configuration snippet was added by Ansible on {{ ansible_date_time.date }} at {{ ansible_date_time.time }}
+{{ redmine_setup_passenger_snippet }}
+
+# Add settings for Passenger tuning as necessary (optional).
+# For more details, refer to Configuration reference - Passenger + Apache (https://www.phusionpassenger.com/docs/references/config_reference/apache/).
+PassengerMaxPoolSize 20
+PassengerMaxInstancesPerApp 4
+PassengerPoolIdleTime 864000
+PassengerStatThrottleRate 10
+
+# Allow access to Redmine's installation directory
+<Directory /var/lib/redmine/public>
+    Allow from all
+    Options -MultiViews
+    Require all granted
+</Directory>
