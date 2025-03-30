@@ -1,0 +1,163 @@
+---
+
+- name: Install development tools and header files
+  ansible.builtin.apt:
+    name:
+      - build-essential
+      - zlib1g-dev
+      - libssl-dev
+      - libreadline-dev
+      - libyaml-dev
+      - libcurl4-openssl-dev
+      - libffi-dev
+    update_cache: true
+
+- name: Install PostgreSQL header files
+  ansible.builtin.apt:
+    name:
+      - libpq-dev
+
+- name: Install git
+  ansible.builtin.apt:
+    name:
+      - git
+
+- name: Install Apache and header files
+  ansible.builtin.apt:
+    name:
+      - apache2
+      - apache2-dev
+
+- name: Ensure extraction folder exists
+  ansible.builtin.file:
+    path: "{{ redmine_setup_installdir_root }}"
+    mode: "0755"
+    owner: "{{ users_list[0].username }}"
+    group: "{{ users_list[0].username }}"
+    state: directory
+
+- name: Download and extract Redmine source code
+  ansible.builtin.unarchive:
+    src: "{{ redmine_setup_download_url }}"
+    dest: "{{ redmine_setup_installdir_root }}"
+    remote_src: true
+    creates: "{{ redmine_setup_installdir }}"
+
+- name: Chown Redmine extracted source code with www-data
+  ansible.builtin.file:
+    path: "{{ redmine_setup_installdir }}"
+    owner: "www-data"
+    group: "www-data"
+    recurse: true
+
+- name: Create softlink of extracted source code to root directory
+  ansible.builtin.file:
+    src: "{{ redmine_setup_installdir }}"
+    dest: "{{ redmine_setup_www_rootdir }}"
+    owner: "www-data"
+    group: "www-data"
+    state: link
+
+- name: Copy database.yml to target machine
+  ansible.builtin.template:
+    src: database.yml.j2
+    dest: "{{ redmine_setup_installdir }}/config/database.yml"
+    owner: "www-data"
+    group: "www-data"
+    mode: "0644"
+
+- name: Copy configuration.yml to target machine
+  ansible.builtin.template:
+    src: configuration.yml.j2
+    dest: "{{ redmine_setup_installdir }}/config/configuration.yml"
+    owner: "www-data"
+    group: "www-data"
+    mode: "0644"
+
+- name: Install Gem packages
+  ansible.builtin.shell: |
+    bin/bundle config set --local without 'development test'
+    bin/bundle install
+  args:
+    executable: /bin/bash
+    chdir: "{{ redmine_setup_installdir }}"
+  become: true
+
+- name: Create a Secret Token for Session Tampering Prevention
+  ansible.builtin.shell: |
+    bin/bundle exec rake generate_secret_token
+  args:
+    executable: /bin/bash
+    chdir: "{{ redmine_setup_installdir }}"
+  become: true
+
+- name: Create Database Tables
+  ansible.builtin.shell: |
+    bin/bundle exec rake db:migrate RAILS_ENV="production"
+  args:
+    executable: /bin/bash
+    chdir: "{{ redmine_setup_installdir }}"
+  become: true
+
+- name: Install Passenger
+  ansible.builtin.shell: |
+    gem install passenger -N
+  args:
+    executable: /bin/bash
+    chdir: "{{ redmine_setup_installdir }}"
+  become: true
+
+- name: Install Passenger Module for Apache
+  ansible.builtin.shell: |
+    passenger-install-apache2-module --auto --languages ruby
+  args:
+    executable: /bin/bash
+    chdir: "{{ redmine_setup_installdir }}"
+  become: true
+
+- name: Confirming Configuration Details for Apache
+  ansible.builtin.shell: |
+    passenger-install-apache2-module --snippet
+  args:
+    executable: /bin/bash
+    chdir: "{{ redmine_setup_installdir }}"
+  become: true
+  register: redmine_setup_passenger_config_details
+
+- name: Show Configuration Details for Apache
+  ansible.builtin.debug:
+    var: redmine_setup_passenger_config_details
+
+- name: Set redmine_setup_passenger_snippet
+  ansible.builtin.set_fact:
+    redmine_setup_passenger_snippet: "{{ redmine_setup_passenger_config_details.stdout }}"
+  
+- name: Copy redmine.conf to /etc/apache2/conf-available/
+  ansible.builtin.template:
+    src: redmine.conf.j2
+    dest: "/etc/apache2/conf-available/redmine.conf"
+    owner: "www-data"
+    group: "www-data"
+    mode: "0644"
+
+- name: Update Apache default site DocumentRoot with Redmine public directory
+  ansible.builtin.lineinfile:
+    path: "{{ redmine_setup_apache_default_conf }}"
+    regexp: '^\s*DocumentRoot .*'
+    line: 'DocumentRoot {{ redmine_setup_www_publicdir }}'
+    owner: "www-data"
+    group: "www-data"
+    backup: true
+
+- name: Enable the Redmine configuration in Apache
+  ansible.builtin.command:
+    cmd: a2enconf redmine
+
+- name: Test Apache configuration
+  ansible.builtin.command:
+    cmd: apache2ctl configtest
+
+- name: Reload Apache service
+  ansible.builtin.systemd:
+    name: apache2
+    state: reloaded

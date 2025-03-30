@@ -6,6 +6,7 @@
   roles:
     - global
     - ansible_node
+    - sshpass
 
   tasks:
     - name: Import venv.yml from python3 role

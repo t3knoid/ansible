@@ -1,7 +1,7 @@
 ---
 
 - name: Install Python3
-  hosts: all
+  hosts: vms
   become: true
   gather_facts: false
   roles:

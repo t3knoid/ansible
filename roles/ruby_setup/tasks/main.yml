@@ -1,0 +1,50 @@
+---
+
+# https://www.redmineadvisor.com/articles/6_0/install/ubuntu24/
+
+- name: Install development tools and header files
+  ansible.builtin.apt:
+    name:
+      - build-essential
+      - zlib1g-dev
+      - libssl-dev
+      - libreadline-dev
+      - libyaml-dev
+      - libcurl4-openssl-dev
+      - libffi-dev
+    update_cache: true
+
+- name: Ensure extraction folder exists
+  ansible.builtin.file:
+    path: "{{ ruby_setup_archive_extractdir_root }}"
+    mode: "0644"
+    owner: "{{ users_list[0].username }}"
+    group: "{{ users_list[0].username }}"
+    state: directory
+
+- name: Download and extract Ruby source code
+  ansible.builtin.unarchive:
+    src: "{{ ruby_setup_download_url }}"
+    dest: "{{ ruby_setup_archive_extractdir_root }}"
+    remote_src: true
+    creates: "{{ ruby_setup_archive_extractdir }}"
+
+- name: Build Ruby
+  ansible.builtin.shell: |
+    ./configure --disable-install-doc
+    make
+    make install
+  args:
+    executable: /bin/bash
+    chdir: "{{ ruby_setup_archive_extractdir }}"
+  changed_when: true
+
+- name: Configure openssl support
+  ansible.builtin.shell: |
+    ruby extconf.rb
+    make
+    make install
+  args:
+    executable: /bin/bash
+    chdir: "{{ ruby_setup_archive_extractdir }}/ext/openssl/"
+  changed_when: true
