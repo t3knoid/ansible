@@ -1,0 +1,8 @@
+---
+
+ruby_setup_version: 3.3.7
+ruby_setup_major_minor_version: "{{ ruby_setup_version | regex_replace('\\.\\d+$', '') }}"
+ruby_setup_archive: "ruby-{{ ruby_setup_version }}.tar.gz"
+ruby_setup_archive_extractdir_root: /tmp
+ruby_setup_archive_extractdir: "{{ ruby_setup_archive_extractdir_root }}/{{ ruby_setup_archive | regex_replace('\\.tar\\.gz$', '') }}"
+ruby_setup_download_url: "https://cache.ruby-lang.org/pub/ruby/{{ ruby_setup_major_minor_version }}/{{ ruby_setup_archive }}"

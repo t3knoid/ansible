@@ -1,0 +1,9 @@
+---
+
+- name: Deploy Ruby
+  hosts: ruby
+  become: true
+  gather_facts: false
+  roles:
+    - global
+    - ruby_setup

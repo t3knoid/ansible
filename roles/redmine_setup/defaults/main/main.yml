@@ -1,0 +1,20 @@
+---
+
+redmine_setup_port: 80
+redmine_setup_pg_port: 5432
+redmine_setup_pg_host: "{{ global_ip_addresses[groups['pgdb'][0]] }}"
+redmine_setup_version: 6.0.4
+redmine_setup_archive: "redmine-{{ redmine_setup_version }}.tar.gz"
+redmine_setup_installdir_root: "/data/redmine"
+redmine_setup_installdir: "{{ redmine_setup_installdir_root }}/{{ redmine_setup_archive | regex_replace('\\.tar\\.gz$', '') }}"
+redmine_setup_download_url: "https://www.redmine.org/releases/{{ redmine_setup_archive }}"
+redmine_setup_www_rootdir: /var/lib/redmine
+redmine_setup_www_publicdir: "{{ redmine_setup_www_rootdir }}/public"
+redmine_setup_apache_default_conf: /etc/apache2/sites-enabled/000-default.conf
+redmine_setup_smtp_settings_address: localhost
+redmine_setup_smtp_settings_port: 25
+
+# See vault for the following variables
+# redmine_setup_db_name
+# redmine_setup_db_user
+# redmine_setup_db_password

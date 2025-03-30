@@ -1,0 +1,9 @@
+---
+
+production:
+  email_delivery:
+    delivery_method: :smtp
+    smtp_settings:
+      address: "{{ redmine_setup_smtp_settings_address }}"
+      port: {{ redmine_setup_smtp_settings_port }}
+      domain: "{{ global_domain_name }}"

@@ -6,9 +6,6 @@
   gather_facts: true
   roles:
     - global
+    - postgresql_setup
 
-  tasks:
-    - name: Include postgresql_setup role
-      ansible.builtin.include_role:
-        name: postgresql_setup
-      when: "'pgdb' in group_names"
+
