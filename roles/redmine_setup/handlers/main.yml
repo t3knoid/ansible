@@ -4,4 +4,4 @@
   ansible.builtin.service:
     name: postgresql
     state: restarted
-  delegate_to: "{{ ombi_setup_pg_host }}"
+  delegate_to: "{{ redmine_setup_pg_host }}"

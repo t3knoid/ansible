@@ -1,8 +1,11 @@
 ---
 
 - name: Install sshpass
-  ansible.builtin.raw: |
-    apt update && apt install -y sshpass
-  register: sshpass_apt_install_out
-  changed_when: "'0 upgraded, 0 newly installed' not in sshpass_apt_install_out.stdout_lines[-1]"
+  ansible.builtin.apt:
+    ansible.builtin.apt:
+    autoclean: true
+    autoremove: true
+    update_cache: true
+    name: sshpass
+    state: present
   become: true

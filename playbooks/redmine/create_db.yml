@@ -1,0 +1,14 @@
+---
+
+- name: Create postgresql database
+  hosts: redmine
+  become: true
+  gather_facts: true
+  roles:
+    - global
+
+  tasks:
+    - name: Import redmine_setup role database task
+      ansible.builtin.import_role:
+        name: redmine_setup
+        tasks_from: database
