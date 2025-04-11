@@ -1,0 +1,10 @@
+---
+
+- name: Update Pi-hole
+  become: true
+  ansible.builtin.command: pihole -up
+  register: pihole_update_result
+
+- name: Show Pi-hole update output
+  ansible.builtin.debug:
+    var: pihole_update_result.stdout
