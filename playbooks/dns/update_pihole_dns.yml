@@ -1,0 +1,14 @@
+---
+
+- name: Update Pi-hole DNS
+  hosts: dns
+  gather_facts: false
+  become: true
+  roles:
+    - global
+
+  tasks:
+    - name: Import pihole role
+      ansible.builtin.import_role:
+        name: pihole
+        tasks_from: update_pihole.yml
