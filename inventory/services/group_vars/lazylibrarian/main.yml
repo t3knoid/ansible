@@ -15,7 +15,7 @@ vms_config:
     size: 30
     storage: linstor_storage
   disk2:
-    disk: virtio0
+    disk: virtio1
     backup: true
     size: 30
     storage: linstor_storage
