@@ -67,15 +67,15 @@ rproxy_setup_sites:
               auth_basic off;
               proxy_pass http://{{ global_ip_addresses['lidarr-0'] }}:8989;
           }
-  # - server_name: lazy.refol.us
-  #   port: 5299
-  #   proxy_pass: "http://{{ global_ip_addresses['lazy-0'] }}"
-  #   allow_list:
-  #     - 192.168.0.0/24
-  #     - 192.168.2.0/24
-  #     - 24.105.250.200
-  #     - 70.107.117.124
-  #   restricted: false
+  - server_name: lazy.refol.us
+    port: 5299
+    proxy_pass: "http://{{ global_ip_addresses['lazy-0'] }}"
+    allow_list:
+      - 192.168.0.0/24
+      - 192.168.2.0/24
+      - 24.105.250.200
+      - 70.107.117.124
+    restricted: false
   - server_name: books.refol.us
     port: 8083
     proxy_pass: "http://{{ global_ip_addresses['calibre-0'] }}"
