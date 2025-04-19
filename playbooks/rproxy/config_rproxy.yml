@@ -1,6 +1,6 @@
 ---
 
-- name: Deploy Reverse Proxy
+- name: Configure Reverse Proxy
   hosts: rproxy
   become: true
   gather_facts: true
