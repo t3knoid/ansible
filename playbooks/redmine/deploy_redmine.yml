@@ -8,28 +8,28 @@
     - global
 
   tasks:
-  - name: Include ruby_setup role
-    ansible.builtin.include_role:
-      name: ruby_setup
-    when: "'ruby' in group_names"
+    - name: Include ruby_setup role
+      ansible.builtin.include_role:
+        name: ruby_setup
+      when: "'ruby' in group_names"
 
-  - name: Include postgresql_setup role
-    ansible.builtin.include_role:
-      name: postgresql_setup
-    when: "'pgdb' in group_names"
+    - name: Include postgresql_setup role
+      ansible.builtin.include_role:
+        name: postgresql_setup
+      when: "'pgdb' in group_names"
 
-  - name: Include users role
-    ansible.builtin.include_role:
-      name: users
-    when: "'redmine' in group_names"
+    - name: Include users role
+      ansible.builtin.include_role:
+        name: users
+      when: "'redmine' in group_names"
 
-  - name: Import redmine_setup role database task
-    ansible.builtin.include_role:
-      name: redmine_setup
-      tasks_from: database
-    when: "'redmine' in group_names"
+    - name: Import redmine_setup role database task
+      ansible.builtin.include_role:
+        name: redmine_setup
+        tasks_from: database
+      when: "'redmine' in group_names"
 
-  - name: Include redmine_setup role
-    ansible.builtin.include_role:
-      name: redmine_setup
-    when: "'redmine' in group_names"
+    - name: Include redmine_setup role
+      ansible.builtin.include_role:
+        name: redmine_setup
+      when: "'redmine' in group_names"

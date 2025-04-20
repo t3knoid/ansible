@@ -3,7 +3,7 @@
 redmine_setup_port: 80
 redmine_setup_pg_port: 5432
 redmine_setup_pg_host: "{{ global_ip_addresses[groups['pgdb'][0]] }}"
-redmine_setup_version: 6.0.4
+redmine_setup_version: 6.0.5
 redmine_setup_archive: "redmine-{{ redmine_setup_version }}.tar.gz"
 redmine_setup_installdir_root: "/data/redmine"
 redmine_setup_installdir: "{{ redmine_setup_installdir_root }}/{{ redmine_setup_archive | regex_replace('\\.tar\\.gz$', '') }}"
