@@ -9,7 +9,7 @@ server {
 {% endif %}
     server_name {{ rproxy_setup_site.server_name }};
 {% if inventory_hostname in groups['rproxy_main'] %}
-    ssl_certificate {{ nginx_setup_certroot }}/{{ rproxy_setup_site.server_name }}/cert.pem;
+    ssl_certificate {{ nginx_setup_certroot }}/{{ rproxy_setup_site.server_name }}/fullchain.pem;
     ssl_certificate_key {{ nginx_setup_certroot }}/{{ rproxy_setup_site.server_name }}/privkey.pem;
     {% if rproxy_setup_site.restricted %}
         {% for ip in rproxy_setup_site.allow_list %}
