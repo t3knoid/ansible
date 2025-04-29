@@ -31,7 +31,7 @@
 
 - name: Show message if operation is not successful
   ansible.builtin.set_fact:
-      pihole_error_msg: "{{ result_hosts_op.msg }}"
+    pihole_error_msg: "{{ result_hosts_op.msg }}"
   when: result_hosts_op.status != 201 and result_hosts_op.json.error is not defined
 
 - name: Include delete_session_id.yml tasks
