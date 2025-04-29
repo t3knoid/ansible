@@ -11,7 +11,7 @@
     headers:
       sid: "{{ pihole_sid }}"
     return_content: true
-    status_code: [200,401]
+    status_code: [200, 401]
   register: result
   delegate_to: localhost
   changed_when: result.status ==  200
