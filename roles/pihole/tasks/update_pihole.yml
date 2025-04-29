@@ -3,6 +3,7 @@
 - name: Update Pi-hole
   become: true
   ansible.builtin.command: pihole -up
+  changed_when: false
   register: pihole_update_result
 
 - name: Show Pi-hole update output
