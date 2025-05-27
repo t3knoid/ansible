@@ -24,3 +24,4 @@
     state: started
     enabled: true
   become: true
+  when: nginx_setup_start | bool
