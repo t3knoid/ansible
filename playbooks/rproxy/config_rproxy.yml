@@ -5,8 +5,9 @@
   become: true
   gather_facts: true
   roles:
-    - global
-    - nginx_setup
+    - role: global
+    - role: nginx_setup
+      nginx_setup_start: false
 
   tasks:
     - name: Import rproxy role
