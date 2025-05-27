@@ -9,9 +9,9 @@
   ansible.builtin.debug:
     msg: "{{ ansible_env }}"
 
-- name: Store USER value
+- name: Store USER value, set to undefined if not defined
   ansible.builtin.set_fact:
-    current_user: "{{ lookup('env', 'USER') }}"
+    current_user: "{{ lookup('env', 'USER', default=Undefined) }}"
 
 # In case USER value is empty
 - name: Store SUDO_USER value
