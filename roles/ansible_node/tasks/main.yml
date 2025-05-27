@@ -18,6 +18,14 @@
   ansible.builtin.set_fact:
     sudo_user: "{{ lookup('env', 'SUDO_USER') }}"
 
+- name: Show current_user
+  ansible.builtin.debug:
+    msg: "{{ current_user }}"
+
+- name: Show sudo_user
+  ansible.builtin.debug:
+    msg: "{{ sudo_user }}"
+
 - name: Add current user to ansible group
   ansible.builtin.user:
     name: "{{ current_user | default(sudo_user) }}"
