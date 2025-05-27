@@ -9,9 +9,18 @@
   ansible.builtin.debug:
     msg: "{{ ansible_env }}"
 
+- name: Store USER value
+  ansible.builtin.set_fact:
+    current_user: "{{ lookup('env', 'USER') }}"
+
+# In case USER value is empty
+- name: Store SUDO_USER value
+  ansible.builtin.set_fact:
+    sudo_user: "{{ lookup('env', 'SUDO_USER') }}"
+
 - name: Add current user to ansible group
   ansible.builtin.user:
-    name: "{{ lookup('env', 'USER') }}"
+    name: "{{ current_user | default(sudo_user) }}"
     groups: ansible
     shell: /bin/bash
     append: true
