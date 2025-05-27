@@ -5,30 +5,18 @@
     name: ansible
     state: present
 
-- name: Debug environment variables
-  ansible.builtin.debug:
-    msg: "{{ ansible_env }}"
-
 - name: Store USER value, set to undefined if not defined
   ansible.builtin.set_fact:
-    current_user: "{{ lookup('env', 'USER', default=Undefined) }}"
+    current_user: "{{ lookup('ansible.builtin.env', 'USER') }}"
 
 # In case USER value is empty
 - name: Store SUDO_USER value
   ansible.builtin.set_fact:
     sudo_user: "{{ ansible_env.SUDO_USER }}"
 
-- name: Show current_user
-  ansible.builtin.debug:
-    msg: "{{ current_user }}"
-
-- name: Show sudo_user
-  ansible.builtin.debug:
-    msg: "{{ sudo_user }}"
-
-- name: Add current user to ansible group
+- name: Add current_user to ansible group, if undefined, use SUDO_USER value instead
   ansible.builtin.user:
-    name: "{{ current_user | default(sudo_user) }}"
+    name: "{{ current_user | default(sudo_user, true) }}"
     groups: ansible
     shell: /bin/bash
     append: true
