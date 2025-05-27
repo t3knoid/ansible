@@ -16,7 +16,7 @@
 # In case USER value is empty
 - name: Store SUDO_USER value
   ansible.builtin.set_fact:
-    sudo_user: "{{ lookup('env', 'SUDO_USER') }}"
+    sudo_user: "{{ ansible_env.SUDO_USER }}"
 
 - name: Show current_user
   ansible.builtin.debug:
