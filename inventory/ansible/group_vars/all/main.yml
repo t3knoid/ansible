@@ -23,7 +23,7 @@ vms_config:
 vms_os: ubuntu_24_server
 vms_autoinstall: true
 vms_enable_serial_terminal: false
-vms_additional_packages: []
+vms_additional_packages: [jq]
 python3_version: 3.12
 python3_venv_folder: "/opt/python_{{ python3_version }}"
 
