@@ -1,0 +1,8 @@
+---
+
+azure_ps_setup_prereq_packages:
+  - wget
+  - apt-transport-https
+  - software-properties-common
+azure_ps_setup_ms_repo_keys_file: packages-microsoft-prod.deb
+azure_ps_setup_ms_repo_keys_url: "https://packages.microsoft.com/config/ubuntu/{{ ansible_distribution_version }}/{{ azure_ps_setup_ms_repo_keys_file }}"

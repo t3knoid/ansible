@@ -1,0 +1,46 @@
+---
+
+- name: Update package list
+  ansible.builtin.apt:
+    update_cache: true
+
+- name: Install re-requisite packages
+  ansible.builtin.apt:
+    autoclean: true
+    autoremove: true
+    name: "{{ azure_ps_setup_prereq_packages }}"
+    state: present
+
+- name: Download Microsoft repository package
+  ansible.builtin.get_url:
+    url: "{{ azure_ps_setup_ms_repo_keys_url }}"
+    dest: "/tmp/{{ azure_ps_setup_ms_repo_keys_file }}"
+    mode: "0644"
+
+- name: Register Microsoft repository package
+  ansible.builtin.apt:
+    deb: "/tmp/{{ azure_ps_setup_ms_repo_keys_file }}"
+
+- name: Remove repository package file
+  ansible.builtin.file:
+    path: "/tmp/{{ azure_ps_setup_ms_repo_keys_file }}"
+    state: absent
+
+- name: Update package list again
+  ansible.builtin.apt:
+    update_cache: true
+
+- name: Install PowerShell
+  ansible.builtin.apt:
+    name: powershell
+    state: present
+
+- name: Check if Az module is installed
+  ansible.builtin.command: pwsh -Command "Write-Output (-not (Get-Module -ListAvailable -Name Az))"
+  register: azure_ps_setup_az_module_status
+  changed_when: azure_ps_setup_az_module_status.stdout == "True"
+
+- name: Install Az PowerShell module if not installed
+  ansible.builtin.command: pwsh -Command "Install-Module -Name Az -Repository PSGallery -Force"
+  when: azure_ps_setup_az_module_status.stdout == "True"
+  changed_when: azure_ps_setup_az_module_status.stdout == "True"
