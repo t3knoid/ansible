@@ -39,8 +39,10 @@
   ansible.builtin.command: pwsh -Command "Write-Output (-not (Get-Module -ListAvailable -Name Az))"
   register: azure_ps_setup_az_module_status
   changed_when: azure_ps_setup_az_module_status.stdout == "True"
+  become: false
 
 - name: Install Az PowerShell module if not installed
   ansible.builtin.command: pwsh -Command "Install-Module -Name Az -Repository PSGallery -Force"
   when: azure_ps_setup_az_module_status.stdout == "True"
   changed_when: azure_ps_setup_az_module_status.stdout == "True"
+  become: false
