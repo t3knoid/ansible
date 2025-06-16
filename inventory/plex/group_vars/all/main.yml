@@ -2,7 +2,7 @@
 
 python3_version: 3.12
 
-plex_setup_version: "1.41.7.9823-59f304c16"
+plex_setup_version: "1.41.8.9834-071366d65"
 
 autofs_nfs_mounts:
   - mount_name: photos
