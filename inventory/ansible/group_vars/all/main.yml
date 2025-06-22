@@ -58,4 +58,4 @@ rproxy_setup_sites:
       - 70.107.117.124
     restricted: false
 
-semaphoreui_setup_version: 2.14.9
+semaphoreui_setup_version: 2.15.0
