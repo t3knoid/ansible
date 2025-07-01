@@ -2,7 +2,6 @@
 
 - name: Install sshpass
   ansible.builtin.apt:
-    ansible.builtin.apt:
     autoclean: true
     autoremove: true
     update_cache: true
