@@ -3,7 +3,7 @@
 # see https://coder.com/docs/code-server/install#debian-ubuntu
 
 - name: Stop the code-server package
-  ansible.builtin.systemd:
+  ansible.builtin.service:
     name: "code-server@{{ code_server_user }}"
     state: stopped
 
@@ -19,6 +19,13 @@
   ansible.builtin.apt:
     deb: "/tmp/code-server_{{ code_server_version }}_amd64.deb"
     state: present
+
+- name: Create code-server config folder
+  ansible.builtin.file:
+    state: directory
+    path: "/home/{{ code_server_user }}/.config/code-server/"
+    mode: "0755"
+    owner: "{{ code_server_user }}"
 
 - name: Create code-server config.yaml
   ansible.builtin.template:
