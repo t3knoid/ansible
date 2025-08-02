@@ -2,10 +2,15 @@
 
 # see https://coder.com/docs/code-server/install#debian-ubuntu
 
+
+- name: Gather service facts
+  ansible.builtin.service_facts:
+
 - name: Stop the code-server package
-  ansible.builtin.service:
+  ansible.builtin.systemd:
     name: "code-server@{{ code_server_user }}"
     state: stopped
+  when: "'code-server@code_server_user' in services and services['code-server@code_server_user']['status'] != 'not-found'"
 
 - name: Download code-server package
   ansible.builtin.get_url:
@@ -39,6 +44,7 @@
     name: "code-server@{{ code_server_user }}"
     enabled: true
     state: started
+    daemon_reload: true
 
 - name: Cleanup downloaded file
   ansible.builtin.file:
