@@ -29,7 +29,7 @@
       ansible.builtin.file:
         path: "{{ item }}"
         state: directory
-        mode: "0770"
+        mode: "0755"
         owner: ansible
         group: ansible
       with_items: "{{ ansible_setup_path_levels }}"
