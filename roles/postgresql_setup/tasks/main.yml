@@ -50,11 +50,19 @@
     path: /var/lib/postgresql/{{ postgresql_setup_version }}/main
     state: absent
 
+- name: Create Postresql data directory
+  ansible.builtin.file:
+    path: "{{ postgresql_setup_data_dir }}"
+    state: directory
+    mode: '0700'
+    owner: postgres
+    group: postgres
+    
 - name: Initialize the new data directory
   ansible.builtin.command: sudo -u postgres /usr/lib/postgresql/{{ postgresql_setup_version }}/bin/initdb -D {{ postgresql_setup_data_dir }}
   changed_when: false
   args:
-    creates: "{{ postgresql_setup_data_dir }}"
+    creates: "{{ postgresql_setup_data_dir }}/PG_VERSION"
   register: postgresql_setup_initdb_out
 
 - name: Show postgresql_setup_initdb_out
@@ -69,7 +77,7 @@
 
 - name: Update pg_hba.conf to use md5 authentication
   community.postgresql.postgresql_pg_hba:
-    dest: "/etc/postgresql/{{ postgresql_setup_version }}/main/pg_hba.conf"
+    dest:  "{{ postgresql_setup_data_dir }}/pg_hba.conf"
     contype: local
     users: all
     databases: all
@@ -77,7 +85,7 @@
 
 - name: Update pg_hba.conf to allow password access using localhost
   community.postgresql.postgresql_pg_hba:
-    dest: "/etc/postgresql/{{ postgresql_setup_version }}/main/pg_hba.conf"
+    dest:  "{{ postgresql_setup_data_dir }}/pg_hba.conf"
     contype: host
     users: all
     source: "127.0.0.1/32"
