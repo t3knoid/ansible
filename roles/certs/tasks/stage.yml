@@ -13,7 +13,7 @@
     label: "{{ nginx_setup_site.server_name }}"
     loop_var: nginx_setup_site
 
-- name: Initialize certs_lnk_source_list
+- name: Initialize certs_source_list
   ansible.builtin.set_fact:
     certs_source_list: {}
 
@@ -31,7 +31,7 @@
   ansible.builtin.set_fact:
     certs_source_list: "{{ certs_source_list | combine({certs_lnk_source.nginx_setup_site.server_name: certs_lnk_source.stat.lnk_source}) }}"
   loop: "{{ certs_fullchain_pem_stat.results }}"
-  when: certs_lnk_source.stat.islnk
+  when: certs_lnk_source.stat.exists and certs_lnk_source.stat.islnk
   loop_control:
     label: "{{ certs_lnk_source.nginx_setup_site.server_name }}"
     loop_var: certs_lnk_source
