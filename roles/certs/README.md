@@ -13,7 +13,7 @@ Role variables
 
 - certs_rsa_key_size: 4096
 - certs_email: "" # Adding a valid address is strongly recommended
-- certs_staging: 1 # Set to 1 if you're testing your setup to avoid hitting request limits
+- certs_staging: false # Set to true if you're testing your setup to avoid hitting request limits
 - certs_home: /data/letsencrypt
 
 In order to create certificate, make sure to set the certs_staging to false.
@@ -30,12 +30,15 @@ ansible-playbook -i $INV playbooks/certs/stage_certs.yml -k
 Dependencies
 ------------
 
-This role depends on the certbot and nginx roles applied to the target host (i.e., [certbot] inventory group).
+This role depends on the certbot and nginx roles applied to the target host (i.e., [certbot] inventory group) The inventory file must define the certs group which would contain the certificates staging location.
 
-The inventory file must define the certs group which would contain the location of the certificates. 
-
+```
 [certs]
 rproxy-0 
+```
+
+The list variable rproxy_setup_sites must be defined. The 'server_name' field defines the hostname for the generated certificate.
+
 
 Example Playbook
 ----------------
