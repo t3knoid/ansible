@@ -1,5 +1,5 @@
 ---
 
-plex_setup_version: "{{ plex_setup_version | default('1.41.6.9685-d301f511a') }}"
+plex_setup_version: "{{ plex_setup_version | default('1.42.1.10060-4e8b05daf') }}"
 plex_setup_package: "plexmediaserver_{{ plex_setup_version }}_amd64.deb"
 plex_setup_download_url: "https://downloads.plex.tv/plex-media-server-new/{{ plex_setup_version }}/debian/{{ plex_setup_package }}"
