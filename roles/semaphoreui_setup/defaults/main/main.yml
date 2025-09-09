@@ -1,6 +1,6 @@
 ---
 
-semaphoreui_setup_version: 2.13.14
+semaphoreui_setup_version: 2.16.19
 semaphoreui_setup_installer: "semaphore_{{ semaphoreui_setup_version }}_linux_amd64.deb"
 
 semaphoreui_setup_python_packages:
@@ -20,3 +20,15 @@ semaphoreui_setup_pgdb_ip: "{{ global_ip_addresses[groups['pgdb'][0]] }}"
 semaphoreui_setup_pgclient_ip: "{{ global_ip_addresses[groups['pgclient'][0]] }}"
 semaphoreui_setup_port: 3000
 semaphoreui_setup_use_remote_runner: false
+
+# LDAP
+semaphoreui_setup_ldap_bind_dn: "CN=LDAP Bind User,OU=Service Accounts,DC=refol,DC=us"
+semaphoreui_setup_ldap_bindpassword: ""
+semaphoreui_setup_ldap_server: "ad0.refol.us:389"
+semaphoreui_setup_ldap_searchdn: "CN=Users,DC=refol,DC=us"
+semaphoreui_setup_ldap_searchfilter: "(sAMAccountName=%s)" 
+semaphoreui_setup_ldap_mappings:
+  dn: ""
+  mail: "userPrincipalName"
+  uid: "sAMAccountName"
+  cn: "cn"

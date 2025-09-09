@@ -75,6 +75,12 @@
     regexp: "^data_directory ="
     line: "data_directory = '{{ postgresql_setup_data_dir }}'"
 
+- name: Restart PostgreSQL service
+  ansible.builtin.service:
+    name: postgresql
+    state: restarted
+    enabled: true
+
 - name: Update pg_hba.conf to use md5 authentication
   community.postgresql.postgresql_pg_hba:
     dest:  "{{ postgresql_setup_data_dir }}/pg_hba.conf"
@@ -82,6 +88,7 @@
     users: all
     databases: all
     method: md5
+    create: true
 
 - name: Update pg_hba.conf to allow password access using localhost
   community.postgresql.postgresql_pg_hba:
@@ -91,6 +98,7 @@
     source: "127.0.0.1/32"
     databases: all
     method: md5
+    create: true
 
 - name: Modify listen_addresses in postgresql.conf
   ansible.builtin.lineinfile:
