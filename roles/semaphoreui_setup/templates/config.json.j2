@@ -18,16 +18,18 @@
   "email_host": "",
   "email_port": "",
   "web_host": "",
-  "ldap_binddn": "",
-  "ldap_bindpassword": "",
-  "ldap_server": "",
-  "ldap_searchdn": "",
-  "ldap_searchfilter": "",
+  "ldap_enable": true,
+  "ldap_needtls": false,
+  "ldap_binddn": "{{ semaphoreui_setup_ldap_bind_dn }}",
+  "ldap_bindpassword": "{{ semaphoreui_setup_ldap_bindpassword }}",
+  "ldap_server": "{{ semaphoreui_setup_ldap_server }}",
+  "ldap_searchdn": "{{ semaphoreui_setup_ldap_searchdn }}",
+  "ldap_searchfilter": "{{ semaphoreui_setup_ldap_searchfilter }}",
   "ldap_mappings": {
-    "dn": "",
-    "mail": "",
-    "uid": "",
-    "cn": ""
+    "dn": "{{ semaphoreui_setup_ldap_mappings.dn }}",
+    "mail": "{{ semaphoreui_setup_ldap_mappings.mail }}",
+    "uid": "{{ semaphoreui_setup_ldap_mappings.uid }}",
+    "cn": "{{ semaphoreui_setup_ldap_mappings.cn }}"
   },
   "telegram_chat": "",
   "telegram_token": "",
@@ -40,7 +42,5 @@
   "microsoft_teams_alert": false,
   "microsoft_teams_url": "",
   "rocketchat_alert": false,
-  "rocketchat_url": "",
-  "ldap_enable": false,
-  "ldap_needtls": false
+  "rocketchat_url": ""
 }
