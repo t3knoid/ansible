@@ -39,7 +39,9 @@
     owner: semaphore
     group: semaphore
     mode: u=rw,g=rw,o=r
-  notify: Restart Semaphore Runner
+  notify: 
+    - Restart Semaphore Runner
+    - Restart Semaphore
 
 - name: Create systemd service file
   ansible.builtin.template:
