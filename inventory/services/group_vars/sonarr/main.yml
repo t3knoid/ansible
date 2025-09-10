@@ -37,3 +37,5 @@ autofs_nfs_mounts:
 pihole_cname_entries:
   - domain: sonarr.refol.us
     target: rproxy-0.refol.us
+
+sonarr_setup_version: 4.0.15.2941

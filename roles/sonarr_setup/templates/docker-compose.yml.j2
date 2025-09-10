@@ -2,7 +2,7 @@
 
 services:
   sonarr:
-    image: lscr.io/linuxserver/sonarr:latest
+    image: ghcr.io/linuxserver/sonarr:version-{{ sonarr_setup_version }}
     container_name: sonarr
     environment:
       - PUID=2000
