@@ -37,3 +37,5 @@ autofs_nfs_mounts:
 pihole_cname_entries:
   - domain: lidarr.refol.us
     target: rproxy-0.refol.us
+
+lidarr_setup_version: 2.13.3.4711
