@@ -2,7 +2,7 @@
 
 services:
   radarr:
-    image: lscr.io/linuxserver/radarr:latest
+    image: ghcr.io/linuxserver/radarr:version-{{ radarr_setup_version }}
     container_name: radarr
     environment:
       - PUID=2000
