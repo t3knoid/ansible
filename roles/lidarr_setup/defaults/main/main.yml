@@ -1,5 +1,6 @@
 ---
 
+lidarr_setup_version: 2.13.3.4711
 lidarr_setup_config_dir: "/config"
 lidarr_setup_port: 8686
 lidarr_setup_ssl_port: 6868

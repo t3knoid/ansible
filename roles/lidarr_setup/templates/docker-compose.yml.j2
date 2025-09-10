@@ -2,7 +2,7 @@
 
 services:
   lidarr:
-    image: lscr.io/linuxserver/lidarr:latest
+    image: ghcr.io/linuxserver/lidarr:version-{{ lidarr_setup_version }}
     container_name: lidarr
     environment:
       - PUID=2000
