@@ -37,3 +37,5 @@ autofs_nfs_mounts:
 pihole_cname_entries:
   - domain: radarr.refol.us
     target: rproxy-0.refol.us
+
+radarr_setup_version: "5.27.5.10198"

@@ -1,5 +1,6 @@
 ---
 
+radarr_setup_version: "5.27.5.10198"
 radarr_setup_config_dir: "/config"
 radarr_setup_port: 7878
 radarr_setup_ssl_port: 8787
