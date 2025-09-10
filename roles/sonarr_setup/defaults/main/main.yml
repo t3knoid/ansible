@@ -1,5 +1,6 @@
 ---
 
+sonarr_setup_version: 4.0.15.2941
 sonarr_setup_config_dir: "/config"
 sonarr_setup_port: 8989
 sonarr_setup_ssl_port: 9898
