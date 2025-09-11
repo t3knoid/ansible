@@ -1,0 +1,14 @@
+---
+- name: Print System Log Entries
+  hosts: linux
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Use journalctl to get the last 10 system log entries
+      ansible.builtin.command: journalctl -n 10
+      register: system_logs
+      ignore_errors: true  # In case syslog doesn't exist
+
+    - name: Print system logs
+      ansible.builtin.debug:
+        msg: "{{ system_logs.stdout_lines }}"
