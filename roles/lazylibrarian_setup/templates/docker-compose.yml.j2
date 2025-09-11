@@ -2,7 +2,7 @@
 
 services:
   radarr:
-    image: lscr.io/linuxserver/lazylibrarian:latest
+    image: ghcr.io/linuxserver/lazylibrarian:version-{{ lazylibrarian_setup_version }}
     container_name: lazylibrarian
     environment:
       - PUID=2000
