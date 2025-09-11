@@ -31,3 +31,5 @@ autofs_nfs_mounts:
 pihole_cname_entries:
   - domain: books.refol.us
     target: rproxy-0.refol.us
+
+calibreweb_setup_version: 0.6.25
