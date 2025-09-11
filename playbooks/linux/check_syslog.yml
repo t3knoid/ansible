@@ -4,8 +4,9 @@
   become: true
   gather_facts: false
   tasks:
-    - name: Use journalctl to get the last 10 system log entries
-      ansible.builtin.command: journalctl -n 10
+    - name: Use journalctl to get the last 10 system log entries (optionally by service)
+      ansible.builtin.command: >
+        journalctl -n 10{% if service_name is defined and service_name|length > 0 %} -u {{ service_name }}{% endif %}
       register: system_logs
       ignore_errors: true  # In case syslog doesn't exist
 
