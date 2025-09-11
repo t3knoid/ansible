@@ -1,0 +1,18 @@
+# Ansible generated on {{ ansible_date_time.date }} at {{ ansible_date_time.time }}
+[Unit]
+Description=Prometheus service
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User={{ prometheus_user }}
+Group={{ prometheus_group }}
+Type=simple
+ExecStart={{ prometheus_setup_binary }} --config.file={{ prometheus_setup_config_file }} --storage.tsdb.path={{ prometheus_setup_tsdb_dir }} --web.listen-address={{ prometheus_setup_listen_address }} --web.console.templates={{ prometheus_setup_console_templates }} --web.console.libraries={{ prometheus_setup_console_libraries }} {{ prometheus_setup_extra_args }}
+Restart=on-failure
+RestartSec=5
+LimitNOFILE=65536
+WorkingDirectory={{ prometheus_setup_data_dir }}
+
+[Install]
+WantedBy=multi-user.target
