@@ -11,10 +11,10 @@
   when: calibreweb_setup_config_dir_stat is not defined
 
 - name: Copy docker-compose.yml to target machine
-  ansible.builtin.copy:
-    src: docker-compose.yml
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
     dest: "{{ calibreweb_setup_config_dir }}/docker-compose.yml"
-    mode: "0600"
+    mode: "0640"
 
 - name: Make sure docker service account has access to config dir
   ansible.builtin.file:

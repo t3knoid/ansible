@@ -2,7 +2,7 @@
 
 services:
   calibre-web:
-    image: lscr.io/linuxserver/calibre-web:latest
+    image: ghcr.io/linuxserver/calibre-web:version-{{ calibreweb_setup_version }}
     container_name: calibreweb
     environment:
       - PUID=2000
