@@ -1,3 +1,4 @@
 ---
 
 calibreweb_setup_config_dir: "/config"
+calibreweb_setup_version: 0.6.25
