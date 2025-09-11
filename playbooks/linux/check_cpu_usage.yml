@@ -1,0 +1,29 @@
+---
+- name: Check HIGH CPU Usage and Zombie Processes
+  hosts: linux
+  gather_facts: false
+  tasks:
+    - name: Check CPU load
+      ansible.builtin.command: uptime
+      register: cpu_load
+
+    - name: Print CPU load
+      ansible.builtin.debug:
+        msg: "{{ cpu_load.stdout_lines }}"
+
+    - name: Check for high CPU usage (top 5 processes)
+      ansible.builtin.shell: ps aux --sort=-%cpu | head -n 5
+      register: high_cpu_usage
+    - name: Print high CPU usage
+      ansible.builtin.debug:
+        msg: "{{ high_cpu_usage.stdout_lines }}"
+
+    - name: Check for zombie processes
+      ansible.builtin.shell: ps aux | awk '$8 ~ /^[Zz]/'
+      register: zombie_processes
+    - name: Print zombie processes
+      ansible.builtin.debug:
+        msg: "{{ zombie_processes.stdout_lines }}"
+
+
+

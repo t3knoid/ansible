@@ -1,0 +1,38 @@
+---
+- name: Check memory usage
+  hosts: linux
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Use free command to get memory usage
+      ansible.builtin.command: free -m
+      register: memory_usage
+
+    - name: Print memory usage
+      ansible.builtin.debug:
+        msg: "{{ memory_usage.stdout_lines }}"
+
+    - name: Check for swap usage
+      ansible.builtin.command: swapon --show
+      register: swap_usage
+      ignore_errors: true  # In case swap is not enabled
+    - name: Print swap usage
+      ansible.builtin.debug:
+        msg: "{{ swap_usage.stdout_lines }}"
+
+    - name: Check for high memory usage (top 5 processes)
+      ansible.builtin.shell: ps aux --sort=-%mem | head -n 6
+      register: high_memory_usage
+  
+    - name: Print high memory usage
+      ansible.builtin.debug:
+        msg: "{{ high_memory_usage.stdout_lines }}"
+
+    - name: Check for out of memory (dmesg)
+      ansible.builtin.shell: dmesg | grep -i 'out of memory' || true
+      register: out_of_memory
+
+    - name: Print out of memory messages
+      ansible.builtin.debug:
+        msg: "{{ out_of_memory.stdout_lines }}"
+
