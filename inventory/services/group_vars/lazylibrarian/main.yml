@@ -31,3 +31,5 @@ autofs_nfs_mounts:
 pihole_cname_entries:
   - domain: lazy.refol.us
     target: rproxy-0.refol.us
+
+lazylibrarian_setup_version: fd9caa18
