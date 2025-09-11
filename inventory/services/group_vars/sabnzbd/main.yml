@@ -43,3 +43,5 @@ autofs_nfs_mounts:
 pihole_cname_entries:
   - domain: sabnzbd.refol.us
     target: rproxy-0.refol.us
+
+sabnzbd_setup_version: 4.5.3

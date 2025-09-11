@@ -1,0 +1,20 @@
+---
+
+services:
+  sabnzbd:
+    image: ghcr.io/linuxserver/sabnzbd:version-{{ sabnzbd_setup_version }}
+    container_name: sabnzbd
+    environment:
+      - PUID=2000
+      - PGID=2000
+      - TZ=Etc/UTC
+      - LANG=C.UTF-8
+      - LC_ALL=C.UTF-8
+    volumes:
+      - /config:/config
+      - /nfs/movies:/movies #optional
+      - /nfs/downloads:/downloads #optional
+      - /nfs/incomplete-downloads:/incomplete-downloads
+    ports:
+      - 8080:8080
+    restart: unless-stopped
