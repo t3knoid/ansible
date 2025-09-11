@@ -1,0 +1,107 @@
+- name: Download Prometheus tarball
+
+- name: Download and Extract Prometheus
+  ansible.builtin.unarchive:
+    src: "https://github.com/prometheus/prometheus/releases/download/v{{ prometheus_setup_version }}/prometheus-{{ prometheus_setup_version }}.linux-amd64.tar.gz
+    dest: /opt/
+    remote_src: true
+    creates: "/opt/prometheus-{{ prometheus_setup_version }}.linux-amd64"
+    mode: '0755'
+
+- name: Create symlink for Prometheus
+  ansible.builtin.file:
+    src: "/opt/prometheus-{{ prometheus_setup_version }}.linux-amd64"
+    dest: "{{ prometheus_setup_home}}"
+    state: link
+    force: true
+
+- name: Create Prometheus user
+  user:
+    name: "{{ prometheus_setup_user}}""
+    shell: "{{ prometheus_setup_shell}}"
+    system: true
+    create_home: false
+
+- name: Set ownership for Prometheus directory
+  file:
+    path: "/opt/prometheus-{{ prometheus_setup_version }}.linux-amd64"
+    owner: "{{ prometheus_setup_user }}"
+    group: "{{ prometheus_setup_group }}"
+    recurse: true
+
+- name: Copy Prometheus binary to /usr/local/bin
+  copy:
+    src: /opt/prometheus/prometheus
+    dest: /usr/local/bin/prometheus
+    owner: "{{ prometheus_setup_user }}"
+    group: "{{ prometheus_setup_group }}"
+    mode: "{{ prometheus_setup_mode }}"
+    remote_src: true
+
+- name: Create Prometheus data directory
+  file:
+    path: "{{ prometheus_setup_data_dir }}"
+    state: directory
+    owner: "{{ prometheus_setup_user }}"
+    group: "{{ prometheus_setup_group }}"
+    mode: "{{ prometheus_setup_data_mode }}"
+
+- name: Create Prometheus TSDB directory
+  file:
+    path: "{{ prometheus_setup_tsdb_dir }}"
+    state: directory
+    owner: "{{ prometheus_setup_user }}"
+    group: "{{ prometheus_setup_group }}"
+    mode: "{{ prometheus_setup_data_mode }}"
+
+- name: Create Prometheus etc directory
+  file:
+    path: "{{ prometheus_setup_data_dir }}/etc"
+    state: directory
+    owner: "{{ prometheus_setup_user }}"
+    group: "{{ prometheus_setup_group }}"
+    mode: "{{ prometheus_setup_data_mode }}"
+
+- name: Create Prometheus consoles directory
+  file:
+    path: "{{ prometheus_setup_console_templates }}"
+    state: directory
+    owner: "{{ prometheus_setup_user }}"
+    group: "{{ prometheus_setup_group }}"
+    mode: "{{ prometheus_setup_data_mode }}"
+
+- name: Create Prometheus console_libraries directory
+  file:
+    path: "{{ prometheus_setup_console_libraries }}"
+    state: directory
+    owner: "{{ prometheus_setup_user }}"
+    group: "{{ prometheus_setup_group }}"
+    mode: "{{ prometheus_setup_data_mode }}"
+
+- name: Copy Prometheus configuration file
+  template:
+    src: prometheus.yml.j2
+    dest: "{{ prometheus_setup_config_file }}"
+    owner: "{{ prometheus_setup_user }}"
+    group: "{{ prometheus_setup_group }}"
+    mode: "{{ prometheus_setup_config_mode }}"
+    backup: true
+
+- name: Create Prometheus systemd service file
+  template:
+    src: prometheus.service.j2
+    dest: "{{ prometheus_setup_service_file }}"
+    owner: "{{ prometheus_setup_user }}"
+    group: "{{ prometheus_setup_group }}"
+    mode: "{{ prometheus_setup_data_mode }}"
+  
+- name: Reload systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: true
+    state: reloaded
+
+- name: Enable and start Prometheus service
+  ansible.builtin.systemd:
+    name: prometheus
+    enabled: true
+    state: started
