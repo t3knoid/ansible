@@ -1,5 +1,5 @@
 - name: Deploy ansible
-  hosts: all
+  hosts: ansible
   gather_facts: true
   become: true
   become_user: root
