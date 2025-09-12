@@ -17,6 +17,6 @@
 
 - name: Upgrade Python pip
   ansible.builtin.pip:
-    name:
+    name: pip
     virtualenv: "{{ python3_venv_folder }}"
     state: latest
