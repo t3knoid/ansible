@@ -36,7 +36,7 @@
 
 - name: Update pg_hba.conf to allow password access using the client ip address
   community.postgresql.postgresql_pg_hba:
-    dest: "{{ postgresql_setup_data_dir }}/pg_hba.conf"
+    dest: "/etc/postgresql/{{ postgresql_setup_version }}/main/pg_hba.conf"
     contype: host
     users: all
     source: "{{ semaphoreui_setup_pgclient_ip }}/32"
@@ -46,15 +46,15 @@
 
 - name: Update pg_hba.conf to allow semaphoreui user access using the client ip address
   community.postgresql.postgresql_pg_hba:
-    dest: "{{ postgresql_setup_data_dir }}/pg_hba.conf"
+    dest: "/etc/postgresql/{{ postgresql_setup_version }}/main/pg_hba.conf"
     contype: hostssl
-    users: semaphoreui
+    users: "{{ semaphoreui_setup_db_user }}"
     source: "{{ semaphoreui_setup_pgclient_ip }}/32"
-    databases: semaphoreui
+    databases: "{{ semaphoreui_setup_db_name }}"
     method: md5
   notify: Restart PostgreSQL
 
 - name: Ensure PostgreSQL service is Started
   ansible.builtin.service:
     name: postgresql
-    state: started
+    state: restarted
