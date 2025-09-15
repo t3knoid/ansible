@@ -16,8 +16,8 @@ Role Variables
 - semaphoreui_setup_homedir - Semaphore home directory
 - semaphoreui_setup_tmpdir - Semaphore temp folder
 - semaphoreui_setup_etcdir: Semaphore configuration folder
-- semaphoreui_setup_pgdb_ip - IP address of the Postgres database host
-- semaphoreui_setup_pgclient_ip - IP address of the Postgres client
+- semaphoreui_setup_pg_host - IP address of the Postgres database host
+- semaphoreui_setup_pgclient_host - IP address of the Postgres client
 - semaphoreui_setup_port - The port Semaphore listens to
 - semaphoreui_setup_use_remote_runner - Set to false if not using a remote runner (i.e., Semaphore tasks are in the same host as server.)
 

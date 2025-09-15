@@ -8,6 +8,7 @@
     - global
     - ansible_node
     - sshpass
+    - autofs
 
   tasks:
     - name: Import venv.yml from python3 role
