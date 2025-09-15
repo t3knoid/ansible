@@ -16,8 +16,8 @@ semaphoreui_setup_python_packages:
 semaphoreui_setup_homedir: /ansible/semaphore
 semaphoreui_setup_tmpdir: "{{ semaphoreui_setup_homedir }}/tmp"
 semaphoreui_setup_etcdir: "{{ semaphoreui_setup_homedir }}/etc"
-semaphoreui_setup_pgdb_ip: "{{ global_ip_addresses[groups['pgdb'][0]] }}"
-semaphoreui_setup_pgclient_ip: "{{ global_ip_addresses[groups['pgclient'][0]] }}"
+semaphoreui_setup_pg_host: "{{ global_ip_addresses[groups['pgdb'][0]] }}"
+semaphoreui_setup_pgclient_host: "{{ global_ip_addresses[groups['pgclient'][0]] }}"
 semaphoreui_setup_port: 3000
 semaphoreui_setup_use_remote_runner: false
 
@@ -32,3 +32,11 @@ semaphoreui_setup_ldap_mappings:
   mail: "userPrincipalName"
   uid: "sAMAccountName"
   cn: "cn"
+
+# Database
+# semaphoreui_setup_db_name: in vault
+# semaphoreui_setup_db_user: in vault
+# semaphoreui_setup_db_password: in vault
+semaphoreui_setup_mount_point: /nfs/backups
+semaphoreui_setup_backup_filename: "semaphoreui_{{ ansible_date_time.date }}.sqlc"
+semaphoreui_setup_backup_path: "{{ semaphoreui_setup_mount_point }}/{{ semaphoreui_setup_backup_filename }}"
