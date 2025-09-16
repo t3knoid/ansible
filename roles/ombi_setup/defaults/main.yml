@@ -1,5 +1,6 @@
 ---
 
+ombi_setup_version: 4.47.1
 ombi_setup_config_dir: "/config"
 ombi_setup_port: 3579
 ombi_setup_pg_port: 5432
