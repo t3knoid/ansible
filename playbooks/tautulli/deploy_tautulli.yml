@@ -1,0 +1,11 @@
+---
+
+- name: Deploy Tautulli
+  hosts: tautulli
+  become: true
+  gather_facts: false
+  roles:
+    - global
+    - users
+    - docker_setup
+    - tautulli_setup
