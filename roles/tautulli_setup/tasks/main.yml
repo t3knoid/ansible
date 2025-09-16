@@ -1,0 +1,51 @@
+---
+
+# https://github.com/Tautulli/Tautulli/wiki/Installation#docker
+# https://hub.docker.com/r/linuxserver/tautulli
+
+- name: Verify config folder exists
+  ansible.builtin.stat:
+    path: "{{ tautulli_setup_config_dir }}"
+  register: tautulli_setup_config_dir_stat
+
+- name: Fail if config folder does not exists
+  ansible.builtin.fail:
+    msg: "{{ tautulli_setup_config_dir }}"
+  when: tautulli_setup_config_dir_stat is not defined
+
+- name: Copy docker-compose.yml to target machine
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ tautulli_setup_config_dir }}/docker-compose.yml"
+    owner: "{{ users_list[0].username }}"
+    group: "{{ users_list[0].username }}"
+    mode: "0640"
+
+- name: Make sure docker service account has access to config dir
+  ansible.builtin.file:
+    path: "{{ tautulli_setup_config_dir }}"
+    owner: "{{ users_list[0].username }}"
+    group: "{{ users_list[0].username }}"
+    mode: "0755"
+    recurse: true
+
+- name: Stop Docker Container
+  ansible.builtin.command: docker-compose -f "{{ tautulli_setup_config_dir }}/docker-compose.yml" down
+  changed_when: false
+
+- name: Prune unused Docker images
+  ansible.builtin.command: docker image prune -f
+  changed_when: false
+
+- name: Remove all images
+  ansible.builtin.shell: "docker rmi -f $(docker images -a -q)"
+  changed_when: false
+  ignore_errors: true
+
+- name: Pull latest image
+  ansible.builtin.command: docker-compose -f "{{ tautulli_setup_config_dir }}/docker-compose.yml" pull
+  changed_when: false
+
+- name: Run Docker Container
+  ansible.builtin.command: docker-compose -f "{{ tautulli_setup_config_dir }}/docker-compose.yml" up -d
+  changed_when: false
