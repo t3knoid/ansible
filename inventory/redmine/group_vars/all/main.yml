@@ -49,3 +49,8 @@ pihole_cname_entries:
 
 ruby_setup_archive_extractdir_root: "{{ disks_disk_mounts[0].mountpoint }}/ruby"
 redmine_setup_installdir_root: "{{ disks_disk_mounts[0].mountpoint }}/redmine"
+
+autofs_nfs_mounts:
+  - mount_name: backups
+    server: 192.168.2.250:/mnt/Data/backups_ex
+    mount_options: -rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys
