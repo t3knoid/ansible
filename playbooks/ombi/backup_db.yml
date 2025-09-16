@@ -1,0 +1,12 @@
+---
+- name: Backup Ombi database to NFS share
+  hosts: pgdb
+  become: true
+  roles:
+    - global
+
+  tasks:
+    - name: Import database_backup.yml from ombi_setup role
+      ansible.builtin.import_role:
+        name: ombi_setup
+        tasks_from: database_backup.yml

@@ -1,26 +1,14 @@
 ---
 
+# Import database creation playbook to set up Ombi database before deployment
+- import_playbook: create_db.yml
+
 - name: Deploy Ombi
   hosts: ombi
   become: true
   gather_facts: false
   roles:
     - global
-
-  tasks:
-    - name: Import ombi_setup role database task
-      ansible.builtin.include_role:
-        name: ombi_setup
-        tasks_from: database
-
-    - name: Include users role
-      ansible.builtin.include_role:
-        name: users
-
-    - name: Include docker_setup role
-      ansible.builtin.include_role:
-        name: docker_setup
-
-    - name: Include ombi_setup role
-      ansible.builtin.include_role:
-        name: ombi_setup
+    - users
+    - docker_setup
+    - ombi_setup
