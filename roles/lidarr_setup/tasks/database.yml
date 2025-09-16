@@ -31,7 +31,7 @@
 
 - name: Create the PostgreSQL main database
   community.postgresql.postgresql_db:
-    name: "{{ lidarr_setup_db_main }}"
+    name: "{{ lidarr_setup_db_name }}"
     owner: "{{ lidarr_setup_db_user }}"
     state: present
   become: true
@@ -58,4 +58,27 @@
     databases: all
     method: md5
   delegate_to: "{{ lidarr_setup_pg_host }}"
+  notify: Restart PostgreSQL
+
+- name: Update pg_hba.conf to allow password access using the database host ip address
+  community.postgresql.postgresql_pg_hba:
+    dest: "/etc/postgresql/{{ postgresql_setup_version }}/main/pg_hba.conf"
+    contype: hostssl
+    users: all
+    source: "{{ lidarr_setup_pg_host }}/32"
+    databases: all
+    method: md5
+  delegate_to: "{{ lidarr_setup_pg_host }}"
+  notify: Restart PostgreSQL
+
+- name: Create .pgpass file in postgres home directory
+  ansible.builtin.copy:
+    dest: ~/.pgpass
+    content: "{{ lidarr_setup_pg_host }}:5432:{{ lidarr_setup_db_name }}:{{ lidarr_setup_db_user }}:{{ lidarr_setup_db_password }}"
+    owner: postgres
+    group: postgres
+    mode: '0600'
+  delegate_to: "{{ lidarr_setup_pg_host }}"
+  become: true
+  become_user: postgres
   notify: Restart PostgreSQL

@@ -10,7 +10,11 @@ radarr_setup_pg_port: 5432
 radarr_setup_pg_host: "{{ global_ip_addresses[groups['pgdb'][0]] }}"
 
 # See vault for the following variables
-# radarr_setup_db_main
+# radarr_setup_db_name
 # radarr_setup_db_log
 # radarr_setup_db_user
 # radarr_setup_db_password
+
+radarr_setup_mount_point: /nfs/backups
+radarr_setup_backup_filename: "radarr_{{ ansible_date_time.date }}.sqlc"
+radarr_setup_backup_path: "{{ radarr_setup_mount_point }}/{{ radarr_setup_backup_filename }}"
