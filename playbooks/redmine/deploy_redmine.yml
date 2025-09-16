@@ -18,6 +18,11 @@
         name: postgresql_setup
       when: "'pgdb' in group_names"
 
+    - name: Include autofs role
+      ansible.builtin.include_role:
+        name: autofs
+      when: "'pgdb' in group_names"
+
     - name: Include users role
       ansible.builtin.include_role:
         name: users

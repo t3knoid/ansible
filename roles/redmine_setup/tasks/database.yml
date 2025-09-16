@@ -49,3 +49,26 @@
     method: md5
   delegate_to: "{{ redmine_setup_pg_host }}"
   notify: Restart PostgreSQL
+
+- name: Update pg_hba.conf to allow password access using the database host ip address
+  community.postgresql.postgresql_pg_hba:
+    dest: "/etc/postgresql/{{ postgresql_setup_version }}/main/pg_hba.conf"
+    contype: host
+    users: all
+    source: "{{ redmine_setup_pg_host }}/32"
+    databases: all
+    method: md5
+  delegate_to: "{{ redmine_setup_pg_host }}"
+  notify: Restart PostgreSQL
+
+- name: Create .pgpass file in postgres home directory
+  ansible.builtin.copy:
+    dest: ~/.pgpass
+    content: "{{ redmine_setup_pg_host }}:5432:{{ redmine_setup_db_name }}:{{ redmine_setup_db_user }}:{{ redmine_setup_db_password }}"
+    owner: postgres
+    group: postgres
+    mode: '0600'
+  delegate_to: "{{ redmine_setup_pg_host }}"
+  become: true
+  become_user: postgres
+  notify: Restart PostgreSQL
