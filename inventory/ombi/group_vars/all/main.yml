@@ -38,6 +38,7 @@ disks_disk_mounts:
 # ombi_setup_db_name
 # ombi_setup_db_user
 # ombi_setup_db_password
+# users_list
 
 nginx_setup_disable_default_site: true
 

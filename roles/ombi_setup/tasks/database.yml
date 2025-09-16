@@ -4,20 +4,17 @@
   ansible.builtin.apt:
     name: postgresql
     state: present
-  delegate_to: "{{ ombi_setup_pg_host }}"
 
 - name: Start and enable PostgreSQL service
   ansible.builtin.systemd:
     name: postgresql
     state: started
     enabled: true
-  delegate_to: "{{ ombi_setup_pg_host }}"
 
 - name: Ensure PostgreSQL Python library is installed
   ansible.builtin.apt:
     name: python3-psycopg2
     state: present
-  delegate_to: "{{ ombi_setup_pg_host }}"
 
 - name: Create the PostgreSQL user
   community.postgresql.postgresql_user:
@@ -26,7 +23,6 @@
     state: present
   become: true
   become_user: postgres
-  delegate_to: "{{ ombi_setup_pg_host }}"
   notify: Restart PostgreSQL
 
 - name: Create the PostgreSQL database
@@ -36,7 +32,6 @@
     state: present
   become: true
   become_user: postgres
-  delegate_to: "{{ ombi_setup_pg_host }}"
   notify: Restart PostgreSQL
 
 - name: Update pg_hba.conf to allow password access using host ip address
@@ -47,5 +42,25 @@
     source: "{{ global_ip_address }}/32"
     databases: all
     method: md5
-  delegate_to: "{{ ombi_setup_pg_host }}"
+  notify: Restart PostgreSQL
+
+- name: Update pg_hba.conf to allow password access using the database host ip address
+  community.postgresql.postgresql_pg_hba:
+    dest: "/etc/postgresql/{{ postgresql_setup_version }}/main/pg_hba.conf"
+    contype: hostssl
+    users: all
+    source: "{{ ombi_setup_pg_host }}/32"
+    databases: all
+    method: md5
+  notify: Restart PostgreSQL
+
+- name: Create .pgpass file in postgres home directory
+  ansible.builtin.copy:
+    dest: ~/.pgpass
+    content: "{{ ombi_setup_pg_host }}:5432:{{ ombi_setup_db_name }}:{{ ombi_setup_db_user }}:{{ ombi_setup_db_password }}"
+    owner: postgres
+    group: postgres
+    mode: '0600'
+  become: true
+  become_user: postgres
   notify: Restart PostgreSQL
