@@ -1,0 +1,23 @@
+---
+version: "3"
+services:
+  tautulli:
+    image: ghcr.io/tautulli/tautulli:v{{ tautulli_setup_version }}
+    container_name: tautulli
+    environment:
+      - PUID=2000
+      - PGID=2000
+      - TZ=Etc/UTC
+      - BASE_URL=/ #optional
+    volumes:
+      - config:/config
+    ports:
+      - {{ tautulli_setup_port }}:{{ tautulli_setup_port }}
+    restart: unless-stopped
+volumes:
+  config:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /config
