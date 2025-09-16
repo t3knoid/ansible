@@ -1,0 +1,52 @@
+---
+- name: Ensure backup directory exists
+  file:
+    path: "{{ tautulli_setup_backup_dir_final }}"
+    state: directory
+    mode: '0755'
+
+- name: Backup Tautulli config.ini
+  ansible.builtin.uri:
+    url: "{{ tautulli_setup_host }}/api/v2?apikey={{ tautulli_setup_apikey }}&cmd=backup_config"
+    method: GET
+    return_content: true
+  register: config_backup_response
+
+- name: Backup Tautulli plexpy.db
+  ansible.builtin.uri:
+    url: "{{ tautulli_setup_host }}/api/v2?apikey={{ tautulli_setup_apikey }}&cmd=backup_db"
+    method: GET
+    return_content: true
+  register: db_backup_response
+
+- name: Debug backup results
+  debug:
+    msg:
+      - "Config backup result: {{ config_backup_response.json.response.result }}"
+      - "DB backup result: {{ db_backup_response.json.response.result }}"
+
+- name: Find .ini and .db files in /config/backups
+  find:
+    paths: "{{ tautulli_setup_backup_dir_original }}"
+    patterns:
+      - "*.ini"
+      - "*.db"
+    file_type: file
+  register: tautulli_backups
+
+- name: Copy backup files to NFS share
+  copy:
+    src: "{{ item.path }}"
+    dest: "{{ tautulli_setup_backup_dir_final}}"
+    remote_src: true
+  loop: "{{ tautulli_backups.files }}"
+  loop_control:
+    label: "{{ item.path }}"
+
+- name: Delete original backup files
+  file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ tautulli_backups.files }}"
+  loop_control:
+    label: "{{ item.path }}"

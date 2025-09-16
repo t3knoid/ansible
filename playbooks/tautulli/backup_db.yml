@@ -1,0 +1,12 @@
+---
+- name: Backup Tautulli database and config to NFS share
+  hosts: tautulli
+  become: true
+  roles:
+    - global
+
+  tasks:
+    - name: Import database_backup.yml from tautulli_setup role
+      ansible.builtin.import_role:
+        name: tautulli_setup
+        tasks_from: database_backup.yml
