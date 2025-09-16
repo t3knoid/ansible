@@ -1,0 +1,5 @@
+---
+
+tautulli_setup_version: 2.16.0
+tautulli_setup_config_dir: "/config"
+tautulli_setup_port: 8181
