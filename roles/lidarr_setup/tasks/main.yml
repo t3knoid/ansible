@@ -34,6 +34,15 @@
   ansible.builtin.command: docker-compose -f "{{ lidarr_setup_config_dir }}/docker-compose.yml" down
   changed_when: false
 
+- name: Prune unused Docker images
+  ansible.builtin.command: docker image prune -f
+  changed_when: false
+
+- name: Remove all images
+  ansible.builtin.shell: "docker rmi -f $(docker images -a -q)"
+  changed_when: false
+  ignore_errors: true
+
 - name: Pull latest image
   ansible.builtin.command: docker-compose -f "{{ lidarr_setup_config_dir }}/docker-compose.yml" pull
   changed_when: false

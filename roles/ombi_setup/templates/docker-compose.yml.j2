@@ -2,7 +2,7 @@
 version: "2.1"
 services:
   ombi:
-    image: lscr.io/linuxserver/ombi:latest
+    image: ghcr.io/linuxserver/ombi:{{ ombi_setup_version }}
     container_name: ombi
     environment:
       - PUID=2000
