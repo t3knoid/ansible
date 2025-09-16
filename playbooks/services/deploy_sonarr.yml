@@ -1,5 +1,7 @@
 ---
 
+- import_playbook: create_sonarr_db.yml
+
 - name: Deploy Sonarr
   hosts: sonarr
   become: true

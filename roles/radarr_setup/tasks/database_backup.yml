@@ -1,0 +1,7 @@
+---
+
+- name: Backup PostgreSQL database using pg_dump
+  command: >
+    pg_dump -U {{ radarr_setup_db_user }} -h {{ radarr_setup_pg_host }} -Fc
+    --file={{ radarr_setup_backup_path }} {{ radarr_setup_db_name }}
+  become_user: postgres

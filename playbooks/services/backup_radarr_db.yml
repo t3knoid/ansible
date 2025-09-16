@@ -1,0 +1,12 @@
+---
+- name: Backup Radarr database to NFS share
+  hosts: pgdb
+  become: true
+  roles:
+    - global
+
+  tasks:
+    - name: Import database_backup.yml from radarr_setup role
+      ansible.builtin.import_role:
+        name: radarr_setup
+        tasks_from: database_backup.yml

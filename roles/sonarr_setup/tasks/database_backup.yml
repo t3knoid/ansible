@@ -1,0 +1,7 @@
+---
+
+- name: Backup PostgreSQL database using pg_dump
+  command: >
+    pg_dump -U {{ sonarr_setup_db_user }} -h {{ sonarr_setup_pg_host }} -Fc
+    --file={{ sonarr_setup_backup_path }} {{ sonarr_setup_db_name }}
+  become_user: postgres

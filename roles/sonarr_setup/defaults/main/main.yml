@@ -10,7 +10,11 @@ sonarr_setup_pg_port: 5432
 sonarr_setup_pg_host: "{{ global_ip_addresses[groups['pgdb'][0]] }}"
 
 # See vault for the following variables
-# sonarr_setup_db_main
+# sonarr_setup_db_name
 # sonarr_setup_db_log
 # sonarr_setup_db_user
 # sonarr_setup_db_password
+
+sonarr_setup_mount_point: /nfs/backups
+sonarr_setup_backup_filename: "sonarr_{{ ansible_date_time.date }}.sqlc"
+sonarr_setup_backup_path: "{{ sonarr_setup_mount_point }}/{{ sonarr_setup_backup_filename }}"

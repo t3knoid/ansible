@@ -1,12 +1,17 @@
 ---
 
 - name: Create postgresql database
-  hosts: lidarr
+  hosts: pgdb
   become: true
   gather_facts: true
   roles:
     - global
-
+    - role: autofs
+      vars:
+        autofs_nfs_mounts:
+          - mount_name: backups
+            server: 192.168.2.250:/mnt/Data/backups_ex
+            mount_options: -rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys
   tasks:
     - name: Import lidarr_setup role database task
       ansible.builtin.import_role:

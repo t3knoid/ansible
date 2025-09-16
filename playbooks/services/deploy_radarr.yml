@@ -1,5 +1,7 @@
 ---
 
+- import_playbook: create_radarr_db.yml
+
 - name: Deploy Radarr
   hosts: radarr
   become: true
