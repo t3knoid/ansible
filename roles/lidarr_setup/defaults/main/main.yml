@@ -10,7 +10,11 @@ lidarr_setup_pg_port: 5432
 lidarr_setup_pg_host: "{{ global_ip_addresses[groups['pgdb'][0]] }}"
 
 # See vault for the following variables
-# lidarr_setup_db_main
+# lidarr_setup_db_name
 # lidarr_setup_db_log
 # lidarr_setup_db_user
 # lidarr_setup_db_password
+
+lidarr_setup_mount_point: /nfs/backups
+lidarr_setup_backup_filename: "lidarr_{{ ansible_date_time.date }}.sqlc"
+lidarr_setup_backup_path: "{{ lidarr_setup_mount_point }}/{{ lidarr_setup_backup_filename }}"
