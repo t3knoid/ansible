@@ -2,3 +2,30 @@
 
 semaphoreui_setup_url: "https://github.com/semaphoreui/semaphore/releases/download"
 semaphoreui_setup_runner_token: "0ZrCUmemNwMQ+4sxY+7Nk0ERwxbpIp0RExAzWYDnKbw="
+
+semaphoreui_setup_projects:
+  - name: "Home Lab"
+    alert_enabled: false
+    alert: false
+    alert_chat: ""
+    max_parallel_tasks: 0
+    repositories:
+      - name: "Ansible"
+        type: "git"
+        url: "https://github.com/t3knoid/ansible.git"
+    users:
+      - name: Guest User
+        username: guest
+        email: guest@refol.us
+        password: password
+        alert: false
+        admin: false
+        external: false
+    keystores:
+      - name: "None"
+        type: "none"
+        override_secret: true
+        login_password:
+          password: "mypassword"
+          login: "mylogin"
+    views:
