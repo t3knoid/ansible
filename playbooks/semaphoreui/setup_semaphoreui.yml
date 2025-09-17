@@ -1,0 +1,13 @@
+---
+
+# This playbook assumes that Semaphore UI has been installed
+
+- name: Setup Semaphore UI
+  hosts: semaphore
+  gather_facts: true
+  become: true
+  tasks:
+  - name: Import semaphoreui_setup role setup tasks
+    ansible.builtin.import_role:
+      name: semaphoreui_setup
+      tasks_from: setup_main.yml
