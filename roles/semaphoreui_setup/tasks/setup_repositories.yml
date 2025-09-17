@@ -1,0 +1,27 @@
+---
+
+- name: Add repositories to projects
+  ansible.builtin.uri:
+    url: "{{ semaphoreui_setup_api_base }}/projects"
+    method: POST
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+      Authorization: "Bearer {{ semaphoreui_setup_api_token }}"
+    body: "{{ item }}"
+    body_format: json
+    status_code: 201
+    timeout: 5
+  register: semaphore_repository_created
+  loop: "{{ semaphoreui_setup_repositories }}"
+  loop_control:
+    label: "{{ item.name }}"
+  when: item.name not in semaphore_existing_project_names
+
+- name: Show created projects
+  debug:
+    var: item.json.name
+  loop: "{{ semaphore_project_created.results }}"
+  loop_control:
+    label: "{{ item.item.name }}"
+  when: item.skipped is not defined

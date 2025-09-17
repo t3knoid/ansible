@@ -1,0 +1,64 @@
+---
+- name: Read admin password from file system
+  no_log: true
+  ansible.builtin.slurp:
+    src: "{{ semaphoreui_setup_homedir }}/.admin"
+  register: semaphoreui_setup_admin_password
+
+- name: Decode admin password
+  no_log: true
+  ansible.builtin.set_fact:
+    semaphoreui_setup_admin_password_decoded: "{{ semaphoreui_setup_admin_password['content'] | b64decode }}"
+
+- name: Login to Semaphore as admin
+  no_log: true
+  ansible.builtin.uri:
+    url: "{{ semaphoreui_setup_api_base }}/auth/login"
+    method: POST
+    body:
+      auth: admin
+      password: "{{ semaphoreui_setup_admin_password_decoded }}"
+    body_format: json
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    follow_redirects: safe
+    status_code: 204
+  register: semaphoreui_setup_login_response
+
+# Create a token for the admin user to use for future requests
+# If for some reason the playbook fails after this point, make sure to manually 
+# expire the token in the UI
+- name: Create a new user token
+  no_log: true
+  ansible.builtin.uri:
+    url:  "{{ semaphoreui_setup_api_base }}/user/tokens"
+    method: POST
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+      Cookie: "{{ semaphoreui_setup_login_response.cookies_string }}"
+    follow_redirects: safe
+    status_code: 201
+  register: result
+  when: semaphoreui_setup_login_response.cookies_string is defined
+
+- name: Store API token
+  no_log: true
+  ansible.builtin.set_fact:
+    semaphoreui_setup_api_token: "{{ result.json.id }}"
+
+# We are logging out since we no longer need the admin session cookie
+# Use the token for future requests
+- name: "Logout admin user"
+  no_log: true
+  changed_when: false
+  check_mode: false
+  ansible.builtin.uri:
+    use_proxy: false
+    url: "{{ semaphoreui_setup_api_base }}/auth/logout"
+    method: POST
+    headers:
+      Cookie: "{{ semaphoreui_setup_login_response.cookies_string }}"
+    status_code: 204
+    timeout: 5
