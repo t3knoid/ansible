@@ -20,6 +20,7 @@
   set_fact:
     semaphore_existing_project_names: "{{ semaphore_setup_existing_projects.json | map(attribute='name') | list }}"
 
+# Create projects only if they do not already exist, skipping any that are present in semaphore_existing_project_names
 - name: Create projects
   ansible.builtin.uri:
     url: "{{ semaphoreui_setup_api_base }}/projects"
@@ -36,6 +37,7 @@
   loop: "{{ semaphoreui_setup_projects }}"
   loop_control:
     label: "{{ item.name }}"
+  when: item.name not in semaphore_existing_project_names
   when: item.name not in semaphore_existing_project_names
 
 - name: Show created projects
@@ -69,4 +71,3 @@
 - name: Show project IDs
   debug:
     var: semaphoreui_setup_project_ids
-    
