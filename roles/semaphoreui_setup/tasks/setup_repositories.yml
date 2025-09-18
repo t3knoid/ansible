@@ -46,9 +46,13 @@
     timeout: 5
   register: existing_repos_response
 
+- name: Initalize existing_repo_names
+  ansible.builtin.set_fact:
+    existing_repo_names: []
+
 - name: Parse existing repository names
   ansible.builtin.set_fact:
-    semaphoreui_existing_repo_names: >-
+    existing_repo_names: >-
       {{
         existing_repos_response.json | map(attribute='name') | list
       }}
@@ -68,7 +72,7 @@
         current_repository | combine({ 'project_id': (current_project_id | int) }) | combine({ 'ssh_key_id': (none_key  | int) })
       }}
     status_code: 201
-  when: current_repository.name not in semaphoreui_existing_repo_names
+  when: current_repository.name not in existing_repo_names
   loop: "{{ current_project_data.repositories }}"
   loop_control:
     label: "{{ current_repository.name }}"
