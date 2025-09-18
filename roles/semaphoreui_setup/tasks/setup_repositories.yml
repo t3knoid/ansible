@@ -2,10 +2,6 @@
 
 # This should not be called directly, only via setup_projects.yml
 
-- name: Debug current project
-  ansible.builtin.debug:
-    msg: "Processing repositories for project {{ current_project_name }} with ID {{ current_project_id }}"
-
 - name: "Enumerate Keystores"
   changed_when: false
   check_mode: false

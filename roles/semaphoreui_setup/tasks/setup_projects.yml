@@ -49,7 +49,6 @@
   loop_control:
     label: "{{ item.name }}"
   when: item.name not in semaphore_existing_project_names
-  when: item.name not in semaphore_existing_project_names
 
 - name: Show created projects
   debug:
@@ -78,17 +77,19 @@
   set_fact:
     semaphore_existing_project_names: "{{ semaphore_setup_existing_projects.json | map(attribute='name') | list }}"
 
-- name: show semaphore_existing_project_names
-  debug:
-    var: semaphore_existing_project_names
-
 - name: Set list of project names and corresponding ids for later use
   set_fact:
     semaphoreui_setup_project_ids: "{{ dict(semaphore_setup_existing_projects.json | map(attribute='name') | list | zip(semaphore_setup_existing_projects.json | map(attribute='id') | list)) }}"
 
-- name: show semaphoreui_setup_project_ids 
-  debug:
-    var: semaphoreui_setup_project_ids
+- name: Loop through projects and their key stores
+  include_tasks: setup_keystores.yml
+  vars:
+    current_project_id: "{{ current_project_info.value }}"
+    current_project_name: "{{ current_project_info.key }}"
+  loop: "{{ semaphoreui_setup_project_ids | dict2items }}"
+  loop_control:
+    label: "{{ current_project_info.key }}"
+    loop_var: current_project_info
 
 - name: Loop through projects and their repositories
   include_tasks: setup_repositories.yml
