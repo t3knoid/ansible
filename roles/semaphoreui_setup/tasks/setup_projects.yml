@@ -1,5 +1,16 @@
 ---
 
+- name: Extract project metadata only
+  set_fact:
+    semaphoreui_setup_projects_to_create: >-
+      {{
+        semaphoreui_setup_projects |
+        map('dict2items') |
+        map('rejectattr', 'key', 'in', ['repositories', 'users', 'keystores', 'tasks', 'views']) |
+        map('items2dict') |
+        list
+      }}
+
 # Enumerate existing projects to avoid creating duplicates
 - name: Enumerate existing projects
   changed_when: false
@@ -33,8 +44,8 @@
     body_format: json
     status_code: 201
     timeout: 5
-  register: semaphore_project_created
-  loop: "{{ semaphoreui_setup_projects }}"
+  register: semaphore_projects_created
+  loop: "{{ semaphoreui_setup_projects_to_create }}"
   loop_control:
     label: "{{ item.name }}"
   when: item.name not in semaphore_existing_project_names
@@ -43,13 +54,12 @@
 - name: Show created projects
   debug:
     var: item.json.name
-  loop: "{{ semaphore_project_created.results }}"
+  loop: "{{ semaphore_projects_created.results }}"
   loop_control:
     label: "{{ item.item.name }}"
   when: item.skipped is not defined
 
-# Enumerate projects again to get their IDs for later use
-- name: Enumerate existing projects
+- name: Enumerate projects again to get their IDs for later use
   changed_when: false
   check_mode: false
   ansible.builtin.uri:
@@ -64,10 +74,29 @@
     timeout: 5
   register: semaphore_setup_existing_projects
 
-- name: Set fact with project IDs
+- name: Set list of existing project names again for later use
+  set_fact:
+    semaphore_existing_project_names: "{{ semaphore_setup_existing_projects.json | map(attribute='name') | list }}"
+
+- name: show semaphore_existing_project_names
+  debug:
+    var: semaphore_existing_project_names
+
+- name: Set list of project names and corresponding ids for later use
   set_fact:
     semaphoreui_setup_project_ids: "{{ dict(semaphore_setup_existing_projects.json | map(attribute='name') | list | zip(semaphore_setup_existing_projects.json | map(attribute='id') | list)) }}"
 
-- name: Show project IDs
+- name: show semaphoreui_setup_project_ids 
   debug:
     var: semaphoreui_setup_project_ids
+
+- name: Loop through projects and their repositories
+  include_tasks: setup_repositories.yml
+  vars:
+    current_project_id: "{{ current_project_info.value }}"
+    current_project_name: "{{ current_project_info.key }}"
+  loop: "{{ semaphoreui_setup_project_ids | dict2items }}"
+  loop_control:
+    label: "{{ current_project_info.key }}"
+    loop_var: current_project_info
+

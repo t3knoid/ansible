@@ -1,27 +1,75 @@
 ---
 
-- name: Add repositories to projects
+# This should not be called directly, only via setup_projects.yml
+
+- name: Debug current project
+  ansible.builtin.debug:
+    msg: "Processing repositories for project {{ current_project_name }} with ID {{ current_project_id }}"
+
+- name: "Enumerate Keystores"
+  changed_when: false
+  check_mode: false
   ansible.builtin.uri:
-    url: "{{ semaphoreui_setup_api_base }}/projects"
+    use_proxy: false
+    url: "{{ semaphoreui_setup_api_base }}/project/{{ current_project_id }}/keys"
+    method: GET
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+      Authorization: "Bearer {{ semaphoreui_setup_api_token }}"
+    status_code: 200
+    timeout: 5
+  register: current_project_keystores
+
+- name: Get ID of the key named "None"
+  ansible.builtin.set_fact:
+    none_key: "{{ current_project_keystores.json | selectattr('name', 'equalto', 'None') | map(attribute='id') | list | first }}"
+
+- name: Set current project data
+  ansible.builtin.set_fact:
+    current_project_data: >-
+      {{
+        semaphoreui_setup_projects |
+        selectattr('name', 'equalto', current_project_name) |
+        first
+      }}
+
+- name: Get existing repositories for project {{ current_project_name }}
+  ansible.builtin.uri:
+    url: "{{ semaphoreui_setup_api_base }}/project/{{ current_project_id }}/repositories"
+    method: GET
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+      Authorization: "Bearer {{ semaphoreui_setup_api_token }}"
+    status_code: 200
+    timeout: 5
+  register: existing_repos_response
+
+- name: Parse existing repository names
+  ansible.builtin.set_fact:
+    semaphoreui_existing_repo_names: >-
+      {{
+        existing_repos_response.json | map(attribute='name') | list
+      }}
+  when: existing_repos_response.json is defined
+
+- name: Create repositories in project {{ current_project_name }} if not already present
+  ansible.builtin.uri:
+    url: "{{ semaphoreui_setup_api_base }}/project/{{ current_project_id }}/repositories"
     method: POST
     headers:
       Content-Type: application/json
       Accept: application/json
       Authorization: "Bearer {{ semaphoreui_setup_api_token }}"
-    body: "{{ item }}"
     body_format: json
+    body: >-
+      {{
+        current_repository | combine({ 'project_id': (current_project_id | int) }) | combine({ 'ssh_key_id': (none_key  | int) })
+      }}
     status_code: 201
-    timeout: 5
-  register: semaphore_repository_created
-  loop: "{{ semaphoreui_setup_repositories }}"
+  when: current_repository.name not in semaphoreui_existing_repo_names
+  loop: "{{ current_project_data.repositories }}"
   loop_control:
-    label: "{{ item.name }}"
-  when: item.name not in semaphore_existing_project_names
-
-- name: Show created projects
-  debug:
-    var: item.json.name
-  loop: "{{ semaphore_project_created.results }}"
-  loop_control:
-    label: "{{ item.item.name }}"
-  when: item.skipped is not defined
+    label: "{{ current_repository.name }}"
+    loop_var: current_repository
