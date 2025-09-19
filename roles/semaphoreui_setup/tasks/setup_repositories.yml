@@ -21,15 +21,6 @@
   ansible.builtin.set_fact:
     none_key: "{{ current_project_keystores.json | selectattr('name', 'equalto', 'None') | map(attribute='id') | list | first }}"
 
-- name: Set current project data
-  ansible.builtin.set_fact:
-    current_project_data: >-
-      {{
-        semaphoreui_setup_projects |
-        selectattr('name', 'equalto', current_project_name) |
-        first
-      }}
-
 - name: Get existing repositories for project {{ current_project_name }}
   ansible.builtin.uri:
     url: "{{ semaphoreui_setup_api_base }}/project/{{ current_project_id }}/repositories"

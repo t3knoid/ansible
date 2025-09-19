@@ -2,20 +2,35 @@
 
 # This should not be called directly, only via setup_project.yml
 
+- name: Set current project data
+  ansible.builtin.set_fact:
+    project_data: >-
+      {{
+        semaphoreui_setup_projects |
+        selectattr('name', 'equalto', project_info.key ) |
+        first
+      }}
+
 - name: Add project key stores
   include_tasks: setup_keystores.yml
   vars:
     current_project_id: "{{ project_info.value }}"
     current_project_name: "{{ project_info.key }}"
+    current_project_data: "{{ project_data }}"
+  when: project_data.keystores is defined and (project_data.keystores | default([])  | length > 0)
 
 - name: Add project repositories
   include_tasks: setup_repositories.yml
   vars:
     current_project_id: "{{ project_info.value }}"
     current_project_name: "{{ project_info.key }}"
+    current_project_data: "{{ project_data }}"
+  when: project_data.repositories is defined and (project_data.repositories | default([])  | length > 0)
 
 - name: Add project inventories
   include_tasks: setup_inventories.yml
   vars:
     current_project_id: "{{ project_info.value }}"
     current_project_name: "{{ project_info.key }}"
+    current_project_data: "{{ project_data }}"
+  when: project_data.inventories is defined and (project_data.inventories | default([])  | length > 0)
