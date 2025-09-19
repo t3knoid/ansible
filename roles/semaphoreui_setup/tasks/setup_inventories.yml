@@ -2,15 +2,6 @@
 
 # This should not be called directly, only via setup_projects.yml
 
-- name: Set current project data
-  ansible.builtin.set_fact:
-    current_project_data: >-
-      {{
-        semaphoreui_setup_projects |
-        selectattr('name', 'equalto', current_project_name) |
-        first
-      }}
-
 - name: Enumerate key stores
   changed_when: false
   check_mode: false
