@@ -19,6 +19,11 @@ semaphoreui_setup_projects:
         login_password:
           login: "{{ semaphoreui_setup_semaphore_login }}"
           password: "{{ semaphoreui_setup_semaphore_password }}"
+      - name: "Ansible vault password"
+        type: "login_password"
+        login_password:
+          login: ""
+          password: "{{ semaphoreui_setup_ansible_vault_password }}"
       # - name: "sample ssh"
       #   type: "ssh"
       #   ssh:
