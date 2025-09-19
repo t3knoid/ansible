@@ -81,32 +81,12 @@
   set_fact:
     semaphoreui_setup_project_ids: "{{ dict(semaphore_setup_existing_projects.json | map(attribute='name') | list | zip(semaphore_setup_existing_projects.json | map(attribute='id') | list)) }}"
 
-- name: Loop through projects and their key stores
-  include_tasks: setup_keystores.yml
+- name: Loop through all projects
+  include_tasks: setup_project.yml
   vars:
-    current_project_id: "{{ current_project_info.value }}"
-    current_project_name: "{{ current_project_info.key }}"
+    project_id: "{{ project_info.value }}"
+    project_name: "{{ project_info.key }}"
   loop: "{{ semaphoreui_setup_project_ids | dict2items }}"
   loop_control:
-    label: "{{ current_project_info.key }}"
-    loop_var: current_project_info
-
-- name: Loop through projects and their repositories
-  include_tasks: setup_repositories.yml
-  vars:
-    current_project_id: "{{ current_project_info.value }}"
-    current_project_name: "{{ current_project_info.key }}"
-  loop: "{{ semaphoreui_setup_project_ids | dict2items }}"
-  loop_control:
-    label: "{{ current_project_info.key }}"
-    loop_var: current_project_info
-
-- name: Loop through projects and their inventories
-  include_tasks: setup_inventories.yml
-  vars:
-    current_project_id: "{{ current_project_info.value }}"
-    current_project_name: "{{ current_project_info.key }}"
-  loop: "{{ semaphoreui_setup_project_ids | dict2items }}"
-  loop_control:
-    label: "{{ current_project_info.key }}"
-    loop_var: current_project_info
+    label: "{{ project_info.key }}"
+    loop_var: project_info
