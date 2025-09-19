@@ -28,10 +28,58 @@ semaphoreui_setup_projects:
       - name: "None"
         type: "none"
         empty: true
-        
-
-
-
+    inventories:
+      - name: "ansible"
+        type: file
+        credentials: "Semaphore user credentials"
+        sudo_credentials:
+        inventory: "inventory/ansible/inventory.ini"
+      - name: "services"
+        type: file
+        credentials: "Semaphore user credentials"
+        sudo_credentials:
+        inventory: "inventory/services/inventory.ini"
+      - name: "plex"
+        type: file
+        credentials: "Semaphore user credentials"
+        sudo_credentials:
+        inventory: "inventory/plex/inventory.ini"
+      - name: "minecraft"
+        type: file
+        credentials: "Semaphore user credentials"
+        sudo_credentials:
+        inventory: "inventory/minecraft/inventory.ini"
+      - name: "ombi"
+        type: file
+        credentials: "Semaphore user credentials"
+        sudo_credentials:
+        inventory: "inventory/ombi/inventory.ini"
+      - name: "postgresql"
+        type: file
+        credentials: "Semaphore user credentials"
+        sudo_credentials:
+        inventory: "inventory/pg/inventory.ini"
+      - name: "rproxy"
+        type: file
+        credentials: "Semaphore user credentials"
+        sudo_credentials:
+        inventory: "inventory/rproxy/inventory.ini"
+      - name: "truenas"
+        type: file
+        credentials: "Semaphore user credentials"
+        sudo_credentials:
+        inventory: "inventory/truenas/inventory.ini"
+      - name: "redmine"
+        type: file
+        credentials: "Semaphore user credentials"
+        sudo_credentials:
+        inventory: "inventory/redmine/inventory.ini"
+      - name: "dns"
+        type: file
+        credentials: "Semaphore user credentials"
+        sudo_credentials:
+        inventory: "inventory/dns/inventory.ini"
+  
   # users:
   #     - name: Guest User
   #       username: guest
