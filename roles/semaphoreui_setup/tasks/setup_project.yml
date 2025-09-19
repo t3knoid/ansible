@@ -34,3 +34,12 @@
     current_project_name: "{{ project_info.key }}"
     current_project_data: "{{ project_data }}"
   when: project_data.inventories is defined and (project_data.inventories | default([])  | length > 0)
+
+- name: Add project views
+  include_tasks: setup_views.yml
+  vars:
+    current_project_id: "{{ project_info.value }}"
+    current_project_name: "{{ project_info.key }}"
+    current_project_data: "{{ project_data }}"
+  when: project_data.views is defined and (project_data.views | default([])  | length > 0)
+  
