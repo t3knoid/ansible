@@ -6,7 +6,7 @@
       {{
         semaphoreui_setup_projects |
         map('dict2items') |
-        map('rejectattr', 'key', 'in', ['repositories', 'users', 'keystores', 'tasks', 'views']) |
+        map('rejectattr', 'key', 'in', ['inventories','repositories', 'users', 'keystores', 'tasks', 'views']) |
         map('items2dict') |
         list
       }}
@@ -101,3 +101,12 @@
     label: "{{ current_project_info.key }}"
     loop_var: current_project_info
 
+- name: Loop through projects and their inventories
+  include_tasks: setup_inventories.yml
+  vars:
+    current_project_id: "{{ current_project_info.value }}"
+    current_project_name: "{{ current_project_info.key }}"
+  loop: "{{ semaphoreui_setup_project_ids | dict2items }}"
+  loop_control:
+    label: "{{ current_project_info.key }}"
+    loop_var: current_project_info
