@@ -17,7 +17,7 @@
     timeout: 5
   register: existing_keystores_response
 
-- name: Normalize inventories in project {{ current_project_name }} if not already present
+- name: Loop through inventories in project {{ current_project_name }}
   ansible.builtin.include_tasks: setup_inventory.yml
   vars:
     current_project_keystores: "{{ existing_keystores_response.json }}"
