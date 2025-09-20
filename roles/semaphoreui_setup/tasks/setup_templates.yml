@@ -1,0 +1,24 @@
+---
+
+# This should not be called directly, only via setup_projects.yml
+
+- name: Parse existing task templates names
+  ansible.builtin.set_fact:
+    retrieved_template_names: >-
+      {{
+        retrieved_templates| map(attribute='name') | list
+      }}
+   
+- name: Loop through templates in project {{ current_project_name }}
+  ansible.builtin.include_tasks: setup_template.yml
+  loop: "{{ project_data_to_add.templates }}"
+  loop_control:
+    label: "{{ template_to_add.name }}"
+    loop_var: template_to_add
+  vars:
+    selected_project_id: "{{ project_id }}"
+    existing_keys: "{{ retrieved_keys }}"
+    existing_inventories: "{{ retrieved_inventories }}"
+    existing_repos: "{{ retrieved_repos }}"
+    existing_templates: "{{ retrieved_templates }}"
+    project_template_to_add: "{{ template_to_add }}"
