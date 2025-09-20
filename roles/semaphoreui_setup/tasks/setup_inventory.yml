@@ -7,6 +7,10 @@
     keystore_id: "{{ project_keys | selectattr('name', 'equalto', project_inventory_to_add.credentials ) | map(attribute='id') | first }}"
   when: project_inventory_to_add.credentials is defined
 
+- name: Set project ID payload
+  set_fact:
+    keystore_id_payload: "{{ { 'ssh_key_id': (keystore_id  | int) } }}"
+
 - name: Extract inventory metadata and create new payload for api body
   set_fact:
     inventory_api_body_payload: >-
@@ -24,9 +28,9 @@
         project_inventories | map(attribute='name') | list
       }}
 
-- name: Create inventory {{ project_inventory_to_add.name }} in project {{ current_project_name }} if not already present
+- name: Create inventory {{ project_inventory_to_add.name }} if not already present
   ansible.builtin.uri:
-    url: "{{ semaphoreui_setup_api_base }}/project/{{ current_project_id }}/inventory"
+    url: "{{ inventory_api_url }}"
     method: POST
     headers:
       Content-Type: application/json
@@ -35,7 +39,9 @@
     body_format: json
     body: >-
       {{
-        inventory_api_body_payload | combine({ 'project_id': (current_project_id | int) }) | combine({ 'ssh_key_id': (keystore_id  | int) })
+        inventory_api_body_payload | 
+        combine(project_id_payload) | 
+        combine(keystore_id_payload)
       }}
     status_code: 201
   when: project_inventory_to_add.name not in existing_inventory_names
