@@ -4,43 +4,27 @@
 
 - name: Get the credentials id
   ansible.builtin.set_fact:
-    keystore_id: "{{ current_project_keystores | selectattr('name', 'equalto', current_project_inventory.credentials ) | map(attribute='id') | first }}"
-  when: current_project_inventory.credentials is defined
+    keystore_id: "{{ project_keys | selectattr('name', 'equalto', project_inventory_to_add.credentials ) | map(attribute='id') | first }}"
+  when: project_inventory_to_add.credentials is defined
 
 - name: Extract inventory metadata and create new payload for api body
   set_fact:
     inventory_api_body_payload: >-
       {{
-        current_project_inventory |
+        project_inventory_to_add |
         dict2items |
         rejectattr('key', 'in', ['credentials','sudo_credentials']) |
         items2dict 
       }}
 
-- name: Enumerate inventories
-  changed_when: false
-  check_mode: false
-  ansible.builtin.uri:
-    use_proxy: false
-    url: "{{ semaphoreui_setup_api_base }}/project/{{ current_project_id }}/inventory"
-    method: GET
-    headers:
-      Content-Type: application/json
-      Accept: application/json
-      Authorization: "Bearer {{ semaphoreui_setup_api_token }}"
-    status_code: 200
-    timeout: 5
-  register: existing_inventories_response
-
 - name: Parse existing inventories names
   ansible.builtin.set_fact:
     existing_inventory_names: >-
       {{
-        existing_inventories_response.json | map(attribute='name') | list
+        project_inventories | map(attribute='name') | list
       }}
-  when: existing_inventories_response.json is defined
 
-- name: Create inventory {{ current_project_inventory.name }} in project {{ current_project_name }} if not already present
+- name: Create inventory {{ project_inventory_to_add.name }} in project {{ current_project_name }} if not already present
   ansible.builtin.uri:
     url: "{{ semaphoreui_setup_api_base }}/project/{{ current_project_id }}/inventory"
     method: POST
@@ -54,4 +38,4 @@
         inventory_api_body_payload | combine({ 'project_id': (current_project_id | int) }) | combine({ 'ssh_key_id': (keystore_id  | int) })
       }}
     status_code: 201
-  when: current_project_inventory.name not in existing_inventory_names
+  when: project_inventory_to_add.name not in existing_inventory_names
