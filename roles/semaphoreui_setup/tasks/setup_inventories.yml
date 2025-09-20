@@ -1,28 +1,16 @@
 ---
 
-# This should not be called directly, only via setup_projects.yml
-
-- name: Enumerate key stores
-  changed_when: false
-  check_mode: false
-  ansible.builtin.uri:
-    use_proxy: false
-    url: "{{ semaphoreui_setup_api_base }}/project/{{ current_project_id }}/keys"
-    method: GET
-    headers:
-      Content-Type: application/json
-      Accept: application/json
-      Authorization: "Bearer {{ semaphoreui_setup_api_token }}"
-    status_code: 200
-    timeout: 5
-  register: existing_keystores_response
+# This should not be called directly, only via setup_project.yml
 
 - name: Loop through inventories in project {{ current_project_name }}
   ansible.builtin.include_tasks: setup_inventory.yml
   vars:
-    current_project_keystores: "{{ existing_keystores_response.json }}"
-    current_project_inventory: "{{ current_inventory }}"
-  loop: "{{ current_project_data.inventories }}"
+    current_project_id: "{{ project_id }}"
+    current_project_name: "{{ project_name }}"
+    project_keys: "{{ retrieved_keys }}"
+    project_inventories: "{{ retrieved_inventories }}"
+    project_inventory_to_add: "{{ inventory_to_add }}"
+  loop: "{{ project_data_to_add.inventories }}"
   loop_control:
-    label: "{{ current_inventory.name }}"
-    loop_var: current_inventory
+    label: "{{ inventory_to_add.name }}"
+    loop_var: inventory_to_add

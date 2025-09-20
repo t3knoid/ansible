@@ -1,37 +1,10 @@
 ---
 
-# This should not be called directly, only via setup_projects.yml
-
-- name: "Enumerate Keystores"
-  changed_when: false
-  check_mode: false
-  ansible.builtin.uri:
-    use_proxy: false
-    url: "{{ semaphoreui_setup_api_base }}/project/{{ current_project_id }}/keys"
-    method: GET
-    headers:
-      Content-Type: application/json
-      Accept: application/json
-      Authorization: "Bearer {{ semaphoreui_setup_api_token }}"
-    status_code: 200
-    timeout: 5
-  register: current_project_keystores
+# This should not be called directly, only via setup_project.yml
 
 - name: Get ID of the key named "None"
   ansible.builtin.set_fact:
-    none_key: "{{ current_project_keystores.json | selectattr('name', 'equalto', 'None') | map(attribute='id') | list | first }}"
-
-- name: Get existing repositories for project {{ current_project_name }}
-  ansible.builtin.uri:
-    url: "{{ semaphoreui_setup_api_base }}/project/{{ current_project_id }}/repositories"
-    method: GET
-    headers:
-      Content-Type: application/json
-      Accept: application/json
-      Authorization: "Bearer {{ semaphoreui_setup_api_token }}"
-    status_code: 200
-    timeout: 5
-  register: existing_repos_response
+    none_key: "{{ retrieved_keys | selectattr('name', 'equalto', 'None') | map(attribute='id') | list | first }}"
 
 - name: Initalize existing_repo_names
   ansible.builtin.set_fact:
@@ -41,9 +14,8 @@
   ansible.builtin.set_fact:
     existing_repo_names: >-
       {{
-        existing_repos_response.json | map(attribute='name') | list
+        retrieved_repos | map(attribute='name') | list
       }}
-  when: existing_repos_response.json is defined
 
 - name: Create repositories in project {{ current_project_name }} if not already present
   ansible.builtin.uri:
@@ -56,11 +28,11 @@
     body_format: json
     body: >-
       {{
-        current_repository | combine({ 'project_id': (current_project_id | int) }) | combine({ 'ssh_key_id': (none_key  | int) })
+        repository_to_add | combine({ 'project_id': (current_project_id | int) }) | combine({ 'ssh_key_id': (none_key  | int) })
       }}
     status_code: 201
-  when: current_repository.name not in existing_repo_names
-  loop: "{{ current_project_data.repositories }}"
+  when: repository_to_add.name not in existing_repo_names
+  loop: "{{ project_data_to_add.repositories }}"
   loop_control:
-    label: "{{ current_repository.name }}"
-    loop_var: current_repository
+    label: "{{ repository_to_add.name }}"
+    loop_var: repository_to_add
