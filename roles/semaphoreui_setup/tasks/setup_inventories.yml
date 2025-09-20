@@ -4,13 +4,13 @@
 
 - name: Loop through inventories in project {{ current_project_name }}
   ansible.builtin.include_tasks: setup_inventory.yml
-  vars:
-    current_project_id: "{{ project_id }}"
-    current_project_name: "{{ project_name }}"
-    project_keys: "{{ retrieved_keys }}"
-    project_inventories: "{{ retrieved_inventories }}"
-    project_inventory_to_add: "{{ inventory_to_add }}"
   loop: "{{ project_data_to_add.inventories }}"
   loop_control:
     label: "{{ inventory_to_add.name }}"
     loop_var: inventory_to_add
+  vars:
+    current_project_id: "{{ current_project_id }}"
+    current_project_name: "{{ current_project_name }}"
+    project_keys: "{{ retrieved_keys }}"
+    project_inventories: "{{ retrieved_inventories }}"
+    project_inventory_to_add: "{{ inventory_to_add }}"
