@@ -134,7 +134,7 @@
       current_project_id: "{{ project_id }}"
       current_project_name: "{{ project_name }}"
       project_data_to_add: "{{ project_data }}"
-      retrieved_views: "{{ retrieved_keys_response.json }}"
+      retrieved_views: "{{ retrieved_views_response.json }}"
   when: project_data.views is defined and (project_data.views | default([])  | length > 0)
 
 - name: Add project task templates

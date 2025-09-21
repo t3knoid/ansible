@@ -4,7 +4,7 @@
 
 - name: Get the credentials id
   ansible.builtin.set_fact:
-    keystore_id: "{{ project_keys | selectattr('name', 'equalto', project_inventory_to_add.credentials ) | map(attribute='id') | first }}"
+    keystore_id: "{{ (project_keys | selectattr('name', 'equalto', project_inventory_to_add.credentials )) | map(attribute='id') | first }}"
   when: project_inventory_to_add.credentials is defined
 
 - name: Set project ID payload

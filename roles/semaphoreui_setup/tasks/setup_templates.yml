@@ -21,4 +21,5 @@
     existing_inventories: "{{ retrieved_inventories }}"
     existing_repos: "{{ retrieved_repos }}"
     existing_templates: "{{ retrieved_templates }}"
+    existing_environments: "{{ retrieved_environments }}"
     project_template_to_add: "{{ template_to_add }}"

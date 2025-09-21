@@ -22,7 +22,7 @@
       {{
         view_to_add | combine({ 'project_id': (current_project_id | int) })
       }}
-    status_code: 200
+    status_code: 201
   when: view_to_add.title not in existing_views_titles
   loop: "{{ project_data_to_add.views }}"
   loop_control:
