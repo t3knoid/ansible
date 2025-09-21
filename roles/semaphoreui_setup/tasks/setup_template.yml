@@ -6,11 +6,18 @@
   ansible.builtin.set_fact:
     vaults: []
 
+# vault_key_id: finds the first item in existing_keys where name == credential_name, extracts its id, and converts it to an integer.
+# name: assigns the current credential_name to the vault entry.
+# type: extracts the type of the matching credential. If it's 'login_password', it sets the vault type to 'password'. Otherwise, it uses the original type value.
 - name: Create a vault object for each credential assigned to the task template
   ansible.builtin.set_fact:
     vaults: "{{ vaults + [ {
       'vault_key_id': (existing_keys | selectattr('name', 'equalto', credential_name ) | map(attribute='id') | first | int),
-      'name': credential_name
+      'name': credential_name,
+      'type': (
+        ((existing_keys | selectattr('name', 'equalto', credential_name ) | map(attribute='type') | first | string) == 'login_password')
+        | ternary('password', (existing_keys | selectattr('name', 'equalto', credential_name ) | map(attribute='type') | first | string))
+      )
     } ] }}"
   loop: "{{ project_template_to_add.credentials }}"
   loop_control:
@@ -28,13 +35,18 @@
     inventory_id: "{{ existing_inventories | selectattr('name', 'equalto', project_template_to_add.inventory ) | map(attribute='id') | first }}"
   when: project_template_to_add.inventory is defined and (project_template_to_add.inventory | default([])  | length > 0)
 
+- name: Get the environment id
+  ansible.builtin.set_fact:
+    environment_id: "{{ existing_environments | selectattr('name', 'equalto', project_template_to_add.environment ) | map(attribute='id') | first }}"
+  when: project_template_to_add.environment is defined and (project_template_to_add.environment | default([])  | length > 0)
+
 - name: Extract task template metadata and create new payload for api body
   set_fact:
     template_api_body_payload: >-
       {{
         project_template_to_add |
         dict2items |
-        rejectattr('key', 'in', ['credentials','sudo_credentials','inventory','view','repository']) |
+        rejectattr('key', 'in', ['credentials','sudo_credentials','inventory','view','repository','environment']) |
         items2dict 
       }}
 
@@ -60,6 +72,7 @@
         | combine({ 'project_id': selected_project_id | int })
         | combine({ 'inventory_id': inventory_id | int })
         | combine({ 'repository_id': repository_id | int })
+        | combine({ 'environment_id': environment_id | int })
         | combine({ 'vaults': vaults })
       }}
     status_code: 201
