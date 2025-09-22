@@ -35,8 +35,6 @@ disks_disk_mounts:
 pihole_cname_entries:
   - domain: code.refol.us
     target: rproxy-0.refol.us
-  - domain: semaphore.refol.us
-    target: rproxy-0.refol.us
 
 rproxy_setup_sites:
   - server_name: code.refol.us
@@ -48,12 +46,4 @@ rproxy_setup_sites:
       - 24.105.250.200
       - 70.107.117.124
     restricted: false
-  - server_name: semaphore.refol.us
-    port: 3000
-    proxy_pass: "http://{{ global_ip_addresses['ansible-1'] }}"
-    allow_list:
-      - 192.168.0.0/24
-      - 192.168.2.0/24
-      - 24.105.250.200
-      - 70.107.117.124
-    restricted: false
+
