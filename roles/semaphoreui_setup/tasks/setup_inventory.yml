@@ -1,0 +1,47 @@
+---
+
+# This should not be called directly, only via setup_inventories.yml
+
+- name: Get the credentials id
+  ansible.builtin.set_fact:
+    keystore_id: "{{ (project_keys | selectattr('name', 'equalto', project_inventory_to_add.credentials) ) | map(attribute='id') | first }}"
+  when: project_inventory_to_add.credentials is defined and (project_inventory_to_add.credentials | default([]) | length > 0)
+
+- name: Set project ID payload
+  set_fact:
+    keystore_id_payload: "{{ { 'ssh_key_id': (keystore_id  | int) } }}"
+
+- name: Extract inventory metadata and create new payload for api body
+  set_fact:
+    inventory_api_body_payload: >-
+      {{
+        project_inventory_to_add |
+        dict2items |
+        rejectattr('key', 'in', ['credentials','sudo_credentials']) |
+        items2dict 
+      }}
+
+- name: Parse existing inventories names
+  ansible.builtin.set_fact:
+    existing_inventory_names: >-
+      {{
+        project_inventories | map(attribute='name') | list
+      }}
+
+- name: Create inventory {{ project_inventory_to_add.name }} if not already present
+  ansible.builtin.uri:
+    url: "{{ inventory_api_url }}"
+    method: POST
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+      Authorization: "Bearer {{ semaphoreui_setup_api_token }}"
+    body_format: json
+    body: >-
+      {{
+        inventory_api_body_payload | 
+        combine(project_id_payload) | 
+        combine(keystore_id_payload)
+      }}
+    status_code: 201
+  when: project_inventory_to_add.name not in existing_inventory_names
