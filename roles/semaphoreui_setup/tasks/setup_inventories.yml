@@ -1,0 +1,16 @@
+---
+
+# This should not be called directly, only via setup_project.yml
+
+- name: Loop through inventories in project {{ current_project_name }}
+  ansible.builtin.include_tasks: setup_inventory.yml
+  loop: "{{ project_data_to_add.inventories }}"
+  loop_control:
+    label: "{{ inventory_to_add.name }}"
+    loop_var: inventory_to_add
+  vars:
+    project_id_payload: "{{ { 'project_id': current_project_id | int } }}"
+    project_keys: "{{ retrieved_keys }}"
+    project_inventories: "{{ retrieved_inventories }}"
+    project_inventory_to_add: "{{ inventory_to_add }}"
+    inventory_api_url: "{{ semaphoreui_setup_api_base }}/project/{{ current_project_id }}/inventory"
