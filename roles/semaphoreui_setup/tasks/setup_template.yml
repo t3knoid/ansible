@@ -27,17 +27,22 @@
 
 - name: Get the repository id
   ansible.builtin.set_fact:
-    repository_id: "{{ existing_repos | selectattr('name', 'equalto', project_template_to_add.repository ) | map(attribute='id') | first }}"
+    repository_id: "{{ (existing_repos | selectattr('name', 'equalto', project_template_to_add.repository) ) | map(attribute='id') | first }}"
   when: project_template_to_add.repository is defined and (project_template_to_add.repository | default([])  | length > 0)
 
 - name: Get the inventory id
   ansible.builtin.set_fact:
-    inventory_id: "{{ existing_inventories | selectattr('name', 'equalto', project_template_to_add.inventory ) | map(attribute='id') | first }}"
+    inventory_id: "{{ (existing_inventories | selectattr('name', 'equalto', project_template_to_add.inventory) ) | map(attribute='id') | first }}"
   when: project_template_to_add.inventory is defined and (project_template_to_add.inventory | default([])  | length > 0)
+
+- name: Get the view id
+  ansible.builtin.set_fact:
+    view_id: "{{ (existing_views | selectattr('title', 'equalto', project_template_to_add.view) ) | map(attribute='id') | first }}"
+  when: project_template_to_add.view is defined and (project_template_to_add.view | default([])  | length > 0)
 
 - name: Get the environment id
   ansible.builtin.set_fact:
-    environment_id: "{{ existing_environments | selectattr('name', 'equalto', project_template_to_add.environment ) | map(attribute='id') | first }}"
+    environment_id: "{{ (existing_environments | selectattr('name', 'equalto', project_template_to_add.environment) ) | map(attribute='id') | first }}"
   when: project_template_to_add.environment is defined and (project_template_to_add.environment | default([])  | length > 0)
 
 - name: Extract task template metadata and create new payload for api body
@@ -73,6 +78,7 @@
         | combine({ 'inventory_id': inventory_id | int })
         | combine({ 'repository_id': repository_id | int })
         | combine({ 'environment_id': environment_id | int })
+        | combine({ 'view_id': view_id | int })
         | combine({ 'vaults': vaults })
       }}
     status_code: 201
