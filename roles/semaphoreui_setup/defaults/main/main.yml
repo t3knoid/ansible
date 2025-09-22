@@ -40,3 +40,6 @@ semaphoreui_setup_ldap_mappings:
 semaphoreui_setup_mount_point: /nfs/backups
 semaphoreui_setup_backup_filename: "semaphoreui_{{ ansible_date_time.date }}.sqlc"
 semaphoreui_setup_backup_path: "{{ semaphoreui_setup_mount_point }}/{{ semaphoreui_setup_backup_filename }}"
+
+# API
+semaphoreui_setup_api_base: "http://localhost:{{ semaphoreui_setup_port }}/api"

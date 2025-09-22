@@ -1,0 +1,38 @@
+---
+
+# This should not be called directly, only via setup_project.yml
+
+- name: Get ID of the key named "None"
+  ansible.builtin.set_fact:
+    none_key: "{{ retrieved_keys | selectattr('name', 'equalto', 'None') | map(attribute='id') | list | first }}"
+
+- name: Initalize existing_repo_names
+  ansible.builtin.set_fact:
+    existing_repo_names: []
+
+- name: Parse existing repository names
+  ansible.builtin.set_fact:
+    existing_repo_names: >-
+      {{
+        retrieved_repos | map(attribute='name') | list
+      }}
+
+- name: Create repositories in project {{ current_project_name }} if not already present
+  ansible.builtin.uri:
+    url: "{{ semaphoreui_setup_api_base }}/project/{{ current_project_id }}/repositories"
+    method: POST
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+      Authorization: "Bearer {{ semaphoreui_setup_api_token }}"
+    body_format: json
+    body: >-
+      {{
+        repository_to_add | combine({ 'project_id': (current_project_id | int) }) | combine({ 'ssh_key_id': (none_key  | int) })
+      }}
+    status_code: 201
+  when: repository_to_add.name not in existing_repo_names
+  loop: "{{ project_data_to_add.repositories }}"
+  loop_control:
+    label: "{{ repository_to_add.name }}"
+    loop_var: repository_to_add

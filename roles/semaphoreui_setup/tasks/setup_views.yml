@@ -1,0 +1,30 @@
+---
+
+# This should not be called directly, only via setup_project.yml
+
+- name: Parse existing view names
+  ansible.builtin.set_fact:
+    existing_views_titles: >-
+      {{
+        retrieved_views | map(attribute='title') | list
+      }}
+
+- name: Create views in project {{ current_project_name }} if not already present
+  ansible.builtin.uri:
+    url: "{{ semaphoreui_setup_api_base }}/project/{{ current_project_id }}/views"
+    method: POST
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+      Authorization: "Bearer {{ semaphoreui_setup_api_token }}"
+    body_format: json
+    body: >-
+      {{
+        view_to_add | combine({ 'project_id': (current_project_id | int) })
+      }}
+    status_code: 201
+  when: view_to_add.title not in existing_views_titles
+  loop: "{{ project_data_to_add.views }}"
+  loop_control:
+    label: "{{ view_to_add.title }}"
+    loop_var: view_to_add
