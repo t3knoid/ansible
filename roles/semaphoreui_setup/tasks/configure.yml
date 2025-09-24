@@ -26,7 +26,7 @@
 
 - name: Create vault password file
   ansible.builtin.copy:
-    content: "{{ ansible_setup_vault_password }}"
+    content: "{{ semaphoreui_setup_vault_password }}"
     dest: "{{ semaphoreui_setup_tmpdir }}/.vault_pass.txt"
     owner: semaphore
     group: semaphore
