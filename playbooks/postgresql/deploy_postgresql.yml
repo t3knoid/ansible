@@ -6,6 +6,5 @@
   gather_facts: true
   roles:
     - global
+    - autofs
     - postgresql_setup
-
-
