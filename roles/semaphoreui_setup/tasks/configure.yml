@@ -39,7 +39,7 @@
     owner: semaphore
     group: semaphore
     mode: u=rw,g=rw,o=r
-  notify: 
+  notify:
     - Restart Semaphore Runner
     - Restart Semaphore
 
