@@ -89,9 +89,15 @@ semaphoreui_setup_projects:
         credentials: "Semaphore user credentials"
         sudo_credentials:
         inventory: "inventory/dns/inventory.ini"
+      - name: "semaphore"
+        type: file
+        credentials: "Semaphore user credentials"
+        sudo_credentials:
+        inventory: "inventory/semaphore/inventory.ini"
     views:
       - title: "Linux Checks"
       - title: "Security Updates"
+      - title: "Backups"
     templates:
       - name: "Check connection to Redmine"
         playbook: "playbooks/linux/check_connection.yml"
@@ -168,6 +174,16 @@ semaphoreui_setup_projects:
         app: "ansible"
         arguments: "[\"-k\"]"
         inventory: "rproxy"
+        credentials:
+          - "Ansible vault password"
+        repository: "Ansible"
+        view: "Linux Checks"
+        environment: "Empty"
+      - name: "Check connection to Semaphore"
+        playbook: "playbooks/linux/check_connection.yml"
+        app: "ansible"
+        arguments: "[\"-k\"]"
+        inventory: "semaphore"
         credentials:
           - "Ansible vault password"
         repository: "Ansible"
@@ -258,6 +274,16 @@ semaphoreui_setup_projects:
         app: "ansible"
         arguments: "[\"-k\"]"
         inventory: "ansible"
+        credentials:
+          - "Ansible vault password"
+        repository: "Ansible"
+        view: "Security Updates"
+        environment: "Empty"
+      - name: "Deploy security updates to Semaphore"
+        playbook: "playbooks/linux/deploy_updates.yml"
+        app: "ansible"
+        arguments: "[\"-k\"]"
+        inventory: "semaphore"
         credentials:
           - "Ansible vault password"
         repository: "Ansible"
