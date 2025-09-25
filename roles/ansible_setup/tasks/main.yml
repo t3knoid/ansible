@@ -25,6 +25,13 @@
   become: false
   when: ansible_setup_git_repository_checkout
 
+- name: Create ansible work folder
+  ansible.builtin.file:
+    path: "{{ ansible_setup_workdir }}"
+    state: directory
+  become: false
+  when: not ansible_setup_git_repository_checkout
+
 - name: Initialize ansible.cfg
   ansible.builtin.template:
     src: ansible.cfg.j2
