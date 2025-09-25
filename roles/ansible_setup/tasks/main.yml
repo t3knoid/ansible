@@ -1,13 +1,5 @@
 ---
 
-- name: Install Python modules
-  ansible.builtin.pip:
-    name: "{{ item }}"
-    virtualenv: "/opt/python_{{ python3_version }}"
-    state: present
-    umask: "0022"
-  loop: "{{ ansible_setup_python_modules }}"
-
 - name: Set Git remote origin
   community.general.git_config:
     name: remote.origin.url

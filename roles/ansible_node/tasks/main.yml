@@ -1,5 +1,13 @@
 ---
 
+- name: Install Python modules
+  ansible.builtin.pip:
+    name: "{{ item }}"
+    virtualenv: "/opt/python_{{ python3_version }}"
+    state: present
+    umask: "0022"
+  loop: "{{ ansible_node_python_modules }}"
+
 - name: Ensure ansible group exists
   ansible.builtin.group:
     name: ansible
