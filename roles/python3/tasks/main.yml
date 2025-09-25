@@ -28,5 +28,11 @@
     state: present
   loop: "{{ python3_packages_to_install }}"
 
+- name: Install Python packaging module
+  ansible.builtin.pip:
+    name: "packaging==25"
+    state: present
+    umask: "0022"
+
 - name: Include venv.yml tasks
   ansible.builtin.include_tasks: venv.yml
