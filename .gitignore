@@ -3,4 +3,3 @@
 tmp
 **/*.pyc
 .ansible/.lock
-ansible.cfg
