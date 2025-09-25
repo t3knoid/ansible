@@ -1,0 +1,3 @@
+---
+
+ansible_setup_git_repository_checkout: false
