@@ -33,12 +33,12 @@
 - name: Configure Terraform configuration file
   ansible.builtin.template:
     src: main.tf.j2
-    dest: "{{ ansible_setup_home }}/main.tf"
+    dest: "{{ ansible_setup_workdir }}/main.tf"
     mode: '0644'
 
 - name: Initialize Terraform
   ansible.builtin.command: terraform init
   args:
-    chdir: "{{ ansible_setup_home }}"
+    chdir: "{{ ansible_setup_workdir }}"
   register: terraform_init
   changed_when: terraform_init.rc != 0
