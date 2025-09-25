@@ -289,3 +289,13 @@ semaphoreui_setup_projects:
         repository: "Ansible"
         view: "Security Updates"
         environment: "Empty"
+      - name: "Backup Semaphore Database"
+        playbook: "playbooks/semaphoreui/backup_db.yml"
+        app: "ansible"
+        arguments: "[\"-k\"]"
+        inventory: "semaphore"
+        credentials:
+          - "Ansible vault password"
+        repository: "Ansible"
+        view: "Backups"
+        environment: "Empty"
