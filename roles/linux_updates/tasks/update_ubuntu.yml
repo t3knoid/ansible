@@ -24,6 +24,8 @@
   when: linux_updates_reboot_required.stat.exists
 
 - name: Reboot the server if required
-  ansible.builtin.reboot:
-    connect_timeout: 60
+  ansible.builtin.shell: "systemctl --message='Reboot required after security updates performed by Ansible' --when='+5 seconds' reboot"
+  async: 0
+  poll: 0
+  ignore_errors: true # Optional: to prevent playbook from failing if the connection drops immediately
   when: linux_updates_reboot_required.stat.exists
