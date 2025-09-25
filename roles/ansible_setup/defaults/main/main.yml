@@ -14,4 +14,5 @@ ansible_setup_python_modules:
   - jmespath==1.0.1
   - passlib==1.7.4
 
+ansible_setup_git_repository_checkout: true
 ansible_setup_git_repository: https://github.com/t3knoid/ansible.git
