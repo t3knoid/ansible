@@ -16,7 +16,7 @@
 ;force_color=False
 
 # (path) The default root path for Ansible config files on the controller.
-home=./ansible.cfg
+ansible_home=./
 
 # (boolean) This setting allows suppressing colorizing output, which is used to give a better indication of failure and status information.
 ;nocolor=False
@@ -139,7 +139,7 @@ filter_plugins=./filter_plugins
 ;hash_behaviour=replace
 
 # (pathlist) Comma-separated list of Ansible inventory sources
-;inventory=/etc/ansible/hosts
+inventory=['inventory']
 
 # (pathspec) Colon-separated paths in which Ansible will search for HttpApi Plugins.
 ;httpapi_plugins=/home/frank@refol.us/.ansible/plugins/httpapi:/usr/share/ansible/plugins/httpapi
@@ -227,7 +227,7 @@ local_tmp=~/.ansible/tmp/
 ;remote_user=
 
 # (pathspec) Colon-separated paths in which Ansible will search for Roles.
-roles_path={{ ansible_setup_workdir }}/roles
+roles_path=roles
 
 # (string) Set the main callback used to display Ansible output. You can only have one at a time.
 # You can have many other callbacks, but just one can be in charge of stdout.
