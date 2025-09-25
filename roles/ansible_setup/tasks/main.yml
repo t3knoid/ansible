@@ -8,10 +8,18 @@
     umask: "0022"
   loop: "{{ ansible_setup_python_modules }}"
 
+- name: Set Git remote origin
+  community.general.git_config:
+    name: remote.origin.url
+    scope: global
+    value: "{{ ansible_setup_git_repository }}"
+    repo: "{{ ansible_setup_workdir }}"
+
 - name: Checkout ansible source repository
   ansible.builtin.git:
     repo: "{{ ansible_setup_git_repository }}"
     dest: "{{ ansible_setup_workdir }}"
+    update: true
   become: false
 
 - name: Initialize ansible.cfg
