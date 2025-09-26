@@ -69,14 +69,16 @@
     method: md5
   notify: Restart PostgreSQL
 
-- name: Create .pgpass file in postgres home directory
-  ansible.builtin.copy:
+- name: Ensure .pgpass entry exists without duplication
+  ansible.builtin.lineinfile:
     dest: ~/.pgpass
-    content: "{{ semaphoreui_setup_pg_host }}:5432:{{ semaphoreui_setup_db_name }}:{{ semaphoreui_setup_db_user }}:{{ semaphoreui_setup_db_password }}"
+    line: "{{ semaphoreui_setup_pg_host }}:5432:{{ semaphoreui_setup_db_name }}:{{ semaphoreui_setup_db_user }}:{{ semaphoreui_setup_db_password }}"
+    create: yes
     owner: postgres
     group: postgres
     mode: '0600'
-  delegate_to: "{{ semaphoreui_setup_pg_host }}"
+    state: present
+    insertafter: EOF
   become: true
   become_user: postgres
   notify: Restart PostgreSQL
