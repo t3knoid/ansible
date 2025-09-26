@@ -94,6 +94,11 @@ semaphoreui_setup_projects:
         credentials: "Semaphore user credentials"
         sudo_credentials:
         inventory: "inventory/semaphore/inventory.ini"
+      - name: "tautulli"
+        type: file
+        credentials: "Semaphore user credentials"
+        sudo_credentials:
+        inventory: "inventory/tautulli/inventory.ini"
     views:
       - title: "Linux Checks"
       - title: "Security Updates"
