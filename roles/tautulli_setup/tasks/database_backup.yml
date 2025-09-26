@@ -50,3 +50,27 @@
   loop: "{{ tautulli_backups.files }}"
   loop_control:
     label: "{{ item.path }}"
+
+- name: Keep only the latest 3 backups of *.ini
+  ansible.builtin.shell: |
+    ls -1t {{ tautulli_setup_backup_dir_final }}/config.backup-*.ini | grep -v 'sched' | tail -n +4 | xargs -r rm -f
+  args:
+    executable: /bin/bash
+
+- name: Keep only the latest 3 backups of *.sched.ini
+  ansible.builtin.shell: |
+    ls -1t {{ tautulli_setup_backup_dir_final }}/config.backup-*.sched.ini | tail -n +4 | xargs -r rm -f
+  args:
+    executable: /bin/bash
+
+- name: Keep only the latest 3 backups of *.db
+  ansible.builtin.shell: |
+    ls -1t {{ tautulli_setup_backup_dir_final }}/tautulli.backup-*.db | grep -v 'sched' | tail -n +4 | xargs -r rm -f
+  args:
+    executable: /bin/bash
+
+- name: Keep only the latest 3 backups of *.sched.db
+  ansible.builtin.shell: |
+    ls -1t {{ tautulli_setup_backup_dir_final }}/tautulli.backup-*.sched.db | tail -n +4 | xargs -r rm -f
+  args:
+    executable: /bin/bash
