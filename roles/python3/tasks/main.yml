@@ -32,7 +32,7 @@
 - name: Install Python packaging module
   ansible.builtin.shell: |
     umask 0022
-    if ! {{ python3_venv_folder }}/bin/python3 -c "import requests" &> /dev/null; then
+    if ! {{ python3_venv_folder }}/bin/python3 -c "import packaging" &> /dev/null; then
       {{ python3_venv_folder }}/bin/python3 -m pip install packaging==25
     else
       echo "packaging module already installed."
