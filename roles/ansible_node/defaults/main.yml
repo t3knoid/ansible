@@ -7,7 +7,7 @@ ansible_node_python_modules:
   - proxmoxer==2.2.0
   - jmespath==1.0.1
   - passlib==1.7.4
-  - psycopg2==2.9.10
+  - psycopg2-binary==2.9.10
 
 ansible_node_custom_sudo_users:
   - semaphore
