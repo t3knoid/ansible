@@ -71,14 +71,16 @@
   delegate_to: "{{ lidarr_setup_pg_host }}"
   notify: Restart PostgreSQL
 
-- name: Create .pgpass file in postgres home directory
-  ansible.builtin.copy:
-    dest: ~/.pgpass
-    content: "{{ lidarr_setup_pg_host }}:5432:{{ lidarr_setup_db_name }}:{{ lidarr_setup_db_user }}:{{ lidarr_setup_db_password }}"
+- name: Ensure .pgpass entry exists without duplication
+  ansible.builtin.lineinfile:
+    path: ~/.pgpass
+    line: "{{ lidarr_setup_pg_host }}:5432:{{ lidarr_setup_db_name }}:{{ lidarr_setup_db_user }}:{{ lidarr_setup_db_password }}"
+    create: yes
     owner: postgres
     group: postgres
     mode: '0600'
-  delegate_to: "{{ lidarr_setup_pg_host }}"
+    state: present
+    insertafter: EOF
   become: true
   become_user: postgres
   notify: Restart PostgreSQL
