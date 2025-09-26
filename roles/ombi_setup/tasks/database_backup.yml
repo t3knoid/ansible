@@ -4,7 +4,7 @@
   ansible.builtin.shell: |
     set -euo pipefail
     pg_dump -U {{ ombi_setup_db_user }} -h {{ ombi_setup_pg_host }} -Fc \
-      --file={{ sonarr_setup_backup_path }} {{ sonarr_setup_db_name }}
+      --file={{ ombi_setup_backup_path }} {{ ombi_setup_db_name }}
   args:
     executable: /bin/bash
   become_user: postgres
