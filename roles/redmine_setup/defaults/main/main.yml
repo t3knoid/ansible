@@ -20,5 +20,6 @@ redmine_setup_smtp_settings_port: 25
 # redmine_setup_db_password
 
 redmine_setup_mount_point: /nfs/backups
-redmine_setup_backup_filename: "redmine_{{ ansible_date_time.date }}.sqlc"
+redmine_setup_backup_prefix: "redmine_"
+redmine_setup_backup_filename: "{{ redmine_setup_backup_prefix }}{{ ansible_date_time.date }}.sqlc"
 redmine_setup_backup_path: "{{ redmine_setup_mount_point }}/{{ redmine_setup_backup_filename }}"
