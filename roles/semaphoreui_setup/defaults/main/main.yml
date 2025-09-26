@@ -38,7 +38,8 @@ semaphoreui_setup_ldap_mappings:
 # semaphoreui_setup_db_user: in vault
 # semaphoreui_setup_db_password: in vault
 semaphoreui_setup_mount_point: /nfs/backups
-semaphoreui_setup_backup_filename: "semaphoreui_{{ ansible_date_time.date }}.sqlc"
+semaphoreui_setup_backup_prefix: "semaphoreui_"
+semaphoreui_setup_backup_filename: "{{ semaphoreui_setup_backup_prefix }}{{ ansible_date_time.date }}.sqlc"
 semaphoreui_setup_backup_path: "{{ semaphoreui_setup_mount_point }}/{{ semaphoreui_setup_backup_filename }}"
 
 # API
