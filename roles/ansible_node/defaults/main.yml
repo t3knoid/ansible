@@ -8,3 +8,6 @@ ansible_node_python_modules:
   - jmespath==1.0.1
   - passlib==1.7.4
   - psycopg2==2.9.10
+
+ansible_node_custom_sudo_users:
+  - semaphore
