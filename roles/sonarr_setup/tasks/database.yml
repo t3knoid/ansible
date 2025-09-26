@@ -63,13 +63,17 @@
     method: md5
   notify: Restart PostgreSQL
 
-- name: Create .pgpass file in postgres home directory
-  ansible.builtin.copy:
-    dest: ~/.pgpass
-    content: "{{ sonarr_setup_pg_host }}:5432:{{ sonarr_setup_db_name }}:{{ sonarr_setup_db_user }}:{{ sonarr_setup_db_password }}"
+- name: Ensure .pgpass entry exists without duplication
+  ansible.builtin.lineinfile:
+    path: ~/.pgpass
+    line: "{{ sonarr_setup_pg_host }}:5432:{{ sonarr_setup_db_name }}:{{ sonarr_setup_db_user }}:{{ sonarr_setup_db_password }}"
+    create: yes
     owner: postgres
     group: postgres
     mode: '0600'
+    state: present
+    insertafter: EOF
   become: true
   become_user: postgres
   notify: Restart PostgreSQL
+  
