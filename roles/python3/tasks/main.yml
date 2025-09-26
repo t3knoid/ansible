@@ -28,11 +28,18 @@
     state: present
   loop: "{{ python3_packages_to_install }}"
 
+# Cannot use ansible.builtin.pip here so using shell instead
 - name: Install Python packaging module
-  ansible.builtin.pip:
-    name: "packaging==25"
-    state: present
-    umask: "0022"
+  ansible.builtin.shell: |
+    umask 0022
+    if ! {{ python3_venv_folder }}/bin/python3 -c "import requests" &> /dev/null; then
+      {{ python3_venv_folder }}/bin/python3 -m pip install packaging==25
+    else
+      echo "packaging module already installed."
+    fi
+  register: pip_install_output
+  changed_when: "'Successfully installed packaging' in pip_install_output.stdout"
+  failed_when: pip_install_output.rc != 0 and 'packaging module already installed' not in pip_install_output.stdout
 
 - name: Include venv.yml tasks
   ansible.builtin.include_tasks: venv.yml
