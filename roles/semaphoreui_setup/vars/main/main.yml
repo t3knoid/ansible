@@ -299,3 +299,14 @@ semaphoreui_setup_projects:
         repository: "Ansible"
         view: "Backups"
         environment: "Empty"
+      - name: "Backup Ombi Database"
+        playbook: "playbooks/ombi/backup_db.yml"
+        app: "ansible"
+        arguments: "[\"-k\"]"
+        inventory: "ombi"
+        credentials:
+          - "Ansible vault password"
+        repository: "Ansible"
+        view: "Backups"
+        environment: "Empty"
+      
