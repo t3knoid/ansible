@@ -1,7 +1,5 @@
 ---
 
-# This should not be called directly, only via setup_templates.yml
-
 - name: Initialize vaults
   ansible.builtin.set_fact:
     vaults: []
@@ -18,7 +16,7 @@
         ((existing_keys | selectattr('name', 'equalto', credential_name ) | map(attribute='type') | first | string) == 'login_password')
         | ternary('password', (existing_keys | selectattr('name', 'equalto', credential_name ) | map(attribute='type') | first | string))
       )
-    } ] }}"
+      } ] }}"
   loop: "{{ project_template_to_add.credentials }}"
   loop_control:
     label: "{{ credential_name }}"

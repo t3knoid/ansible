@@ -32,7 +32,7 @@
     semaphore_existing_project_names: "{{ semaphore_setup_existing_projects.json | map(attribute='name') | list }}"
 
 # Create projects only if they do not already exist, skipping any that are present in semaphore_existing_project_names
-- name: Create projects
+- name: Create Semaphore Projects
   ansible.builtin.uri:
     url: "{{ semaphoreui_setup_api_base }}/projects"
     method: POST
