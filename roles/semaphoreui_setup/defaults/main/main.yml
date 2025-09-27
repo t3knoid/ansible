@@ -44,3 +44,4 @@ semaphoreui_setup_backup_path: "{{ semaphoreui_setup_mount_point }}/{{ semaphore
 
 # API
 semaphoreui_setup_api_base: "http://localhost:{{ semaphoreui_setup_port }}/api"
+semaphoreui_setup_inventories: []

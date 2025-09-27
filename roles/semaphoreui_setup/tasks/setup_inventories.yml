@@ -4,7 +4,7 @@
 
 - name: Loop through inventories in project {{ current_project_name }}
   ansible.builtin.include_tasks: setup_inventory.yml
-  loop: "{{ project_data_to_add.inventories }}"
+  loop: "{{ semaphoreui_setup_inventories }}"
   loop_control:
     label: "{{ inventory_to_add.name }}"
     loop_var: inventory_to_add
