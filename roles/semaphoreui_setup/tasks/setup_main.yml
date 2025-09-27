@@ -2,6 +2,31 @@
 
 # Set up Semaphore UI using its api
 # https://docs.semaphoreui.com/administration-guide/api/
+  
+# The inventory list is the same for all ansible projects. The
+# list is dynamically built by enumerating the list from
+# the Ansible controller file system using the find_inventory_files
+# filter plugin. The resulting list, semaphoreui_setup_inventories
+# is injected into each project.
+- name: Get inventory files
+  set_fact:
+    inventory_files: "{{ 'inventory/' | find_inventory_files }}"
+
+- name: Build structured inventory list
+  set_fact:
+    semaphoreui_setup_inventories: "{{ semaphoreui_setup_inventories | default([]) + [ {
+      'name': item | regex_replace('^.*/([^/]+)/inventory.ini$', '\\1'),
+      'type': 'file',
+      'credentials': 'Semaphore user credentials',
+      'sudo_credentials': '',
+      'inventory': item
+      } ] }}"
+  loop: "{{ inventory_files }}"
+  when: item is match('^.*/[^/]+/inventory.ini$')
+
+- name: Show semaphoreui_setup_inventories
+  debug:
+    var: semaphoreui_setup_inventories
 
 - name: Include setup_auth.yml tasks
   ansible.builtin.include_tasks: setup_auth.yml

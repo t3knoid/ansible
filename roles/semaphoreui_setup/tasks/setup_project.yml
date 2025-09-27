@@ -177,7 +177,7 @@
       retrieved_inventories: "{{ retrieved_inventories_response.json }}"
       retrieved_repos: "{{ retrieved_repos_response.json }}"
       retrieved_keys: "{{ retrieved_keys_response.json }}"
-  when: project_data.inventories is defined and (project_data.inventories | default([])  | length > 0)
+  when: semaphoreui_setup_inventories is defined and (semaphoreui_setup_inventories | default([])  | length > 0)
 
 - name: Update existing inventories
   changed_when: false

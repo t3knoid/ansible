@@ -38,67 +38,6 @@ semaphoreui_setup_projects:
       - name: "None"
         type: "none"
         empty: true
-    inventories:
-      - name: "ansible"
-        type: file
-        credentials: "Semaphore user credentials"
-        sudo_credentials:
-        inventory: "inventory/ansible/inventory.ini"
-      - name: "services"
-        type: file
-        credentials: "Semaphore user credentials"
-        sudo_credentials:
-        inventory: "inventory/services/inventory.ini"
-      - name: "plex"
-        type: file
-        credentials: "Semaphore user credentials"
-        sudo_credentials:
-        inventory: "inventory/plex/inventory.ini"
-      - name: "minecraft"
-        type: file
-        credentials: "Semaphore user credentials"
-        sudo_credentials:
-        inventory: "inventory/minecraft/inventory.ini"
-      - name: "ombi"
-        type: file
-        credentials: "Semaphore user credentials"
-        sudo_credentials:
-        inventory: "inventory/ombi/inventory.ini"
-      - name: "postgresql"
-        type: file
-        credentials: "Semaphore user credentials"
-        sudo_credentials:
-        inventory: "inventory/pg/inventory.ini"
-      - name: "rproxy"
-        type: file
-        credentials: "Semaphore user credentials"
-        sudo_credentials:
-        inventory: "inventory/rproxy/inventory.ini"
-      - name: "truenas"
-        type: file
-        credentials: "Semaphore user credentials"
-        sudo_credentials:
-        inventory: "inventory/truenas/inventory.ini"
-      - name: "redmine"
-        type: file
-        credentials: "Semaphore user credentials"
-        sudo_credentials:
-        inventory: "inventory/redmine/inventory.ini"
-      - name: "dns"
-        type: file
-        credentials: "Semaphore user credentials"
-        sudo_credentials:
-        inventory: "inventory/dns/inventory.ini"
-      - name: "semaphore"
-        type: file
-        credentials: "Semaphore user credentials"
-        sudo_credentials:
-        inventory: "inventory/semaphore/inventory.ini"
-      - name: "tautulli"
-        type: file
-        credentials: "Semaphore user credentials"
-        sudo_credentials:
-        inventory: "inventory/tautulli/inventory.ini"
     views:
       - title: "Linux Checks"
       - title: "Security Updates"
@@ -169,7 +108,7 @@ semaphoreui_setup_projects:
         playbook: "playbooks/linux/check_connection.yml"
         app: "ansible"
         arguments: "[\"-k\"]"
-        inventory: "postgresql"
+        inventory: "pg"
         credentials:
           - "Ansible vault password"
         repository: "Ansible"
@@ -229,7 +168,7 @@ semaphoreui_setup_projects:
         playbook: "playbooks/linux/deploy_updates.yml"
         app: "ansible"
         arguments: "[\"-k\"]"
-        inventory: "postgresql"
+        inventory: "pg"
         credentials:
           - "Ansible vault password"
         repository: "Ansible"
