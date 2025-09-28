@@ -417,7 +417,7 @@ semaphoreui_setup_projects:
         view: "Deploys"
         environment: "Empty"
       - name: "Deploy Plex"
-        playbook: "playbooks/services/deploy_plex.yml"
+        playbook: "playbooks/plex/deploy_plex.yml"
         app: "ansible"
         arguments: "[\"-k\"]"
         inventory: "plex"
