@@ -45,3 +45,62 @@ semaphoreui_setup_backup_path: "{{ semaphoreui_setup_mount_point }}/{{ semaphore
 # API
 semaphoreui_setup_api_base: "http://localhost:{{ semaphoreui_setup_port }}/api"
 semaphoreui_setup_inventories: []
+
+semaphoreui_setup_projects:
+  - name: "Home Lab"
+    alert_enabled: false
+    alert: false
+    alert_chat: ""
+    max_parallel_tasks: 0
+    repositories:
+      - name: "Ansible"
+        git_url: "https://github.com/t3knoid/ansible.git"
+        git_branch: "main"
+    keystores:
+      - name: "Semaphore user credentials"
+        type: "login_password"
+        login_password:
+          login: "{{ semaphoreui_setup_semaphore_login }}"
+          password: "{{ semaphoreui_setup_semaphore_password }}"
+      - name: "Ansible user credentials"
+        type: "login_password"
+        login_password:
+          login: "{{ semaphoreui_setup_ansible_login }}"
+          password: "{{ semaphoreui_setup_ansible_password }}"
+      - name: "Ansible vault password"
+        type: "login_password"
+        login_password:
+          login: ""
+          password: "{{ semaphoreui_setup_ansible_vault_password }}"
+      # - name: "sample ssh"
+      #   type: "ssh"
+      #   ssh:
+      #     login:
+      #     passphrase:
+      #     private_key:
+      - name: "None"
+        type: "none"
+        empty: true
+    views:
+      - title: "Certs"
+    templates:
+      - name: "Request Certificates for all hosts"
+        playbook: "playbooks/certs/generate_certs.yml"
+        app: "ansible"
+        arguments: "[\"-k\"]"
+        inventory: "rproxy"
+        credentials:
+          - "Ansible vault password"
+        repository: "Ansible"
+        view: "Certs"
+        environment: "Empty"
+      - name: "Stage Certificates for all hosts"
+        playbook: "playbooks/certs/stage_certs.yml"
+        app: "ansible"
+        arguments: "[\"-k\"]"
+        inventory: "rproxy"
+        credentials:
+          - "Ansible vault password"
+        repository: "Ansible"
+        view: "Certs"
+        environment: "Empty"
