@@ -36,6 +36,5 @@ global_ip_addresses:
   pxe-0: 192.168.2.254
   util-0: 192.168.0.56
 
-# noqa: var-naming[no-role-prefix]
 global_ip_address: "{{ global_ip_addresses[inventory_hostname] }}"
 global_pihole_api_host: "{{ global_ip_addresses['dns-0'] }}"
