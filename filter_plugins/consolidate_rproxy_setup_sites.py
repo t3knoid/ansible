@@ -1,6 +1,20 @@
 import os
 import yaml
 
+"""
+This script defines a custom Ansible filter plugin that consolidates values of the
+'rproxy_setup_sites' variable from multiple YAML files across an inventory directory.
+It scans 'group_vars' and 'host_vars' folders—including 'group_vars/all/main.yml'—
+to aggregate all entries under the specified variable into a single list. This enables
+centralized access to reverse proxy setup site definitions across distributed 
+configuration files.
+
+By default, it searches the 'inventory' folder from the ansible root work folder.
+
+usage: rproxy_setup_sites: "{{ '' | consolidate_rproxy_setup_sites }}" 
+
+"""
+
 def load_yaml_file(path):
     if not os.path.isfile(path):
         return {}
@@ -11,6 +25,13 @@ def load_yaml_file(path):
             return {}
 
 def consolidate_rproxy_setup_sites(base_dir="inventory", target_var="rproxy_setup_sites"):
+    if not base_dir:
+            base_dir = "inventory"
+
+    if not os.path.isdir(base_dir):
+        print(f"[WARNING] Inventory base directory '{base_dir}' not found or is not a directory.")
+        return []
+
     consolidated_sites = []
 
     def scan_inventory(inventory_path):
