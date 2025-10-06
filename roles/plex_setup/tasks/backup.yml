@@ -28,7 +28,7 @@
 
 - name: Find backups that are older than 7 days (keep a weeks worth of backups)
   ansible.builtin.find:
-    paths: "{{ backup_dir }}"
+    paths: "{{ plex_setup_backup_dir }}"
     patterns: "plex_backup_*.tar.gz"
     age: 7d
     recurse: false
