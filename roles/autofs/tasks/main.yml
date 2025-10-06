@@ -18,6 +18,7 @@
 - name: Append NFS mounts to auto.nfs
   ansible.builtin.blockinfile:
     path: /etc/auto.nfs
+    mode: '0644'
     create: true
     marker: "# {mark} ANSIBLE MANAGED BLOCK"
     block: |

@@ -1,0 +1,9 @@
+---
+- name: Backup Plex Media Server configuration
+  hosts: plex
+  become: true
+  tasks:
+    - name: Run Plex backup task
+      ansible.builtin.import_role:
+        name: plex_setup
+        tasks_from: backup
