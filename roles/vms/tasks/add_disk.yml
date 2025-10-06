@@ -6,7 +6,7 @@
 
 - name: Add second disk using linstor_storage
   no_log: true
-  community.general.proxmox_disk:
+  community.proxmox.proxmox_disk:
     api_host: "{{ global_proxmox_api_host }}"
     api_user: "{{ global_proxmox_api_user }}"
     api_token_id: "{{ global_proxmox_api_token_id }}"
@@ -24,7 +24,7 @@
 
 - name: Add second disk using local storage
   no_log: true
-  community.general.proxmox_disk:
+  community.proxmox.proxmox_disk:
     api_host: "{{ global_proxmox_api_host }}"
     api_user: "{{ global_proxmox_api_user }}"
     api_token_id: "{{ global_proxmox_api_token_id }}"

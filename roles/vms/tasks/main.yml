@@ -1,7 +1,7 @@
 ---
 
 - name: Create new ubuntu virtual machine
-  community.general.proxmox_kvm:
+  community.proxmox.proxmox_kvm:
     api_host: "{{ global_proxmox_api_host }}"
     api_user: "{{ global_proxmox_api_user }}"
     api_password: "{{ global_proxmox_api_password }}"
@@ -32,7 +32,7 @@
 
 # Assumes that the iso image is located in the local storage
 - name: Mount cd-rom installer image
-  community.general.proxmox_disk:
+  community.proxmox.proxmox_disk:
     api_host: "{{ global_proxmox_api_host }}"
     api_user: "{{ global_proxmox_api_user }}"
     api_token_id: "{{ global_proxmox_api_token_id }}"
@@ -54,7 +54,7 @@
   when: vms_enable_serial_terminal
 
 - name: Eject installer media
-  community.general.proxmox_disk:
+  community.proxmox.proxmox_disk:
     api_host: "{{ global_proxmox_api_host }}"
     api_user: "{{ global_proxmox_api_user }}"
     api_password: "{{ global_proxmox_api_password }}"

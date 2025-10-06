@@ -24,7 +24,7 @@
   when: item.vmid == (vms_vmid | int)
 
 - name: Migrate new image to target node
-  community.general.proxmox_kvm:
+  community.proxmox.proxmox_kvm:
     api_host: "{{ global_proxmox_api_host }}"
     api_user: "{{ global_proxmox_api_user }}"
     api_password: "{{ global_proxmox_api_password }}"
@@ -42,6 +42,8 @@
     state: directory
   become: true
   delegate_to: "{{ vms_proxmox_node }}"
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
 
 - name: Copy user cloud-init file
   template:
@@ -49,6 +51,8 @@
     dest: "/var/lib/vz/snippets/{{ inventory_hostname }}-user-data-ci.yml"
   become: true
   delegate_to: "{{ vms_proxmox_node }}"
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
 
 - name: Copy network cloud-init file
   template:
@@ -56,3 +60,5 @@
     dest: "/var/lib/vz/snippets/{{ inventory_hostname }}-network-data-ci.yml"
   become: true
   delegate_to: "{{ vms_proxmox_node }}"
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
