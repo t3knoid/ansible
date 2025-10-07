@@ -481,7 +481,7 @@ semaphoreui_setup_projects:
         view: "Update Checks"
         environment: "Empty"
       - name: "SemaphoreUI Update Check"
-        playbook: "playbooks/minecraft/check_semaphore_version.yml"
+        playbook: "playbooks/semaphoreui/check_semaphore_version.yml"
         app: "ansible"
         arguments: "[\"-k\"]"
         inventory: "semaphore"
