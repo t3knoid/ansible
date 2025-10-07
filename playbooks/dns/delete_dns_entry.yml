@@ -1,7 +1,7 @@
 ---
 
 - name: Update Pi-hole local DNS
-  hosts: all
+  hosts: vms, synology
   gather_facts: false
   roles:
     - global
