@@ -48,6 +48,7 @@ semaphoreui_setup_projects:
       - title: "Semaphore"
       - title: "Certs"
       - title: "Deploys"
+      - title: "Update Checks"
     templates:
       - name: "Check connection to Redmine"
         playbook: "playbooks/linux/check_connection.yml"
@@ -468,4 +469,14 @@ semaphoreui_setup_projects:
           - "Ansible vault password"
         repository: "Ansible"
         view: "Deploys"
+        environment: "Empty"
+      - name: "Bedrock Update Check"
+        playbook: "playbooks/minecraft/check_bedrock_version.yml"
+        app: "ansible"
+        arguments: "[\"-k\"]"
+        inventory: "minecraft"
+        credentials:
+          - "Ansible vault password"
+        repository: "Ansible"
+        view: "Update Checks"
         environment: "Empty"
