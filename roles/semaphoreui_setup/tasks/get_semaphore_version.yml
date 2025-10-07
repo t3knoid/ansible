@@ -1,0 +1,23 @@
+---
+- name: Get latest Semaphore release tag using GitHub API
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/semaphoreui/semaphore/releases/latest
+    return_content: true
+  register: semaphoreui_setup_release
+
+- name: Extract version number from tag_name
+  ansible.builtin.set_fact:
+    semaphoreui_setup_latest_version: "{{ semaphoreui_setup_release.json.tag_name | regex_replace('^[^0-9]+', '') }}"
+
+- name: Show currently installed Semaphore version
+  ansible.builtin.debug:
+    msg: "Latest installed SemaphoreUI version is {{ semaphoreui_setup_version }}"
+  
+- name: Show latest Semaphore version
+  ansible.builtin.debug:
+    msg: "Latest SemaphoreUI version is {{ semaphoreui_setup_latest_version }}"
+
+- name: Check if latest version is newer
+  debug:
+    msg: "Update available: {{ semaphoreui_setup_latest_version }} is newer than {{ semaphoreui_setup_version }}"
+  when: semaphoreui_setup_latest_version is version(semaphoreui_setup_version, '>')
