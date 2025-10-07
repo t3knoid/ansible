@@ -38,5 +38,5 @@
   ansible.builtin.file:
     path: "{{ item.path }}"
     state: absent
-  loop: "{{ plex_setup_old_backups.files | sort(attribute='mtime') | reverse | skip(7) }}"
+  loop: "{{ plex_setup_old_backups.files[-7:] | sort(attribute='mtime') }}"
   when: plex_setup_old_backups.matched > 7
