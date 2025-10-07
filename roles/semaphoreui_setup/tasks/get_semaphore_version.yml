@@ -12,7 +12,7 @@
 - name: Show currently installed Semaphore version
   ansible.builtin.debug:
     msg: "Latest installed SemaphoreUI version is {{ semaphoreui_setup_version }}"
-  
+
 - name: Show latest Semaphore version
   ansible.builtin.debug:
     msg: "Latest SemaphoreUI version is {{ semaphoreui_setup_latest_version }}"
