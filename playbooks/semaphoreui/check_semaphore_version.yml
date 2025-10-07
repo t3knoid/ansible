@@ -1,6 +1,6 @@
 ---
 
-- name: Enumerate latest version of Bedrock
+- name: Enumerate latest version of SemaphoreUI
   hosts: semaphore
 
   tasks:
