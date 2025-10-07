@@ -1,0 +1,22 @@
+---
+
+# Installed via Synology Package Manager from https://synocommunity.com/package/python312
+python3_version: 3.12
+python3_venv_folder: "/opt/python_{{ python3_version }}"
+
+nginx_setup_disable_default_site: true
+
+pihole_cname_entries:
+  - domain: synology.refol.us
+    target: rproxy-0.refol.us
+
+rproxy_setup_sites:
+  - server_name: synology.refol.us
+    port: 5000
+    proxy_pass: "http://{{ global_ip_addresses['synology-0'] }}"
+    allow_list:
+      - 192.168.0.0/24
+      - 192.168.2.0/24
+      - 24.105.250.200
+      - 70.107.117.124
+    restricted: false
