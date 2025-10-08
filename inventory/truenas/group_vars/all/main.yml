@@ -1,9 +1,5 @@
 ---
 
-pihole_cname_entries:
-  - domain: truenas.refol.us 
-    target: lb-0.refol.us
-
 nginx_setup_disable_default_site: true
 
 rproxy_setup_sites:
