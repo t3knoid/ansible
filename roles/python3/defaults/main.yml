@@ -13,3 +13,5 @@ python3_packages_to_install:
 python3_venv_folder: "/opt/python_{{ python3_version }}"
 python3_repo_key_url: "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xf23c5a6cf475977595c89f51ba6932366a755776"
 python3_repo_key_local: "/etc/apt/trusted.gpg.d/deadsnakes.asc"
+
+ansible_python_interpreter: "/usr/bin/python{{ python3_version }}"
