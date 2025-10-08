@@ -1,22 +1,5 @@
 ---
 
-- name: Set Git remote origin
-  community.general.git_config:
-    name: remote.origin.url
-    scope: global
-    value: "{{ ansible_setup_git_repository }}"
-    repo: "{{ ansible_setup_workdir }}"
-  become: false
-  when: ansible_setup_git_repository_checkout
-
-- name: Checkout ansible source repository
-  ansible.builtin.git:
-    repo: "{{ ansible_setup_git_repository }}"
-    dest: "{{ ansible_setup_workdir }}"
-    update: true
-  become: false
-  when: ansible_setup_git_repository_checkout
-
 - name: Create ansible work folder
   ansible.builtin.file:
     path: "{{ ansible_setup_workdir }}"
