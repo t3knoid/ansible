@@ -1,7 +1,7 @@
 ---
 
 - name: Install Python3 Environment
-  hosts: vms, synology
+  hosts: vms, synology, plex
   gather_facts: true
   become: true
   tasks:
