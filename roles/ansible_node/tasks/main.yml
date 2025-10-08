@@ -51,7 +51,9 @@
   ansible.builtin.file:
     path: "{{ ansible_node_remote_tmp }}"
     state: directory
-    mode: '0755'
+    owner: ansible
+    group: ansible
+    mode: '0775'
 
 - name: Reboot virtual machine
   ansible.builtin.include_role:
