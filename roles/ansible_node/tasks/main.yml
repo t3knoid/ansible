@@ -1,12 +1,7 @@
 ---
 
-- name: Install Python modules
-  ansible.builtin.pip:
-    name: "{{ item }}"
-    virtualenv: "/opt/python_{{ python3_version }}"
-    state: present
-    umask: "0022"
-  loop: "{{ ansible_node_python_modules }}"
+- name: Include tasks from install_python_modules.yml
+  ansible.builtin.include_tasks: install_python_modules.yml
 
 - name: Ensure ansible group exists
   ansible.builtin.group:
@@ -51,6 +46,12 @@
     line: '%ansible ALL=(ALL) NOPASSWD:ALL'
     mode: '0644'
     validate: 'visudo -cf %s'
+
+- name: Ensure remote temp directory exists
+  ansible.builtin.file:
+    path: "{{ ansible_node_remote_tmp }}"
+    state: directory
+    mode: '0755'
 
 - name: Reboot virtual machine
   ansible.builtin.include_role:

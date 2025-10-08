@@ -7,5 +7,5 @@
   tasks:
     - name: Import venv.yml from python3 role
       ansible.builtin.import_role:
-        name: python3
-        tasks_from: venv.yml
+        name: ansible_node
+        tasks_from: install_python_modules.yml

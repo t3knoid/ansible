@@ -6,4 +6,4 @@
     virtualenv: "/opt/python_{{ python3_version }}"
     state: present
     umask: "0022"
-  loop: "{{ synology_python_modules }}"
+  loop: "{{ ansible_node_python_modules }}"
