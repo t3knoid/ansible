@@ -21,6 +21,14 @@
     shell: /bin/bash
     append: true
 
+- name: Add custom user list to ansible group
+  ansible.builtin.user:
+    name: "{{ item }}"
+    groups: ansible
+    shell: /bin/bash
+    append: true
+  loop: "{{ ansible_node_custom_sudo_users }}"
+  
 - name: Ensure sudoers.d directory exists
   ansible.builtin.file:
     path: /etc/sudoers.d
@@ -36,7 +44,15 @@
     mode: '0644'
     validate: 'visudo -cf %s'
 
+- name: Ensure remote temp directory exists
+  ansible.builtin.file:
+    path: "{{ ansible_node_remote_tmp }}"
+    state: directory
+    owner: ansible
+    group: ansible
+    mode: '0775'
+
 - name: Reboot virtual machine
   ansible.builtin.include_role:
     name: vms
-    tasks_from: reboot.yml
+    tasks_from: reboot_nowait.yml

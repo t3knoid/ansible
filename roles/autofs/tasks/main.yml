@@ -15,11 +15,14 @@
     group: root
   notify: Restart autofs
 
-- name: Configure /etc/auto.nfs
-  ansible.builtin.template:
-    src: auto.nfs.j2
-    dest: "/etc/auto.nfs"
+- name: Append NFS mounts to auto.nfs
+  ansible.builtin.blockinfile:
+    path: /etc/auto.nfs
     mode: '0644'
-    owner: root
-    group: root
+    create: true
+    marker: "# {mark} ANSIBLE MANAGED BLOCK"
+    block: |
+      {% for mount in autofs_nfs_mounts %}
+      {{ mount.mount_name }} {{ mount.mount_options }} {{ mount.server }}
+      {% endfor %}
   notify: Restart autofs

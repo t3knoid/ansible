@@ -1,7 +1,7 @@
 ---
 
 - name: Install and configure code-server
-  hosts: nginx,code_server
+  hosts: code_server
   become: true
   gather_facts: true
   roles:

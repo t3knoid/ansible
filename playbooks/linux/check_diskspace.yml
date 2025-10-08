@@ -1,0 +1,12 @@
+---
+- name: Check disk space
+  hosts: linux
+  gather_facts: false
+  tasks:
+    - name: Check disk space (df)
+      ansible.builtin.command: df -h /
+      register: disk_space
+
+    - name: Print disk space
+      ansible.builtin.debug:
+        msg: "{{ disk_space.stdout_lines }}"

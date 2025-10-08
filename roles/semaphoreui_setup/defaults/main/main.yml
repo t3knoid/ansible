@@ -16,8 +16,8 @@ semaphoreui_setup_python_packages:
 semaphoreui_setup_homedir: /ansible/semaphore
 semaphoreui_setup_tmpdir: "{{ semaphoreui_setup_homedir }}/tmp"
 semaphoreui_setup_etcdir: "{{ semaphoreui_setup_homedir }}/etc"
-semaphoreui_setup_pgdb_ip: "{{ global_ip_addresses[groups['pgdb'][0]] }}"
-semaphoreui_setup_pgclient_ip: "{{ global_ip_addresses[groups['pgclient'][0]] }}"
+semaphoreui_setup_pg_host: "{{ global_ip_addresses[groups['pgdb'][0]] }}"
+semaphoreui_setup_pgclient_host: "{{ global_ip_addresses[groups['pgclient'][0]] }}"
 semaphoreui_setup_port: 3000
 semaphoreui_setup_use_remote_runner: false
 
@@ -26,9 +26,81 @@ semaphoreui_setup_ldap_bind_dn: "CN=LDAP Bind User,OU=Service Accounts,DC=refol,
 semaphoreui_setup_ldap_bindpassword: ""
 semaphoreui_setup_ldap_server: "ad0.refol.us:389"
 semaphoreui_setup_ldap_searchdn: "CN=Users,DC=refol,DC=us"
-semaphoreui_setup_ldap_searchfilter: "(sAMAccountName=%s)" 
+semaphoreui_setup_ldap_searchfilter: "(sAMAccountName=%s)"
 semaphoreui_setup_ldap_mappings:
   dn: ""
   mail: "userPrincipalName"
   uid: "sAMAccountName"
   cn: "cn"
+
+# Database
+# semaphoreui_setup_db_name: in vault
+# semaphoreui_setup_db_user: in vault
+# semaphoreui_setup_db_password: in vault
+semaphoreui_setup_mount_point: /nfs/backups
+semaphoreui_setup_backup_prefix: "semaphoreui_"
+semaphoreui_setup_backup_filename: "{{ semaphoreui_setup_backup_prefix }}{{ ansible_date_time.date }}.sqlc"
+semaphoreui_setup_backup_path: "{{ semaphoreui_setup_mount_point }}/{{ semaphoreui_setup_backup_filename }}"
+
+# API
+semaphoreui_setup_api_base: "http://localhost:{{ semaphoreui_setup_port }}/api"
+semaphoreui_setup_inventories: []
+
+semaphoreui_setup_projects:
+  - name: "Home Lab"
+    alert_enabled: false
+    alert: false
+    alert_chat: ""
+    max_parallel_tasks: 0
+    repositories:
+      - name: "Ansible"
+        git_url: "https://github.com/t3knoid/ansible.git"
+        git_branch: "main"
+    keystores:
+      - name: "Semaphore user credentials"
+        type: "login_password"
+        login_password:
+          login: "{{ semaphoreui_setup_semaphore_login }}"
+          password: "{{ semaphoreui_setup_semaphore_password }}"
+      - name: "Ansible user credentials"
+        type: "login_password"
+        login_password:
+          login: "{{ semaphoreui_setup_ansible_login }}"
+          password: "{{ semaphoreui_setup_ansible_password }}"
+      - name: "Ansible vault password"
+        type: "login_password"
+        login_password:
+          login: ""
+          password: "{{ semaphoreui_setup_ansible_vault_password }}"
+      # - name: "sample ssh"
+      #   type: "ssh"
+      #   ssh:
+      #     login:
+      #     passphrase:
+      #     private_key:
+      - name: "None"
+        type: "none"
+        empty: true
+    views:
+      - title: "Certs"
+    templates:
+      - name: "Request Certificates for all hosts"
+        playbook: "playbooks/certs/generate_certs.yml"
+        app: "ansible"
+        arguments: "[\"-k\"]"
+        inventory: "rproxy"
+        credentials:
+          - "Ansible vault password"
+        repository: "Ansible"
+        view: "Certs"
+        environment: "Empty"
+      - name: "Stage Certificates for all hosts"
+        playbook: "playbooks/certs/stage_certs.yml"
+        app: "ansible"
+        arguments: "[\"-k\"]"
+        inventory: "rproxy"
+        credentials:
+          - "Ansible vault password"
+        repository: "Ansible"
+        view: "Certs"
+        environment: "Empty"

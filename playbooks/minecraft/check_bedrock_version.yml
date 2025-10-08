@@ -1,0 +1,13 @@
+---
+
+- name: Enumerate latest version of Bedrock
+  hosts: bedrock
+  become: true
+  roles:
+    - playwright
+
+  tasks:
+    - name: Import get_bedrock_version.yml from minecraft_setup role
+      ansible.builtin.import_role:
+        name: minecraft_setup
+        tasks_from: get_bedrock_version.yml

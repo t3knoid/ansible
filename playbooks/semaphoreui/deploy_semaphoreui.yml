@@ -1,25 +1,20 @@
 ---
 
+- name: Deploy postgresql
+  ansible.builtin.import_playbook: ../postgresql/deploy_postgresql.yml
+
+- name: Create the SemaphoreUI database
+  ansible.builtin.import_playbook: create_db.yml
+
+- name: Install Ansible
+  ansible.builtin.import_playbook: ../ansible/deploy_ansible.yml
+
 - name: Deploy Semaphore UI
-  hosts: semaphore,pgdb
+  hosts: semaphore
   gather_facts: true
   become: true
   roles:
     - global
-
-  tasks:
-    - name: Include postgresql_setup role
-      ansible.builtin.include_role:
-        name: postgresql_setup
-      when: "'pgdb' in group_names"
-
-    - name: Import semaphoreui_setup role database task
-      ansible.builtin.import_role:
-        name: semaphoreui_setup
-        tasks_from: database
-      when: "'pgdb' in group_names"
-
-    - name: Include semaphoreui_setup role
-      ansible.builtin.include_role:
-        name: semaphoreui_setup
-      when: "'semaphore' in group_names"
+    - sshpass
+    - autofs
+    - semaphoreui_setup

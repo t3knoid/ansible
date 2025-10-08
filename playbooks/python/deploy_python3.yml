@@ -1,7 +1,7 @@
 ---
 
 - name: Install Python3
-  hosts: vms
+  hosts: vms, plex
   become: true
   gather_facts: false
   roles:

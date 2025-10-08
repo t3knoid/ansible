@@ -1,0 +1,20 @@
+---
+
+- name: Enumerate existing users
+  changed_when: false
+  check_mode: false
+  ansible.builtin.uri:
+    use_proxy: false
+    url: "{{ semaphoreui_setup_api_base }}/users"
+    method: GET
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+      Authorization: "Bearer {{ semaphoreui_setup_api_token }}"
+    status_code: 200
+    timeout: 5
+  register: semaphore_setup_users
+
+- name: Show users
+  debug:
+    var: semaphore_setup_users.json

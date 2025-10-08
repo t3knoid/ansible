@@ -1,0 +1,7 @@
+---
+
+- name: Reboot and dont wait
+  ansible.builtin.shell: "systemctl --message='Reboot required after security updates performed by Ansible' --when='+5 seconds' reboot"
+  async: 0
+  poll: 0
+  ignore_errors: true # Optional: to prevent playbook from failing if the connection drops immediately

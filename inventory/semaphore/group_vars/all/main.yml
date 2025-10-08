@@ -1,0 +1,54 @@
+---
+
+vms_config:
+  agent: "1"
+  cores: "4"
+  cpu: host
+  memory: 2048
+  ostype: l26
+  scsihw: virtio-scsi-single
+  sockets: 1
+  storage: local
+  disk_os:
+    disk: virtio0
+    backup: true
+    size: 20
+    storage: local
+  disk2:
+    disk: virtio1
+    backup: true
+    size: 20
+    storage: local
+
+vms_os: ubuntu_24_server
+vms_autoinstall: true
+vms_enable_serial_terminal: false
+vms_additional_packages: [jq]
+python3_version: 3.12
+python3_venv_folder: "/opt/python_{{ python3_version }}"
+
+nginx_setup_disable_default_site: true
+disks_disk_mounts:
+  - { mountpoint: "/ansible", mountpoint_owner: "{{ users_list[0].username }}", mountpoint_group: "{{ users_list[0].username }}" }
+
+pihole_cname_entries:
+  - domain: semaphore.refol.us
+    target: rproxy-0.refol.us
+
+rproxy_setup_sites:
+  - server_name: semaphore.refol.us
+    port: 3000
+    proxy_pass: "http://{{ global_ip_addresses['semaphore-0'] }}"
+    allow_list:
+      - 192.168.0.0/24
+      - 192.168.2.0/24
+      - 24.105.250.200
+      - 70.107.117.124
+    restricted: false
+
+semaphoreui_setup_version: 2.16.19
+
+autofs_nfs_mounts:
+  - mount_name: backups
+    server: 192.168.2.250:/mnt/Data/backups_ex
+    mount_options: -rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys

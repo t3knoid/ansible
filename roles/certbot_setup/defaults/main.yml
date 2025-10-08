@@ -1,0 +1,6 @@
+---
+certbot_setup_python_modules:
+  - certbot==5.0.0
+  - certbot-nginx==5.0.0
+
+certbot_setup_bin_link: /usr/bin/certbot

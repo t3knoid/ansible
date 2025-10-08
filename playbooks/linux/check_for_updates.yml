@@ -1,0 +1,13 @@
+---
+- name: Check for available updates
+  hosts: linux
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Check for available updates (Debian/Ubuntu)
+      ansible.builtin.command: apt list --upgradable
+      register: available_updates
+
+    - name: Print available updates
+      ansible.builtin.debug:
+        msg: "{{ available_updates.stdout_lines }}"

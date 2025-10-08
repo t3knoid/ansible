@@ -1,0 +1,19 @@
+---
+- name: Ensure pip is available
+  ansible.builtin.package:
+    name: python3-pip
+    state: present
+
+- name: Install Playwright dependencies
+  ansible.builtin.command: "{{ python3_venv_folder }}/bin/playwright install-deps"
+  changed_when: false
+
+- name: Install Playwright Python package
+  ansible.builtin.pip:
+    name: playwright
+    virtualenv: "{{ python3_venv_folder }}"
+
+- name: Install Playwright firefox browser binaries
+  ansible.builtin.command: "{{ python3_venv_folder }}/bin/playwright install firefox"
+  args:
+    creates: ~/.cache/ms-playwright/firefox-*

@@ -1,0 +1,10 @@
+---
+
+- name: Enumerate latest version of SemaphoreUI
+  hosts: semaphore
+
+  tasks:
+    - name: Import get_bedrock_version.yml from semaphoreui_setup role
+      ansible.builtin.import_role:
+        name: semaphoreui_setup
+        tasks_from: get_semaphore_version.yml

@@ -64,7 +64,7 @@
 
 - name: Create self-signed certificates
   community.crypto.x509_certificate:
-    path: "{{ nginx_setup_certroot }}/{{ rproxy_setup_cert.rproxy_setup_site.server_name }}/cert.pem"
+    path: "{{ nginx_setup_certroot }}/{{ rproxy_setup_cert.rproxy_setup_site.server_name }}/fullchain.pem"
     privatekey_path: "{{ nginx_setup_certroot }}/{{ rproxy_setup_cert.rproxy_setup_site.server_name }}/privkey.pem"
     provider: selfsigned
   loop: "{{ rproxy_setup_cert_pem.results }}"

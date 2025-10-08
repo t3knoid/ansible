@@ -11,11 +11,6 @@
     state: started
     enabled: true
 
-- name: Ensure PostgreSQL Python library is installed
-  ansible.builtin.apt:
-    name: python3-psycopg2
-    state: present
-
 - name: Create the PostgreSQL user
   community.postgresql.postgresql_user:
     name: "{{ semaphoreui_setup_db_user }}"
@@ -34,27 +29,61 @@
   become_user: postgres
   notify: Restart PostgreSQL
 
-- name: Update pg_hba.conf to allow password access using the client ip address
+- name: Update pg_hba.conf to allow access using the client ip address
   community.postgresql.postgresql_pg_hba:
-    dest: "{{ postgresql_setup_data_dir }}/pg_hba.conf"
+    dest: "/etc/postgresql/{{ postgresql_setup_version }}/main/pg_hba.conf"
     contype: host
-    users: all
-    source: "{{ semaphoreui_setup_pgclient_ip }}/32"
-    databases: all
+    users: "{{ semaphoreui_setup_db_user }}"
+    source: "{{ semaphoreui_setup_pgclient_host }}/32"
+    databases: "{{ semaphoreui_setup_db_name }}"
     method: md5
   notify: Restart PostgreSQL
 
-- name: Update pg_hba.conf to allow semaphoreui user access using the client ip address
+- name: Update pg_hba.conf to allow semaphoreui hostssl access using the client ip address
   community.postgresql.postgresql_pg_hba:
-    dest: "{{ postgresql_setup_data_dir }}/pg_hba.conf"
+    dest: "/etc/postgresql/{{ postgresql_setup_version }}/main/pg_hba.conf"
     contype: hostssl
-    users: semaphoreui
-    source: "{{ semaphoreui_setup_pgclient_ip }}/32"
-    databases: semaphoreui
+    users: "{{ semaphoreui_setup_db_user }}"
+    source: "{{ semaphoreui_setup_pgclient_host }}/32"
+    databases: "{{ semaphoreui_setup_db_name }}"
     method: md5
+  notify: Restart PostgreSQL
+
+- name: Update pg_hba.conf to allow access using the database host ip address
+  community.postgresql.postgresql_pg_hba:
+    dest: "/etc/postgresql/{{ postgresql_setup_version }}/main/pg_hba.conf"
+    contype: host
+    users: "{{ semaphoreui_setup_db_user }}"
+    source: "{{ semaphoreui_setup_pg_host }}/32"
+    databases: "{{ semaphoreui_setup_db_name }}"
+    method: md5
+  notify: Restart PostgreSQL
+
+- name: Update pg_hba.conf to allow semaphoreui hostssl access using the database host ip address
+  community.postgresql.postgresql_pg_hba:
+    dest: "/etc/postgresql/{{ postgresql_setup_version }}/main/pg_hba.conf"
+    contype: hostssl
+    users: "{{ semaphoreui_setup_db_user }}"
+    source: "{{ semaphoreui_setup_pg_host }}/32"
+    databases: "{{ semaphoreui_setup_db_name }}"
+    method: md5
+  notify: Restart PostgreSQL
+
+- name: Ensure .pgpass entry exists without duplication
+  ansible.builtin.lineinfile:
+    dest: ~/.pgpass
+    line: "{{ semaphoreui_setup_pg_host }}:5432:{{ semaphoreui_setup_db_name }}:{{ semaphoreui_setup_db_user }}:{{ semaphoreui_setup_db_password }}"
+    create: yes
+    owner: postgres
+    group: postgres
+    mode: '0600'
+    state: present
+    insertafter: EOF
+  become: true
+  become_user: postgres
   notify: Restart PostgreSQL
 
 - name: Ensure PostgreSQL service is Started
   ansible.builtin.service:
     name: postgresql
-    state: started
+    state: restarted

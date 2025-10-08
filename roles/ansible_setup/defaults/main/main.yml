@@ -3,15 +3,20 @@
 ansible_setup_ver: 10.5.0
 ansible_setup_callback_plugins:
   - profile_tasks
-ansible_setup_home: "/ansible/dev/ansible"
-ansible_setup_config_path: "{{ ansible_setup_home }}/ansible.cfg"
+ansible_setup_workdir: "/ansible/dev/ansible"
+ansible_setup_config_path: "{{ ansible_setup_workdir }}/ansible.cfg"
+
+ansible_setup_git_repository_checkout: true
+ansible_setup_git_repository: https://github.com/t3knoid/ansible.git
+
+ansible_setup_remote_tmp: /ansible/tmp/
+
 ansible_setup_python_modules:
-  - ansible
-  - ansible-dev-tools
-  - requests
-  - pycdlib
-  - proxmoxer
-  - ansible-lint
-  - pexpect
-  - jmespath
-  - passlib
+  - ansible==12.0.0 # https://pypi.org/project/ansible/
+  - ansible-dev-tools==25.8.3
+  - requests==2.32.5
+  - pycdlib==1.14.0
+  - proxmoxer==2.2.0
+  - jmespath==1.0.1
+  - passlib==1.7.4
+  - psycopg2-binary==2.9.10
