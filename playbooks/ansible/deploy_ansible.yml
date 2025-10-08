@@ -30,4 +30,3 @@
     - name: Import ansible_setup role
       ansible.builtin.import_role:
         name: ansible_setup
-
