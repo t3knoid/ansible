@@ -1,8 +1,5 @@
 ---
 
-- name: Include tasks from install_python_modules.yml
-  ansible.builtin.include_tasks: install_python_modules.yml
-
 - name: Ensure ansible group exists
   ansible.builtin.group:
     name: ansible
