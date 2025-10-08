@@ -1,14 +1,27 @@
+---
+
 - name: Deploy ansible
-  hosts: all
+  hosts: ansible
   gather_facts: true
   become: true
   become_user: root
   roles:
     - global
-    - ansible_node
-    - sshpass
 
   tasks:
+    - name: Import ansible_node role
+      ansible.builtin.import_role:
+        name: ansible_node
+
+    - name: Wait for host to become available before proceeding
+      ansible.builtin.wait_for_connection:
+        timeout: 300  # seconds to wait
+        sleep: 5      # seconds between checks
+
+    - name: Import ssh_pass role
+      ansible.builtin.import_role:
+        name: sshpass
+
     - name: Import venv.yml from python3 role
       ansible.builtin.import_role:
         name: python3
@@ -17,4 +30,3 @@
     - name: Import ansible_setup role
       ansible.builtin.import_role:
         name: ansible_setup
-      when: "'ansible' in group_names"

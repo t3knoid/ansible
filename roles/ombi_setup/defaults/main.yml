@@ -1,6 +1,17 @@
 ---
 
+ombi_setup_version: 4.47.1
 ombi_setup_config_dir: "/config"
 ombi_setup_port: 3579
 ombi_setup_pg_port: 5432
 ombi_setup_pg_host: "{{ global_ip_addresses[groups['pgdb'][0]] }}"
+
+# See vault for the following variables
+# ombi_setup_db_name: 
+# ombi_setup_db_user: 
+# ombi_setup_db_password:
+
+ombi_setup_mount_point: /nfs/backups
+ombi_setup_backup_prefix: "ombi_"
+ombi_setup_backup_filename: "{{ombi_setup_backup_prefix}}{{ ansible_date_time.date }}.sqlc"
+ombi_setup_backup_path: "{{ ombi_setup_mount_point }}/{{ ombi_setup_backup_filename }}"

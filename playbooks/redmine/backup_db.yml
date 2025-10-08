@@ -1,0 +1,12 @@
+---
+- name: Backup Redmine database to NFS share
+  hosts: pgdb
+  become: true
+  roles:
+    - global
+
+  tasks:
+    - name: Import database_backup.yml from redmine_setup role
+      ansible.builtin.import_role:
+        name: redmine_setup
+        tasks_from: database_backup.yml

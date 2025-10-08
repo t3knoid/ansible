@@ -1,0 +1,13 @@
+---
+- name: Check HIGH CPU Usage and Zombie Processes
+  hosts: linux
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Check for failed services
+      ansible.builtin.command: systemctl --failed
+      register: failed_services
+      ignore_errors: true  # In case there are no failed services
+    - name: Print failed services
+      ansible.builtin.debug:
+        msg: "{{ failed_services.stdout_lines }}"
