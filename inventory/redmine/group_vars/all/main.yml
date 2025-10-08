@@ -43,9 +43,5 @@ rproxy_setup_sites:
       - 70.107.117.124
     restricted: false
 
-pihole_cname_entries:
-  - domain: homelab.refol.us
-    target: rproxy-0.refol.us
-
 ruby_setup_archive_extractdir_root: "{{ disks_disk_mounts[0].mountpoint }}/ruby"
 redmine_setup_installdir_root: "{{ disks_disk_mounts[0].mountpoint }}/redmine"

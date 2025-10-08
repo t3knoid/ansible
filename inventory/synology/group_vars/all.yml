@@ -6,10 +6,6 @@ python3_venv_folder: "/opt/python_{{ python3_version }}"
 
 nginx_setup_disable_default_site: true
 
-pihole_cname_entries:
-  - domain: synology.refol.us
-    target: rproxy-0.refol.us
-
 rproxy_setup_sites:
   - server_name: synology.refol.us
     port: 5000

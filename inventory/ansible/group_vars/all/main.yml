@@ -32,10 +32,6 @@ nginx_setup_disable_default_site: true
 disks_disk_mounts:
   - { mountpoint: "/ansible", mountpoint_owner: "{{ users_list[0].username }}", mountpoint_group: "{{ users_list[0].username }}" }
 
-pihole_cname_entries:
-  - domain: code.refol.us
-    target: rproxy-0.refol.us
-
 rproxy_setup_sites:
   - server_name: code.refol.us
     port: 8000
