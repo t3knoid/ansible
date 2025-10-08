@@ -9,4 +9,4 @@ ansible_setup_config_path: "{{ ansible_setup_workdir }}/ansible.cfg"
 ansible_setup_git_repository_checkout: true
 ansible_setup_git_repository: https://github.com/t3knoid/ansible.git
 
-ansible_setup_remote_tmp: /ansible_tmp/
+ansible_setup_remote_tmp: /ansible/tmp/
