@@ -1,7 +1,7 @@
 ---
 
 cloudinit_download_dest: "/tmp/{{ global_os[vms_os].cloudinit_img }}"
-cloudinit_vmid: 9500
+cloudinit_vmid: "9500"
 cloudinit_memory_mb: 2048
 cloudinit_storage: local
 cloudinit_network_device: "virtio,bridge=vmbr0"

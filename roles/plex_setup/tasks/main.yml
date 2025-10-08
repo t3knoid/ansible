@@ -1,5 +1,8 @@
 ---
 
+- name: Wait for Plex host to come on line
+  ansible.builtin.wait_for_connection:
+
 - name: Download Plex Media Server package
   ansible.builtin.get_url:
     url: "{{ plex_setup_download_url }}"

@@ -1,3 +1,4 @@
 ---
 
 python3_venv_folder: /opt/certbot
+rproxy_setup_sites: "{{ 'inventory' | consolidate_rproxy_setup_sites }}" 

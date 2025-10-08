@@ -1,0 +1,13 @@
+---
+- name: Check Open Ports
+  hosts: linux
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Get listening open TCP and UDP ports
+      ansible.builtin.command: ss -tuln
+      register: open_ports
+
+    - name: Print open ports
+      ansible.builtin.debug:
+        msg: "{{ open_ports.stdout_lines }}"

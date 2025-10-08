@@ -1,35 +1,15 @@
 ---
+# Import database creation playbook to set up Redmine database before deployment
+- import_playbook: create_db.yml
+
+# Import Ruby setup playbook to ensure Ruby environment is ready before deploying Redmine
+- import_playbook: ../ruby/deploy_ruby.yml
 
 - name: Deploy Redmine
-  hosts: redmine,pgdb,ruby
+  hosts: redmine
   become: true
   gather_facts: true
   roles:
     - global
-
-  tasks:
-    - name: Include ruby_setup role
-      ansible.builtin.include_role:
-        name: ruby_setup
-      when: "'ruby' in group_names"
-
-    - name: Include postgresql_setup role
-      ansible.builtin.include_role:
-        name: postgresql_setup
-      when: "'pgdb' in group_names"
-
-    - name: Include users role
-      ansible.builtin.include_role:
-        name: users
-      when: "'redmine' in group_names"
-
-    - name: Import redmine_setup role database task
-      ansible.builtin.include_role:
-        name: redmine_setup
-        tasks_from: database
-      when: "'redmine' in group_names"
-
-    - name: Include redmine_setup role
-      ansible.builtin.include_role:
-        name: redmine_setup
-      when: "'redmine' in group_names"
+    - users
+    - redmine_setup

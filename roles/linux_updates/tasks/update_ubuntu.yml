@@ -24,6 +24,7 @@
   when: linux_updates_reboot_required.stat.exists
 
 - name: Reboot the server if required
-  ansible.builtin.reboot:
-    connect_timeout: 60
+  ansible.builtin.include_role:
+    name: vms
+    tasks_from: reboot_nowait.yml
   when: linux_updates_reboot_required.stat.exists

@@ -1,0 +1,12 @@
+---
+- name: Backup Semaphore UI database to NFS share
+  hosts: pgdb
+  become: true
+  roles:
+    - global
+
+  tasks:
+    - name: Import database_backup.yml from semaphoreui_setup role
+      ansible.builtin.import_role:
+        name: semaphoreui_setup
+        tasks_from: database_backup.yml

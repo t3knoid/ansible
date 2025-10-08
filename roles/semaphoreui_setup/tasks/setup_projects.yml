@@ -1,0 +1,92 @@
+---
+
+- name: Extract project metadata only
+  set_fact:
+    semaphoreui_setup_projects_to_create: >-
+      {{
+        semaphoreui_setup_projects |
+        map('dict2items') |
+        map('rejectattr', 'key', 'in', ['inventories','repositories', 'users', 'keystores', 'tasks', 'views']) |
+        map('items2dict') |
+        list
+      }}
+
+# Enumerate existing projects to avoid creating duplicates
+- name: Enumerate existing projects
+  changed_when: false
+  check_mode: false
+  ansible.builtin.uri:
+    use_proxy: false
+    url: "{{ semaphoreui_setup_api_base }}/projects"
+    method: GET
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+      Authorization: "Bearer {{ semaphoreui_setup_api_token }}"
+    status_code: 200
+    timeout: 5
+  register: semaphore_setup_existing_projects
+
+- name: Set list of existing project names
+  set_fact:
+    semaphore_existing_project_names: "{{ semaphore_setup_existing_projects.json | map(attribute='name') | list }}"
+
+# Create projects only if they do not already exist, skipping any that are present in semaphore_existing_project_names
+- name: Create Semaphore Projects
+  ansible.builtin.uri:
+    url: "{{ semaphoreui_setup_api_base }}/projects"
+    method: POST
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+      Authorization: "Bearer {{ semaphoreui_setup_api_token }}"
+    body: "{{ item }}"
+    body_format: json
+    status_code: 201
+    timeout: 5
+  register: semaphore_projects_created
+  loop: "{{ semaphoreui_setup_projects_to_create }}"
+  loop_control:
+    label: "{{ item.name }}"
+  when: item.name not in semaphore_existing_project_names
+
+- name: Show created projects
+  debug:
+    var: item.json.name
+  loop: "{{ semaphore_projects_created.results }}"
+  loop_control:
+    label: "{{ item.item.name }}"
+  when: item.skipped is not defined
+
+- name: Enumerate projects again to get their IDs for later use
+  changed_when: false
+  check_mode: false
+  ansible.builtin.uri:
+    use_proxy: false
+    url: "{{ semaphoreui_setup_api_base }}/projects"
+    method: GET
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+      Authorization: "Bearer {{ semaphoreui_setup_api_token }}"
+    status_code: 200
+    timeout: 5
+  register: semaphore_setup_existing_projects
+
+- name: Set list of existing project names again for later use
+  set_fact:
+    semaphore_existing_project_names: "{{ semaphore_setup_existing_projects.json | map(attribute='name') | list }}"
+
+- name: Set list of project names and corresponding ids for later use
+  set_fact:
+    semaphoreui_setup_project_ids: "{{ dict(semaphore_setup_existing_projects.json | map(attribute='name') | list | zip(semaphore_setup_existing_projects.json | map(attribute='id') | list)) }}"
+
+- name: Loop through all projects
+  include_tasks: setup_project.yml
+  loop: "{{ semaphoreui_setup_project_ids | dict2items }}"
+  loop_control:
+    label: "{{ project_info.key }}"
+    loop_var: project_info
+  vars:
+    project_id: "{{ project_info.value }}"
+    project_name: "{{ project_info.key }}"

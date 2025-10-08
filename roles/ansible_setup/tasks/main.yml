@@ -1,54 +1,23 @@
 ---
 
-- name: Install Python modules
-  ansible.builtin.pip:
-    name: "{{ item }}"
-    virtualenv: "/opt/python_{{ python3_version }}"
-    state: present
-    umask: "0022"
-  loop: "{{ ansible_setup_python_modules }}"
-
-- name: Ensure Ansible home exists and each folder level has proper access
-  block:
-    - name: Split the path into components
-      ansible.builtin.set_fact:
-        ansible_setup_path_components: "{{ ansible_setup_home.split('/') | select('!=', '') | list }}"
-
-    - name: Initialize ansible_setup_path_levels
-      ansible.builtin.set_fact:
-        ansible_setup_path_levels: []
-
-    - name: Build path levels array
-      ansible.builtin.set_fact:
-        ansible_setup_path_levels: "{{ ansible_setup_path_levels + [ansible_setup_current_path] }}"
-      loop: "{{ range(1, ansible_setup_path_components | length + 1) | list }}"
-      vars:
-        ansible_setup_current_path: "/{{ ansible_setup_path_components[:item] | join('/') }}"
-
-    - name: Ansible home exists
-      ansible.builtin.file:
-        path: "{{ item }}"
-        state: directory
-        mode: "0755"
-        owner: ansible
-        group: ansible
-      with_items: "{{ ansible_setup_path_levels }}"
+- name: Create ansible work folder
+  ansible.builtin.file:
+    path: "{{ ansible_setup_workdir }}"
+    state: directory
+    mode: "0755"
+  become: false
+  when: not ansible_setup_git_repository_checkout
 
 - name: Initialize ansible.cfg
   ansible.builtin.template:
     src: ansible.cfg.j2
-    dest: "{{ ansible_setup_home }}/ansible.cfg"
+    dest: "{{ ansible_setup_workdir }}/ansible.cfg"
     mode: "0664"
+  become: false
 
 - name: Create vault password file
   ansible.builtin.template:
     src: vault_pass.txt.j2
     dest: "~/.vault_pass.txt"
     mode: "0664"
-
-- name: Ensure ansible.cfg has proper ownership
-  ansible.builtin.file:
-    path: "{{ ansible_setup_home }}/ansible.cfg"
-    owner: ansible
-    group: ansible
-    state: file
+  become: false
