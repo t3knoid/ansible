@@ -8,7 +8,7 @@
     repo: "{{ ansible_setup_workdir }}"
   become: false
   when: ansible_setup_git_repository_checkout
-  
+
 - name: Checkout ansible source repository
   ansible.builtin.git:
     repo: "{{ ansible_setup_git_repository }}"
@@ -21,6 +21,7 @@
   ansible.builtin.file:
     path: "{{ ansible_setup_workdir }}"
     state: directory
+    mode: "0755"
   become: false
   when: not ansible_setup_git_repository_checkout
 
