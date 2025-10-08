@@ -1,11 +1,11 @@
 ---
 
-- name: Install Python3 Environment
+- name: Install Ansible Python Modules
   hosts: vms, synology
   gather_facts: true
   become: true
   tasks:
-    - name: Import venv.yml from python3 role
+    - name: Import install_python_modules.yml from python3 role
       ansible.builtin.import_role:
         name: ansible_node
         tasks_from: install_python_modules.yml

@@ -1,0 +1,11 @@
+---
+
+- name: Remove Ansible modules
+  hosts: vms, synology
+  gather_facts: true
+  become: true
+  tasks:
+    - name: Import remove_python_modules.yml from python3 role
+      ansible.builtin.import_role:
+        name: ansible_node
+        tasks_from: remove_python_modules.yml
