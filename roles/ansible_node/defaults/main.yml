@@ -11,3 +11,5 @@ ansible_node_python_modules:
 
 ansible_node_custom_sudo_users:
   - semaphore
+
+ansible_node_remote_tmp: /ansible_tmp/
