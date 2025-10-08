@@ -1,0 +1,30 @@
+---
+- name: Import playbooks/dns/delete_dns_entry.yml
+  ansible.builtin.import_playbook: ../dns/delete_dns_entry.yml
+
+- name: Import playbooks/dns/add_dns_entry.yml
+  ansible.builtin.import_playbook: ../dns/add_dns_entry.yml
+
+- name: Import dns/delete_cname_entry.yml
+  ansible.builtin.import_playbook: ../dns/delete_cname_entry.yml
+
+- name: Import dns/add_cname_entry.yml
+  ansible.builtin.import_playbook: ../dns/add_cname_entry.yml
+
+- name: Import rproxy/add_cname_entry.yml
+  ansible.builtin.import_playbook: ../rproxy/config_rproxy.yml
+
+- name: Import python/deploy_python3_venv.yml
+  ansible.builtin.import_playbook: ../python/deploy_python3_venv.yml
+  vars:
+    ansible_python_interpreter: "/volume1/@appstore/python312/bin/python3"
+
+- name: Import python/deploy_python3_venv.yml
+  ansible.builtin.import_playbook: ../ansible/install_python3_modules.yml
+
+- name: Test SSH connectivity to SFTP server
+  hosts: synology
+  gather_facts: false
+  tasks:
+    - name: Ping the host
+      ansible.builtin.ping:
