@@ -3,3 +3,25 @@
 pbs_version: 3.2-7
 vms_proxmox_node: pve-0
 python3_version: 3.11
+
+nginx_setup_disable_default_site: true
+
+rproxy_setup_sites:
+  - server_name: pve.refol.us
+    port: 8006
+    proxy_pass: "http://{{ global_ip_addresses['pve-0'] }}"
+    allow_list:
+      - 192.168.0.0/24
+      - 192.168.2.0/24
+      - 24.105.250.200
+      - 70.107.117.124
+    restricted: false
+  - server_name: pbs.refol.us
+    port: 8007
+    proxy_pass: "http://{{ global_ip_addresses['pve-2'] }}"
+    allow_list:
+      - 192.168.0.0/24
+      - 192.168.2.0/24
+      - 24.105.250.200
+      - 70.107.117.124
+    restricted: false

@@ -21,10 +21,6 @@ vms_enable_serial_terminal: false
 vms_additional_packages: []
 python3_version: 3.12
 
-pihole_cname_entries:
-  - domain: refol.us
-    target: rproxy-0.refol.us
-
 rproxy_setup_sites:
   - server_name: refol.us
     port: 80
