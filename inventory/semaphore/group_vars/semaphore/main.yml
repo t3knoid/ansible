@@ -84,7 +84,7 @@ semaphoreui_setup_projects:
         playbook: "playbooks/linux/check_connection.yml"
         app: "ansible"
         arguments: "[\"-k\"]"
-        inventory: "plex"
+        inventory: "services"
         credentials:
           - "Ansible vault password"
         repository: "Ansible"
