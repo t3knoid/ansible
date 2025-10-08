@@ -9,7 +9,7 @@ nginx_setup_disable_default_site: true
 rproxy_setup_sites:
   - server_name: pve.refol.us
     port: 8006
-    proxy_pass: "http://{{ global_ip_addresses['pve-0'] }}"
+    proxy_pass: "https://{{ global_ip_addresses['pve-0'] }}"
     allow_list:
       - 192.168.0.0/24
       - 192.168.2.0/24
@@ -18,7 +18,7 @@ rproxy_setup_sites:
     restricted: false
   - server_name: pbs.refol.us
     port: 8007
-    proxy_pass: "http://{{ global_ip_addresses['pve-2'] }}"
+    proxy_pass: "https://{{ global_ip_addresses['pve-2'] }}"
     allow_list:
       - 192.168.0.0/24
       - 192.168.2.0/24
