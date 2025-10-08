@@ -20,6 +20,7 @@
     groups: ansible
     shell: /bin/bash
     append: true
+  register: add_current_user_result
 
 - name: Add custom user list to ansible group
   ansible.builtin.user:
@@ -28,7 +29,7 @@
     shell: /bin/bash
     append: true
   loop: "{{ ansible_node_custom_sudo_users }}"
-  
+
 - name: Ensure sudoers.d directory exists
   ansible.builtin.file:
     path: /etc/sudoers.d
@@ -51,8 +52,3 @@
     owner: ansible
     group: ansible
     mode: '0775'
-
-- name: Reboot virtual machine
-  ansible.builtin.include_role:
-    name: vms
-    tasks_from: reboot_nowait.yml
