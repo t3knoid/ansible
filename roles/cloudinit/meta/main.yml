@@ -1,0 +1,16 @@
+---
+galaxy_info:
+  role_name: cloudinit
+  author: Francis Refol
+  description: Provides tasks to create a virtual machine with cloud-init support.
+  license: MIT
+  min_ansible_version: "2.9"
+  platforms:
+    - name: EL
+      versions:
+        - "7"
+        - "8"
+    - name: Ubuntu
+      versions:
+        - bionic
+        - focal
