@@ -1,9 +1,9 @@
 ---
 
-cloudinit_download_dest: "/tmp/{{ global_os[vms_os].cloudinit_img }}"
-cloudinit_vmid: "9500"
+cloudinit_download_dest: "/tmp/{{ global_os[cloudinit_template_os].cloudinit_img }}"
 cloudinit_memory_mb: 2048
 cloudinit_storage: local
 cloudinit_network_device: "virtio,bridge=vmbr0"
 cloudinit_scsi_controller_model: virtio-scsi-pci
 cloudinit_cpu_type: host
+cloudinit_agent_enabled: true

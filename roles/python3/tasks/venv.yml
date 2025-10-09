@@ -1,5 +1,11 @@
 ---
 
+- name: Ensure venv is installed 
+  ansible.builtin.package:
+    name:
+      - python3-venv
+    state: present
+
 - name: Create virtual environment folder
   ansible.builtin.file:
     path: "{{ python3_venv_folder }}"
