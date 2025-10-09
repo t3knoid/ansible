@@ -44,7 +44,12 @@
   delegate_to: localhost
   register: vms_sshkey
 
-- name: Clone Ubuntu 24.04 template
+- name: Check if vm already exists
+  ansible.builtin.set_fact:
+    vms_vm_exists: "{{ vms_vm_list.json.data | selectattr('name', 'equalto', vms_name | default(inventory_hostname)) | list | length > 0 }}"
+  when: vms_name is defined
+
+- name: Clone Ubuntu 24.04 template if VM does not exist
   community.general.proxmox_kvm:
     api_host: "{{ global_proxmox_api_host }}"
     api_user: "{{ global_proxmox_api_user }}"
@@ -61,6 +66,7 @@
     state: present
   delegate_to: localhost
   register: vms_vm_info
+  when: not vms_vm_exists
 
 - name: Include get_vms_vmid tasks
   ansible.builtin.include_tasks: "get_vms_vmid.yml"
@@ -140,7 +146,11 @@
 
 - name: Update known_hosts file
   ansible.builtin.include_tasks: "known_hosts.yml"
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
 
 - name: Wait for cloud-init to finish
   ansible.builtin.command: cloud-init status --wait
   changed_when: false
+  vars:
+    ansible_python_interpreter: /usr/bin/python3

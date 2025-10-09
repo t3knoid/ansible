@@ -43,14 +43,12 @@
   ansible.builtin.debug:
     var: ad_configured
 
-- name: Update apt cache
-  ansible.builtin.apt:
-    update_cache: true
-
-- name: Install python3-pexpect
-  ansible.builtin.apt:
-    name: python3-pexpect
+- name: Install Python modules
+  ansible.builtin.pip:
+    name: "pexpect"
+    virtualenv: "/opt/python_{{ python3_version }}"
     state: present
+    umask: "0022"
 
 - name: Join machine to domain
   no_log: true
