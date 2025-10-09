@@ -43,8 +43,8 @@ server {
         proxy_send_timeout         90;
         proxy_read_timeout  90;
         proxy_request_buffering    off; # Required for HTTP CLI commands
-        proxy_redirect {{ rproxy_setup_site.proxy_pass }}:{{ rproxy_setup_site.port }} https://{{ rproxy_setup_site.server_name }};
 {% else %}
+        proxy_redirect {{ rproxy_setup_site.proxy_pass }}:{{ rproxy_setup_site.port }} https://{{ rproxy_setup_site.server_name }};
         proxy_pass {{ rproxy_setup_site.proxy_pass }}:{{ rproxy_setup_site.port }};
 {% endif %}
         proxy_http_version 1.1;

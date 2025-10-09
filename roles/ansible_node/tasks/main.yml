@@ -1,13 +1,5 @@
 ---
 
-- name: Install Python modules
-  ansible.builtin.pip:
-    name: "{{ item }}"
-    virtualenv: "/opt/python_{{ python3_version }}"
-    state: present
-    umask: "0022"
-  loop: "{{ ansible_node_python_modules }}"
-
 - name: Ensure ansible group exists
   ansible.builtin.group:
     name: ansible
@@ -28,6 +20,7 @@
     groups: ansible
     shell: /bin/bash
     append: true
+  register: add_current_user_result
 
 - name: Add custom user list to ansible group
   ansible.builtin.user:
@@ -36,7 +29,7 @@
     shell: /bin/bash
     append: true
   loop: "{{ ansible_node_custom_sudo_users }}"
-  
+
 - name: Ensure sudoers.d directory exists
   ansible.builtin.file:
     path: /etc/sudoers.d
@@ -52,7 +45,10 @@
     mode: '0644'
     validate: 'visudo -cf %s'
 
-- name: Reboot virtual machine
-  ansible.builtin.include_role:
-    name: vms
-    tasks_from: reboot_nowait.yml
+- name: Ensure remote temp directory exists
+  ansible.builtin.file:
+    path: "{{ ansible_node_remote_tmp }}"
+    state: directory
+    owner: ansible
+    group: ansible
+    mode: '0775'

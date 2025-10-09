@@ -20,10 +20,6 @@ vms_config:
     size: 10
     storage: local
 
-pihole_cname_entries:
-  - domain: jenkins.refol.us
-    target: rproxy-0.refol.us
-
 vms_os: ubuntu_24_server
 vms_autoinstall: true
 vms_enable_serial_terminal: false
