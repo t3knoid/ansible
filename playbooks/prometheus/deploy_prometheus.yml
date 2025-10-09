@@ -1,0 +1,7 @@
+- name: Deploy Prometheus
+  hosts: prometheus
+  become: true
+  gather_facts: true
+  roles:
+    - global
+    - prometheus_setup

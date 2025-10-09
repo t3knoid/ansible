@@ -12,5 +12,8 @@
 - name: Prep Ansible node
   ansible.builtin.import_playbook: ansible/prep_ansible_node.yml
 
+- name: Add users
+  ansible.builtin.import_playbook: vms/add_users.yml
+
 - name: Prepare disks
   ansible.builtin.import_playbook: vms/prep_disk.yml

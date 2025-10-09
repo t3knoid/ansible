@@ -1,5 +1,7 @@
 /.vscode
 .venv
+**/__pycache__/
+.ansible/
 tmp
 **/*.pyc
-.ansible/.lock
+

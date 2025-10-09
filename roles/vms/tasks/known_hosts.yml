@@ -18,7 +18,7 @@
 - name: Add remote host key to known_hosts with hostname entry
   ansible.builtin.known_hosts:
     name: "{{ inventory_hostname }}"
-    key: "{{ lookup('pipe', 'ssh-keyscan -t rsa {{ inventory_hostname }}') }}"
+    key: "{{ lookup('pipe', 'ssh-keyscan -t rsa ' ~ inventory_hostname) }}"
     path: ~/.ssh/known_hosts
     state: present
   delegate_to: localhost
@@ -32,7 +32,7 @@
 
 - name: Add remote host key to known_hosts with ip address entry
   ansible.builtin.known_hosts:
-    key: "{{ lookup('pipe', 'ssh-keyscan -t rsa {{ global_ip_address }}') }}"
+    key: "{{ lookup('pipe', 'ssh-keyscan -t rsa ' ~ global_ip_address) }}"
     name: "{{ global_ip_address }}"
     path: ~/.ssh/known_hosts
     state: present
