@@ -15,4 +15,4 @@ galaxy_info:
         - bionic
         - focal
 dependencies:
-  - role: common
+  - role: global
