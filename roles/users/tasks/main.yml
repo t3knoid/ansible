@@ -8,6 +8,7 @@
     shell: "{{ user.shell | default('/bin/bash') }}"
     uid: "{{ user.uid }}"
     state: present
+    create_home: "{{ user.home is defined }}"
   when: users_list is defined
   loop: "{{ users_list }}"
   loop_control:
@@ -28,6 +29,7 @@
   ansible.builtin.user:
     name: "{{ user.username }}"
     home: "{{ user.home }}"
+    move_home: true
   when: item.home is defined
   loop: "{{ users_list }}"
   loop_control:
