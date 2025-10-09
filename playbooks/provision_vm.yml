@@ -3,11 +3,11 @@
 - name: Create a new VM
   ansible.builtin.import_playbook: vms/provision_vm.yml
 
-- name: Add to active directory domain
-  ansible.builtin.import_playbook: ad/join_domain.yml
-
 - name: Install Python3
   ansible.builtin.import_playbook: python/deploy_python3.yml
+
+- name: Add to active directory domain
+  ansible.builtin.import_playbook: ad/join_domain.yml
 
 - name: Prep Ansible node
   ansible.builtin.import_playbook: ansible/prep_ansible_node.yml

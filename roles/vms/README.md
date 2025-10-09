@@ -13,10 +13,10 @@ Requirements
 The following Proxmox specific modules are used 
  
 - [community.proxmox.proxmox_kvm](https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_kvm_module.html)
-- [community.general.proxmox_nic](https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_nic_module.html)
+- [community.proxmox.proxmox_nic](https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_nic_module.html)
 - [community.proxmox.proxmox_disk](https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_disk_module.html)
-- [community.general.proxmox_vm_info](https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_vm_info_module.html)
-- [community.general.proxmox_template](https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_template_module.html)
+- [community.proxmox.proxmox_vm_info](https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_vm_info_module.html)
+- [community.proxmox.proxmox_template](https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_template_module.html)
 
 The following Python modules are required:
 - proxmoxer

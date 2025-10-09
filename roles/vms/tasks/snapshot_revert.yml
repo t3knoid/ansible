@@ -5,7 +5,7 @@
   when: vms_vmid is not defined
 
 - name: Revert virtual machine snapshot
-  community.general.proxmox_snap:
+  community.proxmox.proxmox_snap:
     api_host: "{{ global_proxmox_api_host }}"
     api_user: "{{ global_proxmox_api_user }}"
     api_password: "{{ global_proxmox_api_password }}"

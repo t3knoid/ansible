@@ -7,6 +7,6 @@
   roles:
     - global
     - role: cloudinit
-      delegate_to: "{{ vms_proxmox_node }}"
+      delegate_to: "{{ cloudinit_proxmox_node }}"
       vars:
         ansible_python_interpreter: /usr/bin/python3

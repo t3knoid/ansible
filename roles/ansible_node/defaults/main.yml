@@ -2,4 +2,4 @@
 ansible_node_custom_sudo_users:
   - semaphore
 
-ansible_node_remote_tmp: /ansible/tmp
+ansible_node_remote_tmp: "/tmp/.ansible/$USER"
