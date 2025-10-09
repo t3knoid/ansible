@@ -1,0 +1,32 @@
+---
+- name: Download and Extract Node xporter
+  ansible.builtin.unarchive:
+    src: >
+      https://github.com/prometheus/node_exporter/releases/download/v{{ node_exporter_setup_version }}/node_exporter-{{ node_exporter_setup_version }}.linux-amd64.tar.gz
+    dest: /opt/
+    remote_src: true
+    creates: "/opt/node_exporter-{{ node_exporter_setup_version }}.linux-amd64"
+    mode: '0755'
+
+- name: Create symlink for Node Exporter
+  ansible.builtin.file:
+    src: "/opt/node_exporter-{{ node_exporter_setup_version }}.linux-amd64"
+    dest: "{{ node_exporter_setup_home }}"
+    state: link
+    force: true
+
+- name: Set ownership for Node Exporter directory
+  ansible.builtin.file:
+    path: "/opt/node_exporter-{{ node_exporter_setup_version }}.linux-amd64"
+    owner: "{{ node_exporter_setup_user }}"
+    group: "{{ node_exporter_setup_group }}"
+    recurse: true
+
+- name: Copy Node Exporter binary to /usr/local/bin
+  ansible.builtin.copy:
+    src: /opt/node_exporter-{{ node_exporter_setup_version }}.linux-amd64/node_exporter
+    dest: /usr/local/bin/node_exporter
+    owner: "{{ node_exporter_setup_user }}"
+    group: "{{ node_exporter_setup_group }}"
+    mode: "{{ node_exporter_setup_mode }}"
+    remote_src: true
