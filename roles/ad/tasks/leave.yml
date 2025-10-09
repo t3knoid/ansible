@@ -13,10 +13,12 @@
   ansible.builtin.set_fact:
     ad_configured: "{{ ad_realm_discover_output.stdout_lines | select('search', '^\\s*configured:') | map('regex_replace', '^\\s*configured:\\s*', '') }}"
 
-- name: Install python3-pexpect
-  ansible.builtin.apt:
-    name: python3-pexpect
+- name: Install Python modules
+  ansible.builtin.pip:
+    name: "pexpect"
+    virtualenv: "/opt/python_{{ python3_version }}"
     state: present
+    umask: "0022"
 
 - name: Leave domain
   no_log: true
