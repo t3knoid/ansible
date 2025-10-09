@@ -1,0 +1,7 @@
+- name: Deploy Node Exporter
+  hosts: prometheus
+  become: true
+  gather_facts: false
+  roles:
+    - global
+    - node_exporter_setup

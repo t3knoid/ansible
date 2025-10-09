@@ -1,0 +1,7 @@
+---
+
+node_exporter_setup_version: 1.9.1
+node_exporter_setup_home: "/opt/node_exporter"
+node_exporter_setup_mode: '0755'
+node_exporter_setup_user: "prometheus"
+node_exporter_setup_group: "prometheus"
