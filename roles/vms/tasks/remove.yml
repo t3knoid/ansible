@@ -5,7 +5,7 @@
   when: vms_proxmox_node is not defined
 
 - name: Remove VM
-  community.general.proxmox_kvm:
+  community.proxmox.proxmox_kvm:
     api_host: "{{ global_proxmox_api_host }}"
     api_user: "{{ global_proxmox_api_user }}"
     api_password: "{{ global_proxmox_api_password }}"
