@@ -24,11 +24,11 @@ The tasks in the role are purposedly broken up into three YAML files. This allow
 
 ## Create a Virtual Machine in Proxmox
 
-Creating a virtual machine in Proxmox is straightforward by using the [community.general.proxmox_kvm](https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_kvm_module.html) module. The virtual machine creation tasks are in the [create.yml](tasks/create.yml) file. As you can see from the code, it is simply filling in the parameters needed by the proxmox_kvm module.
+Creating a virtual machine in Proxmox is straightforward by using the [community.proxmox.proxmox_kvm](https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_kvm_module.html) module. The virtual machine creation tasks are in the [create.yml](tasks/create.yml) file. As you can see from the code, it is simply filling in the parameters needed by the proxmox_kvm module.
 
 ```yaml
 - name: Create new ubuntu virtual machine
-  community.general.proxmox_kvm:
+  community.proxmox.proxmox_kvm:
     api_host: "{{ global_proxmox_api_host }}"
     api_user: "{{ global_proxmox_api_user }}"
     api_password: "{{ global_proxmox_api_password }}"
@@ -100,11 +100,11 @@ Autoinstall relies on [Cloud-init to provide its configuration](https://canonica
 
 #### Add CD/DVD Drive to Base Virtual Machine
 
-The first task is to add a CD/DVD drive to the base virtual machine image. The task uses he [community.general.proxmox_disk](https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_disk_module.html) module.
+The first task is to add a CD/DVD drive to the base virtual machine image. The task uses he [community.proxmox.proxmox_disk](https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_disk_module.html) module.
 
 ```yaml
 - name: Add second cd-rom drive for cloud-init.iso 
-  community.general.proxmox_disk:
+  community.proxmox.proxmox_disk:
     api_host: "{{ global_proxmox_api_host }}"
     api_user: "{{ global_proxmox_api_user }}"
     api_token_id: "{{ global_proxmox_api_token_id }}"
@@ -239,6 +239,6 @@ To wait for autoinstall to complete, a RESTful call to determine the virtual mac
 
 - [Deploy Ubuntu 24.04 (Noble Numbat) with Autoinstall to Proxmox](https://sekureco42.ch/posts/deploy-ubuntu-24.04-with-autoinstall-to-proxmox/)
 - [Introduction to autoinstall](https://canonical-subiquity.readthedocs-hosted.com/en/latest/intro-to-autoinstall.html)
-- [community.general.proxmox_kvm](https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_kvm_module.html)
-- [community.general.proxmox_disk](https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_disk_module.html)
+- [community.proxmox.proxmox_kvm](https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_kvm_module.html)
+- [community.proxmox.proxmox_disk](https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_disk_module.html)
 - [Proxmox QEMU Monitor API](https://pve.proxmox.com/pve-docs/api-viewer/index.html#/nodes/{node}/qemu/{vmid}/monitor)
