@@ -479,7 +479,7 @@ interpreter_python={{ python3_venv_folder }}/bin/python3
 ;common_remote_group=
 
 # (string) Temporary directory to use on targets when executing tasks.
-remote_tmp=~/.ansible/tmp
+remote_tmp={{ ansible_setup_remote_tmp }}
 
 # (list) List of valid system temporary directories on the managed machine for Ansible to validate O(remote_tmp) against, when specific permissions are needed.  These must be world readable, writable, and executable. This list should only contain directories which the system administrator has pre-created with the proper ownership and permissions otherwise security issues can arise.
 # When O(remote_tmp) is required to be a system temp dir and it does not match any in the list, the first one from the list will be used instead.

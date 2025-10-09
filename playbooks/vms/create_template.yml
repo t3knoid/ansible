@@ -3,7 +3,10 @@
 - name: Create a Template
   hosts: template
   gather_facts: false
+  become: true
   roles:
     - global
-    - cloudinit
-  become: true
+    - role: cloudinit
+      delegate_to: "{{ vms_proxmox_node }}"
+      vars:
+        ansible_python_interpreter: /usr/bin/python3

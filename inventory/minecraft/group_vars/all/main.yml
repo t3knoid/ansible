@@ -20,10 +20,6 @@ vms_config:
     size: 20
     storage: local
 
-pihole_cname_entries:
-  - domain: bedrock.refol.us
-    target: minecraft-1.refol.us
-
 postgresql_setup_version: 17
 java_setup_version: 21.0.6.7.1
 
@@ -32,6 +28,7 @@ vms_autoinstall: true
 vms_enable_serial_terminal: false
 vms_additional_packages: []
 python3_version: 3.12
+python3_venv_folder: "/opt/python_{{ python3_version }}"
 disks_disk_mounts:
   - { mountpoint: "/minecraft", mountpoint_owner: "ansible", mountpoint_group: "ansible" }
 
@@ -44,4 +41,4 @@ geyser_setup_java_xmx: 1024
 geyser_setup_java_xms: 128
 geyser_setup_port: 19132
 
-bedrock_setup_version: 1.21.102.1
+bedrock_setup_version: 1.21.112.1
