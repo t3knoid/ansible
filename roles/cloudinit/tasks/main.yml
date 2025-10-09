@@ -8,7 +8,7 @@
 
 - name: Download Ubuntu cloud image
   ansible.builtin.get_url:
-    url: "{{ global_os[vms_os].cloudinit_download_url }}/{{ global_os[vms_os].cloudinit_img }}"
+    url: "{{ global_os[cloudinit_template_os].cloudinit_download_url }}/{{ global_os[cloudinit_template_os].cloudinit_img }}"
     dest: "{{ cloudinit_download_dest }}"
     mode: '0644'
 
@@ -37,11 +37,11 @@
 
 - name: Ensure VM is created
   ansible.builtin.command: >
-    qm create {{ cloudinit_vmid }} --name {{ vms_name }} \
+    qm create {{ cloudinit_vmid }} --name {{ cloudinit_template_name }} \
     --memory {{ cloudinit_memory_mb }} \
     --net0 {{ cloudinit_network_device }} \
     --scsihw {{ cloudinit_scsi_controller_model }} \
-    --agent enabled=1 \
+    --agent enabled={{ cloudinit_agent_enabled | ternary('1', '0') }} \
     --cpu cputype={{ cloudinit_cpu_type }}
   args:
     creates: "/var/lib/vz/images/{{ cloudinit_vmid }}/base-{{ cloudinit_vmid }}-disk-0.raw"
