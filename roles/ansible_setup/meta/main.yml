@@ -1,0 +1,16 @@
+---
+galaxy_info:
+  role_name: global
+  author: Francis Refol
+  description: Provides tasks to install and configure Ansible on a control node.
+  license: MIT
+  min_ansible_version: "2.9"
+  platforms:
+    - name: EL
+      versions:
+        - "7"
+        - "8"
+    - name: Ubuntu
+      versions:
+        - bionic
+        - focal
