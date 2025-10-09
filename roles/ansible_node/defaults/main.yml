@@ -1,13 +1,5 @@
 ---
-ansible_node_python_modules:
-  - ansible==12.0.0 # https://pypi.org/project/ansible/
-  - ansible-dev-tools==25.8.3
-  - requests==2.32.5
-  - pycdlib==1.14.0
-  - proxmoxer==2.2.0
-  - jmespath==1.0.1
-  - passlib==1.7.4
-  - psycopg2-binary==2.9.10
-
 ansible_node_custom_sudo_users:
   - semaphore
+
+ansible_node_remote_tmp: /ansible/tmp

@@ -28,8 +28,4 @@ autofs_nfs_mounts:
     server: 192.168.2.250:/mnt/Data/downloads/complete
     mount_options: -rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys
 
-pihole_cname_entries:
-  - domain: lazy.refol.us
-    target: rproxy-0.refol.us
-
 lazylibrarian_setup_version: fd9caa18

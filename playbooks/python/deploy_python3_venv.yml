@@ -1,8 +1,9 @@
 ---
 
 - name: Install Python3 Environment
-  hosts: vms
-  gather_facts: false
+  hosts: vms, synology, plex, pvenodes
+  gather_facts: true
+  become: true
   tasks:
     - name: Import venv.yml from python3 role
       ansible.builtin.import_role:
