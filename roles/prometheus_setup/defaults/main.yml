@@ -1,19 +1,17 @@
 ---
 
-
-prometheus_setup_version: 3.5.0
+prometheus_setup_version: 3.6.0
 prometheus_setup_home: "/opt/prometheus"
 prometheus_setup_data_dir: "/data/prometheus"
-prometheus_setup_user: "prometheus"
-prometheus_setup_group: "prometheus
+prometheus_setup_user: "{{ users_list[0].username }}"
+prometheus_setup_group: "{{ users_list[0].username }}"
 prometheus_setup_service_file: "/etc/systemd/system/prometheus.service"
 prometheus_setup_binary: "/usr/local/bin/prometheus"
-prometheus_setup_shell: "/usr/sbin/nologin"
 prometheus_setup_mode: '0755'
 prometheus_setup_config_mode: '0644'
 prometheus_setup_service_mode: '0644'
 prometheus_setup_data_mode: '0755'
-prometheus_setup_listen_address: "0.0.0.0:9090"
+prometheus_setup_listen_address: "{{ global_ip_addresses[ansible_host] }}:9090"
 prometheus_setup_config_file: "{{ prometheus_setup_data_dir }}/etc/prometheus.yml"
 prometheus_setup_tsdb_dir: "{{ prometheus_setup_data_dir }}/data"
 prometheus_setup_console_templates: "{{ prometheus_setup_data_dir }}/consoles"

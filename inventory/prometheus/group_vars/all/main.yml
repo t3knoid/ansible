@@ -33,4 +33,17 @@ pihole_cname_entries:
   - domain: prometheus.refol.us
     target: rproxy-0.refol.us
 
-prometheus_setup_version: 3.5.0
+nginx_setup_disable_default_site: true
+
+rproxy_setup_sites:
+  - server_name: prometheus.refol.us
+    port: 9090
+    proxy_pass: "http://{{ global_ip_addresses['prometheus-0'] }}"
+    allow_list:
+      - 192.168.0.0/24
+      - 192.168.2.0/24
+      - 24.105.250.200
+      - 70.107.117.124
+    restricted: false
+
+prometheus_setup_version: 3.6.0
