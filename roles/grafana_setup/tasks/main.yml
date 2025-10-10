@@ -1,0 +1,27 @@
+---
+- name: Install required packages
+  ansible.builtin.apt:
+    name:
+      - adduser
+      - libfontconfig1
+      - musl
+    state: present
+    update_cache: true
+  become: true
+
+- name: Download Grafana Enterprise .deb package
+  ansible.builtin.get_url:
+    url: "https://dl.grafana.com/{{ grafana_setup_edition }}/release/{{ grafana_setup_version }}/{{ grafana_setup_edition }}_{{ grafana_setup_version }}_17949786146_linux_arm64.deb"
+    dest: "/tmp/{{ grafana_setup_edition }}_{{ grafana_setup_version }}_17949786146_linux_arm64.deb"
+    mode: '0644'
+
+- name: Install Grafana Enterprise .deb package
+  ansible.builtin.apt:
+    deb: "/tmp/{{ grafana_setup_edition }}_{{ grafana_setup_version }}_17949786146_linux_arm64.deb"
+  become: true
+
+- name: Ensure Grafana is enabled and started
+  ansible.builtin.systemd:
+    name: grafana-server
+    enabled: true
+    state: started
