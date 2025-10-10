@@ -1,0 +1,10 @@
+---
+
+grafana_setup_version: "12.2.0"
+grafana_setup_edition: "grafana-enterprise"
+grafana_setup_repo: "https://apt.grafana.com"
+grafana_setup_gpg_key_url: "https://apt.grafana.com/gpg.key"
+grafana_setup_package: "grafana"
+grafana_setup_repo_channel: "stable"
+grafana_setup_repo_file: "/etc/apt/sources.list.d/grafana.list"
+grafana_setup_keyring_path: "/etc/apt/keyrings/grafana.gpg"
