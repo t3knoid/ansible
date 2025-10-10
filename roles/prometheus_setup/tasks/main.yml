@@ -80,6 +80,15 @@
     mode: "{{ prometheus_setup_config_mode }}"
     backup: true
 
+- name: Copy Prometheus rule file
+  ansible.builtin.template:
+    src: prometheus.rules.yml.j2
+    dest: "{{ prometheus_setup_rules_file }}"
+    owner: "{{ prometheus_setup_user }}"
+    group: "{{ prometheus_setup_group }}"
+    mode: "{{ prometheus_setup_config_mode }}"
+    backup: true
+
 - name: Create Prometheus systemd service file
   ansible.builtin.template:
     src: prometheus.service.j2
@@ -90,12 +99,16 @@
 
 - name: Reload systemd daemon
   ansible.builtin.systemd:
-    name: prometheus
     daemon_reload: true
-    state: reloaded
 
 - name: Enable and start Prometheus service
   ansible.builtin.systemd:
     name: prometheus
     enabled: true
     state: started
+
+- name: Reload Prometheus configuration
+  ansible.builtin.uri:
+    url: "http://{{ global_ip_addresses[ansible_host] }}:9090/-/reload"
+    method: POST
+    validate_certs: false
