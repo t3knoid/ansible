@@ -17,9 +17,9 @@
     creates: "{{ grafana_setup_install_dir }}"
     mode: "0755"
 
-- name: Create symlink for Grafana
+- name: Create symlink to Grafana installation
   ansible.builtin.file:
-    src: "{{ grafana_setup_home_dir }}"
+    src: "{{ grafana_setup_install_dir }}"
     dest: "/opt/grafana"
     state: link
     force: true
@@ -56,6 +56,22 @@
     group: grafana
     mode: "0750"
 
+- name: Create Grafana provisioning directory
+  ansible.builtin.file:
+    path: "{{ grafana_setup_provisioning_dir }}"
+    state: directory
+    owner: grafana
+    group: grafana
+    mode: "0750"
+
+- name: Create Grafana provisioning/plugins directory
+  ansible.builtin.file:
+    path: "{{ grafana_setup_provisioning_dir }}/plugins"
+    state: directory
+    owner: grafana
+    group: grafana
+    mode: "0750"
+
 - name: Create Grafana configuration directory
   ansible.builtin.file:
     path: "{{ grafana_setup_conf_dir }}"
@@ -66,7 +82,7 @@
 
 - name: Copy Grafana configuration file
   ansible.builtin.template:
-    src: grafana.ini.j2
+    src: defaults.ini.j2
     dest: "{{ grafana_setup_config_file }}"
     owner: "{{ grafana_setup_user }}"
     group: "{{ grafana_setup_group }}"

@@ -7,17 +7,15 @@ After=postgresql.service mariadb.service mysql.service influxdb.service
 
 [Service]
 EnvironmentFile={{ grafana_setup_environment_file }}
-User=${GRAFANA_USER}
-Group=${GRAFANA_GROUP}
+User={{ grafana_setup_user }}
+Group={{ grafana_setup_group }}
 Type=simple
 Restart=on-failure
-WorkingDirectory=${GRAFANA_HOME}
-RuntimeDirectory=grafana
-RuntimeDirectoryMode=0750
+WorkingDirectory=/opt/grafana
 ExecStart={{ grafana_setup_bin_path }}                                     \
                             --config=${CONF_FILE}                                   \
                             --pidfile=${PID_FILE_DIR}/grafana-server.pid            \
-                            --packaging=deb                                         \
+                            --packaging=standalone                                         \
                             cfg:default.paths.logs=${LOG_DIR}                       \
                             cfg:default.paths.data=${DATA_DIR}                      \
                             cfg:default.paths.plugins=${PLUGINS_DIR}                \
