@@ -9,18 +9,99 @@
     update_cache: true
   become: true
 
-- name: Download Grafana Enterprise .deb package
-  ansible.builtin.get_url:
-    url: "https://dl.grafana.com/{{ grafana_setup_edition }}/release/{{ grafana_setup_version }}/{{ grafana_setup_edition }}_{{ grafana_setup_version }}_17949786146_linux_arm64.deb"
-    dest: "/tmp/{{ grafana_setup_edition }}_{{ grafana_setup_version }}_17949786146_linux_arm64.deb"
-    mode: '0644'
+- name: Download and Extract Grafana
+  ansible.builtin.unarchive:
+    src: "{{ grafana_setup_dl_url }}"
+    dest: "/opt/"
+    remote_src: true
+    creates: "{{ grafana_setup_install_dir }}"
+    mode: "0755"
 
-- name: Install Grafana Enterprise .deb package
-  ansible.builtin.apt:
-    deb: "/tmp/{{ grafana_setup_edition }}_{{ grafana_setup_version }}_17949786146_linux_arm64.deb"
-  become: true
+- name: Create symlink for Grafana
+  ansible.builtin.file:
+    src: "{{ grafana_setup_home_dir }}"
+    dest: "/opt/grafana"
+    state: link
+    force: true
 
-- name: Ensure Grafana is enabled and started
+- name: Create Grafana data directory
+  ansible.builtin.file:
+    path: "{{ grafana_setup_home_dir }}"
+    state: directory
+    owner: grafana
+    group: grafana
+    mode: "0755"
+
+- name: Create Grafana log directory
+  ansible.builtin.file:
+    path: "{{ grafana_setup_logs_dir }}"
+    state: directory
+    owner: grafana
+    group: grafana
+    mode: "0755"
+
+- name: Create Grafana plugins directory
+  ansible.builtin.file:
+    path: "{{ grafana_setup_plugins_dir }}"
+    state: directory
+    owner: grafana
+    group: grafana
+    mode: "0755"
+
+- name: Create Grafana pid file directory
+  ansible.builtin.file:
+    path: "{{ grafana_setup_pid_dir }}"
+    state: directory
+    owner: grafana
+    group: grafana
+    mode: "0750"
+
+- name: Create Grafana configuration directory
+  ansible.builtin.file:
+    path: "{{ grafana_setup_conf_dir }}"
+    state: directory
+    owner: grafana
+    group: grafana
+    mode: "0750"
+
+- name: Copy Grafana configuration file
+  ansible.builtin.template:
+    src: grafana.ini.j2
+    dest: "{{ grafana_setup_config_file }}"
+    owner: "{{ grafana_setup_user }}"
+    group: "{{ grafana_setup_group }}"
+    mode: "0640"
+    backup: true
+
+- name: Copy Grafana defaults file
+  ansible.builtin.template:
+    src: defaults.j2
+    dest: "{{ grafana_setup_environment_file }}"
+    owner: "{{ grafana_setup_user }}"
+    group: "{{ grafana_setup_group }}"
+    mode: "0640"
+    backup: true
+
+- name: Set ownership for Grafana directory
+  ansible.builtin.file:
+    path: "{{ grafana_setup_home_dir }}"
+    owner: "{{ grafana_setup_user }}"
+    group: "{{ grafana_setup_group }}"
+    recurse: true
+
+- name: Create Grafana systemd service file
+  ansible.builtin.template:
+    src: grafana-server.service.j2
+    dest: "{{ grafana_setup_service_file }}"
+    owner: "{{ grafana_setup_user }}"
+    group: "{{ grafana_setup_group }}"
+    mode: "0640"
+
+- name: Reload systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: Enable and start grafana service
   ansible.builtin.systemd:
     name: grafana-server
     enabled: true
