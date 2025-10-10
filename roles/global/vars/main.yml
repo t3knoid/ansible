@@ -23,6 +23,7 @@ global_ip_addresses:
   plex-0: 192.168.2.220
   graphite-0: 192.168.2.190
   prometheus-0: 192.168.2.192
+  grafana-0: 192.168.2.195
   ubu24-template: 192.168.2.199
   pve-0: 192.168.2.200
   pve-1: 192.168.2.201
