@@ -1,0 +1,49 @@
+---
+
+vms_config:
+  agent: "1"
+  cores: "2"
+  cpu: host
+  memory: 2048
+  ostype: l26
+  scsihw: local
+  sockets: 1
+  storage: local
+  disk_os:
+    disk: virtio0
+    backup: true
+    size: 20
+    storage: local
+  disk2:
+    disk: virtio1
+    backup: true
+    size: 30
+    storage: local
+
+vms_os: ubuntu_24_server
+vms_autoinstall: true
+vms_enable_serial_terminal: false
+vms_additional_packages: []
+python3_version: 3.12
+
+disks_disk_mounts:
+  - { mountpoint: "/data", mountpoint_owner: "{{ users_list[0].username }}", mountpoint_group: "{{ users_list[0].username }}" }
+
+pihole_cname_entries:
+  - domain: grafana.refol.us
+    target: rproxy-0.refol.us
+
+nginx_setup_disable_default_site: true
+
+rproxy_setup_sites:
+  - server_name: grafana.refol.us
+    port: 3000
+    proxy_pass: "http://{{ global_ip_addresses['grafana-0'] }}"
+    allow_list:
+      - 192.168.0.0/24
+      - 192.168.2.0/24
+      - 24.105.250.200
+      - 70.107.117.124
+    restricted: false
+
+prometheus_setup_version: 3.6.0
