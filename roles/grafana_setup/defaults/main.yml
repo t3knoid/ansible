@@ -1,0 +1,25 @@
+---
+
+grafana_setup_version: "12.2.0"
+grafana_setup_edition: "grafana-enterprise"
+grafana_setup_tgz_file: "{{ grafana_setup_edition }}_{{ grafana_setup_version }}_17949786146_linux_amd64.tar.gz"
+grafana_setup_dl_url: "https://dl.grafana.com/{{ grafana_setup_edition }}/release/{{ grafana_setup_version }}/{{ grafana_setup_tgz_file }}"
+grafana_setup_install_dir: "/opt/grafana-{{ grafana_setup_version }}"
+grafana_setup_bin_path: "{{ grafana_setup_install_dir }}/bin/grafana-server"
+
+grafana_setup_http_port: 3000
+grafana_setup_user: "grafana"
+grafana_setup_group: "users"
+
+grafana_setup_home_dir: "/data/grafana"
+grafana_setup_logs_dir: "{{ grafana_setup_home_dir }}/logs"
+grafana_setup_plugins_dir: "{{ grafana_setup_home_dir }}/plugins"
+grafana_setup_bin_dir: "{{ grafana_setup_home_dir }}/bin/grafana"
+grafana_setup_provisioning_dir: "{{ grafana_setup_home_dir }}/provisioning"
+grafana_setup_conf_dir: "{{ grafana_setup_home_dir }}/conf"
+grafana_setup_pid_dir: "{{ grafana_setup_home_dir }}/run"
+
+grafana_setup_config_file: "{{ grafana_setup_conf_dir }}/grafana.ini"
+grafana_setup_service_file: "/usr/lib/systemd/system/grafana-server.service"
+grafana_setup_environment_file: "{{ grafana_setup_home_dir }}/defaults"
+
