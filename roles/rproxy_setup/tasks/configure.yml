@@ -42,7 +42,7 @@
 
 - name: Check if certificate is present
   ansible.builtin.stat:
-    path: "{{ nginx_setup_certroot }}/{{ rproxy_setup_site.server_name }}/cert.pem"
+    path: "{{ nginx_setup_certroot }}/{{ rproxy_setup_site.server_name }}/fullchain.pem"
   register: rproxy_setup_cert_pem
   loop: "{{ rproxy_setup_sites }}"
   loop_control:
