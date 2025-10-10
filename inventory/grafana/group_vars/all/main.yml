@@ -35,9 +35,13 @@ pihole_cname_entries:
 
 nginx_setup_disable_default_site: true
 
+grafana_setup_http_port: 3000
+grafana_setup_version: "12.2.0"
+grafana_setup_edition: "grafana-enterprise"
+
 rproxy_setup_sites:
   - server_name: grafana.refol.us
-    port: 3000
+    port: "{{ grafana_setup_http_port }}"
     proxy_pass: "http://{{ global_ip_addresses['grafana-0'] }}"
     allow_list:
       - 192.168.0.0/24
@@ -45,5 +49,3 @@ rproxy_setup_sites:
       - 24.105.250.200
       - 70.107.117.124
     restricted: false
-
-prometheus_setup_version: 3.6.0
