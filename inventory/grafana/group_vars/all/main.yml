@@ -35,6 +35,8 @@ pihole_cname_entries:
 
 nginx_setup_disable_default_site: true
 
+postgresql_setup_version: 17
+
 grafana_setup_http_port: 3000
 grafana_setup_version: "12.2.0"
 grafana_setup_edition: "grafana-enterprise"

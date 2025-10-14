@@ -1,0 +1,12 @@
+---
+- name: Backup Grafana database to NFS share
+  hosts: pgdb
+  become: true
+  roles:
+    - global
+
+  tasks:
+    - name: Import database_backup.yml from grafana_setup.yml role
+      ansible.builtin.import_role:
+        name: grafana_setup
+        tasks_from: database_backup.yml
