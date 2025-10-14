@@ -1128,13 +1128,13 @@ content_types = text/html
 [log]
 # Either "console", "file", "syslog". Default is console and file
 # Use space to separate multiple modes, e.g. "console file"
-mode = console file
+mode = {{ grafana_setup_log_mode | default('console file') }}
 
 # Either "debug", "info", "warn", "error". Default is "info"
-level = info
+level = {{ grafana_setup_log_level | default('info') }}
 
 # optional settings to set different levels for specific loggers. Ex filters = sqlstore:debug
-filters =
+filters = {{ grafana_setup_log_filters | default('') }}
 
 # Set the default error message shown to users. This message is displayed instead of sensitive backend errors which should be obfuscated.
 user_facing_default_error = "please inspect Grafana server log for details"
