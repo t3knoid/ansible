@@ -1,12 +1,41 @@
+# Enable verbose logging for debugging
+verbose_logging = {{ grafana_setup_ldap_verbose_logging | bool | lower }}
+
 [[servers]]
 host = "{{ grafana_setup_ldap_server }}"
 port = {{ grafana_setup_ldap_port }}
 use_ssl = {{ grafana_setup_ldap_use_tls | bool | lower }}
+
+# Bind credentials
 bind_dn = "{{ grafana_setup_ldap_bind_dn }}"
 bind_password = "{{ grafana_setup_ldap_bindpassword }}"
+
+# User search filter
 search_filter = "{{ grafana_setup_ldap_searchfilter }}"
 search_base_dns = ["{{ grafana_setup_ldap_searchdn }}"]
 
+# Group search filter
+group_search_filter = "{{ grafana_setup_ldap_group_searchfilter }}"
+group_search_base_dns = ["{{ grafana_setup_ldap_group_searchdn }}"]
+group_search_user_attribute = "member"
+group_search_group_attribute = "cn"
+
+# Group mappings
 [[servers.group_mappings]]
 group_dn = "{{ grafana_setup_ldap_group_dn }}"
 org_role = "Admin"
+
+[[servers.group_mappings]]
+group_dn = "{{ grafana_setup_ldap_editor_group }}"
+org_role = "Editor"
+
+[[servers.group_mappings]]
+group_dn = "{{ grafana_setup_ldap_viewer_group }}"
+org_role = "Viewer"
+
+# Attribute mappings
+[servers.attributes]
+username  = "sAMAccountName"
+surname = "sn"
+email = "userPrincipalName"
+given_name = "givenName"
