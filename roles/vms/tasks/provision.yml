@@ -36,14 +36,6 @@
     msg: "Template was not found in the Proxmox cluster. Exiting."
   when: vms_proxmox_template is not defined
 
-# This ensures that the current Ansible user can
-# connect via ssh into the new virtual machine
-- name: Generate Ansible user ssh key if needed
-  community.crypto.openssh_keypair:
-    path: ~/.ssh/id_rsa
-  delegate_to: localhost
-  register: vms_sshkey
-
 - name: Check if vm already exists
   ansible.builtin.set_fact:
     vms_vm_exists: "{{ vms_vm_list.json.data | selectattr('name', 'equalto', vms_name | default(inventory_hostname)) | list | length > 0 }}"
@@ -150,6 +142,7 @@
     ansible_python_interpreter: /usr/bin/python3
 
 - name: Wait for cloud-init to finish
+  no_log: false
   ansible.builtin.command: cloud-init status --wait
   changed_when: false
   vars:
