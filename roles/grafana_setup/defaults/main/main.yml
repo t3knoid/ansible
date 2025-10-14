@@ -39,7 +39,18 @@ grafana_setup_ldap_server: "192.168.2.251"
 grafana_setup_ldap_port: 389
 grafana_setup_ldap_use_tls: false
 grafana_setup_ldap_bind_dn: "CN=LDAP Bind User,OU=Service Accounts,DC=refol,DC=us"
-grafana_setup_ldap_bindpassword: ""
+# grafana_setup_ldap_bindpassword: "See vault"
 grafana_setup_ldap_searchdn: "CN=Users,DC=refol,DC=us"
 grafana_setup_ldap_searchfilter: "(sAMAccountName=%s)"
 grafana_setup_ldap_group_dn: "CN=GrafanaAdmins,CN=Users,DC=refol,DC=us"
+grafana_setup_ldap_editor_group: "CN=GrafanaEditors,CN=Users,DC=refol,DC=us"
+grafana_setup_ldap_viewer_group: "CN=GrafanaViewers,CN=Users,DC=refol,DC=us"
+
+grafana_setup_ldap_group_searchfilter: "(objectClass=group)"
+grafana_setup_ldap_group_searchdn: "CN=Users,DC=refol,DC=us"
+
+# Log settings
+grafana_setup_ldap_verbose_logging: false
+grafana_setup_log_mode: "console file"
+grafana_setup_log_level: "info"
+grafana_setup_log_filters: "ldap:info"
