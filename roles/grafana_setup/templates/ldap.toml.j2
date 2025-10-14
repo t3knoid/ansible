@@ -1,0 +1,12 @@
+[[servers]]
+host = "{{ grafana_setup_ldap_server }}"
+port = {{ grafana_setup_ldap_port }}
+use_ssl = {{ grafana_setup_ldap_use_tls | bool | lower }}
+bind_dn = "{{ grafana_setup_ldap_bind_dn }}"
+bind_password = "{{ grafana_setup_ldap_bindpassword }}"
+search_filter = "{{ grafana_setup_ldap_searchfilter }}"
+search_base_dns = ["{{ grafana_setup_ldap_searchdn }}"]
+
+[[servers.group_mappings]]
+group_dn = "{{ grafana_setup_ldap_group_dn }}"
+org_role = "Admin"
