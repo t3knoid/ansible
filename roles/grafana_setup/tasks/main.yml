@@ -112,6 +112,16 @@
     mode: "0640"
     backup: true
 
+- name: Copy Grafana LDAP settings file
+  ansible.builtin.template:
+    src: ldap.toml.j2
+    dest: "{{ grafana_setup_conf_dir }}/ldap.toml"
+    owner: "{{ grafana_setup_user }}"
+    group: "{{ grafana_setup_group }}"
+    mode: "0640"
+    backup: true
+  notify: Restart Grafana
+
 - name: Copy Grafana defaults file
   ansible.builtin.template:
     src: defaults.j2
@@ -120,6 +130,7 @@
     group: "{{ grafana_setup_group }}"
     mode: "0640"
     backup: true
+  notify: Restart Grafana
 
 - name: Set ownership for Grafana directory
   ansible.builtin.file:
@@ -135,12 +146,11 @@
     owner: "{{ grafana_setup_user }}"
     group: "{{ grafana_setup_group }}"
     mode: "0640"
+  notify:
+    - Reload systemd daemon
+    - Restart Grafana
 
-- name: Reload systemd daemon
-  ansible.builtin.systemd:
-    daemon_reload: true
-
-- name: Enable and start grafana service
+- name: Enable and start Grafana service
   ansible.builtin.systemd:
     name: grafana-server
     enabled: true
