@@ -1,6 +1,6 @@
 ---
 
-- name: Ensure venv is installed 
+- name: Ensure venv is installed
   ansible.builtin.package:
     name:
       - python3-venv
@@ -30,14 +30,29 @@
     else
       echo "packaging module already installed."
     fi
-  register: pip_install_output
-  changed_when: "'Successfully installed packaging' in pip_install_output.stdout"
-  failed_when: pip_install_output.rc != 0 and 'packaging module already installed' not in pip_install_output.stdout
+  register: python3_pip_install_output
+  changed_when: "'Successfully installed packaging' in python3_pip_install_output.stdout"
+  failed_when: python3_pip_install_output.rc != 0 and 'packaging module already installed' not in python3_pip_install_output.stdout
 
 - name: Upgrade Python pip
   ansible.builtin.shell: |
     umask 0022
     {{ python3_venv_folder }}/bin/python3 -m pip install --upgrade pip
-  register: pip_upgrade_output
-  changed_when: "'Successfully installed pip' in pip_upgrade_output.stdout"
-  failed_when: pip_upgrade_output.rc != 0 and 'Successfully installed' not in pip_upgrade_output.stdout
+  register: python3_pip_upgrade_output
+  changed_when: "'Successfully installed pip' in python3_pip_upgrade_output.stdout"
+  failed_when: python3_pip_upgrade_output.rc != 0 and 'Successfully installed' not in python3_pip_upgrade_output.stdout
+
+- name: Generate requirements.txt from package list
+  ansible.builtin.template:
+    src: requirements.txt.j2
+    dest: "{{ python3_venv_folder }}/requirements.txt"
+    mode: "0644"
+
+- name: Install packages via pip in virtualenv
+  ansible.builtin.pip:
+    requirements: "{{ python3_venv_folder }}/requirements.txt"
+    virtualenv: "{{ python3_venv_folder }}"
+    state: present
+  register: python3_pip_install_output
+  changed_when: python3_pip_install_output.changed
+  failed_when: python3_pip_install_output.failed
