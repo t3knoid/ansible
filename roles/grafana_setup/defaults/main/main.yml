@@ -22,3 +22,14 @@ grafana_setup_pid_dir: "{{ grafana_setup_home_dir }}/run"
 grafana_setup_config_file: "{{ grafana_setup_conf_dir }}/defaults.ini"
 grafana_setup_service_file: "/usr/lib/systemd/system/grafana-server.service"
 grafana_setup_environment_file: "{{ grafana_setup_home_dir }}/defaults"
+
+grafana_setup_pg_port: 5432
+grafana_setup_pg_host: "{{ global_ip_addresses[groups['pgdb'][0]] }}"
+# See vault for the following variables
+# grafana_setup_db_name
+# grafana_setup_db_user
+# grafana_setup_db_password
+grafana_setup_mount_point: /nfs/backups
+grafana_setup_backup_prefix: "grafana_"
+grafana_setup_backup_filename: "{{ grafana_setup_backup_prefix }}{{ ansible_date_time.date }}.sqlc"
+grafana_setup_backup_path: "{{ grafana_setup_mount_point }}/{{ grafana_setup_backup_filename }}"
