@@ -127,12 +127,12 @@ max_send_msg_size =
 # as separate properties or as on string using the url property.
 
 # Either "mysql", "postgres" or "sqlite3", it's your choice
-type = sqlite3
-host = 127.0.0.1:3306
-name = grafana
-user = root
+type = postgres
+host = {{ grafana_setup_pg_host }}:{{ grafana_setup_pg_port }}
+name = {{ grafana_setup_db_name }}
+user = {{ grafana_setup_db_user }}
 # If the password contains # or ; you have to wrap it with triple quotes. Ex """#password;"""
-password =
+password = {{ grafana_setup_db_password }}
 # Use either URL or the previous fields to configure the database
 # Example: mysql://user:secret@host:port/database
 url =
@@ -142,7 +142,7 @@ url =
 # instead of relying on the database.
 #
 # Only set it to false if you run only a single instance of Grafana.
-high_availability = true
+high_availability = false
 
 # Max idle conn setting default is 2
 max_idle_conn = 2
@@ -161,7 +161,7 @@ log_queries =
 ssl_mode = disable
 
 # For "postgres", use either "1" to enable or "0" to disable SNI
-ssl_sni =
+ssl_sni = 0
 
 # Database drivers may support different transaction isolation levels.
 # Currently, only "mysql" driver supports isolation levels.

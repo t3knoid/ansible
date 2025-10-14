@@ -1,0 +1,49 @@
+---
+
+- name: Ensure PostgreSQL is installed
+  ansible.builtin.apt:
+    name: postgresql
+    state: present
+
+- name: Start and enable PostgreSQL service
+  ansible.builtin.systemd:
+    name: postgresql
+    state: started
+    enabled: true
+
+- name: Ensure PostgreSQL Python library is installed
+  ansible.builtin.apt:
+    name: python3-psycopg2
+    state: present
+
+- name: Create the PostgreSQL user
+  community.postgresql.postgresql_user:
+    name: "{{ grafana_setup_db_user }}"
+    password: "{{ grafana_setup_db_password }}"
+    state: present
+  become: true
+  become_user: postgres
+  notify: Restart PostgreSQL
+
+- name: Create the PostgreSQL database
+  community.postgresql.postgresql_db:
+    name: "{{ grafana_setup_db_name }}"
+    owner: "{{ grafana_setup_db_user }}"
+    state: present
+  become: true
+  become_user: postgres
+  notify: Restart PostgreSQL
+
+- name: Ensure .pgpass entry exists without duplication
+  ansible.builtin.lineinfile:
+    path: ~/.pgpass
+    line: "{{ grafana_setup_pg_host }}:5432:{{ grafana_setup_db_name }}:{{ grafana_setup_db_user }}:{{ grafana_setup_db_password }}"
+    create: true
+    owner: postgres
+    group: postgres
+    mode: '0600'
+    state: present
+    insertafter: EOF
+  become: true
+  become_user: postgres
+  notify: Restart PostgreSQL
