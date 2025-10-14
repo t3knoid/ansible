@@ -26,3 +26,4 @@
       {{ mount.mount_name }} {{ mount.mount_options }} {{ mount.server }}
       {% endfor %}
   notify: Restart autofs
+  when: autofs_nfs_mounts is defined and autofs_nfs_mounts | length > 0
