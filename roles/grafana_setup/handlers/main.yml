@@ -1,5 +1,5 @@
 ---
-- name: Restart grafana
+- name: Restart Grafana
   ansible.builtin.systemd:
     name: grafana-server
     state: restarted
@@ -9,3 +9,7 @@
     name: postgresql
     state: restarted
   delegate_to: "{{ grafana_setup_pg_host }}"
+
+- name: Reload systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: true
