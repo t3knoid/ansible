@@ -1,4 +1,27 @@
 ---
+
+- name: Update pg_hba.conf to allow password access using host ip address
+  community.postgresql.postgresql_pg_hba:
+    dest: "/etc/postgresql/{{ postgresql_setup_version }}/main/pg_hba.conf"
+    contype: host
+    users: all
+    source: "{{ global_ip_address }}/32"
+    databases: all
+    method: md5
+  delegate_to: "{{ groups['pgdb'][0] }}"
+  notify: Restart PostgreSQL
+
+- name: Update pg_hba.conf to allow password access using the database host ip address
+  community.postgresql.postgresql_pg_hba:
+    dest: "/etc/postgresql/{{ postgresql_setup_version }}/main/pg_hba.conf"
+    contype: host
+    users: all
+    source: "{{ grafana_setup_pg_host }}/32"
+    databases: all
+    method: md5
+  delegate_to: "{{ groups['pgdb'][0] }}"
+  notify: Restart PostgreSQL
+
 - name: Install required packages
   ansible.builtin.apt:
     name:

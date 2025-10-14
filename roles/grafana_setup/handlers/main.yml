@@ -3,3 +3,9 @@
   ansible.builtin.systemd:
     name: grafana-server
     state: restarted
+
+- name: Restart PostgreSQL
+  ansible.builtin.service:
+    name: postgresql
+    state: restarted
+  delegate_to: "{{ grafana_setup_pg_host }}"
