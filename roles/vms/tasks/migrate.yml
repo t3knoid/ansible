@@ -45,6 +45,14 @@
   vars:
     ansible_python_interpreter: /usr/bin/python3
 
+# This ensures that the current Ansible user can
+# connect via ssh into the new virtual machine
+- name: Generate Ansible user ssh key if needed
+  community.crypto.openssh_keypair:
+    path: ~/.ssh/id_rsa
+  delegate_to: localhost
+  register: vms_sshkey
+
 - name: Copy user cloud-init file
   template:
     src: user-data-ci.j2

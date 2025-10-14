@@ -7,7 +7,6 @@ prefer_fqdn_over_hostname: false
 manage_etc_hosts: true
 fqdn: {{ inventory_hostname }}.{{ global_domain_name }}
 users:
-  - default
   - name: {{ global_vm_template_user }}
     gecos: Ansible user
     groups: users,admin
@@ -15,14 +14,30 @@ users:
     shell: /bin/bash
     passwd: {{ global_vm_template_user_crypted_password }}
     lock_passwd: false
-chpasswd:
-  expire: False
+    ssh_authorized_keys:
+      - {{ vms_sshkey.public_key }}
+
+# Enable password authentication over SSH
 ssh_pwauth: true
+
+# Update and upgrade packages on first boot
 package_update: true
 package_upgrade: true
 
-timezone: {{ global_timezone }}
+timezone: {{ vms_global_timezone | default(global_timezone) }}
 
-allow_public_ssh_keys: true
+# Disable root login
 disable_root: true
 
+# Install additional packages
+packages:
+{% for package in global_packages_list | union(vms_additional_packages) -%}
+  - {{ package }}
+{% endfor -%} 
+
+# Ensure ansible group can sudo without password
+write_files:
+  - path: /etc/sudoers.d/99_ansible
+    content: |
+      %ansible ALL=(ALL) NOPASSWD:ALL
+    permissions: '0440'
