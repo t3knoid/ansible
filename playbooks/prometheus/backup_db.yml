@@ -1,0 +1,12 @@
+---
+- name: Backup Prometheus database to NFS share
+  hosts: prometheus
+  become: true
+  roles:
+    - global
+
+  tasks:
+    - name: Import backup_db.yml from prometheus_setup role
+      ansible.builtin.import_role:
+        name: prometheus_setup
+        tasks_from: backup_db.yml

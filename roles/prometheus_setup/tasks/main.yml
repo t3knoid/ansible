@@ -79,6 +79,8 @@
     group: "{{ prometheus_setup_group }}"
     mode: "{{ prometheus_setup_config_mode }}"
     backup: true
+  notify:
+    - Reload Prometheus configuration
 
 - name: Copy Prometheus rule file
   ansible.builtin.template:
@@ -88,6 +90,27 @@
     group: "{{ prometheus_setup_group }}"
     mode: "{{ prometheus_setup_config_mode }}"
     backup: true
+  notify:
+    - Reload Prometheus configuration
+
+- name: Create a Prometheus backup directory on /nfs/backups/
+  ansible.builtin.file:
+    path: "/nfs/backups/prometheus"
+    state: directory
+    mode: '0755'
+    owner: "{{ prometheus_setup_user }}"
+    group: "{{ prometheus_setup_group }}"
+
+# Use a bind mount to link the NFS directory to the Prometheus snapshots directory
+# otherwise, an invalid cross-device link error occurs during snapshot creation
+# if a softlink is used instead.
+- name: Bind mount NAS share to Prometheus data directory
+  ansible.posix.mount:
+    path: "{{ prometheus_setup_snapshots_dir }}"
+    src: /nfs/backups/prometheus
+    fstype: none
+    opts: bind
+    state: mounted
 
 - name: Create Prometheus systemd service file
   ansible.builtin.template:
@@ -96,19 +119,12 @@
     owner: "{{ prometheus_setup_user }}"
     group: "{{ prometheus_setup_group }}"
     mode: "{{ prometheus_setup_data_mode }}"
-
-- name: Reload systemd daemon
-  ansible.builtin.systemd:
-    daemon_reload: true
+  notify:
+    - Reload systemd daemon
+    - Restart Prometheus service
 
 - name: Enable and start Prometheus service
   ansible.builtin.systemd:
     name: prometheus
     enabled: true
     state: started
-
-- name: Reload Prometheus configuration
-  ansible.builtin.uri:
-    url: "http://{{ global_ip_addresses[ansible_host] }}:9090/-/reload"
-    method: POST
-    validate_certs: false

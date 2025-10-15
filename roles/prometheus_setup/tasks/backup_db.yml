@@ -1,0 +1,16 @@
+---
+
+- name: Create Prometheus snapshot
+  ansible.builtin.uri:
+    url: "http://{{ prometheus_setup_listen_address }}/api/v1/admin/tsdb/snapshot"
+    method: POST
+    return_content: true
+    status_code: 200
+    body_format: form-urlencoded
+    body:
+      skip_head: "{{ prometheus_setup_skip_head | default('false') }}"
+  register: prometheus_setup_snapshot_response
+
+- name: Show snapshot directory
+  ansible.builtin.debug:
+    msg: "Snapshot created at: {{ prometheus_setup_snapshot_response.json.data.name }}"

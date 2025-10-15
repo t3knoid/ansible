@@ -8,7 +8,7 @@ After=network-online.target
 User={{ prometheus_setup_user }}
 Group={{ prometheus_setup_group }}
 Type=simple
-ExecStart={{ prometheus_setup_binary }} --config.file={{ prometheus_setup_config_file }} --storage.tsdb.path={{ prometheus_setup_tsdb_dir }} --web.listen-address={{ prometheus_setup_listen_address }} --web.console.templates={{ prometheus_setup_console_templates }} --web.console.libraries={{ prometheus_setup_console_libraries }} {{ prometheus_setup_extra_args }}
+ExecStart={{ prometheus_setup_binary }} {{ prometheus_setup_extra_args }} --config.file={{ prometheus_setup_config_file }} --storage.tsdb.path={{ prometheus_setup_tsdb_dir }} --web.listen-address={{ prometheus_setup_listen_address }} --web.console.templates={{ prometheus_setup_console_templates }} --web.console.libraries={{ prometheus_setup_console_libraries }} 
 Restart=on-failure
 RestartSec=5
 LimitNOFILE=65536
