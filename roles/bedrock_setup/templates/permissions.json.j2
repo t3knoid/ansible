@@ -1,0 +1,8 @@
+[
+{% for user in bedrock_setup_minecraft_admins %}
+  {
+    "permission": "operator",
+    "xuid": "{{ user.xuid }}"
+  }{% if not loop.last %},{% endif %}
+{% endfor %}
+]

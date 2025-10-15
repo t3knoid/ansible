@@ -25,6 +25,15 @@
     line: "{{ item.key }}={{ item.value }}"
     state: present
   loop: "{{ bedrock_setup_server_props }}"
+  notify: Restart Bedrock service
+
+- name: Create permissions.json file
+  ansible.builtin.template:
+    src: permissions.json.j2
+    dest: "{{ bedrock_setup_homedir }}/permissions.json"
+    mode: "0640"
+  notify:
+    - Restart Bedrock service
 
 - name: Create systemd service file for Bedrock
   ansible.builtin.template:
