@@ -29,6 +29,11 @@ python3_version: 3.12
 disks_disk_mounts:
   - { mountpoint: "/data", mountpoint_owner: "{{ users_list[0].username }}", mountpoint_group: "{{ users_list[0].username }}" }
 
+autofs_nfs_mounts:
+  - mount_name: backups
+    server: 192.168.2.250:/mnt/Data/backups_ex
+    mount_options: -rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys
+
 pihole_cname_entries:
   - domain: prometheus.refol.us
     target: rproxy-0.refol.us

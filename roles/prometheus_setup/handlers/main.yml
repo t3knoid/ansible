@@ -1,0 +1,16 @@
+---
+- name: Reload systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: Restart Prometheus service
+  ansible.builtin.systemd:
+    name: prometheus
+    state: restarted
+    enabled: true
+
+- name: Reload Prometheus configuration
+  ansible.builtin.uri:
+    url: "http://{{ global_ip_addresses[ansible_host] }}:9090/-/reload"
+    method: POST
+    validate_certs: false

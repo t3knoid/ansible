@@ -1,7 +1,7 @@
 ---
 
 - name: Deploy autofs
-  hosts: all
+  hosts: autofs
   become: true
   roles:
     - autofs
