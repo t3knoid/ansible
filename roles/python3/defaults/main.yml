@@ -17,8 +17,8 @@ python3_repo_key_local: "/etc/apt/trusted.gpg.d/deadsnakes.asc"
 ansible_python_interpreter: "/usr/bin/python{{ python3_version }}"
 
 python3_venv_packages_to_install:
-  - requests
-  - pexpect
-  - passlib
-  - psycopg2-binary
-  - packaging
+  - requests==2.32.5
+  - pexpect==4.9.0
+  - passlib==1.7.4
+  - psycopg2-binary==2.9.11
+  - packaging==25.0
