@@ -8,17 +8,17 @@ vms_config:
   ostype: l26
   scsihw: virtio-scsi-single
   sockets: 1
-  storage: linstor_storage
+  storage: local
   disk_os:
     disk: virtio0
     backup: true
     size: 20
-    storage: linstor_storage
+    storage: local
   disk2:
     disk: virtio0
     backup: true
     size: 20
-    storage: linstor_storage
+    storage: local
 
 autofs_nfs_mounts:
   - mount_name: tvshows
