@@ -1,0 +1,23 @@
+---
+
+bedrock_setup_version: 1.21.62.01
+bedrock_setup_download_url: https://www.minecraft.net/bedrockdedicatedserver/bin-linux
+bedrock_setup_download_archive: bedrock-server-{{ bedrock_setup_version }}.zip
+
+bedrock_setup_server_props:
+  - { key: 'server-port', value: '19132' }
+  - { key: 'gamemode', value: 'creative' }
+  - { key: 'online-mode', value: 'true' }
+  - { key: 'server-name', value: "Dad's Minecraft Server" }
+  - { key: 'max-players', value: '10' }
+  - { key: 'difficulty', value: 'easy' }
+  - { key: 'content-log-file-enabled', value: 'false' }
+  - { key: 'allow-cheats', value: 'false' }
+  - { key: 'default-player-permission-level', value: 'visitor' }
+  - { key: 'allow-cheats', value: 'false' }
+  - { key: 'allow-list', value: 'false' }
+  - { key: 'enable-lan-visibility', value: 'true' }
+  - { key: 'view-distance', value: '32' }
+  - { key: 'tick-distance', value: '4' }
+  - { key: 'player-idle-timeout', value: '30' }
+  - { key: 'max-threads', value: '8' }
