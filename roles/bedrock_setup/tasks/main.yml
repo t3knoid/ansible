@@ -31,6 +31,9 @@
     src: bedrock.service.j2
     dest: /etc/systemd/system/bedrock.service
     mode: "0640"
+  notify:
+    - Reload systemd daemon
+    - Restart Bedrock service
 
 - name: Copy server icon
   ansible.builtin.copy:
@@ -38,16 +41,36 @@
     dest: "{{ bedrock_setup_homedir }}"
     mode: "0640"
 
-- name: Reload systemd daemon
-  ansible.builtin.systemd:
-    daemon_reload: true
-
 - name: Enable Bedrock service
   ansible.builtin.systemd:
     name: bedrock
     enabled: true
 
-- name: Start Bedrock service
-  ansible.builtin.systemd:
-    name: bedrock
-    state: restarted
+- name: Flush handlers to ensure service is restarted before checking version
+  ansible.builtin.meta: flush_handlers
+
+- name: Get Bedrock start timestamp
+  ansible.builtin.shell: systemctl show -p ExecMainStartTimestamp bedrock | cut -d= -f2
+  register: bedrock_setup_start_time
+  changed_when: false
+  failed_when: bedrock_setup_start_time.stdout == ""
+
+- name: Extract Bedrock version from latest journal entries
+  ansible.builtin.shell: |
+    journalctl -u bedrock --since "{{ bedrock_setup_start_time.stdout }}" \
+    | grep -Eo 'Version: [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+'
+  register: bedrock_setup_version_output
+  changed_when: false
+  when: bedrock_setup_start_time.stdout != ""
+
+- name: Parse version number
+  ansible.builtin.set_fact:
+    bedrock_setup_installed_version: "{{ bedrock_setup_version_output.stdout | regex_search('Version: ([0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+)', '\\1') }}"
+  when: bedrock_setup_version_output.stdout != ""
+
+- name: Compare extracted version to expected setup version
+  ansible.builtin.fail:
+    msg: >
+      Bedrock version mismatch! Expected {{ bedrock_setup_version }},
+      but found {{ bedrock_setup_installed_version[0] | default('none') }} in journal logs.
+  when: bedrock_setup_installed_version[0] != bedrock_setup_version
