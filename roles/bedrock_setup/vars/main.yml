@@ -7,7 +7,7 @@ bedrock_setup_worlds:
     src: "EuroCraft-Bedrock-1.0.mcworld"
     dest: "{{ bedrock_setup_worlddir }}/EuroCraft"
     active: false
-  - name: "Horror Hunt " # https://mcpedl.com/horror-hunt/
+  - name: "Horror Hunt" # https://mcpedl.com/horror-hunt/
     src: "HorrorHunt_v1.0.4.mcworld"
     dest: "{{ bedrock_setup_worlddir }}/HorrorHunt"
     active: false

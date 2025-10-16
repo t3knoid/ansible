@@ -27,5 +27,5 @@ bedrock_setup_server_props:
       | selectattr('active', 'equalto', true)
       | map(attribute='name')
       | list
-      | default(['Bedrock Level'], true)
+      | default(['Bedrock level'], true)
     ) | first }}" }
