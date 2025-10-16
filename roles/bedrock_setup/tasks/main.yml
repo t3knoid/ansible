@@ -48,7 +48,7 @@
   ansible.builtin.copy:
     src: server-icon.png
     dest: "{{ bedrock_setup_homedir }}"
-    mode: "0640"
+    mode: "0644"
 
 - name: Ensure worlds directory exists
   ansible.builtin.file:
