@@ -50,6 +50,22 @@
     dest: "{{ bedrock_setup_homedir }}"
     mode: "0640"
 
+- name: Ensure worlds directory exists
+  ansible.builtin.file:
+    path: "{{ bedrock_setup_worlddir }}"
+    state: directory
+    mode: '0755'
+
+- name: Deploy all worlds
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "{{ bedrock_setup_worlddir }}/{{ item.name }}/"
+    mode: '0644'
+    remote_src: false
+  loop: "{{ bedrock_setup_worlds }}"
+  loop_control:
+    label: "{{ item.name }}"
+
 - name: Enable Bedrock service
   ansible.builtin.systemd:
     name: bedrock

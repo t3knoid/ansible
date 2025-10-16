@@ -21,3 +21,11 @@ bedrock_setup_server_props:
   - { key: 'tick-distance', value: '4' }
   - { key: 'player-idle-timeout', value: '30' }
   - { key: 'max-threads', value: '8' }
+  - { key: 'level-required', value: 'false' }
+  - { key: 'texturepack-required', value: 'false' }
+  - { key: 'level-name', value: "{{ (bedrock_setup_worlds
+      | selectattr('active', 'equalto', true)
+      | map(attribute='name')
+      | list
+      | default(['Bedrock Level'], true)
+    ) | first }}" }
