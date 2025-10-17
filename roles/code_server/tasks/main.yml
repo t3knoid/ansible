@@ -12,6 +12,12 @@
     state: stopped
   when: "'code-server@code_server_user' in services and services['code-server@code_server_user']['status'] != 'not-found'"
 
+# Removing current installed version allows for downgrade
+- name: Remove current version of code-server
+  ansible.built.apt:
+    name: code-server
+    state: absent
+
 - name: Download code-server package
   ansible.builtin.get_url:
     url: "https://github.com/coder/code-server/releases/download/v{{ code_server_version }}/code-server_{{ code_server_version }}_amd64.deb"
