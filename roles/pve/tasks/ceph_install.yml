@@ -1,0 +1,116 @@
+---
+
+- name: Configure Ceph network settings
+  ansible.builtin.blockinfile:
+    path: /etc/network/interfaces
+    marker: "# {mark} ANSIBLE Ceph Network Block"
+    insertbefore: "^source /etc/network/interfaces.d/*"
+    block: |
+      auto {{ pve_ceph_network_bridge }}
+      iface {{ pve_ceph_network_bridge }} inet static
+              address {{ pve_ceph_network_ip_assignment }}/24
+              bridge_ports {{ pve_ceph_network_bridge_ports }}
+              bridge_stp off
+              bridge_fd 0
+  notify: Restart networking
+
+- name: Reinstall librados2 using apt
+  command: apt install --reinstall -y librados2
+  args:
+    creates: /usr/lib/ceph/libceph-common.so.2
+
+# Adapted from https://pve.proxmox.com/pve-docs/chapter-pveceph.html#pve_ceph_install_wizard
+- name: Install Ceph packages
+  ansible.builtin.shell: set -o pipefail && yes | pveceph install --repository no-subscription
+  args:
+    creates: /etc/apt/sources.list.d/ceph.list
+
+- name: Ensure /var/run/ceph exists
+  ansible.builtin.file: 
+    path: /var/run/ceph
+    state: present
+    owner: ceph
+    group: ceph
+    mode: "0644"
+
+- name: Ensure /var/log/ceph exists
+  ansible.builtin.file: 
+    path: /var/log/ceph
+    state: present
+    owner: ceph
+    group: ceph
+    mode: "0644"
+  
+# Only need to run on one node. The initial configuration /etc/pve/ceph.conf will be
+# replicated to all nodes via the Proxmox cluster filesystem.
+- name: Initialize Ceph inital configuration
+  ansible.builtin.command: pveceph init --network "{{ pve_ceph_network_cidr }}"
+  args:
+    creates: /etc/pve/ceph.conf
+  run_once: true
+
+- name: Create Ceph monitor
+  ansible.builtin.command: pveceph mon create
+  args:
+    creates: /var/lib/ceph/mon/ceph-{{ inventory_hostname }}
+  register: pve_mon_result
+  until: pve_mon_result.rc == 0
+  retries: 5
+  delay: 10
+
+# Only one manager is needed, but it is recommended to install on the monitor nodes
+# for high availability.
+- name: Create Ceph manager
+  ansible.builtin.command: pveceph mgr create
+  args:
+    creates: /var/lib/ceph/mgr/ceph-{{ inventory_hostname }}
+  register: pve_mgr_result
+  until: pve_mgr_result.rc == 0
+  retries: 5
+  delay: 10
+
+- name: Get list of Ceph-managed devices
+  ansible.builtin.shell: "set -o pipefail && ceph-volume lvm list | grep devices | awk '{print $2}'"
+  register: pve_ceph_osd_devices
+  changed_when: false
+
+- name: Create Ceph Object Storage Daemons (OSDs) if device is not in use
+  ansible.builtin.command: pveceph osd create {{ item }}
+  loop: "{{ pve_ceph_osd_disks }}"
+  register: pve_osd_result
+  until: pve_osd_result.rc == 0
+  retries: 5
+  delay: 10
+  when: item not in pve_ceph_osd_devices.stdout_lines
+
+- name: Get a list of pools
+  ansible.builtin.command: ceph osd pool ls
+  register: pve_ceph_pools
+  changed_when: false
+
+- name: Create Ceph pool if it does not exists
+  ansible.builtin.command: pveceph pool create {{ pve_ceph_pool_name }} --pg_num {{ pve_ceph_pool_pg_num }}
+  args:
+    creates: /var/lib/ceph/{{ pve_ceph_pool_name }}
+  register: pve_ceph_pool_create
+  when: pve_ceph_pool_name not in pve_ceph_pools.stdout_lines
+
+- name: Get a list of pools
+  ansible.builtin.command: ceph osd pool ls
+  register: pve_ceph_pools
+  changed_when: false
+
+- name: Fail if Ceph pool is not created
+  ansible.builtin.fail:
+  when: pve_ceph_pools.stdout != pve_ceph_pool_name
+
+- name: Add Proxmox RBD Storage using Ceph pool
+  ansible.builtin.blockinfile:
+    path: /etc/pve/storage.cfg
+    marker: "# {mark} ANSIBLE RBD storage Ceph pool "
+    insertafter: EOF
+    block: |
+      rbd: {{ pve_ceph_rbd_storage_id }}
+              content images,rootdir
+              krbd 0
+              pool {{ pve_ceph_pool_name }}
