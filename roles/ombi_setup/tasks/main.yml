@@ -5,6 +5,7 @@
     path: "{{ ombi_setup_config_dir }}"
     owner: "{{ users_list[0].username }}"
     group: "{{ users_list[0].username }}"
+    state: directory
     mode: "0755"
 
 - name: Verify config folder exists
