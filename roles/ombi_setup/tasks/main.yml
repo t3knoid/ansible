@@ -1,5 +1,12 @@
 ---
 
+- name: Create config folder
+  ansible.builtin.file:
+    path: "{{ ombi_setup_config_dir }}"
+    owner: "{{ users_list[0].username }}"
+    group: "{{ users_list[0].username }}"
+    mode: "0755"
+
 - name: Verify config folder exists
   ansible.builtin.stat:
     path: "{{ ombi_setup_config_dir }}"
