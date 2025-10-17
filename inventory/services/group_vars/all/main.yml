@@ -5,8 +5,6 @@ vms_autoinstall: true
 vms_enable_serial_terminal: false
 vms_additional_packages: []
 python3_version: 3.12
-disks_disk_mounts:
-  - { mountpoint: "/config", mountpoint_owner: "{{ users_list[0].username }}", mountpoint_group: "{{ users_list[0].username }}" }
 
 postgresql_setup_version: 14
 
