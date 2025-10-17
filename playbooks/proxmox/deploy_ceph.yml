@@ -1,0 +1,10 @@
+- name: Deploy Ceph to Proxmox nodes
+  hosts: ceph_nodes
+  become: true
+  gather_facts: true
+  serial: 1
+  tasks:
+    - name: Import ceph_install.yml from pve role
+      ansible.builtin.import_role:
+        name: pve
+        tasks_from: ceph_install.yml
