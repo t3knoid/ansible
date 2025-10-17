@@ -14,7 +14,7 @@
 
 # Removing current installed version allows for downgrade
 - name: Remove current version of code-server
-  ansible.built.apt:
+  ansible.builtin.apt:
     name: code-server
     state: absent
 
