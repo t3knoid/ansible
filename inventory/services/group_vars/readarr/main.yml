@@ -29,3 +29,6 @@ autofs_nfs_mounts:
   - mount_name: incomplete-downloads
     mount_options: -rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys
     server: 192.168.0.250:/mnt/Data/downloads/incomplete
+
+disks_disk_mounts:
+  - { mountpoint: "/config", mountpoint_owner: "{{ users_list[0].username }}", mountpoint_group: "{{ users_list[0].username }}" }
