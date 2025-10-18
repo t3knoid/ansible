@@ -6,19 +6,19 @@ vms_config:
   cpu: host
   memory: 2048
   ostype: l26
-  scsihw: local
+  scsihw: cephfs_storage
   sockets: 1
-  storage: local
+  storage: cephfs_storage
   disk_os:
     disk: virtio0
     backup: true
     size: 20
-    storage: local
+    storage: cephfs_storage
   disk2:
     disk: virtio1
     backup: true
     size: 30
-    storage: local
+    storage: cephfs_storage
 
 vms_os: ubuntu_24_server
 vms_autoinstall: true
