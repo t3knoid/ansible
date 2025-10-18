@@ -3,7 +3,7 @@
 - name: Backup PostgreSQL database using pg_dump
   ansible.builtin.shell: |
     set -euo pipefail
-    echo pg_dump -U {{ sonarr_setup_db_user }} -h {{ sonarr_setup_pg_host }} -Fc \
+    pg_dump -U {{ sonarr_setup_db_user }} -h {{ sonarr_setup_pg_host }} -Fc \
       --file={{ sonarr_setup_backup_path }} {{ sonarr_setup_db_name }}
   args:
     executable: /bin/bash
@@ -14,7 +14,7 @@
 
 - name: Keep only the latest 3 backups
   ansible.builtin.shell: |
-    ls -1t {{ sonarr_setup_mount_point }}/{{ sonarr_setup_backup_prefix }}*.sqlc | tail -n +4 | xargs -r rm -f
+    ls -1t {{ sonarr_setup_mount_point }}/sonarr/{{ sonarr_setup_backup_prefix }}*.sqlc | tail -n +4 | xargs -r rm -f
   args:
     executable: /bin/bash
   become: true

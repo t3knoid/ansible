@@ -1,5 +1,17 @@
 ---
 
+- name: Stop Docker Container
+  ansible.builtin.command: docker-compose -f "{{ sonarr_setup_config_dir }}/docker-compose.yml" down
+  changed_when: false
+
+- name: Create config folder
+  ansible.builtin.file:
+    path: "{{ sonarr_setup_config_dir }}"
+    owner: "{{ users_list[0].username }}"
+    group: "{{ users_list[0].username }}"
+    mode: "0755"
+    state: directory
+
 - name: Verify config folder exists
   ansible.builtin.stat:
     path: "{{ sonarr_setup_config_dir }}"
@@ -9,6 +21,30 @@
   ansible.builtin.fail:
     msg: "{{ sonarr_setup_config_dir }}"
   when: sonarr_setup_config_dir_stat is not defined
+
+- name: Remove existing Sonarr Backups folder
+  ansible.builtin.file:
+    path: "{{ sonarr_setup_backups_dir }}"
+    state: absent
+
+# This assumes that an nfs share has been mounted at /nfs/backups
+- name: Create network backups folder
+  ansible.builtin.file:
+    path: "/nfs/backups/sonarr"
+    owner: "{{ users_list[0].username }}"
+    group: "{{ users_list[0].username }}"
+    mode: "0777"
+    state: directory
+
+# This assumes that an nfs share has been mounted at /nfs/backups
+- name: Create a /config/Backups link to Lidarr network backup folder
+  ansible.builtin.file:
+    path: "{{ sonarr_setup_backups_dir }}"
+    src: /backups/sonarr
+    owner: "{{ users_list[0].username }}"
+    group: "{{ users_list[0].username }}"
+    force: true
+    state: link
 
 - name: Copy config.yml to target machine
   ansible.builtin.template:
@@ -29,10 +65,6 @@
     group: "{{ users_list[0].username }}"
     mode: "0755"
     recurse: true
-
-- name: Stop Docker Container
-  ansible.builtin.command: docker-compose -f "{{ sonarr_setup_config_dir }}/docker-compose.yml" down
-  changed_when: false
 
 - name: Prune unused Docker images
   ansible.builtin.command: docker image prune -f
