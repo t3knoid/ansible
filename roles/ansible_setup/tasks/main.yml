@@ -6,14 +6,12 @@
     state: directory
     mode: "0755"
   become: false
-  when: not ansible_setup_git_repository_checkout
 
-- name: Initialize ansible.cfg
-  ansible.builtin.template:
-    src: ansible.cfg.j2
-    dest: "{{ ansible_setup_workdir }}/ansible.cfg"
-    mode: "0664"
-  become: false
+- name: Install Ansible Python modules
+  ansible.builtin.include_tasks: install_python_modules.yml
+
+- name: Checkout Ansible source code from github
+  ansible.builtin.include_tasks: checkout_source.yml
 
 - name: Create vault password file
   ansible.builtin.template:

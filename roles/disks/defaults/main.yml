@@ -1,4 +1,3 @@
 ---
 
-disks_disk_mounts:
-  - { mountpoint: "/ansible", mountpoint_owner: "ansible", mountpoint_group: "ansible" }
+disks_disk_mounts: []
