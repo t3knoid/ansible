@@ -1,14 +1,16 @@
 ---
 
+- name: Prep Ansible node
+  ansible.builtin.import_playbook: ../ansible/prep_ansible_node.yml
+
 - name: Import create_radarr_db.yml playbook
-  import_playbook: create_radarr_db.yml
+  ansible.builtin.import_playbook: create_radarr_db.yml
 
 - name: Deploy Radarr
   hosts: radarr
   become: true
   roles:
     - global
-    - ansible_node
     - users
     - autofs
     - docker_setup
