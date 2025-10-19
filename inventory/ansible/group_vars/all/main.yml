@@ -14,11 +14,6 @@ vms_config:
     backup: true
     size: 20
     storage: local
-  disk2:
-    disk: virtio1
-    backup: true
-    size: 20
-    storage: local
 
 vms_os: ubuntu_24_server
 vms_autoinstall: true
@@ -29,8 +24,6 @@ python3_venv_folder: "/opt/python_{{ python3_version }}"
 
 postgresql_setup_version: 17
 nginx_setup_disable_default_site: true
-disks_disk_mounts:
-  - { mountpoint: "/ansible", mountpoint_owner: "{{ users_list[0].username }}", mountpoint_group: "{{ users_list[0].username }}" }
 
 rproxy_setup_sites:
   - server_name: code.refol.us
