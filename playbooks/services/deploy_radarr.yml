@@ -1,8 +1,5 @@
 ---
 
-- name: Prep Ansible node
-  ansible.builtin.import_playbook: ../ansible/prep_ansible_node.yml
-
 - name: Import create_radarr_db.yml playbook
   ansible.builtin.import_playbook: create_radarr_db.yml
 
