@@ -4,4 +4,4 @@ nginx_setup_worker_connections: 768
 nginx_setup_homedir: "{{ disks_disk_mounts[0].mountpoint }}/nginx"
 nginx_setup_certroot: "{{ disks_disk_mounts[0].mountpoint }}/certs"
 
-code_server_version: "4.104.2"
+code_server_version: "4.105.0"
