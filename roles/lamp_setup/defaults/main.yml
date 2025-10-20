@@ -3,7 +3,10 @@ lamp_setup_packages:
   - apache2=2.4.58-1ubuntu8.8
   - mariadb-server=1:10.11.13-0ubuntu0.24.04.1
   - php=2:8.3+93ubuntu2
+  - php-intl=2:8.3+93ubuntu2
   - php-mysql=2:8.3+93ubuntu2
   - libapache2-mod-php=2:8.3+93ubuntu2
   - php-xml=2:8.3+93ubuntu2
   - php-mbstring=2:8.3+93ubuntu2
+  - php-apcu=5.1.22+4.0.11-2ubuntu1
+  - php-curl=2:8.3+93ubuntu2
