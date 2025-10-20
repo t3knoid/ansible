@@ -1,9 +1,15 @@
 ---
-- name: Unhold package versions
+
+- name: Get installed packages
+  ansible.builtin.shell: "apt list --installed | tail -n +2"
+  register: lamp_setup_installed_packages
+
+- name: Unhold package versions if it is installed
   ansible.builtin.dpkg_selections:
     name: "{{ item.split('=')[0] }}"
     selection: install
   loop: "{{ lamp_setup_packages }}"
+  when: item.split('=')[0] in lamp_setup_installed_packages.stdout
 
 - name: Install lamp packages
   ansible.builtin.apt:
