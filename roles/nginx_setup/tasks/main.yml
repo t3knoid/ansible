@@ -5,12 +5,22 @@
   ansible.builtin.apt:
     update_cache: true
 
+- name: Unhold package versions
+  ansible.builtin.dpkg_selections:
+    name: "nginx"
+    selection: install
+
 - name: Install nginx
   ansible.builtin.apt:
     name:
-      - nginx
+      - nginx={{ nginx_setup_version }}
     state: present
     update_cache: true
+
+- name: Hold package versions
+  ansible.builtin.dpkg_selections:
+    name: "nginx"
+    selection: hold
 
 - name: Include config.yml tasks
   ansible.builtin.include_tasks: config.yml
