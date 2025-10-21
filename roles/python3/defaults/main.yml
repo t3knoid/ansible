@@ -1,6 +1,13 @@
 ---
 
 python3_version: 3.12
+
+python3_repo_key_local: "/etc/apt/trusted.gpg.d/deadsnakes.asc"
+python3_repo_base_url: "https://ppa.launchpadcontent.net/deadsnakes/ppa/ubuntu"
+python3_repo_key_url: "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xBA6932366A755776"
+python3_repo_deadsnakes_signing_key: "4096R/F23C5A6CF475977595C89F51BA6932366A755776"
+python3_repo_deadsnakes_ppa: "deb https://ppa.launchpadcontent.net/deadsnakes/ppa/ubuntu noble main"
+
 python3_packages_to_install:
   - python{{ python3_version }}
   - python3-pip
@@ -10,12 +17,8 @@ python3_packages_to_install:
   - python3-passlib
   - python3-psycopg2
   - python3-packaging
+
 python3_venv_folder: "/opt/python_{{ python3_version }}"
-python3_repo_key_url: "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xf23c5a6cf475977595c89f51ba6932366a755776"
-python3_repo_key_local: "/etc/apt/trusted.gpg.d/deadsnakes.asc"
-
-ansible_python_interpreter: "/usr/bin/python{{ python3_version }}"
-
 python3_venv_packages_to_install:
   - requests==2.32.5
   - pexpect==4.9.0
