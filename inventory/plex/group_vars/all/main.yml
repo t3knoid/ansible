@@ -2,8 +2,6 @@
 
 python3_version: 3.12
 
-plex_setup_version: "1.42.2.10156-f737b826c"
-
 autofs_nfs_mounts:
   - mount_name: photos
     server: 192.168.2.250:/mnt/Data/photos
@@ -34,6 +32,3 @@ vms_os: ubuntu_24_server
 pxeserver_setup_dhcp_range: "192.168.2.220,192.168.2.220,255.255.255.0"
 pxeserver_setup_ip_reservations:
   - { mac_address: '7C:83:34:BE:2D:C5', ip_address: '192.168.2.220' }
-
-# Use nfs share for backups
-plex_setup_backup_dir: /nfs/backups/plex
