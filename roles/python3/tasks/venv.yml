@@ -1,10 +1,18 @@
 ---
 
-- name: Ensure venv is installed
-  ansible.builtin.package:
-    name:
-      - python3-venv
+- name: Set Python {{ python3_version }} as system default
+  community.general.alternatives:
+    name: python3
+    path: "/usr/bin/python{{ python3_version }}"
+    link: /usr/bin/python3
+    priority: 100
+    state: selected
+
+- name: Install Python packages
+  ansible.builtin.apt:
+    name: "{{ item }}"
     state: present
+  loop: "{{ python3_packages_to_install }}"
 
 - name: Create virtual environment folder
   ansible.builtin.file:
@@ -15,32 +23,23 @@
   become: true
 
 - name: Create Python virtual environment
-  ansible.builtin.command: "{{ ansible_python_interpreter }} -m venv {{ python3_venv_folder }}"
+  ansible.builtin.command: "/usr/bin/python{{ python3_version }} -m venv {{ python3_venv_folder }} --without-pip"
   args:
     creates: "{{ python3_venv_folder }}/bin/activate"
   register: python3_command_return
   changed_when: python3_command_return.rc !=0
 
-# Cannot use ansible.builtin.pip here so using shell instead
-- name: Make sure packaging module is available
-  ansible.builtin.shell: |
-    umask 0022
-    if ! {{ python3_venv_folder }}/bin/python3 -c "import packaging" &> /dev/null; then
-      {{ python3_venv_folder }}/bin/python3 -m pip install packaging==25
-    else
-      echo "packaging module already installed."
-    fi
-  register: python3_pip_install_output
-  changed_when: "'Successfully installed packaging' in python3_pip_install_output.stdout"
-  failed_when: python3_pip_install_output.rc != 0 and 'packaging module already installed' not in python3_pip_install_output.stdout
+- name: Download get-pip.py
+  ansible.builtin.get_url:
+    url: https://bootstrap.pypa.io/get-pip.py
+    dest: "{{ python3_venv_folder }}/get-pip.py"
+    mode: '0644'
+    force: true
 
-- name: Upgrade Python pip
-  ansible.builtin.shell: |
-    umask 0022
-    {{ python3_venv_folder }}/bin/python3 -m pip install --upgrade pip
-  register: python3_pip_upgrade_output
-  changed_when: "'Successfully installed pip' in python3_pip_upgrade_output.stdout"
-  failed_when: python3_pip_upgrade_output.rc != 0 and 'Successfully installed' not in python3_pip_upgrade_output.stdout
+- name: Install pip inside the virtual environment
+  ansible.builtin.command: "{{ python3_venv_folder }}/bin/python3 {{ python3_venv_folder }}/get-pip.py"
+  args:
+    creates: /opt/myenv/bin/pip
 
 - name: Generate requirements.txt from package list
   ansible.builtin.template:
