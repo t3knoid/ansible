@@ -18,3 +18,7 @@
         - "Total Memory (MB): {{ ansible_facts['memtotal_mb'] | default('N/A') }}"
         - "Free Memory (MB): {{ ansible_facts['memfree_mb'] | default('N/A') }}"
         - "Uptime: {{ ansible_facts['uptime_seconds'] | dhms | default('N/A') }} seconds"
+
+    - name: Display Python facts
+      ansible.builtin.debug:
+        var: ansible_python
