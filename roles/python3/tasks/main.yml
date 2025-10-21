@@ -5,28 +5,53 @@
     path: "/etc/apt/sources.list.d/deadsnakes.list"
     state: absent
 
-- name: Remove existing Deadsnakes repo list file
+- name: Remove legacy ppa_deadsnakes_ppa_noble.list file
+  ansible.builtin.file:
+    path: "/etc/apt/sources.list.d/ppa_deadsnakes_ppa_noble.list"
+    state: absent
+
+- name: Remove existing legacy Deadsnakes repo list file
+  ansible.builtin.file:
+    path: "/etc/apt/sources.list.d/deadsnakes-ubuntu-ppa-noble.sources.list"
+    state: absent
+
+- name: Remove existing deadsnakes-ubuntu-ppa-noble.sources file
   ansible.builtin.file:
     path: "/etc/apt/sources.list.d/deadsnakes-ubuntu-ppa-noble.sources"
     state: absent
 
-- name: Add deadsnakes apt repository.
+- name: Add deadsnakes apt repository key.
+  ansible.builtin.get_url:
+    url: "{{ python3_repo_key_url }}"
+    dest: "{{ python3_repo_key_local }}"
+    mode: '0644'
+    force: true
+
+- name: Remove deadsnakes apt repository
   ansible.builtin.apt_repository:
     repo: ppa:deadsnakes/ppa
-    filename: deadsnakes-ubuntu-ppa-noble.sources
+    state: absent
+
+- name: Add deadsnakes apt repository
+  ansible.builtin.apt_repository:
+    repo: "deb [arch=amd64 signed-by={{ python3_repo_key_local }}] {{ python3_repo_base_url }} noble main"
+    filename: deadsnakes-ubuntu-ppa-noble
     mode: "0644"
-    update_cache: false
     state: present
 
 - name: Update apt cache
   ansible.builtin.apt:
     update_cache: true
 
-- name: Install Python packages
+- name: Install python3
   ansible.builtin.apt:
-    name: "{{ item }}"
-    state: present
-  loop: "{{ python3_packages_to_install }}"
+    package: "python{{ python3_version }}"
+    autoremove: true
 
-- name: Include venv.yml tasks
-  ansible.builtin.include_tasks: venv.yml
+- name: Register Python {{ python3_version }} as an alternative
+  community.general.alternatives:
+    name: python3
+    path: "/usr/bin/python{{ python3_version }}"
+    link: /usr/bin/python3
+    priority: 100
+    state: present
