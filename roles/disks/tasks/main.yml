@@ -1,28 +1,97 @@
 ---
 
 - name: Run lsblk command to get disk info
-  ansible.builtin.command: lsblk -J -o NAME,TYPE,FSTYPE
-  register: lsblk_output
-  changed_when: lsblk_output is defined
+  ansible.builtin.command: lsblk -J -o NAME,KNAME,TYPE,FSTYPE,MOUNTPOINT,UUID
+  register: disks_lsblk_output
+  changed_when: false
+  failed_when: disks_lsblk_output.rc != 0
 
 - name: Display lsblk output
   ansible.builtin.debug:
-    msg: "{{ lsblk_output.stdout }}"
+    msg: "{{ disks_lsblk_output.stdout }}"
+
+- name: Extract valid devices from lsblk output
+  ansible.builtin.set_fact:
+    disks_valid_devices: >-
+      {{
+        disks_lsblk_output.stdout
+        | from_json
+        | json_query("blockdevices[].children[?fstype=='ext4'].name") | flatten
+        | map('regex_replace', '^', '/dev/')
+        | list
+      }}
+
+- name: Display disks_valid_devices
+  ansible.builtin.debug:
+    msg: "{{ disks_valid_devices }}"
+
+- name: Read current fstab
+  ansible.builtin.slurp:
+    src: /etc/fstab
+  register: disks_fstab_raw
+
+- name: Decode fstab content
+  ansible.builtin.set_fact:
+    disks_fstab_decoded: "{{ disks_fstab_raw.content | b64decode }}"
+
+- name: Split fstab content into separate line items
+  ansible.builtin.set_fact:
+    disks_fstab_lines: "{{ disks_fstab_decoded | split('\n') | reject('equalto', '') }}"
+
+- name: Initialize disks_filtered_fstab
+  ansible.builtin.set_fact:
+    disks_filtered_fstab: []
+
+- name: Filter fstab line-by-line and remove mounts that are associated with an invalid device
+  ansible.builtin.set_fact:
+    disks_filtered_fstab: "{{ disks_filtered_fstab + [item] }}"
+  when: >
+    item.startswith('#')
+    or item == ''
+    or item.startswith('UUID=')
+    or item.startswith('LABEL=')
+    or (
+      item.startswith('/dev/')
+      and item.split()[0] in disks_valid_devices
+    )
+  loop: "{{ disks_fstab_lines }}"
+
+- name: Compare fstab contents
+  ansible.builtin.set_fact:
+    disks_fstab_changed: "{{ disks_fstab_lines | join('\n') | trim != disks_filtered_fstab | join('\n') | trim }}"
+    
+- name: Backup original fstab only if there is a change in fstab
+  ansible.builtin.copy:
+    src: /etc/fstab
+    dest: /etc/fstab.bak
+    remote_src: true
+    force: true
+  when: disks_fstab_changed
+
+- name: Write filtered fstab only if there is a change in fstab
+  ansible.builtin.copy:
+    dest: /etc/fstab
+    content: "{{ disks_filtered_fstab | join('\n') + '\n' }}"
+    owner: root
+    group: root
+    mode: '0644'
+  when: disks_fstab_changed
 
 - name: Find unformatted disks
   ansible.builtin.set_fact:
-    unformatted_disks: >
+    disks_unformatted_disks: >
       {{
-        lsblk_output.stdout | from_json |
-        json_query("blockdevices[?children == null && type == 'disk'].name")
+        disks_lsblk_output.stdout 
+        | from_json 
+        | json_query("blockdevices[?children == null && type == 'disk'].name")
       }}
 
 - name: Display unformatted disks
   ansible.builtin.debug:
-    msg: "Unformatted disks: {{ unformatted_disks }}"
+    msg: "Unformatted disks: {{ disks_unformatted_disks }}"
 
 - name: Create an ext4 primary partition
-  when: unformatted_disks is defined
+  when: disks_unformatted_disks is defined
   community.general.parted:
     device: "/dev/{{ item }}"
     number: 1
@@ -32,35 +101,36 @@
     part_type: primary
     part_start: "0%"
     part_end: "100%"
-  with_items: "{{ unformatted_disks }}"
+  with_items: "{{ disks_unformatted_disks }}"
 
 - name: Format the drive
-  when: unformatted_disks is defined
+  when: disks_unformatted_disks is defined
   community.general.filesystem:
     fstype: ext4
     dev: "/dev/{{ item }}1"
-  with_items: "{{ unformatted_disks }}"
+  with_items: "{{ disks_unformatted_disks }}"
 
 - name: Run lsblk command to get disk info
-  ansible.builtin.command: lsblk -J -o NAME,TYPE,FSTYPE,MOUNTPOINTS
-  register: lsblk_output
-  changed_when: lsblk_output is defined
+  ansible.builtin.command: lsblk -J -o NAME,TYPE,FSTYPE,MOUNTPOINT
+  register: disks_lsblk_output
+  changed_when: false
+  failed_when: disks_lsblk_output.rc != 0
 
 - name: Display lsblk output
   ansible.builtin.debug:
-    msg: "{{ lsblk_output.stdout }}"
+    msg: "{{ disks_lsblk_output.stdout }}"
 
 - name: Find ummounted disks
   ansible.builtin.set_fact:
-    unmounted_disks: >
+    disks_unmounted_disks: >
       {{
-        lsblk_output.stdout | from_json |
-        json_query("blockdevices[].children[?fstype=='ext4' && mountpoints[0]==null].name") | flatten
+        disks_lsblk_output.stdout | from_json |
+        json_query("blockdevices[].children[?fstype=='ext4' && mountpoint==null].name") | flatten
       }}
 
 - name: Display ummounted disks
   ansible.builtin.debug:
-    msg: "Unmounted disks: {{ unmounted_disks }}"
+    msg: "Unmounted disks: {{ disks_unmounted_disks }}"
 
 - name: Ensure mountpoint exists
   ansible.builtin.file:
@@ -80,7 +150,7 @@
     boot: true
   with_nested:
     - "{{ disks_disk_mounts }}"
-    - "{{ unmounted_disks }}"
+    - "{{ disks_unmounted_disks }}"
 
 - name: Ensure mounted disk has proper ownership
   ansible.builtin.file:
