@@ -32,3 +32,20 @@ vms_os: ubuntu_24_server
 pxeserver_setup_dhcp_range: "192.168.2.220,192.168.2.220,255.255.255.0"
 pxeserver_setup_ip_reservations:
   - { mac_address: '7C:83:34:BE:2D:C5', ip_address: '192.168.2.220' }
+
+rproxy_setup_sites:
+  - server_name: wikipedia.refol.us
+    port: 9090
+    proxy_pass: "http://{{ global_ip_addresses['plex-0'] }}"
+    allow_list:
+      - 192.168.0.0/24
+      - 192.168.2.0/24
+      - 24.105.250.200
+      - 70.107.117.124
+    restricted: false
+
+pihole_cname_entries:
+  - domain: wikipedia.refol.us
+    target: rproxy-0.refol.us
+
+nginx_setup_disable_default_site: true
