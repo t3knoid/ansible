@@ -52,3 +52,4 @@ global_packages_list:
     - git
     - unzip
     - acl
+    - nfs-common
