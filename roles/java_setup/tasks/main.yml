@@ -11,21 +11,29 @@
     state: absent
     autoremove: true
 
+- name: Check if Java package already exists
+  ansible.builtin.stat:
+    path: "/usr/lib/jvm/java-{{ java_setup_major_version }}-amazon-corretto/bin/java"
+  register: java_setup_package_status
+
 - name: Download Java
   ansible.builtin.get_url:
     url: "{{ java_setup_url }}"
     dest: "/tmp/{{ java_setup_package }}"
     mode: '0644'
+  when: not java_setup_package_status.stat.exists
 
 - name: Install Java
   ansible.builtin.apt:
     deb: "/tmp/{{ java_setup_package }}"
     state: present
+  when: not java_setup_package_status.stat.exists
 
 - name: Remove Java Download
   ansible.builtin.file:
     path: "/tmp/{{ java_setup_package }}"
     state: absent
+  when: not java_setup_package_status.stat.exists
 
 - name: Set Java alternatives
   community.general.alternatives:
