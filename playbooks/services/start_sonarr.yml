@@ -8,7 +8,7 @@
     - global
 
   tasks:
-    - name: Import sonarr_setup role database task
+    - name: Import sonarr_setup role start task
       ansible.builtin.import_role:
         name: sonarr_setup
         tasks_from: start
