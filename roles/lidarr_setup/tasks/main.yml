@@ -21,29 +21,14 @@
     msg: "{{ lidarr_setup_config_dir }}"
   when: lidarr_setup_config_dir_stat is not defined
 
-- name: Remove existing Lidarr Backups folder
-  ansible.builtin.file:
-    path: "{{ lidarr_setup_backups_dir }}"
-    state: absent
-
 # This assumes that an nfs share has been mounted at /nfs/backups
 - name: Create network lidarr backup folder
   ansible.builtin.file:
-    path: "/nfs/backups/lidarr"
+    path: "{{ lidarr_setup_backups_dir }}"
     owner: "{{ users_list[0].username }}"
     group: "{{ users_list[0].username }}"
     mode: "0777"
     state: directory
-
-# This assumes that an nfs share has been mounted at /nfs/backups
-- name: Create a /config/Backups link to Lidarr network backup folder
-  ansible.builtin.file:
-    path: "{{ lidarr_setup_backups_dir }}"
-    src: /backups/lidarr
-    owner: "{{ users_list[0].username }}"
-    group: "{{ users_list[0].username }}"
-    force: true
-    state: link
 
 - name: Copy config.yml to target machine
   ansible.builtin.template:
