@@ -10,3 +10,5 @@ lamp_setup_packages:
   - php-mbstring=2:8.3+93ubuntu2
   - php-apcu=5.1.22+4.0.11-2ubuntu1
   - php-curl=2:8.3+93ubuntu2
+  - php-ldap=2:8.3+93ubuntu2
+  - imagemagick=8:6.9.12.98+dfsg1-5.2build2
