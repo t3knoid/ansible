@@ -1,0 +1,9 @@
+---
+
+sabnzbd_setup_external_internet_access:
+  no access: 0
+  add nzb files: 1
+  api: 2
+  full api: 3
+  full web interface with external login: 4
+  full web interface no internal login: 5
