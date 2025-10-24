@@ -28,8 +28,8 @@ autofs_nfs_mounts:
     mount_options: -rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys
     container_path: /incomplete-downloads
   - mount_name: backups
-    server: 192.168.2.250:/mnt/Data/backups_ex
+    server: 192.168.2.250:/mnt/Data/backups_ex/lidarr
     mount_options: -rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys
-    container_path: /backups
+    container_path: /config/Backups
 
 lidarr_setup_version: 2.13.3.4711

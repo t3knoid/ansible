@@ -24,7 +24,7 @@
 # This assumes that an nfs share has been mounted at /nfs/backups
 - name: Create network backups folder
   ansible.builtin.file:
-    path: "/nfs/backups/sabnzbd"
+    path: "{{ sabnzbd_setup_backups_dir }}"
     owner: "{{ users_list[0].username }}"
     group: "{{ users_list[0].username }}"
     mode: "0777"
