@@ -30,16 +30,11 @@
     mode: "0777"
     state: directory
 
-# # This assumes that an nfs share has been mounted at /nfs/backups
-# - name: Create a /config/Backups link to Sabnzbd network backup folder
-#   ansible.builtin.file:
-#     path: "{{ sabnzbd_setup_backups_dir }}"
-#     src: /backups/sabnzbd
-#     owner: "{{ users_list[0].username }}"
-#     group: "{{ users_list[0].username }}"
-#     force: true
-#     follow: false
-#     state: link
+- name: Copy sabnzbd.ini to target machine
+  ansible.builtin.template:
+    src: sabnzbd.ini.j2
+    dest: "{{ sabnzbd_setup_config_dir }}/sabnzbd.ini"
+    mode: "0640"
 
 - name: Copy docker-compose.yml to target machine
   ansible.builtin.template:
