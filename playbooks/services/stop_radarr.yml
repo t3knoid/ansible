@@ -8,7 +8,7 @@
     - global
 
   tasks:
-    - name: Import lidarr_setup role database task
+    - name: Import lidarr_setup role stop task
       ansible.builtin.import_role:
         name: lidarr_setup
         tasks_from: stop
