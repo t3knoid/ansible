@@ -1,5 +1,8 @@
 ---
 
+- name: Start sabnzbd
+  ansible.builtin.import_playbook: start_sabnzbd.yml
+  
 - name: Start lidarr
   ansible.builtin.import_playbook: start_lidarr.yml
 
@@ -8,4 +11,3 @@
 
 - name: Start sonarr
   ansible.builtin.import_playbook: start_sonarr.yml
-

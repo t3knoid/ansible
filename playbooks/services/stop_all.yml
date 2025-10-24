@@ -9,3 +9,6 @@
 - name: Stop sonarr
   ansible.builtin.import_playbook: stop_sonarr.yml
 
+- name: Stop sabnzbd
+  ansible.builtin.import_playbook: stop_sabnzbd.yml
+

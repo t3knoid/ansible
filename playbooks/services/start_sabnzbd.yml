@@ -1,14 +1,14 @@
 ---
 
-- name: Start radarr
-  hosts: radarr
+- name: Start sabnzbd
+  hosts: sabnzbd
   become: true
   gather_facts: true
   roles:
     - global
 
   tasks:
-    - name: Import radarr_setup role start task
+    - name: Import sabnzbd_setup role start task
       ansible.builtin.import_role:
-        name: radarr_setup
+        name: sabnzbd_setup
         tasks_from: start

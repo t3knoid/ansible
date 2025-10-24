@@ -1,5 +1,16 @@
 ---
 
+- name: Stop Docker Container
+  ansible.builtin.include_tasks: stop.yml
+
+- name: Create config folder
+  ansible.builtin.file:
+    path: "{{ sabnzbd_setup_config_dir }}"
+    owner: "{{ users_list[0].username }}"
+    group: "{{ users_list[0].username }}"
+    mode: "0755"
+    state: directory
+
 - name: Verify config folder exists
   ansible.builtin.stat:
     path: "{{ sabnzbd_setup_config_dir }}"
@@ -9,6 +20,26 @@
   ansible.builtin.fail:
     msg: "{{ sabnzbd_setup_config_dir }}"
   when: sabnzbd_setup_config_dir_stat is not defined
+
+# This assumes that an nfs share has been mounted at /nfs/backups
+- name: Create network backups folder
+  ansible.builtin.file:
+    path: "/nfs/backups/sabnzbd"
+    owner: "{{ users_list[0].username }}"
+    group: "{{ users_list[0].username }}"
+    mode: "0777"
+    state: directory
+
+# # This assumes that an nfs share has been mounted at /nfs/backups
+# - name: Create a /config/Backups link to Sabnzbd network backup folder
+#   ansible.builtin.file:
+#     path: "{{ sabnzbd_setup_backups_dir }}"
+#     src: /backups/sabnzbd
+#     owner: "{{ users_list[0].username }}"
+#     group: "{{ users_list[0].username }}"
+#     force: true
+#     follow: false
+#     state: link
 
 - name: Copy docker-compose.yml to target machine
   ansible.builtin.template:
@@ -24,10 +55,6 @@
     mode: "0755"
     recurse: true
 
-- name: Stop Docker Container
-  ansible.builtin.command: docker-compose -f "{{ sabnzbd_setup_config_dir }}/docker-compose.yml" down
-  changed_when: false
-
 - name: Prune unused Docker images
   ansible.builtin.command: docker image prune -f
   changed_when: false
@@ -42,5 +69,4 @@
   changed_when: false
 
 - name: Run Docker Container
-  ansible.builtin.command: docker-compose -f "{{ sabnzbd_setup_config_dir }}/docker-compose.yml" up -d
-  changed_when: false
+  ansible.builtin.include_tasks: start.yml
