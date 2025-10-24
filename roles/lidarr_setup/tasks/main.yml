@@ -1,8 +1,7 @@
 ---
 
 - name: Stop Docker Container
-  ansible.builtin.command: docker-compose -f "{{ lidarr_setup_config_dir }}/docker-compose.yml" down
-  changed_when: false
+  ansible.builtin.include_tasks: stop.yml
 
 - name: Create config folder
   ansible.builtin.file:
@@ -80,5 +79,4 @@
   changed_when: false
 
 - name: Run Docker Container
-  ansible.builtin.command: docker-compose -f "{{ lidarr_setup_config_dir }}/docker-compose.yml" up -d
-  changed_when: false
+  ansible.builtin.include_tasks: start.yml
