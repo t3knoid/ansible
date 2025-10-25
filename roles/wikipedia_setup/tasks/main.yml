@@ -1,0 +1,20 @@
+---
+- name: Ensure dump directory exists
+  ansible.builtin.file:
+    path: "{{ wikipedia_setup_dump_dir }}"
+    state: directory
+    mode: '0755'
+
+- name: Download Wikimedia dump files
+  ansible.builtin.get_url:
+    url: "https://dumps.wikimedia.org/enwiki/latest/{{ item }}"
+    dest: "{{ wikipedia_setup_dump_dir }}/{{ item }}"
+    mode: '0644'
+    force: false
+  loop: "{{ wikipedia_setup_dump_files }}"
+
+# - name: Decompress Wikimedia dump files
+#   ansible.builtin.command: "bzip2 -dk {{ wikipedia_setup_dump_dir }}/{{ item }}"
+#   args:
+#     creates: "{{ wikipedia_setup_dump_dir }}/{{ item | regex_replace('\\.bz2$', '') }}"
+#   loop: "{{ wikipedia_setup_dump_files }}"

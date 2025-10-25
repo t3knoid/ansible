@@ -1,0 +1,9 @@
+---
+wikipedia_setup_dump_dir: /opt/wikimedia_dumps
+wikipedia_setup_dump_files:
+  - enwiki-latest-pages-articles.xml.bz2
+  - enwiki-latest-pages-articles-multistream.xml.bz2
+  - enwiki-latest-pages-articles-multistream-index.txt.bz2
+  - enwiki-latest-pages-meta-current.xml.bz2
+
+wikipedia_setup_latest_dump_root_url: "https://dumps.wikimedia.org/enwiki/latest"
