@@ -7,4 +7,6 @@
     - global
     - lamp_setup
     - mediawiki_setup
-    # - elasticsearch_setup
+    - java_setup
+    - elasticsearch_setup
+    - wikipedia_setup
