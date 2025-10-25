@@ -1,0 +1,21 @@
+---
+
+java_setup_version: 21.0.6.7.1
+postgresql_setup_version: 17
+
+elasticsearch_setup_version: 9.1.5
+
+elasticsearch_setup_clustername: "mediawiki-search"
+elasticsearch_setup_host: localhost
+elasticsearch_setup_discoverytype: "single-node"
+
+mediawiki_setup_version: "1.44.2"
+mediawiki_setup_db_user: wikipedia
+mediawiki_setup_db_host: localhost
+
+# mysql
+# lamp_setup_mysql_root_password: see vault
+# mediawiki_setup_db_user: see vault
+# mediawiki_setup_db_password: see vault
+mediawiki_setup_mysql_root_password: "{{ lamp_setup_mysql_root_password }}"
+lamp_setup_mysql_socket: /run/mysqld/mysqld.sock

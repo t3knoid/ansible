@@ -1,0 +1,16 @@
+---
+mediawiki_setup_version: "1.44.2"
+mediawiki_setup_major_minor_version: "{{ mediawiki_setup_version.split('.')[:2] | join('.') }}"
+mediawiki_setup_archive: "mediawiki-{{ mediawiki_setup_version }}.tar.gz"
+mediawiki_setup_download_url: "https://releases.wikimedia.org/mediawiki/{{ mediawiki_setup_major_minor_version }}/{{ mediawiki_setup_archive }}"
+mediawiki_setup_install_dir: /opt/mediawiki-{{ mediawiki_setup_version }}
+mediawiki_setup_webroot_symlink: "/var/www/html/mediawiki"
+
+# These are typically set in the inventory
+# mediawiki_setup_db_name:
+# mediawiki_setup_db_password: see vault
+# mediawiki_setup_mysql_root_password:
+# mediawiki_setup_db_host:
+
+mediawiki_setup_upload_max_filesize: 2M
+mediawiki_setup_memory_limit: 8M
