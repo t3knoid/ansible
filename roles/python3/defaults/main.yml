@@ -17,6 +17,7 @@ python3_packages_to_install:
   - python3-passlib
   - python3-psycopg2
   - python3-packaging
+  - python3-pymysql
 
 python3_venv_folder: "/opt/python_{{ python3_version }}"
 python3_venv_packages_to_install:
@@ -25,3 +26,4 @@ python3_venv_packages_to_install:
   - passlib==1.7.4
   - psycopg2-binary==2.9.11
   - packaging==25.0
+  - PyMySQL==1.1.2

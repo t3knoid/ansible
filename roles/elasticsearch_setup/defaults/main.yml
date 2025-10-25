@@ -1,0 +1,13 @@
+---
+elasticsearch_setup_version: 9.1.5
+elasticsearch_setup_repo_url: "https://artifacts.elastic.co/packages/9.x/apt"
+elasticsearch_setup_installer: "elasticsearch-{{ elasticsearch_setup_version }}-amd64.deb"
+
+# Cluster settings
+elasticsearch_http_port: 9200
+elasticsearch_setup_heap_size: "1g"
+elasticsearch_setup_clustername: "my_cluster"
+elasticsearch_setup_host: localhost
+elasticsearch_setup_discoverytype: "single-node"
+
+# Need to expand to https://www.elastic.co/docs/deploy-manage/deploy/self-managed/install-elasticsearch-with-debian-package#existing-cluster
