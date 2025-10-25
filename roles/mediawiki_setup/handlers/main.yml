@@ -4,3 +4,11 @@
     name: apache2
     state: restarted
   become: true
+
+- name: Reindex cirrussearch
+  ansible.builtin.command: >
+    php extensions/CirrusSearch/maintenance/ForceSearchIndex.php
+    --skipLinks --indexOnSkip
+  args:
+    chdir: "{{ mediawiki_install_path }}"
+  changed_when: false
