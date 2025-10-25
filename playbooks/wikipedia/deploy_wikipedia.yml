@@ -1,0 +1,10 @@
+---
+- name: Deploy Wikipedia
+  hosts: wikipedia
+  become: true
+  gather_facts: true
+  roles:
+    - global
+    - lamp_setup
+    - mediawiki_setup
+    # - elasticsearch_setup

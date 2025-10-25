@@ -12,3 +12,8 @@ lamp_setup_packages:
   - php-curl=2:8.3+93ubuntu2
   - php-ldap=2:8.3+93ubuntu2
   - imagemagick=8:6.9.12.98+dfsg1-5.2build2
+  - php-gd=2:8.3+93ubuntu2
+  - php-bcmath=2:8.3+93ubuntu2
+  - git=1:2.43.0-1ubuntu7.3
+
+lamp_setup_mysql_socket: /run/mysqld/mysqld.sock

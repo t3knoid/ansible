@@ -1,0 +1,18 @@
+---
+galaxy_info:
+  author: Frank Refol
+  description: Install and configure Elasticsearch on Debian/Ubuntu
+  license: MIT
+  min_ansible_version: 2.9
+  platforms:
+    - name: Debian
+      versions:
+        - buster
+        - bullseye
+    - name: Ubuntu
+      versions:
+        - noble
+dependencies:
+  - role: java_setup_version
+    vars:
+      17.0.14.7.1

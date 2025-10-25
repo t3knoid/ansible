@@ -1,0 +1,91 @@
+---
+
+- name: Ensure required PHP modules are enabled
+  ansible.builtin.command: phpenmod "{{ item }}"
+  loop:
+    - mbstring
+    - xml
+  notify: Restart Apache
+  changed_when: false
+
+# - name: Create MediaWiki install directory
+#   ansible.builtin.file:
+#     path: "{{ mediawiki_setup_install_dir }}"
+#     state: directory
+#     owner: www-data
+#     group: www-data
+#     mode: '0755'
+
+- name: Download and extract MediaWiki into /opt
+  ansible.builtin.unarchive:
+    src: "{{ mediawiki_setup_download_url }}"
+    dest: "/opt"
+    remote_src: true
+    creates: "{{ mediawiki_setup_install_dir }}"
+    owner: www-data
+    group: www-data
+    mode: '0755'
+
+- name: "Create symlink /opt/mediawiki → {{ mediawiki_setup_install_dir }}"
+  ansible.builtin.file:
+    src: "{{ mediawiki_setup_install_dir }}"
+    dest: "/opt/mediawiki"
+    state: link
+    force: true
+    owner: www-data
+    group: www-data
+    mode: '0755'
+
+- name: Create symlink to web root
+  ansible.builtin.file:
+    src: "{{ mediawiki_setup_install_dir }}"
+    dest: "{{ mediawiki_setup_webroot_symlink }}"
+    state: link
+
+# Assumes mysql or mariadb is installed, i.e. LAMP
+
+- name: Create MediaWiki MySQL user
+  community.mysql.mysql_user:
+    name: "{{ mediawiki_setup_db_user }}"
+    password: "{{ mediawiki_setup_db_password }}"
+    priv: "*.*:USAGE"  # Minimal privilege to start
+    host: "{{ mediawiki_setup_db_host | default('localhost') }}"
+    state: present
+    login_user: "root"
+    login_password: "{{ mediawiki_setup_mysql_root_password }}"
+    login_unix_socket: "/run/mysqld/mysqld.sock" # This hard-coded value is for a LAMP installation
+
+- name: Grant privileges to MediaWiki MySQL user on specific DB
+  community.mysql.mysql_user:
+    name: "{{ mediawiki_setup_db_user }}"
+    password: "{{ mediawiki_setup_db_password }}"
+    priv: "{{ mediawiki_setup_db_name }}.*:ALL"
+    host: "{{ mediawiki_setup_db_host | default('localhost') }}"
+    state: present
+    login_user: "root"
+    login_password: "{{ mediawiki_setup_mysql_root_password }}"
+    login_unix_socket: "/run/mysqld/mysqld.sock" # This hard-coded value is for a LAMP installation
+
+- name: Create MediaWiki database
+  community.mysql.mysql_db:
+    name: "{{ mediawiki_setup_db_name }}"
+    state: present
+    login_user: "{{ mediawiki_setup_db_user }}"
+    login_password: "{{ mediawiki_setup_db_password }}"
+    login_unix_socket: "/run/mysqld/mysqld.sock" # This hard-coded value is for a LAMP installation
+
+# Assumes that PHP is installed, i.e. LAMP
+- name: Get installed PHP version
+  ansible.builtin.shell: php -r 'echo PHP_MAJOR_VERSION.".".PHP_MINOR_VERSION;'
+  register: mediawiki_setup_php_version
+  changed_when: false
+
+- name: Adjust PHP upload and memory limits
+  ansible.builtin.lineinfile:
+    path: "/etc/php/{{ mediawiki_setup_php_version.stdout }}/apache2/php.ini"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  loop:
+    - { regexp: '^upload_max_filesize =', line: 'upload_max_filesize = 20M' }
+    - { regexp: '^memory_limit =', line: 'memory_limit = 128M' }
+  notify: Restart Apache

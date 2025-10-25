@@ -35,7 +35,7 @@ pxeserver_setup_ip_reservations:
 
 rproxy_setup_sites:
   - server_name: wikipedia.refol.us
-    port: 9090
+    port: 80
     proxy_pass: "http://{{ global_ip_addresses['plex-0'] }}"
     allow_list:
       - 192.168.0.0/24

@@ -22,3 +22,20 @@
     name: "{{ item.split('=')[0] }}"
     selection: hold
   loop: "{{ lamp_setup_packages }}"
+
+- name: Check if MySQL root password is already set
+  ansible.builtin.shell: |
+    mysqladmin --socket={{ lamp_setup_mysql_socket }} --user=root --password={{ lamp_setup_mysql_root_password }} ping
+  register: lamp_setup_mysql_root_login_check
+  ignore_errors: true
+  changed_when: false
+
+# Socket file is hardcoded and will work for LAMP mysql install
+- name: Setting root password for mysql server
+  community.mysql.mysql_user:
+    login_user: root
+    login_password: ""
+    login_unix_socket: "{{ lamp_setup_mysql_socket }}"
+    name: root
+    password: "{{ lamp_setup_mysql_root_password }}"
+  when: lamp_setup_mysql_root_login_check.rc != 0
