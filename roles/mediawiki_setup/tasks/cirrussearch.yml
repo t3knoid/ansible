@@ -1,0 +1,33 @@
+---
+- name: Ensure CirrusSearch and Elastica extensions are present
+  ansible.builtin.copy:
+    src: "extensions/{{ item }}"
+    dest: "{{ mediawiki_install_path }}/extensions/{{ item }}"
+  loop:
+    - CirrusSearch
+    - Elastica
+
+- name: Configure CirrusSearch settings
+  ansible.builtin.template:
+    src: CirrusSearchConfig.php.j2
+    dest: "{{ mediawiki_setup_install_dir }}/CirrusSearchConfig.php"
+
+- name: Include CirrusSearch config in LocalSettings.php
+  ansible.builtin.lineinfile:
+    path: "{{ mediawiki_setup_install_dir }}/LocalSettings.php"
+    line: "require_once \"$IP/CirrusSearchConfig.php\";"
+    insertafter: "require_once.*LocalSettings.php"
+
+- name: Run CirrusSearch index config
+  ansible.builtin.command: >
+    php extensions/CirrusSearch/maintenance/UpdateSearchIndexConfig.php
+    --conf {{ mediawiki_setup_install_dir }}/LocalSettings.php
+  args:
+    chdir: "{{ mediawiki_setup_install_dir }}"
+
+- name: Build initial search index
+  ansible.builtin.command: >
+    php extensions/CirrusSearch/maintenance/ForceSearchIndex.php
+    --skipLinks --indexOnSkip
+  args:
+    chdir: "{{ mediawiki_setup_install_dir }}"
