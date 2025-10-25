@@ -1,33 +1,30 @@
 - name: Install dependencies
-  apt:
+  ansible.builtin.apt:
     name:
       - apt-transport-https
     state: present
     update_cache: true
 
 - name: Download binary GPG key
-  get_url:
+  ansible.builtin.get_url:
     url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
     dest: /usr/share/keyrings/elasticsearch-keyring.gpg
+    mode: '0644'
 
 - name: Add Elasticsearch APT repository
-  apt_repository:
+  ansible.builtin.apt_repository:
     repo: "deb {{ elasticsearch_setup_repo_url }} stable main"
     state: present
     filename: "elastic-9.x.list"
 
 - name: Install specific version of Elasticsearch
-  apt:
-    name: "elasticsearch={{ elasticsearch_version }}"
+  ansible.builtin.apt:
+    name: "elasticsearch={{ elasticsearch_setup_version }}"
     state: present
     update_cache: true
 
-- name: Enable Elasticsearch to listen for connection on all available network interfaces
-  ansible.builtin.set_facts:
-    elasticsearch_setup_host: "{{ elasticsearch_setup_listen_net_interface | default('0.0.0.0') }}"
-
 - name: Configure Elasticsearch
-  template:
+  ansible.builtin.template:
     src: elasticsearch.yml.j2
     dest: /etc/elasticsearch/elasticsearch.yml
     owner: root
@@ -36,15 +33,21 @@
   notify: Restart Elasticsearch
 
 - name: Set JVM heap size
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/elasticsearch/jvm.options.d/heap.options
-    create: yes
-    line: "-Xms{{ elasticsearch_heap_size }}"
+    create: true
+    line: "-Xms{{ elasticsearch_setup_heap_size }}"
     insertafter: EOF
+    mode: '0644'
+
+- name: Install plugins
+  ansible.builtin.command: "/usr/share/elasticsearch/bin/elasticsearch-plugin install {{ item }}"
+  args:
+    creates: "/usr/share/elasticsearch/plugins/{{ item }}"
+  loop: "{{ elasticsearch_setup_plugins }}"
 
 - name: Enable and start Elasticsearch
-  systemd:
+  ansible.builtin.systemd:
     name: elasticsearch
-    enabled: yes
+    enabled: true
     state: started
-
