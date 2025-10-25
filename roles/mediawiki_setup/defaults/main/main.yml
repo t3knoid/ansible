@@ -14,3 +14,13 @@ mediawiki_setup_webroot_symlink: "/var/www/html/mediawiki"
 
 mediawiki_setup_upload_max_filesize: 2M
 mediawiki_setup_memory_limit: 8M
+
+# cirrussearch
+mediawiki_setup_cirrussearch_enabled: true
+mediawiki_setup_elasticsearch_host: "localhost"
+mediawiki_setup_cirrussearch_index_type: "external"
+mediawiki_setup_cirrussearch_namespace_weights:
+  - ns: 0
+    weight: 1.0
+  - ns: 1
+    weight: 0.5

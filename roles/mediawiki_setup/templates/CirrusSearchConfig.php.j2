@@ -1,0 +1,6 @@
+wfLoadExtension( 'Elastica' );
+wfLoadExtension( 'CirrusSearch' );
+
+$wgSearchType = 'CirrusSearch';
+$wgCirrusSearchServers = [ '{{ mediawiki_setup_elasticsearch_host }}' ];
+$wgDisableSearchUpdate = false;
