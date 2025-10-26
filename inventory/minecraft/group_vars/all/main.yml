@@ -41,4 +41,4 @@ geyser_setup_java_xmx: 1024
 geyser_setup_java_xms: 128
 geyser_setup_port: 19132
 
-bedrock_setup_version: 1.21.114
+bedrock_setup_version: 1.21.114.1
