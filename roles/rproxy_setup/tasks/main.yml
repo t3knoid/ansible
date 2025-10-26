@@ -10,8 +10,7 @@
     insertafter: "http {"
     block: |
       upstream backend {
-        server {{ hostvars[groups['rproxy_primary'][0]]['ansible_hostname'] }}:80 max_fails=3 fail_timeout=5s;
-        server {{ hostvars[groups['rproxy_secondary'][0]]['ansible_hostname'] }}:80 backup;
+        {{ rproxy_setup_backend_servers }}
       }
     marker: "# {mark} ANSIBLE MANAGED BLOCK"
   when: inventory_hostname in groups['rproxy_main']

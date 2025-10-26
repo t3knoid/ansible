@@ -9,6 +9,7 @@
   ansible.builtin.dpkg_selections:
     name: "nginx"
     selection: install
+  changed_when: false
 
 - name: Install nginx
   ansible.builtin.apt:
@@ -21,6 +22,7 @@
   ansible.builtin.dpkg_selections:
     name: "nginx"
     selection: hold
+  changed_when: false
 
 - name: Include config.yml tasks
   ansible.builtin.include_tasks: config.yml
