@@ -8,7 +8,6 @@ nginx_setup_disable_default_site: true
 
 rproxy_setup_sites:
   - server_name: pve.refol.us
-    https: false
     port: 8006
     proxy_pass: "https://{{ global_ip_addresses['pve-0'] }}"
     allow_list:
@@ -26,10 +25,7 @@ rproxy_setup_sites:
               send_timeout 3600s;
     nginx_setup_server_extra: |
       # Extra server settings
-      proxy_redirect off;
-    nginx_setup_server_other_redirect: |
-        listen 80 default_server;
-        rewrite ^(.*) https://$host$1 permanent;
+          proxy_redirect off;
 
   - server_name: pbs.refol.us
     port: 8007
@@ -42,4 +38,3 @@ rproxy_setup_sites:
     restricted: false
 
 ansible_python_interpreter: "/opt/python_{{ python3_version }}/bin/python3"
-
