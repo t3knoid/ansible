@@ -4,4 +4,4 @@ nginx_setup_worker_connections: 768
 nginx_setup_homedir: "/opt/nginx"
 nginx_setup_certroot: "/opt/certs"
 
-code_server_version: "4.105.0"
+code_server_version: "4.105.1"
