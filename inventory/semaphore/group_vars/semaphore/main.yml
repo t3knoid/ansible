@@ -564,7 +564,7 @@ semaphoreui_setup_projects:
       - name: "Reboot Radarr"
         playbook: "playbooks/vms/reboot_vm.yml"
         app: "ansible"
-        arguments: "[\"-k -l radarr\"]"
+        arguments: "[\"-k\",\"-l radarr\"]"
         inventory: "services"
         credentials:
           - "Ansible vault password"
@@ -574,7 +574,7 @@ semaphoreui_setup_projects:
       - name: "Reboot Lidarr"
         playbook: "playbooks/vms/reboot_vm.yml"
         app: "ansible"
-        arguments: "[\"-k -l lidarr\"]"
+        arguments: "[\"-k\",\"-l lidarr\"]"
         inventory: "services"
         credentials:
           - "Ansible vault password"
@@ -584,7 +584,7 @@ semaphoreui_setup_projects:
       - name: "Reboot Sabnzbd"
         playbook: "playbooks/vms/reboot_vm.yml"
         app: "ansible"
-        arguments: "[\"-k -l sabnzbd\"]"
+        arguments: "[\"-k\",\"-l sabnzbd\"]"
         inventory: "services"
         credentials:
           - "Ansible vault password"
@@ -594,7 +594,7 @@ semaphoreui_setup_projects:
       - name: "Reboot Plex"
         playbook: "playbooks/vms/reboot_vm.yml"
         app: "ansible"
-        arguments: "[\"-k -l plex\"]"
+        arguments: "[\"-k\",\"-l plex\"]"
         inventory: "plex"
         credentials:
           - "Ansible vault password"
