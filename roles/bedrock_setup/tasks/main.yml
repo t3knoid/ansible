@@ -75,7 +75,7 @@
   ansible.builtin.meta: flush_handlers
 
 - name: Get Bedrock start timestamp
-  ansible.builtin.shell: systemctl show -p ExecMainStartTimestamp bedrock | cut -d= -f2
+  ansible.builtin.shell: systemctl show -p ExecMainStartTimestamp bedrock | awk -F= '{print $2}' | awk '{$NF=""; print $0}' | sed 's/ *$//'
   register: bedrock_setup_start_time
   changed_when: false
   failed_when: bedrock_setup_start_time.stdout == ""
