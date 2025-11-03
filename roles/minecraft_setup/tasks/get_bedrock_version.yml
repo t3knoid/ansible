@@ -17,4 +17,6 @@
 - name: Check if latest version is newer
   debug:
     msg: "Update available: {{ minecraft_setup_bedrock_version_output.stdout }} is newer than {{ bedrock_setup_version }}"
-  when: minecraft_setup_bedrock_version_output.stdout is version(bedrock_setup_version, '>')
+  when: 
+    - minecraft_setup_bedrock_version_output.stdout | trim is version(bedrock_setup_version, '>')
+    - minecraft_setup_bedrock_version_output.stdout | trim != bedrock_setup_version
