@@ -17,6 +17,39 @@
   ansible.builtin.set_fact:
     certs_source_list: {}
 
+- name: Get cert.pem stat
+  ansible.builtin.stat:
+    path: "{{ certs_home }}/live/{{ nginx_setup_site.server_name }}/cert.pem"
+    follow: false
+  register: certs_cert_pem_stat
+  loop: "{{ rproxy_setup_sites }}"
+  loop_control:
+    label: "{{ nginx_setup_site.server_name }}"
+    loop_var: nginx_setup_site
+
+- name: Get cert.pem symlink source paths
+  ansible.builtin.set_fact:
+    certs_source_list: "{{ certs_source_list | combine({certs_lnk_source.nginx_setup_site.server_name: certs_lnk_source.stat.lnk_source}) }}"
+  loop: "{{ certs_cert_pem_stat.results }}"
+  when: certs_lnk_source.stat.exists and certs_lnk_source.stat.islnk
+  loop_control:
+    label: "{{ certs_lnk_source.nginx_setup_site.server_name }}"
+    loop_var: certs_lnk_source
+
+- name: Copy cert.pem files
+  no_log: true
+  ansible.builtin.copy:
+    src: "{{ item.value }}"
+    dest: "{{ certs_stage }}/{{ item.key }}/cert.pem"
+    mode: "0644"
+    owner: www-data
+    group: www-data
+    remote_src: true
+  loop: "{{ certs_source_list | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  notify: Restart nginx
+
 - name: Get fullchain.pem stat
   ansible.builtin.stat:
     path: "{{ certs_home }}/live/{{ nginx_setup_site.server_name }}/fullchain.pem"
@@ -64,7 +97,7 @@
   ansible.builtin.set_fact:
     certs_source_list: "{{ certs_source_list | combine({ certs_lnk_source.nginx_setup_site.server_name:certs_lnk_source.stat.lnk_source }) }}"
   loop: "{{ certs_privkey_pem_stat.results }}"
-  when: certs_lnk_source.stat.islnk
+  when: certs_lnk_source.stat.exists and certs_lnk_source.stat.islnk
   loop_control:
     label: "{{ certs_lnk_source.nginx_setup_site.server_name }}"
     loop_var: certs_lnk_source
