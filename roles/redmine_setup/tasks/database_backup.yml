@@ -7,10 +7,11 @@
       --file={{ redmine_setup_backup_path }} {{ redmine_setup_db_name }}
   args:
     executable: /bin/bash
+  become: true
   become_user: postgres
   register: pg_backup_result
   failed_when: pg_backup_result.rc != 0
-  changed_when: true
+  changed_when: false
 
 - name: Keep only the latest 3 backups
   ansible.builtin.shell: |
@@ -19,3 +20,4 @@
     executable: /bin/bash
   become: true
   become_user: postgres
+  changed_when: false
