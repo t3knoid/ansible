@@ -82,6 +82,7 @@
     executable: /bin/bash
     chdir: "{{ redmine_setup_installdir }}"
   become: true
+  changed_when: false
 
 - name: Create a Secret Token for Session Tampering Prevention
   ansible.builtin.shell: |
@@ -90,6 +91,7 @@
     executable: /bin/bash
     chdir: "{{ redmine_setup_installdir }}"
   become: true
+  changed_when: false
 
 - name: Create Database Tables
   ansible.builtin.shell: |
@@ -98,6 +100,7 @@
     executable: /bin/bash
     chdir: "{{ redmine_setup_installdir }}"
   become: true
+  changed_when: false
 
 - name: Install Passenger
   ansible.builtin.shell: |
@@ -106,6 +109,7 @@
     executable: /bin/bash
     chdir: "{{ redmine_setup_installdir }}"
   become: true
+  changed_when: false
 
 - name: Install Passenger Module for Apache
   ansible.builtin.shell: |
@@ -114,6 +118,7 @@
     executable: /bin/bash
     chdir: "{{ redmine_setup_installdir }}"
   become: true
+  changed_when: false
 
 - name: Confirming Configuration Details for Apache
   ansible.builtin.shell: |
@@ -123,6 +128,7 @@
     chdir: "{{ redmine_setup_installdir }}"
   become: true
   register: redmine_setup_passenger_config_details
+  changed_when: false
 
 - name: Show Configuration Details for Apache
   ansible.builtin.debug:
@@ -131,7 +137,7 @@
 - name: Set redmine_setup_passenger_snippet
   ansible.builtin.set_fact:
     redmine_setup_passenger_snippet: "{{ redmine_setup_passenger_config_details.stdout }}"
-  
+
 - name: Copy redmine.conf to /etc/apache2/conf-available/
   ansible.builtin.template:
     src: redmine.conf.j2

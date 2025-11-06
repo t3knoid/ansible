@@ -1,5 +1,16 @@
 ---
 
+- name: Stop Docker Container
+  ansible.builtin.include_tasks: stop.yml
+
+- name: Create config folder
+  ansible.builtin.file:
+    path: "{{ lazylibrarian_setup_config_dir }}"
+    owner: "{{ users_list[0].username }}"
+    group: "{{ users_list[0].username }}"
+    mode: "0755"
+    state: directory
+
 - name: Verify config folder exists
   ansible.builtin.stat:
     path: "{{ lazylibrarian_setup_config_dir }}"
@@ -9,6 +20,15 @@
   ansible.builtin.fail:
     msg: "{{ lazylibrarian_setup_config_dir }}"
   when: lazylibrarian_setup_config_dir_stat is not defined
+
+# This assumes that an nfs share has been mounted at /nfs/backups
+- name: Create network lazylibrarian backup folder
+  ansible.builtin.file:
+    path: "{{ lazylibrarian_setup_backups_dir }}"
+    owner: "{{ users_list[0].username }}"
+    group: "{{ users_list[0].username }}"
+    mode: "0777"
+    state: directory
 
 - name: Copy docker-compose.yml to target machine
   ansible.builtin.template:
@@ -31,11 +51,6 @@
 - name: Prune unused Docker images
   ansible.builtin.command: docker image prune -f
   changed_when: false
-
-- name: Remove all images
-  ansible.builtin.shell: "docker rmi -f $(docker images -a -q)"
-  changed_when: false
-  ignore_errors: true
 
 - name: Pull latest image
   ansible.builtin.command: docker-compose -f "{{ lazylibrarian_setup_config_dir }}/docker-compose.yml" pull

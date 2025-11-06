@@ -1,0 +1,33 @@
+---
+
+# Using pure docker commands in case we are in
+# an environment where docker compose file
+# is not available
+- name: Check if Calibre container is running
+  ansible.builtin.shell: |
+    docker ps --filter name=calibre --format '{{"{{"}}.Names{{"}}"}}' | grep -x calibre
+  register: calibre_setup_status
+  changed_when: false
+  failed_when: false  # Needed because grep may return a -1
+
+- name: Set calibre_setup_is_running fact
+  ansible.builtin.set_fact:
+    calibre_setup_is_running: "{{ calibre_setup_status.stdout != '' }}"
+
+- name: Show calibre_setup_is_running
+  ansible.builtin.debug:
+    var: calibre_setup_is_running
+
+- name: Stop Docker Container
+  ansible.builtin.command: docker stop calibre
+  changed_when: false
+  when: calibre_setup_is_running
+
+- name: Remove Docker Container
+  ansible.builtin.command: docker rm calibre
+  changed_when: false
+  when: calibre_setup_is_running
+
+- name: Remove all unused Docker networks
+  ansible.builtin.command: sudo docker network prune -f
+  changed_when: false

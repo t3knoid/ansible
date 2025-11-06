@@ -43,13 +43,6 @@
   ansible.builtin.debug:
     var: ad_configured
 
-- name: Install Python modules
-  ansible.builtin.pip:
-    name: "pexpect"
-    virtualenv: "/opt/python_{{ python3_version }}"
-    state: present
-    umask: "0022"
-
 - name: Join machine to domain
   no_log: true
   ansible.builtin.expect:
