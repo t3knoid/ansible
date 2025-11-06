@@ -13,6 +13,7 @@ vms_config:
     disk: virtio0
     backup: true
     size: 30
+    storage: local
 
 autofs_nfs_mounts:
   - mount_name: music

@@ -1,0 +1,11 @@
+---
+
+- name: Deploy Calibre
+  hosts: calibre
+  become: true
+  roles:
+    - global
+    - users
+    - autofs
+    - docker_setup
+    - calibre_setup

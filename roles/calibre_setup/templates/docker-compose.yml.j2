@@ -1,0 +1,25 @@
+---
+
+services:
+  calibre:
+    image: lscr.io/linuxserver/{{ calibre_setup_docker_image_name }}
+    container_name: calibre
+    security_opt:
+      - seccomp:unconfined #optional
+    environment:
+      - PUID=2000
+      - PGID=2000
+      - TZ=Etc/UTC
+      - PASSWORD= #optional
+      - CLI_ARGS= #optional
+    volumes:
+      - {{ calibre_setup_config_dir }}:/config
+{% for mount in autofs_nfs_mounts %}
+      - /nfs/{{ mount.mount_name }}:{{ mount.container_path }}
+{% endfor %}
+    ports:
+      - 8080:8080
+      - 8181:8181
+      - 8081:8081
+    restart: unless-stopped
+

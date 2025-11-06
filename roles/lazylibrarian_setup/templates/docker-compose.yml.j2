@@ -1,7 +1,7 @@
 ---
 
 services:
-  radarr:
+  lazylibrarian:
     image: ghcr.io/linuxserver/lazylibrarian:version-{{ lazylibrarian_setup_version }}
     container_name: lazylibrarian
     environment:
@@ -12,9 +12,10 @@ services:
       - LC_ALL=C.UTF-8
       - DOCKER_MODS=linuxserver/mods:lazylibrarian-ffmpeg|ghcr.io/linuxserver/mods:universal-calibre #optional
     volumes:
-      - /config:/config
-      - /nfs/books:/books 
-      - /nfs/downloads:/downloads #optional
+      - {{ lazylibrarian_setup_config_dir }}:/config
+{% for mount in autofs_nfs_mounts %}
+      - /nfs/{{ mount.mount_name }}:{{ mount.container_path }}
+{% endfor %}
     ports:
       - 5299:5299
     restart: unless-stopped
