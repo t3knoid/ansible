@@ -1,0 +1,13 @@
+---
+
+- name: Configure Lazy Librarian
+  hosts: lazylibrarian
+  become: true
+  roles:
+    - global
+
+  tasks:
+    - name: Call configure.yml tasks from lazylibrarian_setup role
+      ansible.builtin.include_role:
+        name: lazylibrarian_setup
+        tasks_from: configure.yml

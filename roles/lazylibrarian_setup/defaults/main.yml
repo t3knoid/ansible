@@ -1,9 +1,15 @@
 ---
 
 lazylibrarian_setup_config_dir: "/config/lazylibrarian"
+lazylibrarian_setup_config_ini: "{{ lazylibrarian_setup_config_dir }}/config.ini"
 lazylibrarian_setup_version: 0c862d0f
 lazylibrarian_setup_mount_point: /nfs/backups
 lazylibrarian_setup_backup_prefix: "lazy_"
 lazylibrarian_setup_backup_filename: "{{ lazylibrarian_setup_backup_prefix }}{{ ansible_date_time.date }}.sqlc"
 lazylibrarian_setup_backups_dir: "{{ lazylibrarian_setup_mount_point }}/lazy"
 lazylibrarian_setup_backup_path: "{{ lazylibrarian_setup_backups_dir }}/{{ lazylibrarian_setup_backup_filename }}"
+
+lazylibrarian_setup_ebook_dir: "/books"
+lazylibrarian_setup_download_dir: "/downloads"
+lazylibrarian_setup_alt_download_dir: "/downloads"
+lazylibrarian_setup_user_agent: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)"
