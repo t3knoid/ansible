@@ -20,12 +20,15 @@ lazylibrarian_setup_logging_config:
   logsize: 204800
   loglevel: 10 # Debug=10, Quiet=50, Normal=20
 
-lazylibrarian_setup_imp_calibredb: /usr/bin/calibredb
+lazylibrarian_setup_calibre_config:
+  calibre_use_server: "True"
+  calibre_server: "http://localhost:8081"
+  imp_calibredb: "/usr/bin/calibredb"
 
 lazylibrarian_setup_sabnzbd_config:
   sab_host: 192.168.2.153
   sab_port: 8080
-  sab_api: REMOVED
+  sab_api: "{{ lazylibrarian_setup_sabnzbd_api }}"
   sab_cat: ebooks
 
 lazylibrarian_setup_newznab_configs:
@@ -33,14 +36,20 @@ lazylibrarian_setup_newznab_configs:
     dispname: "Nzb.su"
     enabled: "True"
     host: "https://nzb.su"
-    api: "REMOVED"
+    api: "{{ lazylibrarian_setup_nzbsu_api }}"
     dlpriority: "25"
   Newznab_1:
     dispname: "Nzbgeek"
     enabled: "True"
     host: " https://api.nzbgeek.info"
-    api: "REMOVED"
+    api: "{{ lazylibrarian_setup_nzbgeek_api }}"
     dlpriority: "25"
+  Newznab_2:
+    dispname: "Nzbplanet"
+    enabled: "True"
+    host: "https://api.nzbplanet.net"
+    api: "{{ lazylibrarian_setup_nzbplanet_api }}"
+    dlpriority: 25
 
 lazylibrarian_setup_opds_configs:
   opds_enabled: "True"

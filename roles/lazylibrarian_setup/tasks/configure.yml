@@ -53,15 +53,17 @@
   loop: "{{ lazylibrarian_setup_webserver_config | dict2items }}"
   notify: Restart Lazy Librarian
 
-- name: Update INI file imp_calibredb value in [CALIBRE] section
+- name: Update INI file [CALIBRE] section
   community.general.ini_file:
     path: "{{ lazylibrarian_setup_config_ini }}"
     section: CALIBRE
-    option: imp_calibredb
-    value: "/usr/bin/calibredb"
+    option: "{{ item.key }}"
+    value: "{{ item.value }}"
     owner: "{{ users_list[0].username }}"
     group: "{{ users_list[0].username }}"
     mode: "0644"
+    exclusive: true
+  loop: "{{ lazylibrarian_setup_calibre_config | dict2items }}"
   notify: Restart Lazy Librarian
 
 - name: Set USENET setting nzb_downloader_sabnzbd to True
@@ -97,6 +99,8 @@
     mode: "0644"
     state: absent
   loop: "{{ lazylibrarian_setup_newznab_configs | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
   notify: Restart Lazy Librarian
 
 - name: Add [Newznab_x] sections
@@ -108,5 +112,5 @@
     owner: "{{ users_list[0].username }}"
     group: "{{ users_list[0].username }}"
     mode: "0644"
-    state: absent
+    state: present
   notify: Restart Lazy Librarian
