@@ -1,0 +1,112 @@
+---
+
+- name: Stop Lazy Librarian
+  ansible.builtin.command: >
+    docker-compose -f "{{ lazylibrarian_setup_config_dir }}/docker-compose.yml" stop
+  changed_when: false
+
+- name: Update INI file [OPDS] section
+  community.general.ini_file:
+    path: "{{ lazylibrarian_setup_config_ini }}"
+    section: OPDS
+    option: "{{ item.key }}"
+    value: "{{ item.value }}"
+    owner: "{{ users_list[0].username }}"
+    group: "{{ users_list[0].username }}"
+    mode: "0644"
+  loop: "{{ lazylibrarian_setup_opds_configs | dict2items }}"
+  notify: Restart Lazy Librarian
+
+- name: Update INI file [GENERAL] section
+  community.general.ini_file:
+    path: "{{ lazylibrarian_setup_config_ini }}"
+    section: GENERAL
+    option: "{{ item.key }}"
+    value: "{{ item.value }}"
+    owner: "{{ users_list[0].username }}"
+    group: "{{ users_list[0].username }}"
+    mode: "0644"
+  loop: "{{ lazylibrarian_setup_general_config | dict2items }}"
+  notify: Restart Lazy Librarian
+
+- name: Update INI file [LOGGING] section
+  community.general.ini_file:
+    path: "{{ lazylibrarian_setup_config_ini }}"
+    section: LOGGING
+    option: "{{ item.key }}"
+    value: "{{ item.value }}"
+    owner: "{{ users_list[0].username }}"
+    group: "{{ users_list[0].username }}"
+    mode: "0644"
+  loop: "{{ lazylibrarian_setup_logging_config | dict2items }}"
+  notify: Restart Lazy Librarian
+
+- name: Update INI file [WEBSERVER] section
+  community.general.ini_file:
+    path: "{{ lazylibrarian_setup_config_ini }}"
+    section: WEBSERVER
+    option: "{{ item.key }}"
+    value: "{{ item.value }}"
+    owner: "{{ users_list[0].username }}"
+    group: "{{ users_list[0].username }}"
+    mode: "0644"
+  loop: "{{ lazylibrarian_setup_webserver_config | dict2items }}"
+  notify: Restart Lazy Librarian
+
+- name: Update INI file imp_calibredb value in [CALIBRE] section
+  community.general.ini_file:
+    path: "{{ lazylibrarian_setup_config_ini }}"
+    section: CALIBRE
+    option: imp_calibredb
+    value: "/usr/bin/calibredb"
+    owner: "{{ users_list[0].username }}"
+    group: "{{ users_list[0].username }}"
+    mode: "0644"
+  notify: Restart Lazy Librarian
+
+- name: Set USENET setting nzb_downloader_sabnzbd to True
+  community.general.ini_file:
+    path: "{{ lazylibrarian_setup_config_ini }}"
+    section: USENET
+    option: nzb_downloader_sabnzbd
+    value: "True"
+    owner: "{{ users_list[0].username }}"
+    group: "{{ users_list[0].username }}"
+    mode: "0644"
+  when: lazylibrarian_setup_sabnzbd_config is defined
+  notify: Restart Lazy Librarian
+
+- name: Update INI file [SABNZBD] section
+  community.general.ini_file:
+    path: "{{ lazylibrarian_setup_config_ini }}"
+    section: SABNZBD
+    option: "{{ item.key }}"
+    value: "{{ item.value }}"
+    owner: "{{ users_list[0].username }}"
+    group: "{{ users_list[0].username }}"
+    mode: "0644"
+  loop: "{{ lazylibrarian_setup_sabnzbd_config | dict2items }}"
+  notify: Restart Lazy Librarian
+
+- name: Remove [Newznab_x] sections
+  community.general.ini_file:
+    path: "{{ lazylibrarian_setup_config_ini }}"
+    section: "{{ item.key }}"
+    owner: "{{ users_list[0].username }}"
+    group: "{{ users_list[0].username }}"
+    mode: "0644"
+    state: absent
+  loop: "{{ lazylibrarian_setup_newznab_configs | dict2items }}"
+  notify: Restart Lazy Librarian
+
+- name: Add [Newznab_x] sections
+  ansible.builtin.blockinfile:
+    path: "{{ lazylibrarian_setup_config_ini }}"
+    block: "{{ lazylibrarian_setup_newznab_configs | community.general.to_ini }}"
+    create: true
+    backup: true
+    owner: "{{ users_list[0].username }}"
+    group: "{{ users_list[0].username }}"
+    mode: "0644"
+    state: absent
+  notify: Restart Lazy Librarian

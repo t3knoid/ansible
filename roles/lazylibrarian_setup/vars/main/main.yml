@@ -1,0 +1,47 @@
+---
+
+lazylibrarian_setup_general_config:
+  homepage: "Authors"
+  auth_type: "FORM"
+  audio_tab: "False"
+  config_tab_num: "4"
+  imp_preflang: "eng, en-GB, English, en, en-US"
+  date_lang: "en_GB.UTF-8"
+  wishlist_genres: "False"
+  ebook_dir: "{{ lazylibrarian_setup_ebook_dir }}"
+  alternate_dir: "{{ lazylibrarian_setup_alt_download_dir }}"
+  download_dir: "{{ lazylibrarian_setup_download_dir }}"
+  user_agent: "{{ lazylibrarian_setup_user_agent }}"
+
+lazylibrarian_setup_logging_config:
+  logdir: "/config/log"
+  loglimit: 500
+  logfiles: 10
+  logsize: 204800
+  loglevel: 10 # Debug=10, Quiet=50, Normal=20
+
+lazylibrarian_setup_imp_calibredb: /usr/bin/calibredb
+
+lazylibrarian_setup_sabnzbd_config:
+  sab_host: 192.168.2.153
+  sab_port: 8080
+  sab_api: REMOVED
+  sab_cat: ebooks
+
+lazylibrarian_setup_newznab_configs:
+  Newznab_0:
+    dispname: "Nzb.su"
+    enabled: "True"
+    host: "https://nzb.su"
+    api: "REMOVED"
+    dlpriority: "25"
+  Newznab_1:
+    dispname: "Nzbgeek"
+    enabled: "True"
+    host: " https://api.nzbgeek.info"
+    api: "REMOVED"
+    dlpriority: "25"
+
+lazylibrarian_setup_opds_configs:
+  opds_enabled: "True"
+  opds_metainfo: "True"

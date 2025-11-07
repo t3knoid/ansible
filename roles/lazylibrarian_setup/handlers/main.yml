@@ -1,0 +1,5 @@
+---
+- name: Restart Lazy Librarian
+  ansible.builtin.command: >
+    docker-compose -f "{{ lazylibrarian_setup_config_dir }}/docker-compose.yml" restart
+  changed_when: false
