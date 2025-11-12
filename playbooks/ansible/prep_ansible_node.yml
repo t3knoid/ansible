@@ -1,5 +1,5 @@
 - name: Prepare ansible managed node
-  hosts: vms
+  hosts: vms, baremetal
   gather_facts: true
   become: true
   roles:

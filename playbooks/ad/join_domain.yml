@@ -1,7 +1,7 @@
 ---
 
 - name: Join active directory domain
-  hosts: vms
+  hosts: vms, baremetal
   gather_facts: false
   become: true
   roles:
