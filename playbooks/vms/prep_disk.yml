@@ -1,5 +1,5 @@
 - name: Automate finding and formatting a local drive
-  hosts: vms
+  hosts: vms, baremetal
   gather_facts: false
   become: true
   roles:

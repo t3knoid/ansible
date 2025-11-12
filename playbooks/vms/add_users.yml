@@ -1,7 +1,7 @@
 ---
 
 - name: Add users to VM
-  hosts: vms
+  hosts: vms, baremetal
   gather_facts: false
   become: true
   roles:
