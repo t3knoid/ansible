@@ -19,7 +19,7 @@
     mode: "0640"
     owner: www-data
     group: www-data
-  notify: Restart dnsmaq
+  notify: Restart dnsmasq
   delegate_to: "{{ pxeserver_setup_host }}"
 
 - name: Add or update IP reservation in dnsmasq.conf
@@ -34,7 +34,7 @@
     group: www-data
   loop: '{{ pxeserver_setup_ip_reservations }}'
   notify:
-    - Restart dnsmaq
+    - Restart dnsmasq
   delegate_to: "{{ pxeserver_setup_host }}"
 
 - name: Create empty meta-data file
@@ -52,7 +52,7 @@
   community.crypto.openssh_keypair:
     path: ~/.ssh/id_rsa
   delegate_to: localhost
-  register: ssh_key
+  register: pxeserver_setup_ssh_key
 
 - name: Copy user-data file
   ansible.builtin.template:
@@ -61,15 +61,17 @@
     mode: u=rw,g=rw,o=r
     owner: www-data
     group: www-data
+  notify:
+    - Restart dnsmasq
   delegate_to: "{{ pxeserver_setup_host }}"
 
 - name: Show pxeserver_setup_host
-  debug:
-    var: global_ip_addresses['{{ pxeserver_setup_host }}']
+  ansible.builtin.debug:
+    msg: "pxeserver_setup_host = {{ global_ip_addresses[pxeserver_setup_host] }}"
 
 - name: Show pxeserver_setup_ip
-  debug:
-    var: pxeserver_setup_ip
+  ansible.builtin.debug:
+    msg: "pxeserver_setup_ip = {{ pxeserver_setup_ip }}"
 
 - name: Configure pxelinux.cfg/default
   ansible.builtin.template:
@@ -78,7 +80,7 @@
     mode: u=rw,g=rw,o=rw
     owner: www-data
     group: www-data
-  notify: Restart dnsmaq
+  notify: Restart dnsmasq
   delegate_to: "{{ pxeserver_setup_host }}"
 
 - name: Ensure dnsmaq service is running

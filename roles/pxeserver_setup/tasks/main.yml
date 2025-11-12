@@ -51,7 +51,7 @@
     paths: "{{ pxeserver_setup_tftp_dir }}"
     recurse: true
     file_type: directory
-  register: dir_list
+  register: pxeserver_setup_dir_list
 
 - name: Ensure tftp folders has proper access
   ansible.builtin.file:
@@ -60,7 +60,7 @@
     mode: u=rwx,g=rx,o=rx
     owner: www-data
     group: www-data
-  loop: "{{ dir_list.files | json_query('[*].path') }}"
+  loop: "{{ pxeserver_setup_dir_list.files | json_query('[*].path') }}"
 
 - name: Ensure tftp root directory has proper access
   ansible.builtin.file:
