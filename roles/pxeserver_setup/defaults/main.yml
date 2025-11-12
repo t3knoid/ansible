@@ -9,5 +9,6 @@ pxeserver_setup_client_hostname: "{{ inventory_hostname }}"
 pxeserver_setup_client_ip: "{{ global_ip_address }}"
 pxeserver_setup_dhcp_range: "{{ pxeserver_setup_client_ip }},{{ pxeserver_setup_client_ip }},255.255.255.0" # note only 1 ip address
 pxeserver_setup_dhcp_lease: "6h"
+pxeserver_setup_client_nic: "ens18"
 pxeserver_setup_ip_reservations:
   - { mac_address: 'BC:24:11:71:2D:34', ip_address: "{{ pxeserver_setup_client_ip }}" }

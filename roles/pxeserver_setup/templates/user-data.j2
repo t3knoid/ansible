@@ -22,7 +22,7 @@ autoinstall:
     network:
       version: 2
       ethernets:
-        ens18:
+        {{ pxeserver_setup_client_nic }}:
           addresses: [{{ global_ip_address }}/24]
           gateway4: {{ global_gateway }}
           nameservers:
@@ -36,7 +36,7 @@ autoinstall:
     install-server: yes
     allow-pw: true
     authorized-keys: 
-      - {{ ssh_key.public_key }}
+      - {{ pxeserver_setup_ssh_key.public_key }}
   packages: 
   {% for package in global_packages_list -%}
   - {{ package }}
