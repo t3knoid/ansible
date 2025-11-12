@@ -1,0 +1,6 @@
+---
+vms_os: ubuntu_24_server
+pxeserver_setup_client_nic: "enp2s0"
+pxeserver_setup_dhcp_range: "192.168.2.253,192.168.2.253,255.255.255.0"
+pxeserver_setup_ip_reservations:
+  - { mac_address: '0C:C4:7A:E2:83:5A', ip_address: '192.168.2.253' }
