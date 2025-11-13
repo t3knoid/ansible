@@ -1,0 +1,32 @@
+---
+
+# See filter_plugins/consolidate_cname_entries.py for consolidate_cname_entries filter code
+- name: Consolidate all consolidate_cname_entries
+  ansible.builtin.set_fact:
+    pihole_consolidated_cname_entries: "{{ 'inventory' | consolidate_cname_entries }}"
+
+- name: Create Pi-Hole config directory
+  ansible.builtin.file:
+    path: "{{ pihole_config_dir }}"
+    state: directory
+    mode: '0755'
+
+# Pi-hole --unattended install only works if there is a defined pihole.toml
+- name: Create pihole.toml
+  ansible.builtin.template:
+    src: pihole.toml.j2
+    dest: "{{ pihole_config_dir }}/pihole.toml"
+    mode: "0664"
+
+- name: Download Pi-hole install script
+  ansible.builtin.get_url:
+    url: https://install.pi-hole.net
+    dest: /tmp/basic-install.sh
+    mode: '0755'
+
+- name: Run Pi-hole install script
+  ansible.builtin.command:
+    cmd: bash /tmp/basic-install.sh --unattended
+  args:
+    chdir: /tmp
+  changed_when: false
