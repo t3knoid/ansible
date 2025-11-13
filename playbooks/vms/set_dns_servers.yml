@@ -1,0 +1,14 @@
+---
+
+- name: Set DNS servers
+  hosts: vms,baremetal
+  gather_facts: false
+  become: true
+  roles:
+    - global
+
+  tasks:
+    - name: Import set_dns_servers.yml from vms role
+      ansible.builtin.import_role:
+        name: vms
+        tasks_from: set_dns_servers.yml

@@ -1,0 +1,32 @@
+---
+
+- name: Get default network interface
+  ansible.builtin.shell: ip -o route get 1.1.1.1  | awk -F' ' '{print $5 }'
+  register: vms_default_nic
+  changed_when: false
+
+- name: Replace nameservers block in /etc/netplan/50-clould-init.yaml
+  ansible.builtin.copy:
+    dest: /etc/netplan/50-cloud-init.yaml
+    content: |
+      network:
+        version: 2
+        ethernets:
+          {{ vms_default_nic.stdout }}:
+            addresses:
+            - "{{ global_ip_address }}/24"
+            nameservers:
+              addresses:
+              {% for dns_server in global_dns_servers -%}
+                - {{ dns_server }}
+              {% endfor -%}
+              search:
+              - {{ global_domain_name }}
+            routes:
+            - to: "default"
+              via: "192.168.2.1"
+    mode: "0600"
+
+- name: Apply netplan changes
+  ansible.builtin.command: netplan apply
+  changed_when: false
