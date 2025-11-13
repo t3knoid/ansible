@@ -26,7 +26,7 @@ def load_yaml_file(path):
 
 def consolidate_rproxy_setup_sites(base_dir="inventory", target_var="rproxy_setup_sites"):
     if not base_dir:
-            base_dir = "inventory"
+        base_dir = "inventory"
 
     if not os.path.isdir(base_dir):
         print(f"[WARNING] Inventory base directory '{base_dir}' not found or is not a directory.")
