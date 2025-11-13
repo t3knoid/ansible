@@ -2,3 +2,8 @@
 # defaults file for pi-hole
 
 pihole_api_host: "{{ global_pihole_api_host | default('192.168.2.252') }}"
+pihole_config_dir: /etc/pihole
+pihole_config_upstreams:
+  - "127.0.0.1#5335"
+pihole_config_reverse_servers:
+  - true,192.168.0.0/24,192.168.2.251,refol.us
