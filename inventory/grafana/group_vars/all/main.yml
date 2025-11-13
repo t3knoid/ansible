@@ -29,10 +29,6 @@ python3_version: 3.12
 disks_disk_mounts:
   - { mountpoint: "/data", mountpoint_owner: "{{ users_list[0].username }}", mountpoint_group: "{{ users_list[0].username }}" }
 
-pihole_cname_entries:
-  - domain: grafana.refol.us
-    target: rproxy-0.refol.us
-
 nginx_setup_disable_default_site: true
 
 postgresql_setup_version: 17

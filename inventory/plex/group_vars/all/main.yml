@@ -44,8 +44,4 @@ rproxy_setup_sites:
       - 70.107.117.124
     restricted: false
 
-pihole_cname_entries:
-  - domain: wikipedia.refol.us
-    target: rproxy-0.refol.us
-
 nginx_setup_disable_default_site: true
