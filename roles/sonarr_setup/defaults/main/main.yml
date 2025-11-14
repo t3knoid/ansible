@@ -18,5 +18,5 @@ sonarr_setup_pg_host: "{{ global_ip_addresses[groups['pgdb'][0]] }}"
 sonarr_setup_mount_point: /nfs/backups
 sonarr_setup_backup_prefix: "sonarr_"
 sonarr_setup_backup_filename: "{{ sonarr_setup_backup_prefix }}{{ ansible_date_time.date }}.sqlc"
-sonarr_setup_backups_dir: "{{ sonarr_setup_config_dir }}/sonarr"
+sonarr_setup_backups_dir: "{{ sonarr_setup_mount_point }}/sonarr"
 sonarr_setup_backup_path: "{{ sonarr_setup_backups_dir }}/{{ sonarr_setup_backup_filename }}"
