@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Frank Refol
-  description: Installs Terraform and HashiCorp vault
+  description: Installs Terraform
   license: MIT
   min_ansible_version: 2.9
   platforms:
