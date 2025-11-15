@@ -1,6 +1,5 @@
 ---
 
 terraform_setup_version: 1.13.5
-terraform_setup_vault_version: 1.21.0-1
 terraform_setup_home: "/usr/local/bin"
 terraform_setup_os_arch: "linux_amd64"
