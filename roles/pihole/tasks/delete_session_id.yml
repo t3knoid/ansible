@@ -1,9 +1,5 @@
 ---
 
-- name: Add pause before deleting session ID
-  ansible.builtin.pause:
-    seconds: 10
-
 - name: Delete Session ID
   no_log: false
   ansible.builtin.uri:
