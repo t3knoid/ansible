@@ -1,0 +1,39 @@
+---
+- name: Remove Vault TCP listener block
+  ansible.builtin.replace:
+    path: "{{ vault_setup_config_dir }}/vault.hcl"
+    regexp: '(^|\n)listener\s+"tcp"\s+\{[^}]*\n\}'
+    replace: ''
+    backup: true
+
+- name: Add Vault TCP listener block
+  ansible.builtin.blockinfile:
+    path: "{{ vault_setup_config_dir }}/vault.hcl"
+    marker: "# {mark} ANSIBLE MANAGED TCP LISTENER"
+    block: |
+      listener "tcp" {
+        address       = "{{ vault_setup_listener_address }}"
+        tls_cert_file = "{{ vault_setup_config_dir }}/{{ vault_setup_vault_server }}.crt"
+        tls_key_file  = "{{ vault_setup_config_dir }}/{{ vault_setup_vault_server }}.key"
+      }
+    owner: "{{ vault_setup_user }}"
+    group: "{{ vault_setup_group }}"
+    mode: "0640"
+  notify: Restart vault
+
+- name: Add Vault api_addr block
+  ansible.builtin.lineinfile:
+    path: "{{ vault_setup_config_dir }}/vault.hcl"
+    regexp: '^api_addr\s*=.*$'
+    line: api_addr = "https://{%if vault_setup_alias|length > 0 %}{{ vault_setup_alias }}{%else%}{{ vault_setup_vault_server }}{%endif%}:8200"
+    owner: "{{ vault_setup_user }}"
+    group: "{{ vault_setup_group }}"
+    mode: "0640"
+  notify: Restart vault
+
+- name: Show instructions for clients
+  ansible.builtin.debug:
+    msg: |
+      Set the following environment variable in vault client hosts:
+
+      export VAULT_ADDR='https://{%if vault_setup_alias|length > 0 %}{{ vault_setup_alias }}{%else%}{{ vault_setup_vault_server }}{%endif%}:8200'

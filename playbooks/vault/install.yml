@@ -1,0 +1,8 @@
+---
+
+- name: Install the HashiCorp Vault
+  hosts: vault_servers
+  become: true
+  roles:
+    - global
+    - vault_setup

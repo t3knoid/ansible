@@ -1,0 +1,30 @@
+---
+
+# This deploys the certificate authority public certificate
+# to hosts that connects to the vault
+
+- name: Fetch Vault CA certificate from dns-1
+  ansible.builtin.fetch:
+    src: "{{ vault_setup_config_dir }}/{{ vault_setup_ca_crt }}"
+    dest: "/tmp/{{ vault_setup_ca_crt }}"
+    flat: true
+  delegate_to: "{{ vault_setup_vault_server }}"
+  run_once: true
+
+- name: Ensure Vault CA directory exists
+  ansible.builtin.file:
+    path: "{{ vault_setup_client_cacert_vault_dir }}"
+    state: directory
+    mode: '0755'
+
+- name: Copy Vault CA certificate to clients
+  ansible.builtin.copy:
+    src: "/tmp/{{ vault_setup_ca_crt }}" 
+    dest: "{{ vault_setup_client_cacert_vault_dir }}/{{ vault_setup_ca_crt }}"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Update system CA trust store (Debian/Ubuntu)
+  ansible.builtin.command: update-ca-certificates
+  when: ansible_os_family == "Debian"

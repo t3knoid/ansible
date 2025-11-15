@@ -1,0 +1,18 @@
+---
+
+- name: Create a Certificate Authority for HashiCorp Vault
+  hosts: vault_servers
+  become: true
+  roles:
+    - global
+
+  tasks:
+    - name: Include create_ca.yml task file from vault_setup role
+      ansible.builtin.import_role:
+        name: vault_setup
+        tasks_from: create_ca.yml
+
+    - name: Include create_vault_cert.yml task file from vault_setup role
+      ansible.builtin.import_role:
+        name: vault_setup
+        tasks_from: create_vault_cert.yml

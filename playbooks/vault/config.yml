@@ -1,0 +1,13 @@
+---
+
+- name: Configure the HashiCorp Vault
+  hosts: vault_servers
+  become: true
+  roles:
+    - global
+
+  tasks:
+    - name: Include config.yml task file from vault_setup role
+      ansible.builtin.import_role:
+        name: vault_setup
+        tasks_from: config.yml

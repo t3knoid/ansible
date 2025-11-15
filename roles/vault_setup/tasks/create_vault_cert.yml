@@ -1,0 +1,64 @@
+---
+
+# This is the certificate that validates the identify of the server
+# to hosts that requires access to the vault
+- name: Generate Vault server private key
+  ansible.builtin.command: >
+    openssl genrsa -out {{ vault_setup_config_dir }}/{{ vault_setup_vault_server }}.key 2048
+  args:
+    creates: "{{ vault_setup_config_dir }}/{{ vault_setup_vault_server }}.key"
+  notify: Restart vault
+
+- name: Create Vault Certificate Signing Request (CSR) config with Subject Alternative Name (SAN)
+  ansible.builtin.copy:
+    dest: "{{ vault_setup_config_dir }}/{{ vault_setup_vault_server }}-csr.cnf"
+    content: |
+      [req]
+      distinguished_name = req_distinguished_name
+      req_extensions = v3_req
+      prompt = no
+
+      [req_distinguished_name]
+      CN = {{ vault_setup_vault_server }}
+
+      [v3_req]
+      subjectAltName = @alt_names
+
+      [alt_names]
+      DNS.1 = {{ vault_setup_vault_server }}
+      {% if vault_setup_alias|length > 0 %}
+      DNS.2 = {{ vault_setup_alias }}
+      {% endif %}
+      IP.1 = {{ ansible_default_ipv4.address }}
+    mode: "0640"
+  notify: Restart vault
+
+- name: Generate Vault CSR
+  ansible.builtin.command: >
+    openssl req -new -key {{ vault_setup_config_dir }}/{{ vault_setup_vault_server }}.key
+    -out {{ vault_setup_config_dir }}/{{ vault_setup_vault_server }}.csr
+    -config {{ vault_setup_config_dir }}/{{ vault_setup_vault_server }}-csr.cnf
+  args:
+    creates: "{{ vault_setup_config_dir }}/{{ vault_setup_vault_server }}.csr"
+  notify: Restart vault
+
+- name: Sign Vault certificate with CA
+  ansible.builtin.command: >
+    openssl x509 -req -in {{ vault_setup_config_dir }}/{{ vault_setup_vault_server }}.csr
+    -CA {{ vault_setup_config_dir }}/{{ vault_setup_ca_crt }} -CAkey {{ vault_setup_config_dir }}/{{ vault_setup_ca_key }}
+    -CAcreateserial -out {{ vault_setup_config_dir }}/{{ vault_setup_vault_server }}.crt
+    -days 825 -sha256
+    -extensions v3_req -extfile {{ vault_setup_config_dir }}/{{ vault_setup_vault_server }}-csr.cnf
+  args:
+    creates: "{{ vault_setup_config_dir }}/{{ vault_setup_vault_server }}.crt"
+  notify: Restart vault
+
+- name: Set permissions on Vault TLS files
+  ansible.builtin.file:
+    path: "{{ vault_setup_config_dir }}/{{ item }}"
+    owner: "{{ vault_setup_user }}"
+    group: "{{ vault_setup_group }}"
+    mode: '0640'
+  loop:
+    - "{{ vault_setup_vault_server }}.key"
+    - "{{ vault_setup_vault_server }}.crt"

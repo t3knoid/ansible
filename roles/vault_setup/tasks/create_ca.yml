@@ -1,0 +1,38 @@
+---
+
+# This creates a Certificate Authority that will be used
+# to sign certificates that are to be trusted. The generated
+# /etc/vault.d/ca.crt file is deployed to hosts that need to
+# trust this server
+- name: Ensure openssl is installed
+  ansible.builtin.apt:
+    name: openssl
+    state: present
+    update_cache: true
+
+- name: Generate CA private key
+  ansible.builtin.command: >
+    openssl genrsa -out {{ vault_setup_config_dir }}/{{ vault_setup_ca_key }} 4096
+  args:
+    creates: "{{ vault_setup_config_dir }}/{{ vault_setup_ca_key }}"
+  notify: Restart vault
+
+- name: Generate CA certificate
+  ansible.builtin.command: >
+    openssl req -x509 -new -nodes -key {{ vault_setup_config_dir }}/{{ vault_setup_ca_key }}
+    -sha256 -days 1825
+    -subj "/CN=Vault-CA"
+    -out {{ vault_setup_config_dir }}/{{ vault_setup_ca_crt }}
+  args:
+    creates: "{{ vault_setup_config_dir }}/{{ vault_setup_ca_crt }}"
+  notify: Restart vault
+
+- name: Set permissions on CA TLS files
+  ansible.builtin.file:
+    path: "{{ vault_setup_config_dir }}/{{ item }}"
+    owner: vault
+    group: vault
+    mode: '0600'
+  loop:
+    - "{{ vault_setup_ca_key }}"
+    - "{{ vault_setup_ca_crt }}"
