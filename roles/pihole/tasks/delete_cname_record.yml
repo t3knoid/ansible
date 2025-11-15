@@ -26,7 +26,7 @@
 
 - name: Add pause to wait for DNS to restart
   ansible.builtin.pause:
-    seconds: 15
+    seconds: 20
 
 - name: Store error message if operation is not successful
   ansible.builtin.set_fact:
