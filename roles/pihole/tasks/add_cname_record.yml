@@ -24,6 +24,10 @@
     pause: 5 # In order not to overwhelm the API
   changed_when: result_cname_op.status ==  201
 
+- name: Add pause to wait for DNS to restart
+  ansible.builtin.pause:
+    seconds: 15
+
 - name: Store error message if operation is not successful
   ansible.builtin.set_fact:
     pihole_error_msg: "{{ pihole_error_msg | default([]) + [{result_cname.item.split('%2C')[0]: result_cname.json.error.message}] }}"
