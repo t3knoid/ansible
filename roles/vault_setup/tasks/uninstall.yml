@@ -1,0 +1,28 @@
+---
+
+- name: Stop Vault service
+  ansible.builtin.systemd:
+    name: vault
+    state: stopped
+    enabled: false
+  ignore_errors: true
+
+- name: Uninstall HashiCorp Vault including configuration files
+  ansible.builtin.apt:
+    name: "vault={{ vault_setup_version }}"
+    state: absent
+    purge: true
+
+- name: Remove Vault systemd unit file
+  ansible.builtin.file:
+    path: "{{ vault_setup_vault_service_file }}"
+    state: absent
+
+- name: Reload systemd
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: Remove Vault config directory
+  ansible.builtin.file:
+    path: "{{ vault_setup_config_dir }}"
+    state: absent

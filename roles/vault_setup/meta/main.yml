@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Frank Refol
-  description: Installs Hashicorp Vault
+  description: Installs and configures Hashicorp Vault
   license: MIT
   min_ansible_version: 2.9
   platforms:

@@ -13,18 +13,18 @@
 
 - name: Add HashiCorp GPG key
   ansible.builtin.shell: >
-    curl -fsSL https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+    curl -fsSL https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o {{ vault_setup_hashicorp_gpg_key_path }}
   args:
-    creates: /usr/share/keyrings/hashicorp-archive-keyring.gpg
+    creates: "{{ vault_setup_hashicorp_gpg_key_path }}"
 
 - name: Add HashiCorp repository
   ansible.builtin.copy:
     dest: /etc/apt/sources.list.d/hashicorp.list
     content: >
-      deb [arch={{ 'amd64' if ansible_architecture == 'x86_64' else ansible_architecture }} signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg]
+      deb [arch={{ 'amd64' if ansible_architecture == 'x86_64' else ansible_architecture }} signed-by={{ vault_setup_hashicorp_gpg_key_path }}]
       https://apt.releases.hashicorp.com
       {{ ansible_lsb.codename }} main
-    mode: "0600"
+    mode: "0640"
     force: true
 
 - name: Update apt cache
@@ -37,51 +37,54 @@
     state: present
   become: true
 
-- name: Create vault system user
-  ansible.builtin.user:
-    name: vault
-    system: true
-    home: /etc/vault.d
-    shell: /bin/false
-    create_home: true
+- name: Execute the following block of tasks in vault servers
+  when: inventory_hostname in groups['vault_servers']
+  block:
+    - name: Create vault system user
+      ansible.builtin.user:
+        name: vault
+        system: true
+        home: "{{ vault_setup_config_dir }}"
+        shell: /bin/false
+        create_home: true
 
-- name: Create systemd service for Vault
-  ansible.builtin.copy:
-    dest: /etc/systemd/system/vault.service
-    content: |
-      [Unit]
-      Description=HashiCorp Vault - A tool for managing secrets
-      Documentation=https://www.vaultproject.io/docs/
-      Requires=network-online.target
-      After=network-online.target
+    - name: Create systemd service for Vault
+      ansible.builtin.copy:
+        dest: "{{ vault_setup_vault_service_file }}"
+        content: |
+          [Unit]
+          Description=HashiCorp Vault - A tool for managing secrets
+          Documentation=https://www.vaultproject.io/docs/
+          Requires=network-online.target
+          After=network-online.target
 
-      [Service]
-      User=vault
-      Group=vault
-      ExecStart=/usr/bin/vault server -config=/etc/vault.d/vault.hcl
-      ExecReload=/bin/kill -HUP $MAINPID
-      Restart=on-failure
-      RestartSec=5
-      LimitNOFILE=65536
-      CapabilityBoundingSet=CAP_IPC_LOCK
-      AmbientCapabilities=CAP_IPC_LOCK
-      SecureBits=keep-caps
-      NoNewPrivileges=yes
-      ProtectSystem=full
-      ProtectHome=read-only
-      PrivateTmp=yes
+          [Service]
+          User={{ vault_setup_user }}
+          Group={{ vault_setup_group }}
+          ExecStart=/usr/bin/vault server -config={{ vault_setup_config_dir }}/vault.hcl
+          ExecReload=/bin/kill -HUP $MAINPID
+          Restart=on-failure
+          RestartSec=5
+          LimitNOFILE=65536
+          CapabilityBoundingSet=CAP_IPC_LOCK
+          AmbientCapabilities=CAP_IPC_LOCK
+          SecureBits=keep-caps
+          NoNewPrivileges=yes
+          ProtectSystem=full
+          ProtectHome=read-only
+          PrivateTmp=yes
 
-      [Install]
-      WantedBy=multi-user.target
-    mode: "0640"
-  notify: Restart vault
+          [Install]
+          WantedBy=multi-user.target
+        mode: "0600"
+      notify: Restart vault
 
-- name: Reload systemd
-  ansible.builtin.systemd:
-    daemon_reload: true
+    - name: Reload systemd
+      ansible.builtin.systemd:
+        daemon_reload: true
 
-- name: Enable and start Vault service
-  ansible.builtin.systemd:
-    name: vault
-    enabled: true
-    state: started
+    - name: Enable and start Vault service
+      ansible.builtin.systemd:
+        name: vault
+        enabled: true
+        state: started

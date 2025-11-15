@@ -1,0 +1,13 @@
+---
+
+- name: Deploy Vault CA public certificate to vault clients
+  hosts: vault_clients
+  become: true
+  roles:
+    - global
+
+  tasks:
+    - name: Include deploy_cacert_to_clients.yml task file from vault_setup role
+      ansible.builtin.import_role:
+        name: vault_setup
+        tasks_from: deploy_cacert_to_clients.yml

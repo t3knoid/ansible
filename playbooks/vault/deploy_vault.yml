@@ -1,8 +1,20 @@
 ---
 
 - name: Deploy Hashicorp Vault
-  hosts: vault
+  hosts: vault_servers,vault_clients
   become: true
-  roles:
-    - global
-    - vault_setup
+
+- name: Install Hashicorp Vault
+  ansible.builtin.import_playbook: install.yml
+
+- name: Create the Certificate Authority
+  ansible.builtin.import_playbook: create_ca.yml
+
+- name: Create the Vault Server Certificate
+  ansible.builtin.import_playbook: create_vault_cert.yml
+
+- name: Configure the Vault Server
+  ansible.builtin.import_playbook: config.yml
+
+- name: Deploy the Certificate Authority public certificate
+  ansible.builtin.import_playbook: deploy_cacert_to_clients.yml

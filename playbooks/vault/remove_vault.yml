@@ -1,0 +1,23 @@
+---
+
+- name: Deploy Hashicorp Vault
+  hosts: vault_servers
+  become: true
+  roles:
+    - global
+  tasks:
+
+    - name: Confirm virtual machine removal
+      ansible.builtin.pause:
+        prompt: "Backup of the vault folder (/etc/vault.d) before proceeding. Are you sure you want to continue (yes/no)?"
+      register: confirm_remove
+      when: confirm_remove is not defined or confirm_remove == "yes"
+
+    - name: Exit
+      ansible.builtin.meta: end_play
+      when: confirm_remove.user_input | default('yes') != 'yes'
+
+    - name: Include uninstall.yml task file from vault_setup role
+      ansible.builtin.import_role:
+        name: vault_setup
+        tasks_from: uninstall.yml
