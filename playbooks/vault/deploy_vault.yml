@@ -1,0 +1,8 @@
+---
+
+- name: Deploy Hashicorp Vault
+  hosts: vault
+  become: true
+  roles:
+    - global
+    - vault_setup
