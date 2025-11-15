@@ -1,0 +1,87 @@
+---
+
+- name: Install Vault dependencies
+  ansible.builtin.apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+    state: present
+    update_cache: true
+
+- name: Add HashiCorp GPG key
+  ansible.builtin.shell: >
+    curl -fsSL https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+  args:
+    creates: /usr/share/keyrings/hashicorp-archive-keyring.gpg
+
+- name: Add HashiCorp repository
+  ansible.builtin.copy:
+    dest: /etc/apt/sources.list.d/hashicorp.list
+    content: >
+      deb [arch={{ 'amd64' if ansible_architecture == 'x86_64' else ansible_architecture }} signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg]
+      https://apt.releases.hashicorp.com
+      {{ ansible_lsb.codename }} main
+    mode: "0600"
+    force: true
+
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+
+- name: Install HashiCorp Vault
+  ansible.builtin.apt:
+    name: "vault={{ vault_setup_version }}"
+    state: present
+  become: true
+
+- name: Create vault system user
+  ansible.builtin.user:
+    name: vault
+    system: true
+    home: /etc/vault.d
+    shell: /bin/false
+    create_home: true
+
+- name: Create systemd service for Vault
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/vault.service
+    content: |
+      [Unit]
+      Description=HashiCorp Vault - A tool for managing secrets
+      Documentation=https://www.vaultproject.io/docs/
+      Requires=network-online.target
+      After=network-online.target
+
+      [Service]
+      User=vault
+      Group=vault
+      ExecStart=/usr/bin/vault server -config=/etc/vault.d/vault.hcl
+      ExecReload=/bin/kill -HUP $MAINPID
+      Restart=on-failure
+      RestartSec=5
+      LimitNOFILE=65536
+      CapabilityBoundingSet=CAP_IPC_LOCK
+      AmbientCapabilities=CAP_IPC_LOCK
+      SecureBits=keep-caps
+      NoNewPrivileges=yes
+      ProtectSystem=full
+      ProtectHome=read-only
+      PrivateTmp=yes
+
+      [Install]
+      WantedBy=multi-user.target
+    mode: "0640"
+  notify: Restart vault
+
+- name: Reload systemd
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: Enable and start Vault service
+  ansible.builtin.systemd:
+    name: vault
+    enabled: true
+    state: started
