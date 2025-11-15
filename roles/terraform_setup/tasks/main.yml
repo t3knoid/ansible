@@ -26,19 +26,39 @@
     path: "{{ terraform_setup_home }}/terraform"
     mode: "0755"
 
-- name: Include ansible role vars
-  ansible.builtin.include_vars:
-    file: ../ansible_setup/defaults/main.yml
+- name: Install Vault dependencies
+  ansible.builtin.apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+    state: present
+    update_cache: true
 
-- name: Configure Terraform configuration file
-  ansible.builtin.template:
-    src: main.tf.j2
-    dest: "{{ ansible_setup_workdir }}/main.tf"
-    mode: '0644'
-
-- name: Initialize Terraform
-  ansible.builtin.command: terraform init
+- name: Add HashiCorp GPG key
+  ansible.builtin.shell: >
+    curl -fsSL https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
   args:
-    chdir: "{{ ansible_setup_workdir }}"
-  register: terraform_init
-  changed_when: terraform_init.rc != 0
+    creates: /usr/share/keyrings/hashicorp-archive-keyring.gpg
+
+- name: Add HashiCorp repository
+  ansible.builtin.copy:
+    dest: /etc/apt/sources.list.d/hashicorp.list
+    content: >
+      deb [arch={{ 'amd64' if ansible_architecture == 'x86_64' else ansible_architecture }} signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg]
+      https://apt.releases.hashicorp.com
+      {{ ansible_lsb.codename }} main
+    mode: "0600"
+    force: true
+
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+
+- name: Install HashiCorp Vault
+  ansible.builtin.apt:
+    name: "vault={{ terraform_setup_vault_version }}"
+    state: present
+  become: true
