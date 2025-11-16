@@ -1,16 +1,25 @@
 ---
 - name: Provision a VM
   hosts: vms
+  vars:
+    vms_use_terraform: true
   gather_facts: false
   roles:
     - global
   serial: 1
 
   tasks:
-    - name: Provision vm
+    - name: Provision a virtual machine using Terraform
+      ansible.builtin.import_role:
+        name: vms
+        tasks_from: provision_with_terraform
+      when: vms_use_terraform | default(false)
+
+    - name: Provision a virtual machine using Ansible
       ansible.builtin.import_role:
         name: vms
         tasks_from: provision
+      when: not (vms_use_terraform | default(false))
 
   pre_tasks:
     - name: Import delete_from_local_dns.yml from pihole role
