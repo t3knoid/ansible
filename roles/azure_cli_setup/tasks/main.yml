@@ -1,0 +1,42 @@
+---
+- name: Ensure required packages are installed
+  ansible.builtin.apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+    state: present
+    update_cache: true
+
+- name: Add Microsoft signing key
+  ansible.builtin.shell: >
+    curl -sLS {{ azure_cli_key_url }} | gpg --dearmor | sudo tee /etc/apt/keyrings/microsoft.gpg > /dev/null
+  args:
+    creates: /etc/apt/keyrings/microsoft.gpg
+
+- name: Ensure key file permissions
+  ansible.builtin.file:
+    path: /etc/apt/keyrings/microsoft.gpg
+    mode: '0644'
+  become: true
+
+- name: Add Azure CLI repository
+  ansible.builtin.copy:
+    dest: /etc/apt/sources.list.d/azure-cli.sources
+    content: |
+      Types: deb
+      URIs: {{ azure_cli_repo_url }}
+      Suites: {{ ansible_lsb.codename }}
+      Components: main
+      Architectures: {{ ansible_architecture }}
+      Signed-By: /etc/apt/keyrings/microsoft.gpg
+    mode: '0644'
+
+- name: Install Azure CLI
+  ansible.builtin.apt:
+    name: "azure-cli{% if azure_cli_version != 'latest' %}={{ azure_cli_version }}{% endif %}"
+    state: present
+    update_cache: true
+  become: true
