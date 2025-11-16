@@ -1,0 +1,15 @@
+---
+galaxy_info:
+  author: Frank
+  description: Install Microsoft Azure CLI
+  license: MIT
+  min_ansible_version: 2.9
+  platforms:
+    - name: Ubuntu
+      versions:
+        - 22.04
+        - 24.04
+    - name: Debian
+      versions:
+        - 11
+        - 12
