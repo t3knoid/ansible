@@ -471,7 +471,7 @@ semaphoreui_setup_projects:
         repository: "Ansible"
         view: "Deploys"
         environment: "Empty"
-      - name: "Deploy Calibre"
+      - name: "Deploy Calibreweb"
         playbook: "playbooks/services/deploy_calibre.yml"
         app: "ansible"
         arguments: "[\"-k\"]"
