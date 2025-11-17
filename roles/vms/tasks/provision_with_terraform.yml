@@ -1,0 +1,52 @@
+---
+
+- name: Create terraform root directory
+  ansible.builtin.file:
+    path: "{{ global_terraform_root_dir }}"
+    state: directory
+    mode: '0755'
+  delegate_to: localhost
+
+- name: Ensure Terraform root module directory exists
+  ansible.builtin.file:
+    path: "{{ vms_terraform_root_module }}"
+    state: directory
+    mode: '0755'
+  delegate_to: localhost
+
+- name: Generate Terraform variables.tf
+  ansible.builtin.template:
+    src: variables.tf.j2
+    dest: "{{ vms_terraform_root_module }}/variables.tf"
+  delegate_to: localhost
+
+- name: Generate Terraform main.tf
+  ansible.builtin.template:
+    src: main.tf.j2
+    dest: "{{ vms_terraform_root_module }}/main.tf"
+  notify: Validate Terraform config
+  delegate_to: localhost
+
+- name: Flush handlers immediately
+  meta: flush_handlers
+
+# - name: Run terraform init
+#   ansible.builtin.command:
+#     cmd: terraform init
+#     chdir: "{{ vms_terraform_root_module }}"
+#   register: terraform_init
+#   changed_when: "'Terraform has been successfully initialized' in terraform_init.stdout"
+
+# - name: Run terraform plan
+#   ansible.builtin.command:
+#     cmd: terraform plan -input=false -out=tfplan
+#     chdir: "{{ vms_terraform_root_module }}"
+#   register: vms_terraform_plan
+#   changed_when: false
+
+# - name: Run terraform apply
+#   ansible.builtin.command:
+#     cmd: terraform apply -input=false tfplan
+#     chdir: "{{ vms_terraform_root_module }}"
+#   register: vms_terraform_apply
+#   changed_when: "'Apply complete!' in terraform_apply.stdout"

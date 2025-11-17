@@ -4,3 +4,11 @@
   ansible.builtin.include_tasks:
     file: ../tasks/reboot.yml
   when: not vms_set_to_template
+
+- name: Validate Terraform config
+  ansible.builtin.command:
+    cmd: terraform validate
+    chdir: "{{ vms_terraform_root_module }}"
+  register: terraform_validate
+  changed_when: false
+  failed_when: terraform_validate.rc != 0

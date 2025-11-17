@@ -1,2 +1,2 @@
 ---
-# vars file for vm
+vms_terraform_root_module: "{{ global_terraform_root_dir }}/{{ global_inventory_dir_name }}"
