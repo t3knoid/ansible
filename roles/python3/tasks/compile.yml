@@ -1,0 +1,81 @@
+---
+
+- name: Install required packages
+  ansible.builtin.apt:
+    autoclean: true
+    autoremove: true
+    name: "{{ python3_required_packages_for_compile }}"
+    state: present
+
+- name: Download and Extract Python source tarball
+  ansible.builtin.unarchive:
+    src: "https://www.python.org/ftp/python/{{ python3_version_to_compile }}/Python-{{ python3_version_to_compile }}.tgz"
+    dest: "/opt"
+    mode: "0777"
+    remote_src: true
+    creates: "/opt/Python-{{ python3_version_to_compile }}"
+
+- name: Configure Python source with optimizations
+  ansible.builtin.shell: ./configure --enable-optimizations
+  args:
+    chdir: "/opt/Python-{{ python3_version_to_compile }}"
+    creates: "/opt/Python-{{ python3_version_to_compile }}/Makefile"
+
+- name: Make Python source
+  ansible.builtin.shell: make
+  args:
+    chdir: "/opt/Python-{{ python3_version_to_compile }}"
+    creates: "/opt/Python-{{ python3_version_to_compile }}/python"
+
+- name: Install Python as an alternate version
+  ansible.builtin.shell: make altinstall
+  args:
+    chdir: "/opt/Python-{{ python3_version_to_compile }}"
+    creates: "/usr/local/bin/python{{ python3_version }}"
+
+- name: Create virtual environment folder
+  ansible.builtin.file:
+    path: "{{ python3_venv_folder }}"
+    state: directory
+    mode: "0777"
+    group: "ansible"
+  become: true
+
+- name: Create Python virtual environment
+  ansible.builtin.command: "/usr/local/bin/python{{ python3_version }} -m venv {{ python3_venv_folder }} --without-pip"
+  args:
+    creates: "{{ python3_venv_folder }}/bin/activate"
+  register: python3_command_return
+  changed_when: python3_command_return.rc !=0
+
+- name: Download get-pip.py
+  ansible.builtin.get_url:
+    url: https://bootstrap.pypa.io/get-pip.py
+    dest: "{{ python3_venv_folder }}/get-pip.py"
+    mode: '0644'
+    force: true
+
+- name: Install pip inside the virtual environment
+  ansible.builtin.command: "{{ python3_venv_folder }}/bin/python3 {{ python3_venv_folder }}/get-pip.py"
+  args:
+    creates: "{{ python3_venv_folder }}/bin/pip"
+
+- name: Generate requirements.txt from package list
+  ansible.builtin.template:
+    src: requirements.txt.j2
+    dest: "{{ python3_venv_folder }}/requirements.txt"
+    mode: "0644"
+
+- name: Install packages via pip in virtualenv
+  ansible.builtin.pip:
+    requirements: "{{ python3_venv_folder }}/requirements.txt"
+    virtualenv: "{{ python3_venv_folder }}"
+    state: present
+  register: python3_pip_install_output
+  changed_when: python3_pip_install_output.changed
+  failed_when: python3_pip_install_output.failed
+
+- name: Cleanup Python source folder
+  ansible.builtin.file:
+    path: "/opt/Python-{{ python3_version_to_compile }}"
+    state: absent
