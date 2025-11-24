@@ -1,21 +1,30 @@
-Role Name
-=========
+# Role: `terraform_setup`
 
-Installs Terraform using zip archive
+## 📖 Overview
+Installs Terraform
 
-Requirements
-------------
+## 📋 Requirements
+- Minimum Ansible version: `2.9`
+- Supported on: `Ubuntu` (22.04, 24.04)
+- Supported on: `Debian` (11, 12)
 
-None
+## 🧮 Defaults
+- `terraform_setup_version`: `1.13.5`
+- `terraform_setup_home`: `"/usr/local/bin"`
+- `terraform_setup_os_arch`: `"linux_amd64"`
 
-Role Variables
---------------
+## 🧮 Vars
+_No constant variables found in vars._
 
-terraform_setup_version: The version of Terraform to install
-terraform_setup_home: "/usr/local/bin"
-terraform_setup_os_arch: "linux_amd64"
+## 🛠 Tasks
+- Install Terraform dependencies
+- Download Terraform
+- Unzip terraform.zip
+- Make Terraform executable
 
-Dependencies
-------------
-
-None
+## 🚀 Example Usage
+```yaml
+- hosts: all
+  roles:
+    - role: terraform_setup
+```
