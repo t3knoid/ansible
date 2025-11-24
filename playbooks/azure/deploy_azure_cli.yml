@@ -1,0 +1,5 @@
+- name: Deploy Azure CLI
+  hosts: azure_cli
+  become: true
+  roles:
+    - role: azure_cli_setup

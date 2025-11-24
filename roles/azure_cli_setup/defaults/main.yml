@@ -1,0 +1,4 @@
+---
+azure_cli_setup_version:
+azure_cli_setup_repo_url: "https://packages.microsoft.com/repos/azure-cli/"
+azure_cli_setup_key_url: "https://packages.microsoft.com/keys/microsoft.asc"
