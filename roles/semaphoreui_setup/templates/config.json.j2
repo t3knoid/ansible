@@ -14,7 +14,7 @@
   "port": "{{ semaphoreui_setup_port }}",
   "interface": "",
   "tmp_path": "{{ semaphoreui_setup_tmpdir }}",
-  "email_alert": true,
+  "email_alert": {{ semaphoreui_setup_email_alert | bool | lower }},
   "email_sender": "{{ semaphoreui_setup_email_sender }}",
   "email_host": "{{ semaphoreui_setup_email_host }}",
   "email_port": "{{ semaphoreui_setup_email_port }}",

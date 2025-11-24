@@ -108,5 +108,5 @@ semaphoreui_setup_projects:
         environment: "Empty"
 
 # Email alert
-semaphoreui_setup_email_alert: true
+semaphoreui_setup_email_alert: false
 semaphoreui_setup_email_port: "587"
