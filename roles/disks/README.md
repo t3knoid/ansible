@@ -1,32 +1,47 @@
-disks
-======
+# Role: `disks`
 
-The disks role installs and configures code server.
+## 📖 Overview
+Removes mounts from fstab that is associated with a none existing device. Prepares an attached disk by formatting and mounting to a defined mountpoint.
 
-Requirements
-------------
+## 📋 Requirements
+- Minimum Ansible version: `2.9`
+- Supported on: `Debian` (buster, bullseye)
+- Supported on: `Ubuntu` (noble)
 
-Requires the users role.
+## 🧮 Defaults
+- `disks_disk_mounts`: `[]`
 
-Role variables
---------------
+## 🧮 Vars
+_No constant variables found in vars._
 
-- disks_disk_mounts - defines a list of dictionary defining the disk mountpoint, owner, and group.
+## 🛠 Tasks
+- Run lsblk command to get disk info
+- Display lsblk output
+- Extract valid devices from lsblk output
+- Display disks_valid_devices
+- Read current fstab
+- Decode fstab content
+- Split fstab content into separate line items
+- Initialize disks_filtered_fstab
+- Filter fstab line-by-line and remove mounts that are associated with an invalid device
+- Compare fstab contents
+- Backup original fstab only if there is a change in fstab
+- Write filtered fstab only if there is a change in fstab
+- Find unformatted disks
+- Display unformatted disks
+- Create an ext4 primary partition
+- Format the drive
+- Run lsblk command to get disk info
+- Display lsblk output
+- Find ummounted disks
+- Display ummounted disks
+- Ensure mountpoint exists
+- Mount disks
+- Ensure mounted disk has proper ownership
 
-Dependencies
-------------
-
-None
-
-Example Playbook
-----------------
-
-The following playbok prepares an attached disk.
-
-    - name: Automate finding and formatting a local drive
-      hosts: all
-      gather_facts: true
-      become: true
-      roles:
-        - users
-        - disks
+## 🚀 Example Usage
+```yaml
+- hosts: all
+  roles:
+    - role: disks
+```
