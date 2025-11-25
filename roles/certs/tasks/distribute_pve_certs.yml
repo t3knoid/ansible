@@ -1,0 +1,31 @@
+---
+
+- name: Slurp private certificate from certificate staging server
+  ansible.builtin.slurp:
+    src: "{{ certs_stage }}/{{ inventory_hostname }}.{{ global_domain_name }}/privkey.pem"
+  delegate_to: "{{ groups['rproxy_main'][0] }}"
+  register: certs_slurped_privkey
+
+- name: Copy slurped privkey.pem as pveproxy-ssl.key
+  ansible.builtin.copy:
+    content: "{{ certs_slurped_privkey.content | b64decode }}"
+    dest: "/etc/pve/local/pveproxy-ssl.key"
+    owner: root
+    group: www-data
+    mode: '0640'
+  notify: Restart pveproxy
+
+- name: Fetch certificate from certificate staging server
+  ansible.builtin.slurp:
+    src: "{{ certs_stage }}/{{ inventory_hostname }}.{{ global_domain_name }}/fullchain.pem"
+  delegate_to: "{{ groups['rproxy_main'][0] }}"
+  register: certs_slurped_key
+
+- name: Copy slurped fullchain.pem as pveproxy-ssl.pem
+  ansible.builtin.copy:
+    content: "{{ certs_slurped_key.content | b64decode }}"
+    dest: "/etc/pve/local/pveproxy-ssl.pem"
+    owner: root
+    group: www-data
+    mode: '0640'
+  notify: Restart pveproxy
