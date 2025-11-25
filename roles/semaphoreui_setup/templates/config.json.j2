@@ -37,6 +37,16 @@
     "uid": "{{ semaphoreui_setup_ldap_mappings.uid }}",
     "cn": "{{ semaphoreui_setup_ldap_mappings.cn }}"
   },
+  "oidc_providers": {
+        "azure": {
+            "color": "{{ semaphoreui_setup_oidc_color }}",
+            "display_name": "{{ semaphoreui_setup_oidc_display_name }}",
+            "provider_url": "{{ semaphoreui_setup_oidc_provider_url }}",
+            "client_id": "{{ semaphoreui_setup_oidc_client_id }}",
+            "client_secret": "{{ semaphoreui_setup_oidc_secret }}",
+            "redirect_url": "{{ semaphoreui_setup_oidc_redirect_url }}"
+        }
+  },
   "telegram_chat": "",
   "telegram_token": "",
   "concurrency_mode": "",
