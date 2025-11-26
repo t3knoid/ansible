@@ -17,16 +17,16 @@
   ansible.builtin.stat:
     path: /var/run/reboot-required
   register: linux_updates_reboot_required
-  when: inventory_hostname != "semaphore-0"
 
-- name: Reboot is required
-  ansible.builtin.pause:
-    seconds: 30
-    prompt: "Rebooting the target host in 30 seconds."
-  when: linux_updates_reboot_required is defined and linux_updates_reboot_required.stat.exists
+- name: Notify about reboot
+  ansible.builtin.debug:
+    msg: "Rebooting the target host in 60 seconds."
 
-- name: Reboot the server if required
-  ansible.builtin.include_role:
-    name: vms
-    tasks_from: reboot_nowait.yml
+- name: Schedule reboot via cron
+  ansible.builtin.cron:
+    name: "temporary reboot trigger"
+    user: root
+    job: "shutdown -r now"
+    minute: "{{ (ansible_date_time.minute | int + 1) % 60 }}"
+    hour: "{{ (ansible_date_time.hour | int + ((ansible_date_time.minute | int == 59) | ternary(1,0))) % 24 }}"
   when: linux_updates_reboot_required is defined and linux_updates_reboot_required.stat.exists
