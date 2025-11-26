@@ -17,6 +17,7 @@
   ansible.builtin.stat:
     path: /var/run/reboot-required
   register: linux_updates_reboot_required
+  when: inventory_hostname != "semaphore-0"
 
 - name: Reboot is required
   ansible.builtin.pause:
