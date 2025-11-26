@@ -1,6 +1,6 @@
 ---
 
-semaphoreui_setup_version: 2.16.19
+semaphoreui_setup_version: 2.16.45
 semaphoreui_setup_homedir: /ansible/semaphore
 autofs_nfs_mounts:
   - mount_name: backups
@@ -431,6 +431,16 @@ semaphoreui_setup_projects:
         repository: "Ansible"
         view: "Certs"
         environment: "Empty"
+      - name: "Distribute Certificates to Proxmox Nodes"
+        playbook: "playbooks/certs/distribute_pve_certs.yml"
+        app: "ansible"
+        arguments: "[\"-k\"]"
+        inventory: "pve"
+        credentials:
+          - "Ansible vault password"
+        repository: "Ansible"
+        view: "Certs"
+        environment: "Empty"
       - name: "Deploy Sonarr"
         playbook: "playbooks/services/deploy_sonarr.yml"
         app: "ansible"
@@ -463,6 +473,16 @@ semaphoreui_setup_projects:
         environment: "Empty"
       - name: "Deploy Calibreweb"
         playbook: "playbooks/services/deploy_calibreweb.yml"
+        app: "ansible"
+        arguments: "[\"-k\"]"
+        inventory: "services"
+        credentials:
+          - "Ansible vault password"
+        repository: "Ansible"
+        view: "Deploys"
+        environment: "Empty"
+      - name: "Deploy Calibre"
+        playbook: "playbooks/services/deploy_calibre.yml"
         app: "ansible"
         arguments: "[\"-k\"]"
         inventory: "services"

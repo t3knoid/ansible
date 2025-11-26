@@ -1,4 +1,4 @@
 ---
 rproxy_setup_backend_servers: |
-        server {{ hostvars[groups['rproxy_primary'][0]]['ansible_hostname'] }}:80 max_fails=3 fail_timeout=5s;
-        server {{ hostvars[groups['rproxy_secondary'][0]]['ansible_hostname'] }}:80 backup;
+        server {{ hostvars[groups['rproxy_primary'][0]]['ansible_default_ipv4']['address'] }}:80 max_fails=3 fail_timeout=5s;
+        server {{ hostvars[groups['rproxy_secondary'][0]]['ansible_default_ipv4']['address'] }}:80 backup;
