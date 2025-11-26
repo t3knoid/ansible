@@ -3,6 +3,8 @@
 - name: Remove the VM
   hosts: removable
   gather_facts: false
+  vars:
+    use_terraform: true
   roles:
     - global
 
@@ -32,7 +34,14 @@
         name: vms
         tasks_from: stop
 
-    - name: Remove vm
+    - name: Remove a virtual machine using Terraform
+      ansible.builtin.import_role:
+        name: vms
+        tasks_from: remove_with_terraform
+      when: vms_use_terraform | default(false)
+
+    - name: Remove a virtual machine using Ansible
       ansible.builtin.import_role:
         name: vms
         tasks_from: remove
+      when: not (vms_use_terraform | default(false))

@@ -41,6 +41,9 @@ Provides global defaults common to all roles. It also provides the IP definition
 - `global_packages_list`: ``
 
 ## 🧮 Vars
+- `global_ansible_root_dir`: `"{{ playbook_dir | dirname | dirname }}"`
+- `global_terraform_root_dir`: `"{{ global_ansible_root_dir }}/terraform"`
+- `global_inventory_dir_name`: `"{{ inventory_dir | basename }}"`
 - `global_ip_addresses`: ``
 - `ansible-0`: `192.168.2.101`
 - `ansible-1`: `192.168.2.102`
@@ -53,6 +56,7 @@ Provides global defaults common to all roles. It also provides the IP definition
 - `tautulli-0`: `192.168.2.157`
 - `books-0`: `192.168.2.160`
 - `minecraft-1`: `192.168.2.166`
+- `test-0`: `192.168.2.167`
 - `pg-0`: `192.168.2.170`
 - `pg-1`: `192.168.2.171`
 - `pg-2`: `192.168.2.172`
