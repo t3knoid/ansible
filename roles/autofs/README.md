@@ -1,53 +1,27 @@
-autofs
-======
+# Role: `autofs`
 
-The autofs role is used to install and configure autofs. It currently supports nfs mounts.
+## 📖 Overview
+Installs and configures autofs on Debian/Ubuntu.
 
-Requirements
-------------
+## 📋 Requirements
+- Minimum Ansible version: `2.9`
+- Supported on: `Debian` (buster, bullseye)
+- Supported on: `Ubuntu` (focal, jammy)
 
-The role requires initializing the *autofs_nfs_mounts* variable. This variable is a list of mount points.
+## 🧮 Defaults
+_No default variables found in defaults._
 
-Role variables
---------------
+## 🧮 Vars
+_No constant variables found in vars._
 
-- autofs_nfs_mounts - a list of dictionaries. Each item defines the required parameters for each mountpoint.
+## 🛠 Tasks
+- Install autofs
+- Configure /etc/auto.master
+- Append NFS mounts to auto.nfs
 
-```bash
-  - mount_name: music
-    server: 192.168.2.250:/mnt/Data/music
-    mount_options: -rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys
-  - mount_name: downloads
-    server: 192.168.2.250:/mnt/Data/downloads/complete
-    mount_options: -rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys
-  - mount_name: incomplete-downloads
-    server: 192.168.0.250:/mnt/Data/downloads/incomplete
-    mount_options: -rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys
+## 🚀 Example Usage
+```yaml
+- hosts: all
+  roles:
+    - role: autofs
 ```
-
-Dependencies
-------------
-
-None
-
-Example Playbook
-----------------
-
-The following playbook installs and configures autofs.
-
-      - name: Deploy autofs
-        hosts: all
-        become: true
-        roles:
-          - autofs
-        vars:
-          autofs_nfs_mounts:
-            - mount_name: music
-              server: 192.168.2.250:/mnt/Data/music
-              mount_options: -rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys
-            - mount_name: downloads
-              server: 192.168.2.250:/mnt/Data/downloads/complete
-              mount_options: -rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys
-            - mount_name: incomplete-downloads
-              server: 192.168.0.250:/mnt/Data/downloads/incomplete
-              mount_options: -rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys
