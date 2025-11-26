@@ -41,6 +41,9 @@ Provides global defaults common to all roles. It also provides the IP definition
 - `global_packages_list`: ``
 
 ## 🧮 Vars
+- `global_ansible_root_dir`: `"{{ playbook_dir | dirname | dirname }}"`
+- `global_terraform_root_dir`: `"{{ global_ansible_root_dir }}/terraform"`
+- `global_inventory_dir_name`: `"{{ inventory_dir | basename }}"`
 - `global_ip_addresses`: ``
 - `ansible-0`: `192.168.2.101`
 - `ansible-1`: `192.168.2.102`
@@ -49,20 +52,21 @@ Provides global defaults common to all roles. It also provides the IP definition
 - `lidarr-0`: `192.168.2.151`
 - `radarr-0`: `192.168.2.152`
 - `sabnzbd-0`: `192.168.2.153`
-- `readarr-0`: `192.168.2.154`
 - `ombi-0`: `192.168.2.155`
 - `tautulli-0`: `192.168.2.157`
-- `calibre-0`: `192.168.2.160`
-- `lazy-0`: `192.168.2.162`
+- `books-0`: `192.168.2.160`
 - `minecraft-1`: `192.168.2.166`
+- `test-0`: `192.168.2.167`
 - `pg-0`: `192.168.2.170`
 - `pg-1`: `192.168.2.171`
 - `pg-2`: `192.168.2.172`
 - `pg-3`: `192.168.2.173`
+- `pg-4`: `192.168.2.174`
 - `jenkins-0`: `192.168.2.180`
 - `redmine-0`: `192.168.2.186`
-- `plex-0`: `192.168.2.220`
 - `graphite-0`: `192.168.2.190`
+- `prometheus-0`: `192.168.2.192`
+- `grafana-0`: `192.168.2.195`
 - `ubu24-template`: `192.168.2.199`
 - `pve-0`: `192.168.2.200`
 - `pve-1`: `192.168.2.201`
@@ -70,6 +74,7 @@ Provides global defaults common to all roles. It also provides the IP definition
 - `rproxy-0`: `192.168.2.210`
 - `rproxy-1`: `192.168.2.211`
 - `rproxy-2`: `192.168.2.212`
+- `plex-0`: `192.168.2.220`
 - `synology-0`: `192.168.2.240`
 - `truenas-01`: `192.168.2.250`
 - `ad0`: `192.168.2.251`
@@ -78,7 +83,7 @@ Provides global defaults common to all roles. It also provides the IP definition
 - `pxe-0`: `192.168.2.254`
 - `util-0`: `192.168.0.56`
 - `global_ip_address`: `"{{ global_ip_addresses[inventory_hostname] }}"`
-- `global_pihole_api_host`: `"{{ global_ip_addresses['dns-0'] }}"`
+- `global_pihole_api_host`: `"{{ global_ip_addresses['dns-1'] }}"`
 
 ## 🛠 Tasks
 - Global

@@ -9,6 +9,7 @@ Installs the nginx service.
 - Supported on: `Ubuntu` (bionic, focal)
 
 ## 🧮 Defaults
+- `nginx_setup_version`: `"1.24.0-2ubuntu7.5"`
 - `nginx_setup_site_name`: `"{{ inventory_hostname }}"`
 - `nginx_setup_worker_connections`: `768`
 - `nginx_setup_homedir`: `/data/nginx`
@@ -23,7 +24,9 @@ _No constant variables found in vars._
 
 ## 🛠 Tasks
 - Update apt cache
+- Unhold package versions
 - Install nginx
+- Hold package versions
 - Include config.yml tasks
 - Enable nginx
 
