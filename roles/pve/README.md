@@ -37,6 +37,7 @@ Contains tasks to manage the Proxmox Virtual Environment
 - `pve_ceph_cluster_network`: `"{{ pve_ceph_network_cidr }}"`
 - `pve_ceph_osd_disks`: `['/dev/sda']  # Only using one disk per node for Ceph OSDs but can be adjusted as needed.`
 - `pve_ceph_rbd_storage_id`: `cephfs_storage`
+- `pve_oidc_realm`: `azure.refol.us`
 
 ## 🧮 Vars
 _No constant variables found in vars._
