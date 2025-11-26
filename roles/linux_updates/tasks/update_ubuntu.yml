@@ -23,10 +23,10 @@
   ansible.builtin.pause:
     seconds: 30
     prompt: "Rebooting the target host in 30 seconds."
-  when: linux_updates_reboot_required.stat.exists
+  when: linux_updates_reboot_required is defined and linux_updates_reboot_required.stat.exists
 
 - name: Reboot the server if required
   ansible.builtin.include_role:
     name: vms
     tasks_from: reboot_nowait.yml
-  when: linux_updates_reboot_required.stat.exists
+  when: linux_updates_reboot_required is defined and linux_updates_reboot_required.stat.exists
