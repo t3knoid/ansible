@@ -22,6 +22,20 @@
     state: link
     force: true
   loop: "{{ rproxy_setup_sites }}"
+  when: rproxy_setup_site.available is defined and rproxy_setup_site.available
+  loop_control:
+    label: "{{ rproxy_setup_site.server_name }}"
+    loop_var: rproxy_setup_site
+  notify: Restart nginx
+  tags: rproxy_setup_sites
+
+- name: Disable Nginx site configuration if not set to enable
+  ansible.builtin.file:
+    path: "{{ nginx_setup_homedir }}/sites-enabled/{{ rproxy_setup_site.server_name }}.conf"
+    state: absent
+    force: true
+  loop: "{{ rproxy_setup_sites }}"
+  when: rproxy_setup_site.enable is defined and rproxy_setup_site.enable == false
   loop_control:
     label: "{{ rproxy_setup_site.server_name }}"
     loop_var: rproxy_setup_site

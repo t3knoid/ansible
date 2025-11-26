@@ -5,7 +5,14 @@
 - [`cloudinit`](cloudinit/README.md): Provides tasks to create a virtual machine with cloud-init support.
 - [`disks`](disks/README.md): Removes mounts from fstab that is associated with a none existing device. Prepares an attached disk by formatting and mounting to a defined mountpoint.
 - [`elasticsearch_setup`](elasticsearch_setup/README.md): Install and configure Elasticsearch on Debian/Ubuntu
+- [`autofs`](autofs/README.md): Installs and configures autofs on Debian/Ubuntu.
+- [`cloudinit`](cloudinit/README.md): Provides tasks to create a virtual machine with cloud-init support.
+- [`disks`](disks/README.md): Removes mounts from fstab that is associated with a none existing device. Prepares an attached disk by formatting and mounting to a defined mountpoint.
+- [`elasticsearch_setup`](elasticsearch_setup/README.md): Install and configure Elasticsearch on Debian/Ubuntu
 - [`global`](global/README.md): Provides global defaults common to all roles. It also provides the IP definition of each host in the datacenter.
+- [`grafana_setup`](grafana_setup/README.md): Install and configure Grafana on Debian/Ubuntu
+- [`lamp_setup`](lamp_setup/README.md): Install and configure LAMP on Debian/Ubuntu.
+- [`mediawiki_setup`](mediawiki_setup/README.md): Install and configure mediawiki_setup_version.
 - [`grafana_setup`](grafana_setup/README.md): Install and configure Grafana on Debian/Ubuntu
 - [`lamp_setup`](lamp_setup/README.md): Install and configure LAMP on Debian/Ubuntu.
 - [`mediawiki_setup`](mediawiki_setup/README.md): Install and configure mediawiki_setup_version.

@@ -3,6 +3,8 @@
 semaphoreui_setup_version: 2.16.19
 semaphoreui_setup_installer: "semaphore_{{ semaphoreui_setup_version }}_linux_amd64.deb"
 
+semaphoreui_setup_loglevel: INFO
+
 semaphoreui_setup_python_packages:
   - ansible-dev-tools
   - requests
@@ -104,3 +106,13 @@ semaphoreui_setup_projects:
         repository: "Ansible"
         view: "Certs"
         environment: "Empty"
+
+# Email alert
+semaphoreui_setup_email_alert: false
+semaphoreui_setup_email_port: "587"
+
+# Azure (OIDC)
+# See vault for login
+semaphoreui_setup_oidc_color: "blue"
+semaphoreui_setup_oidc_display_name: "Sign in with Azure (EntraID)"
+semaphoreui_setup_oidc_redirect_url: "https://semaphore.refol.us/api/auth/oidc/azure/redirect"

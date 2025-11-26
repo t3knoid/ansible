@@ -1,0 +1,13 @@
+---
+
+- name: Compile and Install Python3
+  hosts: pvenodes
+  gather_facts: true
+  become: true
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+  tasks:
+    - name: Import compile.yml from python3 role
+      ansible.builtin.import_role:
+        name: python3
+        tasks_from: compile.yml

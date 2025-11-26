@@ -7,7 +7,7 @@
 - name: Add upstream block to "{{ nginx_setup_conf }}"
   ansible.builtin.blockinfile:
     path: "{{ nginx_setup_conf }}"
-    insertafter: "http {"
+    insertafter: 'http\s*{'  # regex ensures match even with spaces/tabs
     block: |
       upstream backend {
         {{ rproxy_setup_backend_servers }}

@@ -1,0 +1,11 @@
+- name: Distribute Proxmox certificates
+  hosts: pvenodes
+  gather_facts: false
+  become: true
+  roles:
+    - global
+  tasks:
+    - name: Include distribute_pve_certs.yml from certs role
+      ansible.builtin.import_role:
+        name: certs
+        tasks_from: distribute_pve_certs.yml

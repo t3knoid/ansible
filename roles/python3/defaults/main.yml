@@ -27,3 +27,23 @@ python3_venv_packages_to_install:
   - psycopg2-binary==2.9.11
   - packaging==25.0
   - PyMySQL==1.1.2
+
+python3_version_to_compile: 3.12.3
+python3_required_packages_for_compile:
+  - build-essential
+  - libssl-dev
+  - zlib1g-dev
+  - libbz2-dev
+  - libreadline-dev
+  - libsqlite3-dev
+  - wget
+  - curl
+  - llvm
+  - libncurses5-dev
+  - libncursesw5-dev
+  - xz-utils
+  - tk-dev
+  - libffi-dev
+  - liblzma-dev
+  - python3-openssl
+  - git
