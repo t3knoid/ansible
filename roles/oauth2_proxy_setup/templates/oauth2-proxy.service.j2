@@ -1,0 +1,12 @@
+[Unit]
+Description=OAuth2 Proxy
+After=network.target
+
+[Service]
+ExecStart={{ oauth2_proxy_setup_bin }} --config {{ oauth2_proxy_setup_config }}
+Restart=always
+User=nobody
+Group=nogroup
+
+[Install]
+WantedBy=multi-user.target

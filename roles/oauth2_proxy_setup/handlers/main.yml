@@ -1,0 +1,7 @@
+- name: Reload systemd and enable oauth2-proxy
+  ansible.builtin.systemd:
+    daemon_reload: true
+    name: oauth2-proxy
+    enabled: true
+    state: started
+  become: true
