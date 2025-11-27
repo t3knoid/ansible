@@ -1,0 +1,44 @@
+---
+- name: Install prerequisites
+  ansible.builtin.apt:
+    name:
+      - curl
+      - tar
+    state: present
+  become: true
+
+- name: Download OAuth2 Proxy release archive
+  ansible.builtin.unarchive:
+    src: "{{ oauth2_proxy_setup_download_url }}"
+    dest: "/usr/local/bin/"
+    remote_src: true
+    creates: "{{ oauth2_proxy_setup_bin }}"
+    mode: "0755"
+
+- name: Ensure oauth2-proxy binary is executable
+  ansible.builtin.file:
+    path: "{{ oauth2_proxy_setup_bin }}"
+    mode: '0755'
+    state: file
+  become: true
+
+- name: Create oauth2-proxy configuration directory
+  ansible.builtin.file:
+    path: "/etc/oauth2-proxy"
+    state: directory
+    mode: '0755'
+  become: true
+
+- name: Deploy oauth2-proxy configuration file
+  ansible.builtin.template:
+    src: "oauth2-proxy.cfg.j2"
+    dest: "/etc/oauth2-proxy/oauth2-proxy.cfg"
+    mode: '0644'
+  notify: Reload systemd and enable oauth2-proxy
+
+- name: Create systemd service for oauth2-proxy
+  ansible.builtin.template:
+    src: "oauth2-proxy.service.j2"
+    dest: /etc/systemd/system/oauth2-proxy.service
+    mode: '0644'
+  notify: Reload systemd and enable oauth2-proxy
