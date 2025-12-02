@@ -27,5 +27,3 @@ vms_additional_packages: []
 python3_version: 3.12
 disks_disk_mounts:
   - { mountpoint: "/data", mountpoint_owner: "ansible", mountpoint_group: "ansible" }
-
-nginx_setup_disable_default_site: true
