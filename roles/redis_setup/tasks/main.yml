@@ -1,0 +1,64 @@
+---
+- name: Add Redis official APT repository key
+  ansible.builtin.apt_key:
+    url: https://packages.redis.io/gpg
+    state: present
+
+- name: Add Redis official APT repository
+  ansible.builtin.apt_repository:
+    repo: "deb https://packages.redis.io/deb {{ ansible_distribution_release }} main"
+    state: present
+    filename: redis
+
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+
+- name: Unhold package versions
+  ansible.builtin.dpkg_selections:
+    name: "redis"
+    selection: install
+  changed_when: false
+
+- name: Install Redis from official package
+  ansible.builtin.apt:
+    name: "redis={{ redis_setup_version }}~{{ ansible_distribution_release }}1"
+    state: present
+
+- name: Hold package versions
+  ansible.builtin.dpkg_selections:
+    name: "redis"
+    selection: hold
+  changed_when: false
+
+- name: Remove Redis password block if not set
+  ansible.builtin.blockinfile:
+    path: /etc/redis/redis.conf
+    block: |
+      requirepass {{ redis_setup_password | default('') }}
+      appendonly yes
+      appendfsync everysec
+    state: absent
+  when: redis_setup_password is not defined or redis_setup_password | trim | length == 0
+
+- name: Configure Redis with password and persistence
+  ansible.builtin.blockinfile:
+    path: /etc/redis/redis.conf
+    insertafter: '^# requirepass'
+    block: |
+      requirepass {{ redis_setup_password }}
+      appendonly yes
+      appendfsync everysec
+      # TLS settings (optional, if you enable TLS build)
+      # tls-port 6379
+      # port 0
+      # tls-cert-file /etc/ssl/redis.crt
+      # tls-key-file /etc/ssl/redis.key
+      # tls-ca-cert-file /etc/ssl/ca.crt
+  when: redis_setup_password is defined and redis_setup_password | length > 0
+
+- name: Ensure Redis service is enabled and running
+  ansible.builtin.service:
+    name: redis-server
+    state: started
+    enabled: true

@@ -1,0 +1,7 @@
+---
+
+- name: Deploy Redis Server
+  hosts: redis
+  become: true
+  roles:
+    - redis_setup
