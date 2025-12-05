@@ -7,10 +7,11 @@
     state: present
   become: true
 
-- name: Download OAuth2 Proxy release archive
+- name: Download OAuth2 Proxy release archive and and extract binary
   ansible.builtin.unarchive:
     src: "{{ oauth2_proxy_setup_download_url }}"
     dest: "/usr/local/bin/"
+    extra_opts: ['--strip-components=1', '--show-stored-names']
     remote_src: true
     creates: "{{ oauth2_proxy_setup_bin }}"
     mode: "0755"
@@ -29,16 +30,112 @@
     mode: '0755'
   become: true
 
-- name: Deploy oauth2-proxy configuration file
+- name: Set Redis connection string
+  ansible.builtin.set_fact:
+    oauth2_proxy_setup_redis_connection: "{{ (redis_setup_password is defined and (redis_setup_password | trim | length) > 0)
+      | ternary('redis://:' ~ redis_setup_password | trim ~ '@127.0.0.1:6379/0',
+                'redis://127.0.0.1:6379/0') }}"
+
+# To make sure we are oauth2-proxy service installations
+# are idempotent. Find and remove any service that is not
+# supposed to be enabled. This list is use in the following
+# block.
+- name: Find all oauth2-proxy services
+  ansible.builtin.shell:
+    cmd: "set -o pipefail && systemctl list-unit-files | awk '/^oauth2-proxy.*\\.service/ {print $1}'"
+  args:
+    executable: /bin/bash
+  register: oauth2_proxy_setup_services
+  changed_when: false
+
+# The following block of task executes when oauth2-proxy
+# service files matches the following criteria
+#
+# Case 1: filename is exactly oauth2-proxy.service (no suffix)
+# Case 2: filename has suffix but site.use_oauth2 is not true
+- name: Remove oauth2 directives from nginx configuration
+  when: (site.use_oauth2 is not defined) or (not site.use_oauth2)
+  ansible.builtin.include_tasks: "remove_oauth2_directives_from_nginx_config.yml"
+  loop: "{{ rproxy_setup_sites }}"
+  loop_control:
+    label: "{{ site.server_name }}"
+    loop_var: site
+
+# The following block of task executes when oauth2-proxy
+# service files matches the following criteria
+#
+# Case 1: filename is exactly oauth2-proxy.service (no suffix)
+# Case 2: filename has suffix but site.use_oauth2 is not true
+- name: Clean up oauth2-proxy services
+  ansible.builtin.include_tasks: "remove_oauth2_services.yml"
+  loop: "{{ oauth2_proxy_setup_services.stdout_lines }}"
+  loop_control:
+    label: "{{ oauth2_proxy_setup_service_filename }}"
+    loop_var: oauth2_proxy_setup_service_filename
+  when: >
+    (
+      (oauth2_proxy_setup_service_filename | basename == 'oauth2-proxy.service')
+    )
+    or
+    (
+      not (
+        rproxy_setup_sites
+        | selectattr('server_name','equalto', oauth2_proxy_setup_service_filename | basename | regex_replace('^oauth2-proxy_(.+)\\.service$', '\\1'))
+        | map(attribute='use_oauth2')
+        | first
+        | default(false)
+        | bool
+      )
+    )
+
+- name: Insert OAuth2 Proxy directives into nginx configuration
+  when: (site.use_oauth2 is defined) and site.use_oauth2
+  ansible.builtin.include_tasks: "add_oauth2_directives_to_nginx_config.yml"
+  loop: "{{ rproxy_setup_sites }}"
+  loop_control:
+    label: "{{ site.server_name }}"
+    loop_var: site
+
+- name: Deploy oauth2-proxy configurations
+  when: (site.use_oauth2 is defined) and site.use_oauth2
   ansible.builtin.template:
     src: "oauth2-proxy.cfg.j2"
-    dest: "/etc/oauth2-proxy/oauth2-proxy.cfg"
+    dest: "/etc/oauth2-proxy/oauth2-proxy_{{ site.server_name }}.cfg"
     mode: '0644'
-  notify: Reload systemd and enable oauth2-proxy
+  loop: "{{ rproxy_setup_sites }}"
+  loop_control:
+    label: "{{ site.server_name }}"
+    loop_var: site
+  register: oauth2_proxy_setup_config_template_output
+  changed_when: false
 
-- name: Create systemd service for oauth2-proxy
+- name: Create systemd services for oauth2-proxy
+  when: (site.use_oauth2 is defined) and site.use_oauth2
   ansible.builtin.template:
     src: "oauth2-proxy.service.j2"
-    dest: /etc/systemd/system/oauth2-proxy.service
+    dest: /etc/systemd/system/oauth2-proxy_{{ site.server_name }}.service
     mode: '0644'
-  notify: Reload systemd and enable oauth2-proxy
+  loop: "{{ rproxy_setup_sites }}"
+  loop_control:
+    label: "{{ site.server_name }}"
+    loop_var: site
+  register: oauth2_proxy_setup_config_template_output
+  changed_when: false
+
+- name: Reload systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: Enable and ensure all oauth2-proxy services started
+  when: (site.use_oauth2 is defined) and site.use_oauth2
+  ansible.builtin.systemd:
+    daemon_reload: true
+    name: "oauth2-proxy_{{ site.server_name }}.service"
+    enabled: true
+    state: restarted
+  loop: "{{ rproxy_setup_sites }}"
+  loop_control:
+    label: "oauth2-proxy_{{ site.server_name }}.service"
+    loop_var: site
+  register: oauth2_proxy_setup_config_template_output
+  changed_when: false
