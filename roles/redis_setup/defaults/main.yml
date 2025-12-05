@@ -1,0 +1,5 @@
+---
+
+# run `sudo apt policy redis` to find the latest version available
+redis_setup_version: "6:8.4.0-1rl1"
+redis_setup_password: "" # Set a password for Redis, leave empty for no password

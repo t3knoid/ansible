@@ -2,30 +2,23 @@
 
 """
 This script dynamically builds all available inventory under the
-inventory folder. This can be used to consolidate all the hosts
-within a particular group. For example, a dynamic inventory can
-be built from hosts that are under the group [python].
+inventory folder and outputs a proper Ansible inventory YAML file.
 """
 
-import configparser, json, os, sys, re
+import configparser, os, re, sys, yaml
 
 def get_inventory():
     """
     Walks the inventory folder and reads all *.ini files within
     each inventory.
 
-    args:
-        None
-
     returns:
-        a list containing structure that can readily be converted
-        as a json document that can be passed to ansible as an
-        inventory source.
+        dict structured as a proper Ansible inventory
     """
-
     inventory = {
-        "_meta": {"hostvars": {}},
-        "all": {"hosts": []}
+        "all": {
+            "children": {}
+        }
     }
 
     for root, dirs, files in os.walk("inventory"):
@@ -35,35 +28,32 @@ def get_inventory():
                 parser = configparser.ConfigParser(allow_no_value=True)
                 parser.read(path)
                 for section in parser.sections():
-                    if ':' not in section: # Do not include children sections
-                        for host in parser[section]:
-                            # Add to 'all' group
-                            single_host = re.split(r'\s+', host)[0]
-                            if single_host not in inventory["all"]["hosts"]:
-                                inventory["all"]["hosts"].append(single_host)
-                                # Initialize hostvars
-                                inventory["_meta"]["hostvars"].setdefault(single_host, {})
-
-                            # Add to dynamic group based on section name
-                            if section not in inventory:
-                                inventory[section] = {"hosts": [single_host]}
-                            
-                            if single_host not in inventory[section]["hosts"]:
-                                inventory[section]["hosts"].append(single_host)
+                    if ':' in section:
+                        continue  # skip children sections
+                    if section not in inventory["all"]["children"]:
+                        inventory["all"]["children"][section] = {"hosts": {}}
+                    for host in parser[section]:
+                        single_host = re.split(r'\s+', host)[0]
+                        # add host to group
+                        inventory["all"]["children"][section]["hosts"][single_host] = {}
+                        # also ensure host appears under all.hosts
+                        if "hosts" not in inventory["all"]:
+                            inventory["all"]["hosts"] = {}
+                        inventory["all"]["hosts"][single_host] = {}
 
     return inventory
 
 def get_host_details(hostname):
-    inventory = get_inventory()
-    hostvars = inventory["_meta"]["hostvars"]
-    return hostvars.get(hostname, {})
+    inv = get_inventory()
+    # hostvars would normally be populated here if you want per-host vars
+    return inv["all"]["hosts"].get(hostname, {})
 
 if __name__ == "__main__":
     if len(sys.argv) == 2 and sys.argv[1] == "--list":
-        print(json.dumps(get_inventory(), indent=4))
+        print(yaml.safe_dump(get_inventory(), sort_keys=False))
     elif len(sys.argv) == 3 and sys.argv[1] == "--host":
         hostname = sys.argv[2]
-        print(json.dumps(get_host_details(hostname), indent=4))
+        print(yaml.safe_dump(get_host_details(hostname), sort_keys=False))
     else:
-        print("Usage: {} --list or {} --host <hostname>".format(sys.argv[0], sys.argv[0]))
+        print(f"Usage: {sys.argv[0]} --list or {sys.argv[0]} --host <hostname>")
         sys.exit(1)

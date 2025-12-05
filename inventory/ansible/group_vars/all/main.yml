@@ -25,14 +25,12 @@ python3_venv_folder: "/opt/python_{{ python3_version }}"
 postgresql_setup_version: 17
 nginx_setup_disable_default_site: true
 
-rproxy_setup_sites:
-  - server_name: code.refol.us
-    port: 8000
-    proxy_pass: "http://{{ global_ip_addresses[groups['code_server'][0]] }}"
-    allow_list:
-      - 192.168.0.0/24
-      - 192.168.2.0/24
-      - 24.105.250.200
-      - 70.107.117.124
-    restricted: false
+redis_setup_version: "6:8.4.0-1rl1" # Redis is required by oauth2_proxy
 
+## See vault.yml for the following
+# users_list
+# code_server_user
+# code_server_password
+# ansible_setup_vault_password
+# rproxy_setup_sites
+# redis_setup_password 

@@ -22,7 +22,7 @@
     state: link
     force: true
   loop: "{{ rproxy_setup_sites }}"
-  when: rproxy_setup_site.available is defined and rproxy_setup_site.available
+  when: (rproxy_setup_site.enable is defined) and (rproxy_setup_site.enable == true)
   loop_control:
     label: "{{ rproxy_setup_site.server_name }}"
     loop_var: rproxy_setup_site
@@ -35,7 +35,7 @@
     state: absent
     force: true
   loop: "{{ rproxy_setup_sites }}"
-  when: rproxy_setup_site.enable is defined and rproxy_setup_site.enable == false
+  when: (rproxy_setup_site.enable is not defined) or (rproxy_setup_site.enable == false)
   loop_control:
     label: "{{ rproxy_setup_site.server_name }}"
     loop_var: rproxy_setup_site
