@@ -1,4 +1,4 @@
 bind-addr: {{ code_server_bind_address }}:{{ code_server_port }}
-auth: password
+auth: {{ code_server_auth_mode }}
 password: {{ code_server_password }}
 cert: false
