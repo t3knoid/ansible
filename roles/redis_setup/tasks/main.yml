@@ -40,6 +40,7 @@
       appendfsync everysec
     state: absent
   when: redis_setup_password is not defined or redis_setup_password | trim | length == 0
+  notify: Restart Redis service
 
 - name: Configure Redis with password and persistence
   ansible.builtin.blockinfile:
@@ -56,6 +57,7 @@
       # tls-key-file /etc/ssl/redis.key
       # tls-ca-cert-file /etc/ssl/ca.crt
   when: redis_setup_password is defined and redis_setup_password | length > 0
+  notify: Restart Redis service
 
 - name: Ensure Redis service is enabled and running
   ansible.builtin.service:
