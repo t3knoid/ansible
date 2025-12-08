@@ -1,0 +1,18 @@
+---
+# Remove OAuth2 directives inside location /
+- name: Remove OAuth2 Proxy directives from location / block
+  ansible.builtin.blockinfile:
+    path: "/data/nginx/sites-available/{{ site.server_name }}.conf"
+    marker: "# {mark} OAUTH2-PROXY"
+    state: absent
+  notify:
+    - Reload nginx
+
+# Remove supporting oauth2 endpoints
+- name: Remove OAuth2 Proxy endpoint blocks
+  ansible.builtin.blockinfile:
+    path: "/data/nginx/sites-available/{{ site.server_name }}.conf"
+    marker: "# {mark} OAUTH2-PROXY-ENDPOINTS"
+    state: absent
+  notify:
+    - Reload nginx

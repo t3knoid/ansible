@@ -1,0 +1,329 @@
+all:
+  children:
+    linux:
+      hosts:
+        ansible-0: {}
+        ansible-1: {}
+        calibre-0: {}
+        dns-0: {}
+        dns-1: {}
+        lazy-0: {}
+        lidarr-0: {}
+        minecraft-1: {}
+        ombi-0: {}
+        plex-0: {}
+        radarr-0: {}
+        redmine-0: {}
+        rproxy-0: {}
+        rproxy-1: {}
+        rproxy-2: {}
+        sabnzbd-0: {}
+        sonarr-0: {}
+        util-0: {}
+        semaphore-0: {}
+        tautulli-0: {}
+        prometheus-0: {}
+        books-0: {}
+        grafana-0: {}
+    baremetal:
+      hosts:
+        plex-0: {}
+        dns-1: {}
+    plex:
+      hosts:
+        plex-0: {}
+    pxe_client:
+      hosts:
+        plex-0: {}
+        dns-1: {}
+    pxe:
+      hosts:
+        pxe-0: {}
+    autofs:
+      hosts:
+        plex-0: {}
+        redmine-0: {}
+        semaphore-0: {}
+        pg-0: {}
+        pg-1: {}
+        pg-2: {}
+        pg-3: {}
+        pg-4: {}
+        prometheus-0: {}
+        lidarr-0: {}
+        sonarr-0: {}
+        radarr-0: {}
+        sabnzbd-0: {}
+        books-0: {}
+        grafana-0: {}
+        ombi-0: {}
+    python:
+      hosts:
+        plex-0: {}
+        jenkins-0: {}
+        semaphore-0: {}
+        tautulli-0: {}
+        ansible-0: {}
+        ansible-1: {}
+        minecraft-1: {}
+        pg-0: {}
+        pg-1: {}
+        pg-2: {}
+        pg-3: {}
+        pg-4: {}
+        dns-0: {}
+        dns-1: {}
+        graphite-0: {}
+        rproxy-0: {}
+        rproxy-1: {}
+        rproxy-2: {}
+        prometheus-0: {}
+        grafana-0: {}
+        ombi-0: {}
+    lamp:
+      hosts:
+        plex-0: {}
+    wikipedia:
+      hosts:
+        plex-0: {}
+    rproxy_main:
+      hosts:
+        rproxy-0: {}
+    rproxy_primary:
+      hosts:
+        rproxy-1: {}
+    rproxy_secondary:
+      hosts:
+        rproxy-2: {}
+    certs:
+      hosts:
+        rproxy-0: {}
+    cname:
+      hosts:
+        plex-0: {}
+        jenkins-0: {}
+        synology-0: {}
+        pve-0: {}
+        pve-2: {}
+        redmine-0: {}
+        truenas-01: {}
+        semaphore-0: {}
+        tautulli-0: {}
+        ad0: {}
+        minecraft-1: {}
+        dns-1: {}
+        prometheus-0: {}
+        lidarr-0: {}
+        sonarr-0: {}
+        radarr-0: {}
+        sabnzbd-0: {}
+        books-0: {}
+        grafana-0: {}
+        ombi-0: {}
+    vms:
+      hosts:
+        jenkins-0: {}
+        terraform-0: {}
+        semaphore-0: {}
+        tautulli-0: {}
+        ad0: {}
+        minecraft-1: {}
+        pg-0: {}
+        pg-1: {}
+        pg-2: {}
+        pg-3: {}
+        pg-4: {}
+        dns-0: {}
+        graphite-0: {}
+        pxe-0: {}
+        rproxy-0: {}
+        rproxy-1: {}
+        rproxy-2: {}
+        test-0: {}
+        prometheus-0: {}
+        sonarr-0: {}
+        lidarr-0: {}
+        radarr-0: {}
+        sabnzbd-0: {}
+        books-0: {}
+        grafana-0: {}
+        ombi-0: {}
+    jenkins:
+      hosts:
+        jenkins-0: {}
+    removable:
+      hosts:
+        jenkins-0: {}
+        redmine-0: {}
+        ubu24-template: {}
+        grafana-0: {}
+    synology:
+      hosts:
+        synology-0: {}
+    pvenodes:
+      hosts:
+        pve-0: {}
+        pve-1: {}
+        pve-2: {}
+    pbsnodes:
+      hosts: {}
+    template:
+      hosts:
+        pve-2: {}
+        ubu24-template: {}
+    ceph_nodes:
+      hosts:
+        pve-0: {}
+        pve-1: {}
+        pve-2: {}
+    redmine:
+      hosts:
+        redmine-0: {}
+    pgdb:
+      hosts:
+        pg-2: {}
+        pg-3: {}
+        graphite-0: {}
+        pg-1: {}
+        pg-4: {}
+        pg-0: {}
+    ruby:
+      hosts:
+        redmine-0: {}
+    truenas:
+      hosts:
+        truenas-01: {}
+    nginx:
+      hosts:
+        truenas-01: {}
+        semaphore-0: {}
+        ansible-0: {}
+        ansible-1: {}
+    ubuntu24:
+      hosts:
+        ubu24-template: {}
+    ansible:
+      hosts:
+        semaphore-0: {}
+        ansible-0: {}
+        ansible-1: {}
+    semaphore:
+      hosts:
+        semaphore-0: {}
+    pgclient:
+      hosts:
+        semaphore-0: {}
+        ansible-1: {}
+        ombi-0: {}
+    code_server:
+      hosts:
+        ansible-0: {}
+    vscode:
+      hosts:
+        ansible-0: {}
+    azure_cli:
+      hosts:
+        ansible-0: {}
+    dc_master:
+      hosts:
+        ad0: {}
+    bedrock:
+      hosts:
+        minecraft-1: {}
+    dns:
+      hosts:
+        dns-0: {}
+        dns-1: {}
+    primary_dns:
+      hosts:
+        dns-1: {}
+    secondary_dns:
+      hosts:
+        dns-0: {}
+    vault_servers:
+      hosts:
+        dns-1: {}
+    vault_clients:
+      hosts:
+        ansible-0: {}
+    nginx_setup_proxy:
+      hosts:
+        graphite-0: {}
+    graphite:
+      hosts:
+        graphite-0: {}
+    certbot:
+      hosts:
+        rproxy-0: {}
+    oauth2_proxy:
+      hosts:
+        rproxy-0: {}
+    prometheus:
+      hosts:
+        prometheus-0: {}
+    sonarr:
+      hosts:
+        sonarr-0: {}
+    lidarr:
+      hosts:
+        lidarr-0: {}
+    radarr:
+      hosts:
+        radarr-0: {}
+    sabnzbd:
+      hosts:
+        sabnzbd-0: {}
+    calibre:
+      hosts:
+        books-0: {}
+    calibreweb:
+      hosts:
+        books-0: {}
+    lazylibrarian:
+      hosts:
+        books-0: {}
+    grafana:
+      hosts:
+        grafana-0: {}
+  hosts:
+    ansible-0: {}
+    ansible-1: {}
+    calibre-0: {}
+    dns-0: {}
+    dns-1: {}
+    lazy-0: {}
+    lidarr-0: {}
+    minecraft-1: {}
+    ombi-0: {}
+    plex-0: {}
+    radarr-0: {}
+    redmine-0: {}
+    rproxy-0: {}
+    rproxy-1: {}
+    rproxy-2: {}
+    sabnzbd-0: {}
+    sonarr-0: {}
+    util-0: {}
+    pxe-0: {}
+    jenkins-0: {}
+    terraform-0: {}
+    synology-0: {}
+    pve-0: {}
+    pve-1: {}
+    pve-2: {}
+    pg-2: {}
+    truenas-01: {}
+    ubu24-template: {}
+    semaphore-0: {}
+    pg-3: {}
+    tautulli-0: {}
+    ad0: {}
+    pg-0: {}
+    pg-1: {}
+    pg-4: {}
+    graphite-0: {}
+    test-0: {}
+    prometheus-0: {}
+    books-0: {}
+    grafana-0: {}
+

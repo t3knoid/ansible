@@ -1,0 +1,11 @@
+---
+
+- name: Deploy OAuth2 Proxy
+  hosts: oauth2_proxy
+  gather_facts: true
+  become: true
+  become_user: root
+  roles:
+    - global
+    - redis_setup
+    - oauth2_proxy_setup

@@ -1,0 +1,77 @@
+# /etc/oauth2-proxy/oauth2-proxy_{{ site.server_name }}.cfg
+
+# Local bind address and port for this domain’s proxy instance
+http_address = "127.0.0.1:{{ global_oauth2_proxy_ports[site.server_name] }}"
+
+# Identity provider: Microsoft Entra ID (Azure AD)
+# See https://oauth2-proxy.github.io/oauth2-proxy/configuration/providers/ms_entra_id
+
+## OAuth2 provider
+provider = "{{ site.oauth2_provider }}"
+
+## the OAuth Client ID
+client_id = "{{ site.oauth2_client_id }}"
+
+## the OAuth Client Secret
+client_secret = "{{ site.oauth2_client_secret }}"
+
+## the OpenID Connect issuer URL
+oidc_issuer_url = "https://login.microsoftonline.com/{{ site.oauth2_tenant_id }}/v2.0"
+
+## Redirect URL must match what is registered in Entra ID
+redirect_url = "https://{{ site.server_name }}/oauth2/callback"
+
+## OAuth scope specification. Every provider has a default 
+## list of scopes which will be used in case no scope is configured.
+scope = "{{ site.oauth2_scope }}"
+
+# Cookie settings
+## the seed string for secure cookies (optionally base64 encoded)
+cookie_secret = "{{ site.oauth2_cookie_secret }}"
+
+## Session data storage backend; redis or cookie
+session_store_type = "redis"
+
+## URL of redis server for redis session storage (e.g. redis://HOST[:PORT])
+redis_connection_url = "{{ oauth2_proxy_setup_redis_connection }}"
+
+## set secure (HTTPS only) cookie flag
+cookie_secure = true
+
+## the name of the cookie that the oauth_proxy creates. Should be changed to 
+## use a cookie prefix (__Host- or __Secure-) if --cookie-secure is set.
+cookie_name = "__Host-{{ site.server_name | replace('.', '_') }}"
+
+## set HttpOnly cookie flag
+cookie_httponly = true
+
+## expire timeframe for cookie. If set to 0, cookie becomes a
+## session-cookie which will expire when the browser is closed.
+cookie_expire = "168h"
+cookie_refresh = "24h"
+
+# Allowed email domains
+email_domains = {{ site.oauth2_email_domains | to_json }}
+
+# Header and token forwarding
+set_xauthrequest = true
+
+## Pass OAuth Access token to upstream via "X-Forwarded-Access-Token"
+pass_access_token = true
+
+## pass OIDC IDToken to upstream via Authorization Bearer header
+pass_authorization_header = true
+
+## set Authorization Bearer response header (useful in Nginx auth_request mode)
+set_authorization_header = true
+
+## set HTTP Basic Auth information in response (useful in Nginx auth_request mode)
+set_basic_auth = false
+
+# Optional logging and metrics
+request_logging = true
+metrics_address = "127.0.0.1:{{ global_oauth2_proxy_metrics_ports[site.server_name] }}"
+
+## are we running behind a reverse proxy, controls whether headers like X-Real-IP are 
+## accepted and allows X-Forwarded-{Proto,Host,Uri} headers to be used on redirect selection
+reverse_proxy = true

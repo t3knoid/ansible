@@ -1,0 +1,12 @@
+[Unit]
+Description=OAuth2 Proxy for {{ site.server_name }}
+After=network.target
+
+[Service]
+ExecStart={{ oauth2_proxy_setup_bin }} --config /etc/oauth2-proxy/oauth2-proxy_{{ site.server_name }}.cfg
+Restart=always
+User=nobody
+Group=nogroup
+
+[Install]
+WantedBy=multi-user.target

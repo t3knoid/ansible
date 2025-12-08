@@ -1,5 +1,8 @@
 ---
 
+global_ansible_root_dir: "{{ playbook_dir | dirname | dirname }}"
+global_terraform_root_dir: "{{ global_ansible_root_dir }}/terraform"
+global_inventory_dir_name: "{{ inventory_dir | basename }}"
 global_ip_addresses:
   ansible-0: 192.168.2.101
   ansible-1: 192.168.2.102
@@ -12,6 +15,7 @@ global_ip_addresses:
   tautulli-0: 192.168.2.157
   books-0: 192.168.2.160
   minecraft-1: 192.168.2.166
+  test-0: 192.168.2.167
   pg-0: 192.168.2.170
   pg-1: 192.168.2.171
   pg-2: 192.168.2.172
@@ -40,3 +44,9 @@ global_ip_addresses:
 
 global_ip_address: "{{ global_ip_addresses[inventory_hostname] }}"
 global_pihole_api_host: "{{ global_ip_addresses['dns-1'] }}"
+
+global_oauth2_proxy_ports:
+  code.refol.us: 4180
+
+global_oauth2_proxy_metrics_ports:
+  code.refol.us: 9100

@@ -1,40 +1,42 @@
-cloudinit
-======
+# Role: `cloudinit`
 
-The cloudinit role creates a cloudinit virtual machine template.
+## 📖 Overview
+Provides tasks to create a virtual machine with cloud-init support.
 
-Requirements
-------------
+## 📋 Requirements
+- Minimum Ansible version: `2.9`
+- Supported on: `EL` (7, 8)
+- Supported on: `Ubuntu` (bionic, focal)
 
-None
+## 🧮 Defaults
+- `cloudinit_download_dest`: `"/tmp/{{ global_os[cloudinit_template_os].cloudinit_img }}"`
+- `cloudinit_memory_mb`: `2048`
+- `cloudinit_storage`: `local`
+- `cloudinit_network_device`: `"virtio,bridge=vmbr0"`
+- `cloudinit_scsi_controller_model`: `virtio-scsi-pci`
+- `cloudinit_cpu_type`: `host`
+- `cloudinit_agent_enabled`: `true`
 
-Role variables
---------------
+## 🧮 Vars
+_No constant variables found in vars._
 
-- cloudinit_download_dest: cloud-init disk image download destination
-- cloudinit_vmid: 9500
-- cloudinit_memory_mb: 2048
-- cloudinit_storage: local
-- cloudinit_network_device: "virtio,bridge=vmbr0"
-- cloudinit_scsi_controller_model: virtio-scsi-pci
-- cloudinit_cpu_type: host
+## 🛠 Tasks
+- Ensure required packages are installed
+- Download Ubuntu cloud image
+- Load JSON .vmlist file content from proxmox node
+- Check if virtual machine exists
+- Remove existing virtual machine
+- Ensure VM is created
+- Set virtio disk for VM
+- Add Cloud-Init CD-ROM drive
+- Set to boot from virtio0
+- Configure serial console as a display
+- Configure virtual machine into a template
+- Cleanup Cloud-Init image
 
-Dependencies
-------------
-
-None
-
-Example Playbook
-----------------
-
-The following playbook creates a virtual machine cloud-init template.
-
-      - name: Create a Template
-        hosts: template
-        gather_facts: false
-        roles:
-          - global
-          - cloudinit
-        become: true
-
-
+## 🚀 Example Usage
+```yaml
+- hosts: all
+  roles:
+    - role: cloudinit
+```
