@@ -1,0 +1,73 @@
+# -----------------------------------------------------------------------------
+# Purpose:
+# For each entry in rproxy_setup_sites, this block:
+# 1) Registers an Entra ID app using server_name-derived URIs.
+# 2) Creates a client secret for that app.
+#
+# Inputs (expected in inventory/playbook):
+# - rproxy_setup_sites: list of dicts with at least:
+#     server_name, use_oauth2 (true/false), and other proxy metadata.
+#
+# Values derived per site:
+# - display_name: item.server_name
+# - identifier_uris: ["api://{{ item.server_name }}"]
+# - reply_urls: ["https://{{ item.server_name }}/auth/callback"]
+#   Adjust these if you need multiple domains, paths, or non-HTTPS callbacks.
+#
+# Outputs merged into each site dict:
+# - oauth2_tenant_id: taken from entra_id_app_results (tenant context).
+# - oauth2_client_id: entra_id_app_results[*].app_id
+# - oauth2_client_secret: entra_id_secret_results[*].secret_text
+#
+# Preconditions:
+# - Authentication to Azure/Entra ID is configured (e.g., service principal).
+# - Collections installed:
+#     azure.azcollection (for azure_rm_* modules)
+#     community.general (for dict_merge filter)
+#
+# Idempotence and rotation notes:
+# - Re-running will ensure the app exists and issue a new client secret
+#   (consider separate cleanup logic if you want to remove old secrets).
+# - Client secrets are set to expire in 90 days; adjust as needed.
+#
+# Where to verify values in Azure GUI:
+# - App registrations → Overview (Display name, Application (client) ID)
+# - App registrations → Expose an API (Application ID URI)
+# - App registrations → Authentication (Redirect URIs)
+# - App registrations → Certificates & secrets (Client secret)
+# -----------------------------------------------------------------------------
+- name: Filter sites that require OAuth2
+  ansible.builtin.set_fact:
+    entra_id_oauth2_sites: "{{ rproxy_setup_sites
+                              | selectattr('use_oauth2', 'defined')
+                              | selectattr('use_oauth2', 'equalto', true)
+                              | list }}"
+
+- name: Register Entra ID application for each site
+  azure.azcollection.azure_rm_adapplication:
+    display_name: "{{ item.server_name }}"
+    identifier_uris: ["api://{{ item.server_name }}"]
+    reply_urls: ["https://{{ item.server_name }}/auth/callback"]
+    state: present
+  loop: "{{ entra_id_oauth2_sites }}"
+  register: entra_id_oauth2_app_results
+
+- name: Calculate secret expiry offset from today
+  ansible.builtin.set_fact:
+    entra_id_oauth2_secret_expiry: >-
+      {{
+        (ansible_date_time.iso8601
+        | to_datetime('%Y-%m-%dT%H:%M:%SZ')
+        + timedelta(days=entra_id_oauth2_secret_expiry_offset_days))
+        | strftime('%Y-%m-%dT%H:%M:%SZ')
+      }}
+
+- name: Create client secret for each site
+  azure.azcollection.azure_rm_adappcredential:
+    app_id: "{{ entra_id_oauth2_app_results.results[loop.index0].app_id }}"
+    end_date: "{{ entra_id_oauth2_secret_expiry }}"
+  loop: "{{ entra_id_oauth2_sites }}"
+  register: entra_id_oauth2_secret_results
+
+# At this point, entra_id_oauth2_sites is ready to be merged back into
+# rproxy_setup_sites with the new oauth2_* values.
