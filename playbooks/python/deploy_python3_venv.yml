@@ -4,6 +4,8 @@
   hosts: python
   gather_facts: true
   become: true
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
   tasks:
     - name: Import venv.yml from python3 role
       ansible.builtin.import_role:
