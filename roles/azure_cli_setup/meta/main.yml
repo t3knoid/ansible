@@ -3,13 +3,14 @@ galaxy_info:
   author: Frank
   description: Install Microsoft Azure CLI
   license: MIT
-  min_ansible_version: 2.9
+  min_ansible_version: "2.9"
+  role_name: azure_cli_setup
   platforms:
     - name: Ubuntu
       versions:
-        - 22.04
-        - 24.04
+        - "22.04"
+        - "24.04"
     - name: Debian
       versions:
-        - 11
-        - 12
+        - "11"
+        - "12"
