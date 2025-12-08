@@ -1,4 +1,4 @@
-- name: Deploy Azure CLI
+- name: Configure Entra ID applications for OAuth2
   hosts: oauth2_proxy
   become: true
   roles:
