@@ -1,0 +1,5 @@
+- name: Deploy Azure CLI
+  hosts: oauth2_proxy
+  become: true
+  roles:
+    - role: entra_id_oauth2
