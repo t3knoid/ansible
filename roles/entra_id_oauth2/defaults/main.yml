@@ -1,0 +1,4 @@
+---
+# defaults/main.yml
+# Number of days to add to current date for secret expiry
+entra_id_oauth2_secret_expiry_offset_days: 90
