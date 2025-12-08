@@ -63,7 +63,7 @@
       }}
 
 - name: Create client secret for each site
-  azure.azcollection.azure_rm_adappcredential:
+  azure.azcollection.azure_rm_adpassword:
     app_id: "{{ entra_id_oauth2_app_results.results[loop.index0].app_id }}"
     end_date: "{{ entra_id_oauth2_secret_expiry }}"
   loop: "{{ entra_id_oauth2_sites }}"
