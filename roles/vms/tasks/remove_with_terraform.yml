@@ -1,0 +1,20 @@
+---
+
+- name: Check if Terraform config exists
+  ansible.builtin.stat:
+    path: "{{ vms_terraform_root_module }}/main.tf"
+  register: vms_tf_config
+  delegate_to: localhost
+
+- name: Skip destroy if no config found
+  ansible.builtin.meta: end_play
+  when: not vms_tf_config.stat.exists
+  delegate_to: localhost
+
+- name: Run terraform destroy
+  ansible.builtin.command:
+    cmd: terraform destroy -auto-approve
+    chdir: "{{ vms_terraform_root_module }}"
+  register: terraform_destroy
+  changed_when: "'Destroy complete!' in terraform_destroy.stdout"
+  delegate_to: localhost

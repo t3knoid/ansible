@@ -1,0 +1,20 @@
+---
+
+# Do not call this task file directly. This is called from main.
+- name: Stop and disable oauth2-proxy service
+  ansible.builtin.systemd:
+    name: "{{ oauth2_proxy_setup_service_filename }}"
+    state: stopped
+    enabled: false
+
+- name: Remove oauth2-proxy service unit file
+  ansible.builtin.file:
+    path: "/etc/systemd/system/{{ oauth2_proxy_setup_service_filename }}"
+    state: absent
+  notify: Reload systemd daemon
+
+- name: Remove oauth2-proxy config file
+  ansible.builtin.file:
+    path: "/etc/oauth2-proxy/{{ oauth2_proxy_setup_service_filename | basename | regex_replace('\\.service$', '') }}.cfg"
+    state: absent
+  notify: Reload systemd daemon

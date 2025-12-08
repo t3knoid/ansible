@@ -3,7 +3,7 @@ galaxy_info:
   author: Frank Refol
   description: Removes mounts from fstab that is associated with a none existing device. Prepares an attached disk by formatting and mounting to a defined mountpoint.
   license: MIT
-  min_ansible_version: 2.9
+  min_ansible_version: "2.9"
   platforms:
     - name: Debian
       versions:

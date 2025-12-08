@@ -68,7 +68,11 @@ def generate_role_markdown(role_path):
     lines.append(f"- Minimum Ansible version: `{meta.get('min_ansible_version', 'N/A')}`")
     platforms = meta.get("platforms", [])
     for p in platforms:
-        versions = ', '.join(p.get("versions", []))
+        try:
+            versions = ', '.join(p.get("versions", []))
+        except TypeError as e:
+            print(f"Skipping {role_path} due to error: {e}")
+            versions = ""
         lines.append(f"- Supported on: `{p['name']}` ({versions})")
 
     # Defaults

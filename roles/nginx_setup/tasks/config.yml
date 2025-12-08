@@ -29,6 +29,21 @@
   notify: Restart nginx
   tags: nginx_setup_config
 
+- name: Add buffer settings to "{{ nginx_setup_conf }}"
+  ansible.builtin.blockinfile:
+    path: "{{ nginx_setup_conf }}"
+    insertafter: '^http\s*{'  # regex ensures match even with spaces/tabs
+    block: |8
+            proxy_buffer_size       16k;
+            proxy_buffers           4 32k;
+            proxy_busy_buffers_size 64k;
+
+            # If you’re using auth_request:
+            large_client_header_buffers 4 32k;
+    marker: "# {mark} INCREASE BUFFER SIZE"
+  notify: Restart nginx
+  tags: nginx_setup_config
+
 - name: Modify access.log path in nginx.conf
   ansible.builtin.lineinfile:
     path: "{{ nginx_setup_conf }}"
