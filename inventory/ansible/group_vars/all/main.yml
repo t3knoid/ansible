@@ -36,3 +36,4 @@ rproxy_setup_sites:
       - 70.107.117.124
     restricted: false
 
+azure_cli_setup_version: 2.81.0

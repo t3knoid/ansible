@@ -12,7 +12,7 @@
 
 - name: Add Microsoft signing key
   ansible.builtin.shell: >
-    curl -sLS {{ azure_cli_key_url }} | gpg --dearmor | sudo tee /etc/apt/keyrings/microsoft.gpg > /dev/null
+    curl -sLS {{ azure_cli_setup_key_url }} | gpg --dearmor | sudo tee /etc/apt/keyrings/microsoft.gpg > /dev/null
   args:
     creates: /etc/apt/keyrings/microsoft.gpg
 
@@ -27,16 +27,16 @@
     dest: /etc/apt/sources.list.d/azure-cli.sources
     content: |
       Types: deb
-      URIs: {{ azure_cli_repo_url }}
+      URIs: {{ azure_cli_setup_repo_url }}
       Suites: {{ ansible_lsb.codename }}
       Components: main
-      Architectures: {{ ansible_architecture }}
+      Architectures: amd64
       Signed-By: /etc/apt/keyrings/microsoft.gpg
     mode: '0644'
 
 - name: Install Azure CLI
   ansible.builtin.apt:
-    name: "azure-cli{% if azure_cli_version != 'latest' %}={{ azure_cli_version }}{% endif %}"
+    name: "azure-cli{% if azure_cli_setup_version != 'latest' %}={{ azure_cli_setup_version }}-1~{{ ansible_lsb.codename }}{% endif %}"
     state: present
     update_cache: true
   become: true
