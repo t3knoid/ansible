@@ -16,10 +16,10 @@ client_id = "{{ site.oauth2_client_id }}"
 client_secret = "{{ site.oauth2_client_secret }}"
 
 ## the OpenID Connect issuer URL
-oidc_issuer_url = "https://login.microsoftonline.com/{{ site.oauth2_tenant_id }}/v2.0"
+oidc_issuer_url = "https://login.microsoftonline.com/{{ global_azure_tenant }}/v2.0"
 
 ## Redirect URL must match what is registered in Entra ID
-redirect_url = "https://{{ site.server_name }}/oauth2/callback"
+redirect_url = "{{ site.oauth2_callback_url }}"
 
 ## OAuth scope specification. Every provider has a default 
 ## list of scopes which will be used in case no scope is configured.
