@@ -86,8 +86,3 @@
         ]
       }}
   loop: "{{ rproxy_setup_sites }}"
-
-# Will move this to oauth2_proxy_setup role later
-- name: Replace rproxy_setup_sites with updated list
-  ansible.builtin.set_fact:
-    rproxy_setup_sites: "{{ entra_id_oauth2_updated_sites }}"
