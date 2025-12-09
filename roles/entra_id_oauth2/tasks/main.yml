@@ -1,0 +1,57 @@
+---
+
+- name: Ensure azure.azcollection required Python modules are installed
+  ansible.builtin.pip:
+    requirements: >-
+      {{ python3_venv_folder }}/lib/python{{ python3_version }}/site-packages/ansible_collections/azure/azcollection/requirements.txt
+    state: present
+    virtualenv: "{{ python3_venv_folder }}"
+  delegate_to: localhost
+
+- name: Ensure azure-cli Python module installed
+  ansible.builtin.pip:
+    name: azure-cli
+    state: present
+    virtualenv: "{{ python3_venv_folder }}"
+  delegate_to: localhost
+
+- name: Filter sites that require OAuth2
+  ansible.builtin.set_fact:
+    entra_id_oauth2_sites: "{{ rproxy_setup_sites
+                              | selectattr('use_oauth2', 'defined')
+                              | selectattr('use_oauth2', 'equalto', true)
+                              | list }}"
+  delegate_to: localhost
+
+- name: Register Entra ID application for each site
+  ansible.builtin.include_tasks: register_app.yml
+  loop: "{{ entra_id_oauth2_sites }}"
+  register: entra_id_oauth2_app_results
+
+- name: Calculate secret expiry offset from today
+  ansible.builtin.set_fact:
+    entra_id_oauth2_secret_expiry: >-
+      {{
+        lookup(
+          'pipe',
+          'date -u -d "+' +
+          (entra_id_oauth2_secret_expiry_offset_days | string) +
+          ' days" +%Y-%m-%dT%H:%M:%SZ'
+        )
+      }}
+  delegate_to: localhost
+  run_once: true
+
+- name: Create client secret for each site
+  azure.azcollection.azure_rm_adpassword:
+    client_id: "{{ global_azure_sp_client_id }}"
+    secret: "{{ global_azure_sp_secret }}"
+    tenant: "{{ global_azure_tenant }}"
+    subscription_id: "{{ global_azure_subscription_id }}"
+    app_id: "{{ item.oauth2_client_id }}"
+    password: "{{ item.oauth2_client_secret | default(omit) }}"
+    display_name: "Generated secret by Ansible on {{ ansible_date_time.date }}"
+    end_date: "{{ entra_id_oauth2_secret_expiry }}"
+  loop: "{{ entra_id_oauth2_sites }}"
+  register: entra_id_oauth2_secret_results
+  delegate_to: localhost

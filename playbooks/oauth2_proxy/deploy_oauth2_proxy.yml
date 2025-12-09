@@ -7,5 +7,6 @@
   become_user: root
   roles:
     - global
+    - entra_id_oauth2
     - redis_setup
     - oauth2_proxy_setup

@@ -4,5 +4,7 @@
   hosts: python
   become: true
   gather_facts: false
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
   roles:
     - python3

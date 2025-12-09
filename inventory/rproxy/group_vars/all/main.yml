@@ -25,5 +25,6 @@ vms_autoinstall: true
 vms_enable_serial_terminal: false
 vms_additional_packages: []
 python3_version: 3.12
+python3_venv_folder: "/opt/python_{{ python3_version }}"
 disks_disk_mounts:
   - { mountpoint: "/data", mountpoint_owner: "ansible", mountpoint_group: "ansible" }
