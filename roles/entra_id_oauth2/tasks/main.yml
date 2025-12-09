@@ -42,16 +42,52 @@
   delegate_to: localhost
   run_once: true
 
+# Establishes a session and writes a token cache under ~/.azure
+# before generating secrets
+- name: Login with service principal
+  ansible.builtin.command: >
+    az login --service-principal
+    --username {{ global_azure_sp_client_id }}
+    --password {{ global_azure_sp_secret }}
+    --tenant {{ global_azure_tenant }}
+  delegate_to: localhost
+  changed_when: false
+
 - name: Create client secret for each site
-  azure.azcollection.azure_rm_adpassword:
-    client_id: "{{ global_azure_sp_client_id }}"
-    secret: "{{ global_azure_sp_secret }}"
-    tenant: "{{ global_azure_tenant }}"
-    subscription_id: "{{ global_azure_subscription_id }}"
-    app_id: "{{ item.oauth2_client_id }}"
-    password: "{{ item.oauth2_client_secret | default(omit) }}"
-    display_name: "Generated secret by Ansible on {{ ansible_date_time.date }}"
-    end_date: "{{ entra_id_oauth2_secret_expiry }}"
+  ansible.builtin.include_tasks: generate_secret.yml
   loop: "{{ entra_id_oauth2_sites }}"
   register: entra_id_oauth2_secret_results
-  delegate_to: localhost
+
+- name: Build combined secret map
+  ansible.builtin.set_fact:
+    _entra_id_secret_map: >-
+      {{
+        entra_id_oauth2_secret_results.results
+        | map(attribute='ansible_facts._entra_id_secret_map')
+        | map('default', {})
+        | list
+        | combine
+      }}
+
+- name: Build updated list with secrets
+  ansible.builtin.set_fact:
+    entra_id_oauth2_updated_sites: []
+
+- name: Append each site with injected secret
+  ansible.builtin.set_fact:
+    entra_id_oauth2_updated_sites: >-
+      {{
+        entra_id_oauth2_updated_sites +
+        [ item | combine({
+            'oauth2_client_secret':
+              (_entra_id_oauth2_secret_map[item.oauth2_client_id]
+               | default(item.oauth2_client_secret) )
+          })
+        ]
+      }}
+  loop: "{{ rproxy_setup_sites }}"
+
+# Will move this to oauth2_proxy_setup role later
+- name: Replace rproxy_setup_sites with updated list
+  ansible.builtin.set_fact:
+    rproxy_setup_sites: "{{ entra_id_oauth2_updated_sites }}"
