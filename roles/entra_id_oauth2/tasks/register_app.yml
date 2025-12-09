@@ -1,0 +1,35 @@
+---
+- name: Get existing application by display name
+  azure.azcollection.azure_rm_adapplication_info:
+    app_display_name: "{{ item.server_name }}"
+    client_id: "{{ global_azure_sp_client_id }}"
+    secret: "{{ global_azure_sp_secret }}"
+    tenant: "{{ global_azure_tenant }}"
+    subscription_id: "{{ global_azure_subscription_id }}"
+  register: entra_id_oauth2_existing_app
+  delegate_to: localhost
+
+- name: Set app_id if app already exists
+  ansible.builtin.set_fact:
+    entra_id_oauth2_app_id: "{{ entra_id_oauth2_existing_app.applications[0].app_id }}"
+  when: entra_id_oauth2_existing_app.applications | length > 0
+
+- name: Create application if it does not exist
+  azure.azcollection.azure_rm_adapplication:
+    display_name: "{{ item.server_name }}"
+    identifier_uris: ["api://{{ item.server_name }}"]
+    reply_urls: "{{ item.oauth2_callback_url }}"
+    client_id: "{{ global_azure_sp_client_id }}"
+    secret: "{{ global_azure_sp_secret }}"
+    tenant: "{{ global_azure_tenant }}"
+    subscription_id: "{{ global_azure_subscription_id }}"
+    app_id: "{{ entra_id_oauth2_app_id | default(omit) }}"
+    state: present
+  register: entra_id_oauth2_created_app
+  delegate_to: localhost
+  when: entra_id_oauth2_existing_app.applications | length == 0
+
+- name: Ensure app_id is set for downstream tasks
+  ansible.builtin.set_fact:
+    entra_id_oauth2_app_id: "{{ entra_id_oauth2_created_app.app_id }}"
+  when: entra_id_oauth2_existing_app.applications | length == 0
