@@ -5,7 +5,7 @@
 ![Platforms: Ubuntu](https://img.shields.io/badge/platforms-Ubuntu-orange.svg)
 
 ## 📖 Overview
-Install and configure mediawiki_setup_version.
+Installs and configures MediaWiki on Ubuntu systems.
 
 ## 📋 Requirements
 - Minimum Ansible version: `2.9`

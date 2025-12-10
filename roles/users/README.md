@@ -1,12 +1,11 @@
-# 🛠️ Role: `certbot_setup`
+# 🛠️ Role: `users`
 
 ![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Ansible >= 2.9](https://img.shields.io/badge/ansible-%3E%3D%202.9-green.svg)
 ![Platforms: Ubuntu | Debian](https://img.shields.io/badge/platforms-Ubuntu%20|%20Debian-orange.svg)
 
 ## 📖 Overview
-It deploys certbot following instructions documented in https://certbot.eff.org/instructions?ws=nginx&os=pip. Target hosts must be in a group named *[certbot]* in its inventory. Certbot is used to obtain SSL/TLS certificates from Let's Encrypt.
-
+Provides tasks to manage system users in Ubuntu and Debian.
 
 ## 📋 Requirements
 - Minimum Ansible version: `2.9`
@@ -14,17 +13,17 @@ It deploys certbot following instructions documented in https://certbot.eff.org/
 - Supported on: `Debian` (11, 12)
 
 ## ⚙️ Defaults
-| Variable | Default Value | Description |
-|----------|---------------|-------------|
-| `certbot_setup_python_modules` | `` |  |
-| `certbot_setup_bin_link` | `/usr/bin/certbot` |  |
+_No default variables found._
 
 ## 📦 Vars
 _No constant variables found._
 
 ## 📑 Tasks
-- Install Certbot and Certbot Nginx plugin
-- Create symbolic link for Certbot command
+- Add a new user
+- Join groups
+- Set a user-defined home folder
+- Set a user-defined user GID
+- Add user to sudoers
 
 ## 🔔 Handlers
 _No handlers defined._
@@ -36,5 +35,5 @@ _No dependencies listed._
 ```yaml
 - hosts: all
   roles:
-    - role: certbot_setup
+    - role: users
 ```

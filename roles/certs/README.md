@@ -1,54 +1,48 @@
-certs
-======
+# 🛠️ Role: `certs`
 
-The certs role uses [certbot](https://certbot.eff.org/instructions?ws=nginx&os=pip) to create certificates.
+![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)
+![Ansible >= 2.9](https://img.shields.io/badge/ansible-%3E%3D%202.9-green.svg)
+![Platforms: Ubuntu | Debian](https://img.shields.io/badge/platforms-Ubuntu%20|%20Debian-orange.svg)
 
-Requirements
-------------
+## 📖 Overview
+Provides tasks to request and renew SSL/TLS certificates from Let's Encrypt. It also provides tasks to stage certificates for eventual use by the Nginx reverse proxy and other services.
 
-This role requires the nginx and certbot roles to be deployed on the target host. A minimum playbook must include the global role to execute prior to the certs role. Ensure that there are A or CNAME records for server_names defined in the global/defaults/main/sites.yml. 
 
-Role variables
---------------
+## 📋 Requirements
+- Minimum Ansible version: `2.9`
+- Supported on: `Ubuntu` (22.04, 24.04)
+- Supported on: `Debian` (11, 12)
 
-- certs_rsa_key_size: 4096
-- certs_email: "" # Adding a valid address is strongly recommended
-- certs_staging: false # Set to true if you're testing your setup to avoid hitting request limits
-- certs_home: /data/letsencrypt
+## ⚙️ Defaults
+| Variable | Default Value | Description |
+|----------|---------------|-------------|
+| `certs_rsa_key_size` | `4096` |  |
+| `certs_email` | `"" # Adding a valid address is strongly recommended` |  |
+| `certs_staging_arg` | `""` |  |
+| `certs_staging` | `false # Set to true if you're testing your setup to avoid hitting request limits` |  |
+| `certs_home` | `/data/letsencrypt` |  |
+| `certs_stage` | `/data/certs` |  |
 
-In order to create certificate, make sure to set the certs_staging to false.
+## 📦 Vars
+_No constant variables found._
 
-```bash
-ansible-playbook -i $INV playbooks/certs/generate_certs.yml -k
+## 📑 Tasks
+- Ensure custom certbot folders exist
+- Set certs_email_arg for no email by default
+- Set email_arg for non-empty email
+- Set to staging by default
+- Request certificates for each domain name
+
+## 🔔 Handlers
+- Restart nginx
+- Restart pveproxy
+
+## 🔗 Dependencies
+_No dependencies listed._
+
+## 🚀 Example Usage
+```yaml
+- hosts: all
+  roles:
+    - role: certs
 ```
-
-To stage the generated certificates to the staging folder with the nginx server configurations expects them, execute the following command.
-```bash
-ansible-playbook -i $INV playbooks/certs/stage_certs.yml -k
-```
-
-Dependencies
-------------
-
-This role depends on the certbot and nginx roles applied to the target host (i.e., [certbot] inventory group) The inventory file must define the certs group which would contain the certificates staging location.
-
-```
-[certs]
-rproxy-0 
-```
-
-The list variable rproxy_setup_sites must be defined. The 'server_name' field defines the hostname for the generated certificate.
-
-
-Example Playbook
-----------------
-
-The following will generate certificates in the target node.
-
-    gather_facts: false
-      become: true
-      roles:
-        - global
-        - certs
-
-

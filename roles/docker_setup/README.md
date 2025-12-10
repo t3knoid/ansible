@@ -1,41 +1,54 @@
-docker_setup
-======
+# 🛠️ Role: `docker_setup`
 
-The docker_setup role uses deploys Docker and docker-compose.
+![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)
+![Ansible >= 2.9](https://img.shields.io/badge/ansible-%3E%3D%202.9-green.svg)
+![Platforms: Debian | Ubuntu](https://img.shields.io/badge/platforms-Debian%20|%20Ubuntu-orange.svg)
 
-Requirements
-------------
+## 📖 Overview
+Installs Docker and Docker Compose on Debian/Ubuntu systems.
 
-None
+## 📋 Requirements
+- Minimum Ansible version: `2.9`
+- Supported on: `Debian` (buster, bullseye)
+- Supported on: `Ubuntu` (noble)
 
-Role variables
---------------
+## ⚙️ Defaults
+| Variable | Default Value | Description |
+|----------|---------------|-------------|
+| `docker_setup_containerd_version` | `1.7.24-1` |  |
+| `docker_setup_docker_ce_version` | `27.3.1-1` |  |
+| `docker_setup_buildx_plugin_version` | `0.17.1-1` |  |
+| `docker_setup_docker_compose_plugin_version` | `2.29.7-1` |  |
+| `docker_setup_arch` | `amd64` |  |
+| `docker_setup_distro` | `noble` |  |
+| `docker_setup_download_root` | `"https://download.docker.com/linux/ubuntu/dists"` |  |
+| `docker_setup_packages` | `` |  |
+| `docker_setup_compose_version` | `v2.31.0` |  |
 
-- docker_setup_containerd_version: 1.7.24-1
-- docker_setup_docker_ce_version: 27.3.1-1
-- docker_setup_buildx_plugin_version: 0.17.1-1
-- docker_setup_docker_compose_plugin_version: 2.29.7-1
-- docker_setup_arch: amd64
-- docker_setup_distro: noble
-- docker_setup_download_root: "https://download.docker.com/linux/ubuntu/dists"
-- docker_setup_packages - list of Docker packages to install
-- docker_setup_compose_version - version of docker-compose to install
+## 📦 Vars
+_No constant variables found._
 
-Dependencies
-------------
+## 📑 Tasks
+- Uninstall conflicting packages
+- Install Docker packages
+- Start Docker service
+- Test Docker service
+- Show Docker test output on failure
+- Docker failure
+- Stop Test Docker container
+- Remove Test Docker container
+- Remove Test Docker image
+- Install docker-compose
 
-None
+## 🔔 Handlers
+_No handlers defined._
 
-Example Playbook
-----------------
+## 🔗 Dependencies
+_No dependencies listed._
 
-The following isntalls Docker on the target node.
-
-    - name: Install Docker
-      hosts: docker
-      become: true
-      gather_facts: false
-      roles:
-        - global
-        - users
-        - docker_setup
+## 🚀 Example Usage
+```yaml
+- hosts: all
+  roles:
+    - role: docker_setup
+```

@@ -5,7 +5,7 @@
 ![Platforms: Ubuntu | Debian](https://img.shields.io/badge/platforms-Ubuntu%20|%20Debian-orange.svg)
 
 ## 📖 Overview
-Install Microsoft Azure CLI
+Installs Microsoft Azure CLI
 
 ## 📋 Requirements
 - Minimum Ansible version: `2.9`
