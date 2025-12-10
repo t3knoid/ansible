@@ -2,12 +2,12 @@
 
 ## 📖 Purpose
 This workflow ensures that documentation for all Ansible roles is **automatically generated and kept up to date**.  
-Whenever code is pushed or a pull request is opened, the workflow runs the `generate_role_docs.py` script, regenerates each role’s `README.md`, and updates the central `roles/README.md` index. If changes are detected, they are committed back to the repository.
+Whenever code is pushed or a pull request is opened, the workflow runs the `generate_role_docs.py` script, which regenerates each role’s `README.md`, and updates the central `roles/README.md` index. If changes are detected, they are committed back to the repository.
 
 ---
 
 ## 🛠 Workflow File
-Located at: `.github/workflows/generate-docs.yml`
+Located at: `.github/workflows/generate-role-docs.yml`
 
 ```yaml
 name: Generate Ansible Role Docs
@@ -19,7 +19,7 @@ on:
   pull_request:
 
 jobs:
-  generate-docs:
+  generate-role-docs:
     runs-on: ubuntu-latest
 
     steps:
@@ -58,6 +58,7 @@ jobs:
 ---
 
 ## 🔑 Key Points
+
 - **Trigger:** Runs on every push to `main` and on pull requests.  
 - **Checkout:** Uses `actions/checkout@v4` with `fetch-depth: 0` so commits can be pushed back.  
 - **Python Setup:** Uses Python 3.11 (adjustable).  

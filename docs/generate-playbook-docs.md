@@ -1,101 +1,77 @@
 # ⚙️ GitHub Action: Generate Playbook Docs
 
 ## 📖 Purpose
-This GitHub Action ensures that every playbook in the repository is **self‑documented**. It enforces a mandatory `# Purpose:` comment at the top of each playbook, generates a `README.md` for each playbook, builds folder‑level summaries, and maintains a global index of all playbooks.
 
----
+This workflow ensures that documentation for all Ansible roles is **automatically generated and kept up to date**. Whenever code is pushed or a pull request is opened, the workflow runs the `generate_role_docs.py` script, which regenerates per‑playbook README.md files, builds folder‑level summaries, and maintains a global index of playbooks.
 
-## 🛠 How It Works
-- **Purpose enforcement**  
-  - Each playbook must begin with a `# Purpose:` comment (after the `---` YAML marker).  
-  - Multi‑line comments are supported — all consecutive `#` lines after `# Purpose:` are collected.  
-  - If missing, the Action fails.
+## 🛠 Workflow File
+Located at: `.github/workflows/generate-playbook-docs.yml`
 
-- **Per‑playbook README**  
-  - For every `*.yml` playbook, a `README.md` is generated alongside it.  
-  - Includes:
-    - Purpose text
-    - Roles applied (linked to their role docs)
-    - Example usage (`ansible-playbook playbooks/...`)
+```yaml
+name: Generate Ansible Playbook Docs
 
-- **Folder‑level README**  
-  - Each subfolder under `playbooks/` gets its own `README.md`.
-  - Summarizes all playbooks in that folder in a table (Playbook → Purpose).
+on:
+  push:
+    branches:
+      - main
+  pull_request:
 
-- **Global index**  
-  - `playbooks/README.md` lists all playbooks across the repo in a table with relative paths and purposes.
+jobs:
+  generate-playbook-docs:
+    runs-on: ubuntu-latest
 
----
+    steps:
+      # Checkout the repo
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # needed for committing back
 
-## 📂 Example Output
+      # Set up Python
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
-### Per‑playbook README (`playbooks/deploy-ansible.md`)
-```markdown
-# 📖 Playbook: deploy-ansible.yml
+      # Install dependencies (if any)
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-## 🛠 Purpose
-Sets up the Ansible control node and prepares managed nodes with required roles.
+      # Run the documentation generator
+      - name: Generate playbook docs
+        run: |
+          python ./scripts/generate_playbook_docs.py
 
-## 🔗 Roles Applied
-- [`global`](../roles/global/README.md)
-- [`ansible_node`](../roles/ansible_node/README.md)
-- [`sshpass`](../roles/sshpass/README.md)
-- [`python3`](../roles/python3/README.md)
-- [`ansible_setup`](../roles/ansible_setup/README.md)
-
-## 🚀 Usage
-```bash
-ansible-playbook playbooks/deploy-ansible.yml
-```
-```
-
-### Folder README (`playbooks/infra/README.md`)
-```markdown
-# 📚 Playbooks in `infra`
-
-| Playbook | Purpose |
-|----------|---------|
-| [`prepare-node.yml`](prepare-node.md) | Prepares VMs and baremetal hosts for Ansible management |
-```
-
-### Global Index (`playbooks/README.md`)
-```markdown
-# 📚 Playbook Index
-
-## 📂 Playbooks in root `playbooks/`
-
-| Playbook | Purpose |
-|----------|---------|
-| [`deploy_code_server.yml`](deploy_code_server.md) | Deploy and configure code-server on target hosts |
-| [`deploy_vscode_server.yml`](deploy_vscode_server.md) | Deploy and configure VSCode Server on target hosts |
-| [`provision_vm.yml`](provision_vm.md) | Provision a new VM and prepare it as an Ansible node |
-
-## 📂 Playbooks in subfolders
-
-| Playbook Path | Purpose |
-|---------------|---------|
-| [`ad/join_domain.yml`](ad/join_domain.md) | Join hosts to an Active Directory domain |
-| [`ad/leave_domain.yml`](ad/leave_domain.md) | Remove hosts from an Active Directory domain |
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add playbooks/*/README.md playbooks/README.md
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(docs): auto-generate playbook documentation"
+            git push origin HEAD:${{ github.ref }}
+          else
+            echo "No documentation changes to commit."
+          fi
 ```
 
 ---
 
-## 🚀 Usage
+## 🔑 Key Points
 
-### Generate docs for all playbooks
-```bash
-python scripts/generate_playbook_docs.py
-```
-
-### Generate docs for a single playbook
-```bash
-python scripts/generate_playbook_docs.py playbooks/infra/prepare-node.yml
-```
+- **Trigger:** Runs on every push to `main` and on pull requests.  
+- **Checkout:** Uses `actions/checkout@v4` with `fetch-depth: 0` so commits can be pushed back.  
+- **Python Setup:** Uses Python 3.11 (adjustable).  
+- **Dependencies:** Installs from `requirements.txt` (currently only PyYAML).  
+- **Script Execution:** Runs `scripts/generate_playbook_docs.py` to regenerate playbook documentation.  
+- **Commit Logic:**  
+  - Stages only playbook READMEs and the global index.  
+  - Commits only if changes exist (`git diff --cached --quiet` prevents empty commits).  
+  - Pushes back to the branch that triggered the workflow.  
+- **Permissions:** Requires repository **Actions → Workflow permissions** set to **Read and write** so the built‑in `GITHUB_TOKEN` can push commits.  
 
 ---
 
-## ✅ Contributor Expectations
-- Always include a `# Purpose:` comment at the top of each playbook.  
-- Keep purpose concise but meaningful — it appears in indexes and READMEs.  
-- Roles should be declared properly (`roles:` or `import_role`) so they’re detected.  
-- Check the PR diff — you’ll see updated playbook READMEs, folder summaries, and the global index.  
+This matches the style of your role docs workflow page, but tailored for playbooks. Would you like me to also prepare a **combined “Documentation Workflows” page** that links both role and playbook workflows together for easy navigation in your wiki?
