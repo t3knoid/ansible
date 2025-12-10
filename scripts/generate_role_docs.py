@@ -148,12 +148,17 @@ def main():
     # Sort alphabetically
     index_entries.sort(key=lambda x: x["name"].lower())
 
-    # Write index
-    index_lines = ["# 📚 Role Index\n"]
+    # Write index as a table
+    index_lines = ["# 📚 Role Index\n",
+                   "| Role | Description |",
+                   "|------|-------------|"]
     for entry in index_entries:
-        index_lines.append(f"- [`{entry['name']}`]({entry['name']}/README.md): {entry['description']}")
+        index_lines.append(f"| [`{entry['name']}`]({entry['name']}/README.md) | {entry['description']} |")
 
     (roles_dir / "README.md").write_text('\n'.join(index_lines))
 
 if __name__ == "__main__":
     main()
+
+# This script generates markdown documentation for Ansible roles located in the 'roles' directory. It creates a README.md for each role, detailing its variables,
+# tasks, handlers, dependencies, and other metadata. Additionally, it compiles an index README.md listing all roles with their descriptions.
