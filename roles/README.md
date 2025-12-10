@@ -1,5 +1,6 @@
 # 📚 Role Index
 
+- [`ansible_node`](ansible_node/README.md): Configures a node to be used as an Ansible control node.
 - [`ansible_setup`](ansible_setup/README.md): Provides tasks to install and configure Ansible on a control node.
 - [`autofs`](autofs/README.md): Installs and configures autofs on Debian/Ubuntu.
 - [`azure_cli_setup`](azure_cli_setup/README.md): Install Microsoft Azure CLI

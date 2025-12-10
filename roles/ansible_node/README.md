@@ -1,31 +1,33 @@
-ansible_node
-=========
+# Role: `ansible_node`
 
-Configures host as an ansible managed node. It ensures that the ansible group exists and is added to the sudoers group.
+## 📖 Overview
+Configures a node to be used as an Ansible control node.
 
-Requirements
-------------
+## 📋 Requirements
+- Minimum Ansible version: `2.9`
+- Supported on: `EL` (7, 8)
+- Supported on: `Ubuntu` (bionic, focal)
 
-Requires the global role. Must be executed with elevation.
+## 🧮 Defaults
+- `ansible_node_custom_sudo_users`: ``
+- `ansible_node_remote_tmp`: `"/tmp/.ansible/$USER"`
 
-Role Variables
---------------
+## 🧮 Vars
+_No constant variables found in vars._
 
-None
+## 🛠 Tasks
+- Ensure ansible group exists
+- Store USER value, set to undefined if not defined
+- Store SUDO_USER value
+- Add current_user to ansible group, if undefined, use SUDO_USER value instead
+- Add custom user list to ansible group
+- Ensure sudoers.d directory exists
+- Add 'ansible' group to sudoers with NOPASSWD
+- Ensure remote temp directory exists
 
-Dependencies
-------------
-
-None
-
-Example Playbook
-----------------
-
-The following playbook calls the ansible_role to prepare the target host for management by Ansible.
-
-        - name: Prepare ansible managed node
-            hosts: all
-            gather_facts: true
-            become: true
-            roles:
-              - ansible_node
+## 🚀 Example Usage
+```yaml
+- hosts: all
+  roles:
+    - role: ansible_node
+```
