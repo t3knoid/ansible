@@ -19,7 +19,7 @@ This GitHub Action ensures that every playbook in the repository is **self‑doc
     - Example usage (`ansible-playbook playbooks/...`)
 
 - **Folder‑level README**  
-  - Each subfolder under `playbooks/` gets its own `README.md`.  
+  - Each subfolder under `playbooks/` gets its own `README.md`.
   - Summarizes all playbooks in that folder in a table (Playbook → Purpose).
 
 - **Global index**  
@@ -62,11 +62,20 @@ ansible-playbook playbooks/deploy-ansible.yml
 ```markdown
 # 📚 Playbook Index
 
-| Playbook Path            | Purpose |
-|--------------------------|---------|
-| [`deploy-ansible.yml`](deploy-ansible.md) | Sets up the Ansible control node and prepares managed nodes |
-| [`infra/prepare-node.yml`](infra/prepare-node.md) | Prepares VMs and baremetal hosts for Ansible management |
-| [`security/firewall.yml`](security/firewall.md) | Configures firewall rules for managed nodes |
+## 📂 Playbooks in root `playbooks/`
+
+| Playbook | Purpose |
+|----------|---------|
+| [`deploy_code_server.yml`](deploy_code_server.md) | Deploy and configure code-server on target hosts |
+| [`deploy_vscode_server.yml`](deploy_vscode_server.md) | Deploy and configure VSCode Server on target hosts |
+| [`provision_vm.yml`](provision_vm.md) | Provision a new VM and prepare it as an Ansible node |
+
+## 📂 Playbooks in subfolders
+
+| Playbook Path | Purpose |
+|---------------|---------|
+| [`ad/join_domain.yml`](ad/join_domain.md) | Join hosts to an Active Directory domain |
+| [`ad/leave_domain.yml`](ad/leave_domain.md) | Remove hosts from an Active Directory domain |
 ```
 
 ---
