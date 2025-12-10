@@ -84,7 +84,7 @@ Along with this information, the script also extracts all default and static var
 Execute the generate_role_docs.py to generate the role documentation.
 
 ``` bash
-python generate_role_docs.py 
+python scripts/generate_role_docs.py 
 ```
 
 ## Inventory
