@@ -1,0 +1,23 @@
+---
+galaxy_info:
+  role_name: sonarr_setup
+  author: Frank Refol
+  description: >
+    Installs and configures a Sonarr Docker container. It uses a container
+    distributed by [linuxserver](https://hub.docker.com/r/linuxserver/sonarr).
+  license: MIT
+  min_ansible_version: "2.9"
+  platforms:
+    - name: EL
+      versions:
+        - "7"
+        - "8"
+    - name: Ubuntu
+      versions:
+        - bionic
+        - focal
+dependencies:
+  - role: global
+  - role: users
+  - role: autofs
+  - role: docker_setup

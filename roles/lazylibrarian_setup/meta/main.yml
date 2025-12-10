@@ -1,10 +1,10 @@
 ---
 galaxy_info:
   author: Frank Refol
-  role_name: disks
+  role_name: lazylibrarian_setup
   description: >
-    Prepares an attached disk by formatting and mounting to a defined mountpoint.
-    Removes mounts from fstab that is associated with a none existing device.
+    Installs and configures LazyLibrarian on Debian/Ubuntu systems.
+    It uses a Docker image distributed by [linuxserver](https://hub.docker.com/r/linuxserver/lazylibrarian).
   license: MIT
   min_ansible_version: "2.9"
   platforms:

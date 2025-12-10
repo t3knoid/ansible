@@ -1,8 +1,8 @@
 ---
 galaxy_info:
-  role_name: playwright
-  author: Frank Refol
-  description: Installs playwright.
+  role_name: node_exporter_setup
+  author: Francis Refol
+  description: Installs Prometheus Node Exporter
   license: MIT
   min_ansible_version: "2.9"
   platforms:
@@ -15,4 +15,4 @@ galaxy_info:
         - bionic
         - focal
 dependencies:
-  - role: python3
+  - role: global

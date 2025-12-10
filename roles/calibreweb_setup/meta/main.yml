@@ -1,0 +1,18 @@
+---
+galaxy_info:
+  author: Frank
+  role_name: calibreweb_setup
+  description: >
+    Installs and configures Calibre-Web, a web-based eBook management application.
+    It uses a Docker image distributed by [linuxserver](https://hub.docker.com/r/linuxserver/calibre-web).
+  license: MIT
+  min_ansible_version: "2.9"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - "22.04"
+        - "24.04"
+    - name: Debian
+      versions:
+        - "11"
+        - "12"

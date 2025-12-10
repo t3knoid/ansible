@@ -1,0 +1,24 @@
+---
+galaxy_info:
+  role_name: radarr_setup
+  author: Frank Refol
+  description: >
+    Installs and configures a Radarr Docker container. It uses an image
+    distributed by [linuxserver](https://hub.docker.com/r/linuxserver/radarr).
+  license: MIT
+  min_ansible_version: "2.9"
+  platforms:
+    - name: EL
+      versions:
+        - "7"
+        - "8"
+    - name: Ubuntu
+      versions:
+        - bionic
+        - focal
+dependencies:
+  - role: python3
+  - role: global
+  - role: autofs
+  - role: users
+  - role: docker_setup

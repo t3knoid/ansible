@@ -1,0 +1,28 @@
+---
+galaxy_info:
+  role_name: redmine_setup
+  author: Frank Refol
+  description: >
+    Redmine Setup installs and configures an [Redmine](https://www.redmine.org/).
+    The installation instructions are taken directly from
+    [Redmine's installation guide](https://www.redmine.org/projects/redmine/wiki/RedmineInstall)
+    and adapting
+    [redmineadvisor.com's instructions](https://www.redmineadvisor.com/articles/6_0/install/ubuntu24/)
+    on installing Redmine in Ubuntu 24.
+  license: MIT
+  min_ansible_version: "2.9"
+  platforms:
+    - name: EL
+      versions:
+        - "7"
+        - "8"
+    - name: Ubuntu
+      versions:
+        - bionic
+        - focal
+dependencies:
+  - role: global
+  - role: users
+  - role: postgresql_setup
+  - role: ruby_setup
+  - role: postgresql_setup

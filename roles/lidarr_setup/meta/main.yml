@@ -1,8 +1,10 @@
 ---
 galaxy_info:
   author: Frank Refol
-  role_name: lamp_setup
-  description: Install and configure LAMP on Debian/Ubuntu.
+  role_name: lidarr_setup
+  description: >
+    Installs and configures Lidarr on Debian/Ubuntu systems.
+    It uses a container distributed by [linuxserver](https://hub.docker.com/r/linuxserver/lidarr).
   license: MIT
   min_ansible_version: "2.9"
   platforms:

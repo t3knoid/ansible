@@ -1,16 +1,14 @@
 ---
+dependencies: []
+
 galaxy_info:
   author: Frank Refol
-  role_name: terraform_setup
-  description: Installs Terraform
+  role_name: wikipedia_setup
+  description: Deploys and configures a Wikipedia instance using MediaWiki.
   license: MIT
   min_ansible_version: "2.9"
   platforms:
     - name: Ubuntu
       versions:
+        - "20.04"
         - "22.04"
-        - "24.04"
-    - name: Debian
-      versions:
-        - "11"
-        - "12"

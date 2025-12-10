@@ -2,7 +2,10 @@
 galaxy_info:
   role_name: global
   author: Francis Refol
-  description: Provides global defaults common to all roles. It also provides the IP definition of each host in the datacenter.
+  description: >
+    Provides global defaults common to all roles. It provides the IP definition of each
+    host in the datacenter. Every host must be defined here with its corresponding IP address.
+    Other global variables are also defined here.
   license: MIT
   min_ansible_version: "2.9"
   platforms:

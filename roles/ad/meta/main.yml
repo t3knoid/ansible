@@ -1,0 +1,18 @@
+---
+galaxy_info:
+  role_name: ad
+  author: Francis Refol
+  description: >
+    Installs the required packages in order for a node to join an active directory domain.
+    Use the user ansible (e.g. -u ansible) when using this role
+  license: MIT
+  min_ansible_version: "2.9"
+  platforms:
+    - name: EL
+      versions:
+        - "7"
+        - "8"
+    - name: Ubuntu
+      versions:
+        - bionic
+        - focal

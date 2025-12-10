@@ -1,37 +1,56 @@
-ad
-=========
+# 🛠️ Role: `ad`
 
-Provides tasks to manage joining and leaving an active directory domain.
+![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)
+![Ansible >= 2.9](https://img.shields.io/badge/ansible-%3E%3D%202.9-green.svg)
+![Platforms: EL | Ubuntu](https://img.shields.io/badge/platforms-EL%20|%20Ubuntu-orange.svg)
 
-Requirements
-------------
+## 📖 Overview
+Installs the required packages in order for a node to join an active directory domain. Use the user ansible (e.g. -u ansible) when using this role
 
-Requires the *global* role.
 
-Role Variables
---------------
+## 📋 Requirements
+- Minimum Ansible version: `2.9`
+- Supported on: `EL` (7, 8)
+- Supported on: `Ubuntu` (bionic, focal)
 
-- ad_required_packages - lists required packages in order to join an active directory domain.
-- ad_additional_packages - list any other additional packages. This is typically empty. This is only here for any future changes.
-- ad_administrator_password - The active directory domain Administrator (i.e. Administrator) password.
+## ⚙️ Defaults
+| Variable | Default Value | Description |
+|----------|---------------|-------------|
+| `ad_additional_packages` | `[]` | defaults file for ad |
 
-Dependencies
-------------
+## 📦 Vars
+| Variable | Default Value | Description |
+|----------|---------------|-------------|
+| `ad_required_packages` | `` |  |
 
-- global_domain_name - Domain name defined in *global* role.
+## 📑 Tasks
+- Install required packages
+- Update /etc/resolv.conf with domain name
+- Update /etc/resolv.conf with DNS servers
+- Discover domain
+- Show ad_realm_discover_output
+- Find configured value
+- Display "configured" value
+- Display "configured" value
+- Join machine to domain
+- Show ad_realm_join_output
+- Set use_fully_qualified_names in /etc/sssd/sssd.conf to False
+- Set fallback_homedir in /etc/sssd/sssd.conf not to use domain
+- Restart SSSD service
+- Enable mkhomedir
+- Show ad_mkhomedir_result
+- Reboot machine and send a message
+- Wait for machine to become reachable
 
-Example Playbook
-----------------
+## 🔔 Handlers
+_No handlers defined._
 
-The following shows a playbook to join an active directory domain.
+## 🔗 Dependencies
+_No dependencies listed._
 
-    - name: Join active directory domain
-      hosts: all
-      gather_facts: false
-      become: true
-      roles:
-        - global
-      tasks:
-        - name: Import ad role
-          ansible.builtin.import_role:
-          name: ad
+## 🚀 Example Usage
+```yaml
+- hosts: all
+  roles:
+    - role: ad
+```

@@ -1,8 +1,8 @@
 ---
 galaxy_info:
-  role_name: playwright
+  role_name: semaphoreui_setup
   author: Frank Refol
-  description: Installs playwright.
+  description: Installs and configures [Semaphore UI](https://docs.semaphoreui.com/).
   license: MIT
   min_ansible_version: "2.9"
   platforms:
@@ -14,5 +14,3 @@ galaxy_info:
       versions:
         - bionic
         - focal
-dependencies:
-  - role: python3

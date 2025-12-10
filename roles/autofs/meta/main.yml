@@ -1,6 +1,7 @@
 ---
 galaxy_info:
   author: Frank Refol
+  role_name: autofs
   description: Installs and configures autofs on Debian/Ubuntu.
   license: MIT
   min_ansible_version: "2.9"
