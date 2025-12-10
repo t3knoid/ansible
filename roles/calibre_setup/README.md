@@ -7,7 +7,6 @@
 ## 📖 Overview
 Installs and configures Calibre eBook management software. It uses a Docker image distributed by [linuxserver](https://hub.docker.com/r/linuxserver/calibre).
 
-
 ## 📋 Requirements
 - Minimum Ansible version: `2.9`
 - Supported on: `Ubuntu` (22.04, 24.04)

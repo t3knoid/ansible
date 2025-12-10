@@ -7,7 +7,6 @@
 ## 📖 Overview
 Installs and configures GeyserMC on Debian/Ubuntu systems as documented at https://geysermc.org/wiki/geyser/setup/?host=self&platform=standalone
 
-
 ## 📋 Requirements
 - Minimum Ansible version: `2.9`
 - Supported on: `Debian` (buster, bullseye)

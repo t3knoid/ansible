@@ -7,7 +7,6 @@
 ## 📖 Overview
 Installs and configures a Radarr Docker container. It uses an image distributed by [linuxserver](https://hub.docker.com/r/linuxserver/radarr).
 
-
 ## 📋 Requirements
 - Minimum Ansible version: `2.9`
 - Supported on: `EL` (7, 8)

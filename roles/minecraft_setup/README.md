@@ -7,7 +7,6 @@
 ## 📖 Overview
 Installs Minecraft Server on Ubuntu and Debian systems (https://www.minecraft.net/en-us/download/server).
 
-
 ## 📋 Requirements
 - Minimum Ansible version: `2.9`
 - Supported on: `Ubuntu` (22.04, 24.04)

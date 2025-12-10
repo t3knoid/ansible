@@ -7,7 +7,6 @@
 ## 📖 Overview
 Installs and configures Pi-hole on Ubuntu systems (https://pi-hole.net/). Provides tasks to manage Pi-hole settings and configurations.
 
-
 ## 📋 Requirements
 - Minimum Ansible version: `2.9`
 - Supported on: `Ubuntu` (noble)

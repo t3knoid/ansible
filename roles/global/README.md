@@ -7,7 +7,6 @@
 ## 📖 Overview
 Provides global defaults common to all roles. It provides the IP definition of each host in the datacenter. Every host must be defined here with its corresponding IP address. Other global variables are also defined here.
 
-
 ## 📋 Requirements
 - Minimum Ansible version: `2.9`
 - Supported on: `EL` (7, 8)

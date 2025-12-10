@@ -7,7 +7,6 @@
 ## 📖 Overview
 Installs and configures a Sabnzbd Docker container. It uses a Docker image distributed by [linuxserver](https://hub.docker.com/r/linuxserver/sabnzbd).
 
-
 ## 📋 Requirements
 - Minimum Ansible version: `2.9`
 - Supported on: `EL` (7, 8)

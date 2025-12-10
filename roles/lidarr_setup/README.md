@@ -7,7 +7,6 @@
 ## 📖 Overview
 Installs and configures Lidarr on Debian/Ubuntu systems. It uses a container distributed by [linuxserver](https://hub.docker.com/r/linuxserver/lidarr).
 
-
 ## 📋 Requirements
 - Minimum Ansible version: `2.9`
 - Supported on: `Debian` (buster, bullseye)
