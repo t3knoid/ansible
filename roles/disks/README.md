@@ -5,7 +5,8 @@
 ![Platforms: Debian | Ubuntu](https://img.shields.io/badge/platforms-Debian%20|%20Ubuntu-orange.svg)
 
 ## 📖 Overview
-Removes mounts from fstab that is associated with a none existing device. Prepares an attached disk by formatting and mounting to a defined mountpoint.
+Prepares an attached disk by formatting and mounting to a defined mountpoint. Removes mounts from fstab that is associated with a none existing device.
+
 
 ## 📋 Requirements
 - Minimum Ansible version: `2.9`

@@ -1,11 +1,11 @@
-# 🛠️ Role: `aws_cli`
+# 🛠️ Role: `sshpass`
 
 ![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Ansible >= 2.9](https://img.shields.io/badge/ansible-%3E%3D%202.9-green.svg)
 ![Platforms: EL | Ubuntu](https://img.shields.io/badge/platforms-EL%20|%20Ubuntu-orange.svg)
 
 ## 📖 Overview
-Installs and configures AWS CLI.
+Installs sshpass from apt repositories.
 
 ## 📋 Requirements
 - Minimum Ansible version: `2.9`
@@ -13,23 +13,13 @@ Installs and configures AWS CLI.
 - Supported on: `Ubuntu` (bionic, focal)
 
 ## ⚙️ Defaults
-| Variable | Default Value | Description |
-|----------|---------------|-------------|
-| `aws_cli_user` | `terraform-svc` |  |
-| `aws_cli_region` | `"us-west-2"` |  |
-| `aws_cli_output` | `"json"` |  |
+_No default variables found._
 
 ## 📦 Vars
 _No constant variables found._
 
 ## 📑 Tasks
-- Install required packages
-- Download AWS CLI v2
-- Unzip AWS CLI v2
-- Install AWS CLI v2
-- Clean up AWS CLI v2 installer
-- Clean up extracted AWS CLI installer
-- Configure AWS CLI
+- Install sshpass
 
 ## 🔔 Handlers
 _No handlers defined._
@@ -41,5 +31,5 @@ _No dependencies listed._
 ```yaml
 - hosts: all
   roles:
-    - role: aws_cli
+    - role: sshpass
 ```

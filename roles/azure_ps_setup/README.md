@@ -1,12 +1,11 @@
-# 🛠️ Role: `certbot_setup`
+# 🛠️ Role: `azure_ps_setup`
 
 ![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Ansible >= 2.9](https://img.shields.io/badge/ansible-%3E%3D%202.9-green.svg)
 ![Platforms: Ubuntu | Debian](https://img.shields.io/badge/platforms-Ubuntu%20|%20Debian-orange.svg)
 
 ## 📖 Overview
-It deploys certbot following instructions documented in https://certbot.eff.org/instructions?ws=nginx&os=pip. Target hosts must be in a group named *[certbot]* in its inventory. Certbot is used to obtain SSL/TLS certificates from Let's Encrypt.
-
+Installs Microsoft Azure PowerShell
 
 ## 📋 Requirements
 - Minimum Ansible version: `2.9`
@@ -16,15 +15,23 @@ It deploys certbot following instructions documented in https://certbot.eff.org/
 ## ⚙️ Defaults
 | Variable | Default Value | Description |
 |----------|---------------|-------------|
-| `certbot_setup_python_modules` | `` |  |
-| `certbot_setup_bin_link` | `/usr/bin/certbot` |  |
+| `azure_ps_setup_prereq_packages` | `` |  |
+| `azure_ps_setup_ms_repo_keys_file` | `packages-microsoft-prod.deb` |  |
+| `azure_ps_setup_ms_repo_keys_url` | `"https://packages.microsoft.com/config/ubuntu/{{ ansible_distribution_version }}/{{ azure_ps_setup_ms_repo_keys_file }}"` |  |
 
 ## 📦 Vars
 _No constant variables found._
 
 ## 📑 Tasks
-- Install Certbot and Certbot Nginx plugin
-- Create symbolic link for Certbot command
+- Update package list
+- Install re-requisite packages
+- Download Microsoft repository package
+- Register Microsoft repository package
+- Remove repository package file
+- Update package list again
+- Install PowerShell
+- Check if Az module is installed
+- Install Az PowerShell module if not installed
 
 ## 🔔 Handlers
 _No handlers defined._
@@ -36,5 +43,5 @@ _No dependencies listed._
 ```yaml
 - hosts: all
   roles:
-    - role: certbot_setup
+    - role: azure_ps_setup
 ```

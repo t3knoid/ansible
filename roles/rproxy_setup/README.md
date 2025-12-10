@@ -1,26 +1,41 @@
-rproxy_setup
-----------
+# 🛠️ Role: `rproxy_setup`
 
-rproxy_setup configures reverse proxy with failover support using nginx. This role requires at least three hosts to be defined. One host is configure as the main frontend proxy, the other two acts as the primary and secondary proxy. 
+![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)
+![Ansible >= 2.9](https://img.shields.io/badge/ansible-%3E%3D%202.9-green.svg)
+![Platforms: EL | Ubuntu](https://img.shields.io/badge/platforms-EL%20|%20Ubuntu-orange.svg)
 
-        [rproxy_main]
-        rproxy-0
+## 📖 Overview
+rproxy_setup configures reverse proxy with failover support using nginx. This role requires at least three hosts to be defined. One host is configure as the main frontend proxy, the other two acts as the primary and secondary proxy.
 
-        [rproxy_primary]
-        rproxy-1
 
-        [rproxy_secondary]
-        rproxy-2
+## 📋 Requirements
+- Minimum Ansible version: `2.9`
+- Supported on: `EL` (7, 8)
+- Supported on: `Ubuntu` (bionic, focal)
 
-Requirements
-------------
+## ⚙️ Defaults
+| Variable | Default Value | Description |
+|----------|---------------|-------------|
+| `rproxy_setup_backend_servers` | `|` |  |
+| `server {{ hostvars[groups['rproxy_primary'][0]]['ansible_default_ipv4']['address'] }}` | `80 max_fails=3 fail_timeout=5s;` |  |
+| `server {{ hostvars[groups['rproxy_secondary'][0]]['ansible_default_ipv4']['address'] }}` | `80 backup;` |  |
 
-This role requires the following roles:
+## 📦 Vars
+_No constant variables found._
 
-- global
-- nginx_setup
+## 📑 Tasks
+- Add upstream block to "{{ nginx_setup_conf }}"
 
-It also requires that certificates are deployed into the main reverse proxy host. See the following playbooks.
+## 🔔 Handlers
+- Restart nginx
 
-- playbooks/certs/generate_certs.yml
-- playbooks/certs/stage_certs.yml
+## 🔗 Dependencies
+- `global`
+- `nginx_setup`
+
+## 🚀 Example Usage
+```yaml
+- hosts: all
+  roles:
+    - role: rproxy_setup
+```

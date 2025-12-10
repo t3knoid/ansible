@@ -1,11 +1,11 @@
-# 🛠️ Role: `aws_cli`
+# 🛠️ Role: `node_exporter_setup`
 
 ![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Ansible >= 2.9](https://img.shields.io/badge/ansible-%3E%3D%202.9-green.svg)
 ![Platforms: EL | Ubuntu](https://img.shields.io/badge/platforms-EL%20|%20Ubuntu-orange.svg)
 
 ## 📖 Overview
-Installs and configures AWS CLI.
+Installs Prometheus Node Exporter
 
 ## 📋 Requirements
 - Minimum Ansible version: `2.9`
@@ -15,31 +15,30 @@ Installs and configures AWS CLI.
 ## ⚙️ Defaults
 | Variable | Default Value | Description |
 |----------|---------------|-------------|
-| `aws_cli_user` | `terraform-svc` |  |
-| `aws_cli_region` | `"us-west-2"` |  |
-| `aws_cli_output` | `"json"` |  |
+| `node_exporter_setup_version` | `1.9.1` |  |
+| `node_exporter_setup_home` | `"/opt/node_exporter"` |  |
+| `node_exporter_setup_mode` | `'0755'` |  |
+| `node_exporter_setup_user` | `"prometheus"` |  |
+| `node_exporter_setup_group` | `"prometheus"` |  |
 
 ## 📦 Vars
 _No constant variables found._
 
 ## 📑 Tasks
-- Install required packages
-- Download AWS CLI v2
-- Unzip AWS CLI v2
-- Install AWS CLI v2
-- Clean up AWS CLI v2 installer
-- Clean up extracted AWS CLI installer
-- Configure AWS CLI
+- Download and Extract Node xporter
+- Create symlink for Node Exporter
+- Set ownership for Node Exporter directory
+- Copy Node Exporter binary to /usr/local/bin
 
 ## 🔔 Handlers
 _No handlers defined._
 
 ## 🔗 Dependencies
-_No dependencies listed._
+- `global`
 
 ## 🚀 Example Usage
 ```yaml
 - hosts: all
   roles:
-    - role: aws_cli
+    - role: node_exporter_setup
 ```

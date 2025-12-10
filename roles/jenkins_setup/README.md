@@ -1,46 +1,65 @@
-jenkins_setup
-=========
+# 🛠️ Role: `jenkins_setup`
 
-The jenkins_setup role installs and configures Jenkins.
+![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)
+![Ansible >= 2.9](https://img.shields.io/badge/ansible-%3E%3D%202.9-green.svg)
+![Platforms: Debian | Ubuntu](https://img.shields.io/badge/platforms-Debian%20|%20Ubuntu-orange.svg)
 
-Requirements
-------------
+## 📖 Overview
+Installs and configures Jenkins on Debian/Ubuntu systems.
 
+## 📋 Requirements
+- Minimum Ansible version: `2.9`
+- Supported on: `Debian` (buster, bullseye)
+- Supported on: `Ubuntu` (noble)
 
-Role Variables
---------------
+## ⚙️ Defaults
+| Variable | Default Value | Description |
+|----------|---------------|-------------|
+| `jenkins_setup_version` | `2.492.1` | defaults file for jenkins_setup |
+| `jenkins_setup_war` | `"https://get-jenkins.io/war-stable/{{ jenkins_setup_version }}/jenkins.war"` |  |
+| `jenkins_setup_home` | `/data/jenkins` |  |
+| `jenkins_setup_repo_key_url` | `https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key` |  |
+| `jenkins_setup_repo_key_local` | `/etc/apt/trusted.gpg.d/jenkins.asc` |  |
+| `jenkins_setup_javaopts` | `>-` |  |
+| `jenkins_setup_port` | `8080` |  |
+| `jenkins_setup_plugins` | `` |  |
 
-- jenkins_setup_version - the versions of Jenkins to install
-- jenkins_setup_war - download URL of the jenkins WAR file
-- jenkins_setup_home - location of Jenkins configuration and work files
-- jenkins_setup_repo_key_url - repo key URL
-- jenkins_setup_repo_key_local - repo key local file 
+## 📦 Vars
+_No constant variables found._
 
-Dependencies
-------------
+## 📑 Tasks
+- Create Jenkins home folder
+- Copy config.yaml
+- Remove existing Jenkins repo key
+- Add Jenkins apt repository key
+- Remove existing Jenkins repo list file
+- Update apt repository
+- Install Jenkins
+- Stop Jenkins service
+- Create init.groovy.d folder
+- Copy create_admin_account.groovy
+- Modify JENKINS_HOME environment variable
+- Set Jenkins WorkingDirectory
+- Set Java options
+- Set Jenkins port to listen to
+- Set Jenkins user
+- Set Jenkins group
+- Set Jenkins port to listen to
+- Reload systemd to apply changes
+- Start Jenkins service
+- Download jenkins-cli.jar
+- Install plugins
+- Safe restart Jenkins
 
-Jenkins requires the global and java roles.
+## 🔔 Handlers
+_No handlers defined._
 
+## 🔗 Dependencies
+_No dependencies listed._
 
-Example Playbook
-----------------
-
-    - name: Deploy Jenkins
-      hosts: jenkins
-      become: true
-
-      roles:
-        - global
-        - java_setup
-        - jenkins_setup
-
-
-License
--------
-
-BSD
-
-Author Information
-------------------
-
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+## 🚀 Example Usage
+```yaml
+- hosts: all
+  roles:
+    - role: jenkins_setup
+```
