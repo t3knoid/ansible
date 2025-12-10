@@ -32,7 +32,7 @@ jobs:
       # Run the documentation generator
       - name: Generate role docs
         run: |
-          python ./scripts/generate_role_docs.py
+          python ./scripts/generate-role-docs.py
 
       - name: Commit and push changes
         run: |
