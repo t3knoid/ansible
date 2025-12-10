@@ -118,17 +118,35 @@ def main():
         except ValueError as e:
             print(e)
 
+    # Split root-level vs subfolder playbooks
+    root_entries = [e for e in index_entries if len(e["path"].parts) == 1]
+    sub_entries = [e for e in index_entries if len(e["path"].parts) > 1]
+
     # Write global index
     index_lines = ["# 📚 Playbook Index\n"]
-    index_lines.append("| Playbook Path | Purpose |")
-    index_lines.append("|---------------|---------|")
-    for entry in sorted(index_entries, key=lambda x: str(x["path"]).lower()):
-        md_path = str(entry["path"]).replace(".yml", ".md")
-        index_lines.append(f"| [`{entry['path']}`]({md_path}) | {entry['purpose']} |")
+
+    if root_entries:
+        index_lines.append("## 📂 Playbooks in root `playbooks/`\n")
+        index_lines.append("| Playbook | Purpose |")
+        index_lines.append("|----------|---------|")
+        for entry in sorted(root_entries, key=lambda x: str(x["path"]).lower()):
+            md_path = str(entry["path"]).replace(".yml", ".md")
+            index_lines.append(f"| [`{entry['path']}`]({md_path}) | {entry['purpose']} |")
+
+    if sub_entries:
+        index_lines.append("\n## 📂 Playbooks in subfolders\n")
+        index_lines.append("| Playbook Path | Purpose |")
+        index_lines.append("|---------------|---------|")
+        for entry in sorted(sub_entries, key=lambda x: str(x["path"]).lower()):
+            md_path = str(entry["path"]).replace(".yml", ".md")
+            index_lines.append(f"| [`{entry['path']}`]({md_path}) | {entry['purpose']} |")
+
     (playbooks_dir / "README.md").write_text("\n".join(index_lines))
 
-    # Write folder-level indexes
+    # Write folder-level indexes (skip root playbooks/ folder)
     for folder, entries in folder_entries.items():
+        if folder == playbooks_dir:
+            continue
         rel_folder = folder.relative_to(playbooks_dir)
         lines = [f"# 📚 Playbooks in `{rel_folder}`\n"]
         lines.append("| Playbook | Purpose |")
