@@ -71,7 +71,3 @@ jobs:
   - Commits only if changes exist (`git diff --cached --quiet` prevents empty commits).  
   - Pushes back to the branch that triggered the workflow.  
 - **Permissions:** Requires repository **Actions → Workflow permissions** set to **Read and write** so the built‑in `GITHUB_TOKEN` can push commits.  
-
----
-
-This matches the style of your role docs workflow page, but tailored for playbooks. Would you like me to also prepare a **combined “Documentation Workflows” page** that links both role and playbook workflows together for easy navigation in your wiki?
