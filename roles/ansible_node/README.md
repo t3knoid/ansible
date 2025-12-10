@@ -1,4 +1,8 @@
-# Role: `ansible_node`
+# 🛠️ Role: `ansible_node`
+
+![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)
+![Ansible >= 2.9](https://img.shields.io/badge/ansible-%3E%3D%202.9-green.svg)
+![Platforms: EL | Ubuntu](https://img.shields.io/badge/platforms-EL%20|%20Ubuntu-orange.svg)
 
 ## 📖 Overview
 Configures a node to be used as an Ansible control node.
@@ -8,14 +12,16 @@ Configures a node to be used as an Ansible control node.
 - Supported on: `EL` (7, 8)
 - Supported on: `Ubuntu` (bionic, focal)
 
-## 🧮 Defaults
-- `ansible_node_custom_sudo_users`: ``
-- `ansible_node_remote_tmp`: `"/tmp/.ansible/$USER"`
+## ⚙️ Defaults
+| Variable | Default Value | Description |
+|----------|---------------|-------------|
+| `ansible_node_custom_sudo_users` | `` |  |
+| `ansible_node_remote_tmp` | `"/tmp/.ansible/$USER"` |  |
 
-## 🧮 Vars
-_No constant variables found in vars._
+## 📦 Vars
+_No constant variables found._
 
-## 🛠 Tasks
+## 📑 Tasks
 - Ensure ansible group exists
 - Store USER value, set to undefined if not defined
 - Store SUDO_USER value
@@ -24,6 +30,12 @@ _No constant variables found in vars._
 - Ensure sudoers.d directory exists
 - Add 'ansible' group to sudoers with NOPASSWD
 - Ensure remote temp directory exists
+
+## 🔔 Handlers
+_No handlers defined._
+
+## 🔗 Dependencies
+_No dependencies listed._
 
 ## 🚀 Example Usage
 ```yaml

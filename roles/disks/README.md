@@ -1,4 +1,8 @@
-# Role: `disks`
+# 🛠️ Role: `disks`
+
+![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)
+![Ansible >= 2.9](https://img.shields.io/badge/ansible-%3E%3D%202.9-green.svg)
+![Platforms: Debian | Ubuntu](https://img.shields.io/badge/platforms-Debian%20|%20Ubuntu-orange.svg)
 
 ## 📖 Overview
 Removes mounts from fstab that is associated with a none existing device. Prepares an attached disk by formatting and mounting to a defined mountpoint.
@@ -8,13 +12,15 @@ Removes mounts from fstab that is associated with a none existing device. Prepar
 - Supported on: `Debian` (buster, bullseye)
 - Supported on: `Ubuntu` (noble)
 
-## 🧮 Defaults
-- `disks_disk_mounts`: `[]`
+## ⚙️ Defaults
+| Variable | Default Value | Description |
+|----------|---------------|-------------|
+| `disks_disk_mounts` | `[]` |  |
 
-## 🧮 Vars
-_No constant variables found in vars._
+## 📦 Vars
+_No constant variables found._
 
-## 🛠 Tasks
+## 📑 Tasks
 - Run lsblk command to get disk info
 - Display lsblk output
 - Extract valid devices from lsblk output
@@ -38,6 +44,12 @@ _No constant variables found in vars._
 - Ensure mountpoint exists
 - Mount disks
 - Ensure mounted disk has proper ownership
+
+## 🔔 Handlers
+_No handlers defined._
+
+## 🔗 Dependencies
+_No dependencies listed._
 
 ## 🚀 Example Usage
 ```yaml
