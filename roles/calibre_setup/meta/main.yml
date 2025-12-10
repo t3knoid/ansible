@@ -1,10 +1,12 @@
 ---
 galaxy_info:
   author: Frank
-  description: Installs Microsoft Azure CLI
+  role_name: calibre_setup
+  description: >
+    Installs and configures Calibre eBook management software. It uses a Docker
+    image distributed by [linuxserver](https://hub.docker.com/r/linuxserver/calibre).
   license: MIT
   min_ansible_version: "2.9"
-  role_name: azure_cli_setup
   platforms:
     - name: Ubuntu
       versions:

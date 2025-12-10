@@ -1,0 +1,22 @@
+---
+galaxy_info:
+  role_name: rproxy_setup
+  author: Frank Refol
+  description: >
+    rproxy_setup configures reverse proxy with failover support using nginx.
+    This role requires at least three hosts to be defined. One host is configure
+    as the main frontend proxy, the other two acts as the primary and secondary proxy.
+  license: MIT
+  min_ansible_version: "2.9"
+  platforms:
+    - name: EL
+      versions:
+        - "7"
+        - "8"
+    - name: Ubuntu
+      versions:
+        - bionic
+        - focal
+dependencies:
+  - role: global
+  - role: nginx_setup

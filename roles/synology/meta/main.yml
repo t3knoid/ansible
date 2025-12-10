@@ -1,16 +1,16 @@
 ---
 galaxy_info:
+  role_name: synology
   author: Frank Refol
-  role_name: grafana_setup
-  description: Install and configure Grafana on Debian/Ubuntu
+  description: Provides tasks to manage Synology NAS devices.
   license: MIT
   min_ansible_version: "2.9"
   platforms:
-    - name: Debian
+    - name: EL
       versions:
-        - buster
-        - bullseye
+        - "7"
+        - "8"
     - name: Ubuntu
       versions:
+        - bionic
         - focal
-        - jammy

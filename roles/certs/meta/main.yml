@@ -1,0 +1,19 @@
+---
+galaxy_info:
+  author: Frank
+  role_name: certs
+  description: >
+    Provides tasks to request and renew SSL/TLS certificates from Let's Encrypt. It also
+    provides tasks to stage certificates for eventual use by the Nginx reverse proxy and
+    other services.
+  license: MIT
+  min_ansible_version: "2.9"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - "22.04"
+        - "24.04"
+    - name: Debian
+      versions:
+        - "11"
+        - "12"

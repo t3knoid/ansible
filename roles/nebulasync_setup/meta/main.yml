@@ -1,0 +1,21 @@
+---
+galaxy_info:
+  author: Frank Refol
+  role_name: nebulasync_setup
+  description: >
+    Installs nebula-sync as documented in its [GitHub page](https://github.com/lovelaze/nebula-sync?tab=readme-ov-file#installation).
+    This role requires that pi-hole role is configured on the target host. The target host is assumed to be the first host listed
+    in the "primary_dns" inventory group.
+  license: MIT
+  min_ansible_version: "2.9"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - "22.04"
+        - "24.04"
+    - name: Debian
+      versions:
+        - "11"
+        - "12"
+dependencies:
+  - role: java_setup

@@ -1,0 +1,15 @@
+---
+galaxy_info:
+  role_name: pihole
+  author: Frank Refol
+  description: >
+    Installs and configures Pi-hole on Ubuntu systems (https://pi-hole.net/).
+    Provides tasks to manage Pi-hole settings and configurations.
+  license: MIT
+  min_ansible_version: "2.9"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - noble
+dependencies:
+  - role: redis_setup

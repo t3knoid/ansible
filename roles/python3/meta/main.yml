@@ -1,8 +1,10 @@
 ---
 galaxy_info:
-  role_name: playwright
+  role_name: python3
   author: Frank Refol
-  description: Installs playwright.
+  description: >
+    Installs Python 3 from the Python Software Foundation (PSF) repository.
+    There is also an alternate option is to compile Python 3 from source.
   license: MIT
   min_ansible_version: "2.9"
   platforms:
@@ -14,5 +16,4 @@ galaxy_info:
       versions:
         - bionic
         - focal
-dependencies:
-  - role: python3
+

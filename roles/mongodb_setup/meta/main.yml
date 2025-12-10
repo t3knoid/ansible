@@ -1,10 +1,10 @@
 ---
 galaxy_info:
-  author: Frank
-  description: Installs Microsoft Azure CLI
+  author: Frank Refol
+  role_name: mongodb_setup
+  description: Installs [MongoDB](https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/).
   license: MIT
   min_ansible_version: "2.9"
-  role_name: azure_cli_setup
   platforms:
     - name: Ubuntu
       versions:
@@ -14,3 +14,5 @@ galaxy_info:
       versions:
         - "11"
         - "12"
+dependencies:
+  - role: java_setup

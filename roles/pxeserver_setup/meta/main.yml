@@ -1,0 +1,22 @@
+---
+galaxy_info:
+  role_name: pexeserver_setup
+  author: Frank Refol
+  description: >
+    The pxeserver_setup role is used to install and configure a
+    [PXE server](https://ubuntu.com/server/docs/how-to-netboot-the-server-installer-on-amd64).
+    For this to work under TP-Link Omada router, enable the "Legal DHCP Servers"
+    setting and set it to the PXE server IP address.
+  license: MIT
+  min_ansible_version: "2.9"
+  platforms:
+    - name: EL
+      versions:
+        - "7"
+        - "8"
+    - name: Ubuntu
+      versions:
+        - bionic
+        - focal
+dependencies:
+  - role: python3

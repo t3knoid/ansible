@@ -1,8 +1,8 @@
 ---
 galaxy_info:
-  role_name: mediawiki_setup
+  role_name: oc_setup
   author: Frank Refol
-  description: Installs and configures MediaWiki on Ubuntu systems.
+  description: Install and configure TP-Link Omada Controller on Ubuntu systems.
   license: MIT
   min_ansible_version: "2.9"
   platforms:
@@ -10,4 +10,4 @@ galaxy_info:
       versions:
         - noble
 dependencies:
-  - role: lamp_setup
+  - role: redis_setup

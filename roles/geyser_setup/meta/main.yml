@@ -1,8 +1,10 @@
 ---
 galaxy_info:
   author: Frank Refol
-  role_name: lamp_setup
-  description: Install and configure LAMP on Debian/Ubuntu.
+  role_name: geyser_setup
+  description: >
+    Installs and configures GeyserMC on Debian/Ubuntu systems as
+    documented at https://geysermc.org/wiki/geyser/setup/?host=self&platform=standalone
   license: MIT
   min_ansible_version: "2.9"
   platforms:

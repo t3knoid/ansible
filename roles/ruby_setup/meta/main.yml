@@ -1,8 +1,10 @@
 ---
 galaxy_info:
-  role_name: playwright
+  role_name: ruby_setup
   author: Frank Refol
-  description: Installs playwright.
+  description: >
+    The ruby_setup role builds and install Ruby from it's
+    [https://www.ruby-lang.org/en/downloads/](source code).
   license: MIT
   min_ansible_version: "2.9"
   platforms:
@@ -14,5 +16,4 @@ galaxy_info:
       versions:
         - bionic
         - focal
-dependencies:
-  - role: python3
+
