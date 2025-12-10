@@ -1,4 +1,8 @@
-# Role: `oauth2_proxy_setup`
+# 🛠️ Role: `oauth2_proxy_setup`
+
+![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)
+![Ansible >= 2.9](https://img.shields.io/badge/ansible-%3E%3D%202.9-green.svg)
+![Platforms: Ubuntu](https://img.shields.io/badge/platforms-Ubuntu-orange.svg)
 
 ## 📖 Overview
 Install and configure OAuth2 Proxy.
@@ -7,17 +11,19 @@ Install and configure OAuth2 Proxy.
 - Minimum Ansible version: `2.9`
 - Supported on: `Ubuntu` (noble)
 
-## 🧮 Defaults
-- `oauth2_proxy_setup_version`: `"7.13.1"`
-- `oauth2_proxy_setup_download_tgz_file`: `"oauth2-proxy-v{{ oauth2_proxy_setup_version }}.linux-amd64.tar.gz"`
-- `oauth2_proxy_setup_download_url`: `>`
-- `https`: `//github.com/oauth2-proxy/oauth2-proxy/releases/download/v{{ oauth2_proxy_setup_version }}/{{ oauth2_proxy_setup_download_tgz_file }}`
-- `oauth2_proxy_setup_bin`: `/usr/local/bin/oauth2-proxy`
+## ⚙️ Defaults
+| Variable | Default Value | Description |
+|----------|---------------|-------------|
+| `oauth2_proxy_setup_version` | `"7.13.1"` |  |
+| `oauth2_proxy_setup_download_tgz_file` | `"oauth2-proxy-v{{ oauth2_proxy_setup_version }}.linux-amd64.tar.gz"` |  |
+| `oauth2_proxy_setup_download_url` | `>` |  |
+| `https` | `//github.com/oauth2-proxy/oauth2-proxy/releases/download/v{{ oauth2_proxy_setup_version }}/{{ oauth2_proxy_setup_download_tgz_file }}` |  |
+| `oauth2_proxy_setup_bin` | `/usr/local/bin/oauth2-proxy` |  |
 
-## 🧮 Vars
-_No constant variables found in vars._
+## 📦 Vars
+_No constant variables found._
 
-## 🛠 Tasks
+## 📑 Tasks
 - Install prerequisites
 - Download OAuth2 Proxy release archive and and extract binary
 - Ensure oauth2-proxy binary is executable
@@ -32,6 +38,13 @@ _No constant variables found in vars._
 - Create systemd services for oauth2-proxy
 - Reload systemd daemon
 - Enable and ensure all oauth2-proxy services started
+
+## 🔔 Handlers
+- Reload systemd daemon
+- Reload nginx
+
+## 🔗 Dependencies
+- `redis_setup`
 
 ## 🚀 Example Usage
 ```yaml
