@@ -7,7 +7,6 @@
 ## 📖 Overview
 Prepares an attached disk by formatting and mounting to a defined mountpoint. Removes mounts from fstab that is associated with a none existing device.
 
-
 ## 📋 Requirements
 - Minimum Ansible version: `2.9`
 - Supported on: `Debian` (buster, bullseye)
