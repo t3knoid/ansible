@@ -34,7 +34,6 @@ jobs:
         run: |
           python ./scripts/generate_role_docs.py
 
-      # Commit and push changes back
       - name: Commit and push changes
         run: |
           git config --global user.name "github-actions[bot]"
@@ -42,7 +41,7 @@ jobs:
           git add roles/*/README.md roles/README.md
           if ! git diff --cached --quiet; then
             git commit -m "chore(docs): auto-generate role documentation"
-            git push
+            git push origin HEAD:${{ github.ref }}
           else
             echo "No documentation changes to commit."
           fi
