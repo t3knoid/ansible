@@ -7,7 +7,6 @@
 ## 📖 Overview
 The ruby_setup role builds and install Ruby from it's [https://www.ruby-lang.org/en/downloads/](source code).
 
-
 ## 📋 Requirements
 - Minimum Ansible version: `2.9`
 - Supported on: `EL` (7, 8)

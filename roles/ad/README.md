@@ -7,7 +7,6 @@
 ## 📖 Overview
 Installs the required packages in order for a node to join an active directory domain. Use the user ansible (e.g. -u ansible) when using this role
 
-
 ## 📋 Requirements
 - Minimum Ansible version: `2.9`
 - Supported on: `EL` (7, 8)

@@ -7,7 +7,6 @@
 ## 📖 Overview
 Installs and configures LazyLibrarian on Debian/Ubuntu systems. It uses a Docker image distributed by [linuxserver](https://hub.docker.com/r/linuxserver/lazylibrarian).
 
-
 ## 📋 Requirements
 - Minimum Ansible version: `2.9`
 - Supported on: `Debian` (buster, bullseye)
