@@ -1,6 +1,7 @@
 import os
 import yaml
 from pathlib import Path
+import re
 
 def collect_constant_var_files(role_path):
     return [f"{role_path}/vars/main.yml"]
@@ -44,8 +45,22 @@ def format_vars_table(vars_list, title):
              "|----------|---------------|-------------|"]
     for var in vars_list:
         comment = var['comment'] if var['comment'] else ""
-        lines.append(f"| `{var['name']}` | `{var['value']}` | {comment} |")
+        lines.append(f"| `{var['name']}` | `{var['value']}` | {sanitize_description(comment)} |")
     return "\n".join(lines)
+
+def sanitize_description(text: str) -> str:
+    """Sanitize description for safe Markdown table rendering."""
+    if not text:
+        return ""
+    # Collapse newlines into spaces
+    sanitized = " ".join(text.splitlines())
+    # Escape pipe characters
+    sanitized = sanitized.replace("|", "\\|")
+    # Strip leading/trailing whitespace
+    sanitized = sanitized.strip()
+    # Fix malformed Markdown links (ensure [text](url) stays intact)
+    sanitized = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", r"[\1](\2)", sanitized)
+    return sanitized
 
 def generate_role_markdown(role_path):
     meta = load_yaml(f"{role_path}/meta/main.yml").get("galaxy_info", {})
@@ -77,7 +92,7 @@ def generate_role_markdown(role_path):
 
     # Overview
     lines.append("## 📖 Overview")
-    lines.append(meta.get("description", "No description provided."))
+    lines.append(sanitize_description(meta.get("description", "No description provided.")))
 
     # Requirements
     lines.append("\n## 📋 Requirements")
@@ -98,7 +113,7 @@ def generate_role_markdown(role_path):
     lines.append("\n## 📑 Tasks")
     if tasks:
         for task in tasks:
-            lines.append(f"- {task.get('name','Unnamed task')}")
+            lines.append(f"- {sanitize_description(task.get('name','Unnamed task'))}")
     else:
         lines.append("_No tasks defined._")
 
@@ -106,7 +121,7 @@ def generate_role_markdown(role_path):
     lines.append("\n## 🔔 Handlers")
     if handlers:
         for handler in handlers:
-            lines.append(f"- {handler.get('name','Unnamed handler')}")
+            lines.append(f"- {sanitize_description(handler.get('name','Unnamed handler'))}")
     else:
         lines.append("_No handlers defined._")
 
@@ -115,7 +130,7 @@ def generate_role_markdown(role_path):
     if dependencies:
         for dep in dependencies:
             dep_name = dep if isinstance(dep, str) else dep.get('role', 'Unknown')
-            lines.append(f"- `{dep_name}`")
+            lines.append(f"- `{sanitize_description(dep_name)}`")
     else:
         lines.append("_No dependencies listed._")
 
@@ -153,7 +168,8 @@ def main():
                    "| Role | Description |",
                    "|------|-------------|"]
     for entry in index_entries:
-        index_lines.append(f"| [`{entry['name']}`]({entry['name']}/README.md) | {entry['description']} |")
+        desc = sanitize_description(entry["description"])
+        index_lines.append(f"| [`{entry['name']}`]({entry['name']}/README.md) | {desc} |")
 
     (roles_dir / "README.md").write_text('\n'.join(index_lines))
 
