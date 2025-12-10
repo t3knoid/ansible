@@ -60,6 +60,21 @@ def get_roles(playbook_path: Path) -> list:
                                 roles.append(role_name)
     return roles
 
+
+def sanitize_purpose(text: str) -> str:
+    """Sanitize purpose for safe Markdown table rendering."""
+    if not text:
+        return ""
+    # Collapse newlines into spaces
+    sanitized = " ".join(text.splitlines())
+    # Escape pipe characters
+    sanitized = sanitized.replace("|", "\\|")
+    # Strip leading/trailing whitespace
+    sanitized = sanitized.strip()
+    # Fix malformed Markdown links (ensure [text](url) stays intact)
+    sanitized = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", r"[\1](\2)", sanitized)
+    return sanitized
+
 def generate_playbook_markdown(playbook_path: Path, playbooks_dir: Path):
     """Generate README.md content for a playbook."""
     purpose = get_playbook_purpose(playbook_path)
@@ -131,7 +146,8 @@ def main():
         index_lines.append("|----------|---------|")
         for entry in sorted(root_entries, key=lambda x: str(x["path"]).lower()):
             md_path = str(entry["path"]).replace(".yml", ".md")
-            index_lines.append(f"| [`{entry['path']}`]({md_path}) | {entry['purpose']} |")
+            purp = sanitize_purpose(entry["purpose"])
+            index_lines.append(f"| [`{entry['path']}`]({md_path}) | {entry['purp']} |")
 
     if sub_entries:
         index_lines.append("\n## 📂 Playbooks in subfolders\n")
@@ -139,7 +155,8 @@ def main():
         index_lines.append("|---------------|---------|")
         for entry in sorted(sub_entries, key=lambda x: str(x["path"]).lower()):
             md_path = str(entry["path"]).replace(".yml", ".md")
-            index_lines.append(f"| [`{entry['path']}`]({md_path}) | {entry['purpose']} |")
+            purp = sanitize_purpose(entry["purpose"])
+            index_lines.append(f"| [`{entry['path']}`]({md_path}) | {entry['purp']} |")
 
     (playbooks_dir / "README.md").write_text("\n".join(index_lines))
 
@@ -153,7 +170,8 @@ def main():
         lines.append("|----------|---------|")
         for entry in sorted(entries, key=lambda x: x["path"].lower()):
             md_path = entry["path"].replace(".yml", ".md")
-            lines.append(f"| [`{entry['path']}`]({md_path}) | {entry['purpose']} |")
+            purp = sanitize_purpose(entry["purpose"])
+            lines.append(f"| [`{entry['path']}`]({md_path}) | {entry['purp']} |")
         (folder / "README.md").write_text("\n".join(lines))
 
 if __name__ == "__main__":
