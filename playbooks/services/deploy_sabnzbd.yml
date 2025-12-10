@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Installs Sabnzbd application.
+
 - name: Deploy Sabnzbd
   hosts: sabnzbd
   become: true

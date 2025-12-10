@@ -1,4 +1,7 @@
 ---
+
+# Purpose: Migrates virtual machines to different hosts or storage.
+
 - name: Migrate a VM
   hosts: vms
   gather_facts: false

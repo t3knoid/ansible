@@ -1,3 +1,7 @@
+---
+
+# Purpose: Deploy Azure CLI on target hosts
+
 - name: Deploy Azure CLI
   hosts: azure_cli
   become: true

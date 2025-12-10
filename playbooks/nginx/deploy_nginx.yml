@@ -1,3 +1,7 @@
+---
+
+# Purpose: Deploy nginx on nginx hosts
+
 - name: Deploy nginx
   hosts: nginx
   become: true

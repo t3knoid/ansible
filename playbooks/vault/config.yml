@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Configures HashiCorp Vault on designated vault servers.
+
 - name: Configure the HashiCorp Vault
   hosts: vault_servers
   become: true

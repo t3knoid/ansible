@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Deploys Tautulli media tracking service with necessary configurations and NFS mounts.
+
 - name: Deploy Tautulli
   hosts: tautulli
   become: true

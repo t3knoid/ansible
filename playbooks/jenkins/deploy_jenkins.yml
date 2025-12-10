@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Deploy Jenkins automation server on Jenkins hosts
+
 - name: Deploy Jenkins
   hosts: jenkins
   become: true

@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Join hosts to an Active Directory domain
+
 - name: Join active directory domain
   hosts: vms, baremetal
   gather_facts: false

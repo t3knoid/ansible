@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Delete CNAME entries from Pi-hole DNS server
+
 - name: Delete Pi-hole CNAME entry
   hosts: cname
   gather_facts: false

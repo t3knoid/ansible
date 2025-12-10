@@ -1,6 +1,8 @@
 ---
 
-- name: Install and configure code-server
+# Purpose: Installs and configures Tp-Link Omada Controller
+
+- name: Install and configure Tp-Link Omada Controller
   hosts: omada
   become: true
   gather_facts: true

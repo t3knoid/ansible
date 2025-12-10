@@ -1,4 +1,7 @@
-# ping_check.yml
+---
+
+# Purpose: Check connectivity and gather facts from Linux hosts
+
 - name: Test Ansible connectivity
   hosts: linux
   gather_facts: true
@@ -9,15 +12,15 @@
     - name: Print relevant facts
       ansible.builtin.debug:
         msg:
-        - "Hostname: {{ ansible_facts['hostname'] }}"
-        - "OS: {{ ansible_facts['os_family'] }} {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_version'] }}"
-        - "IP Address: {{ ansible_facts['default_ipv4']['address'] | default('N/A') }}"
-        - "Mac Address: {{ ansible_facts['default_ipv4']['macaddress'] | default('N/A') }}"
-        - "Interface: {{ ansible_facts['default_ipv4']['interface'] | default('N/A') }}"
-        - "CPU(s): {{ ansible_facts['processor_cores'] | default('N/A') }}"
-        - "Total Memory (MB): {{ ansible_facts['memtotal_mb'] | default('N/A') }}"
-        - "Free Memory (MB): {{ ansible_facts['memfree_mb'] | default('N/A') }}"
-        - "Uptime: {{ ansible_facts['uptime_seconds'] | dhms | default('N/A') }} seconds"
+          - "Hostname: {{ ansible_facts['hostname'] }}"
+          - "OS: {{ ansible_facts['os_family'] }} {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_version'] }}"
+          - "IP Address: {{ ansible_facts['default_ipv4']['address'] | default('N/A') }}"
+          - "Mac Address: {{ ansible_facts['default_ipv4']['macaddress'] | default('N/A') }}"
+          - "Interface: {{ ansible_facts['default_ipv4']['interface'] | default('N/A') }}"
+          - "CPU(s): {{ ansible_facts['processor_cores'] | default('N/A') }}"
+          - "Total Memory (MB): {{ ansible_facts['memtotal_mb'] | default('N/A') }}"
+          - "Free Memory (MB): {{ ansible_facts['memfree_mb'] | default('N/A') }}"
+          - "Uptime: {{ ansible_facts['uptime_seconds'] | dhms | default('N/A') }} seconds"
 
     - name: Display Python facts
       ansible.builtin.debug:

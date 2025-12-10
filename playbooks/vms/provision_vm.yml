@@ -1,4 +1,7 @@
 ---
+
+# Purpose: Provisions virtual machines using either Terraform or Ansible, managing DNS entries accordingly.
+
 - name: Provision a VM
   hosts: vms
   vars:

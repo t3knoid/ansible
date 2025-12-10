@@ -1,4 +1,7 @@
 ---
+
+# Purpose: Removes snapshots from virtual machines.
+
 - name: Remove snapshot
   hosts: vms
   gather_facts: false

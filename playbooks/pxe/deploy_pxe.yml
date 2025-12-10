@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Deploy PXE server on pxe hosts
+
 - name: Deploy PXE server
   hosts: pxe
   become: true

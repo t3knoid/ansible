@@ -1,4 +1,7 @@
 ---
+
+# Purpose: Restart the carbon-cache service on Graphite hosts
+
 - name: Restart carbon-cache
   hosts: graphite
   gather_facts: false

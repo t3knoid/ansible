@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Starts Sabnzbd service.
+
 - name: Start sabnzbd
   hosts: sabnzbd
   become: true

@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Deploy Python3 on python hosts.
+
 - name: Install Python3
   hosts: python
   become: true

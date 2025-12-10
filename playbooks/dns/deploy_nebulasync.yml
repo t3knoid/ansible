@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Deploy nebula-sync on the primary DNS server
+
 - name: Deploy nebula-sync
   hosts: primary_dns
   gather_facts: true

@@ -1,3 +1,7 @@
+---
+
+# Purpose: Sets up Reverse Proxy on rproxy hosts.
+
 - name: Deploy Reverse Proxy
   hosts: rproxy
   become: true

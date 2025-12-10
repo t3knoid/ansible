@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Sets DNS servers on virtual machines and bare metal servers.
+
 - name: Set DNS servers
   hosts: vms,baremetal
   gather_facts: false

@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Stops all media services
+
 - name: Stop lidarr
   ansible.builtin.import_playbook: stop_lidarr.yml
 

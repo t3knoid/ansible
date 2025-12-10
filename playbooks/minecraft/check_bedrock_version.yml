@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Check latest Bedrock version on Bedrock hosts
+
 - name: Enumerate latest version of Bedrock
   hosts: bedrock
   become: true

@@ -1,4 +1,7 @@
 ---
+
+# Purpose: Backup Prometheus database to NFS share
+
 - name: Backup Prometheus database to NFS share
   hosts: prometheus
   become: true

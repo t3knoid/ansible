@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Remove hosts from an Active Directory domain
+
 - name: Leave active directory domain
   hosts: all
   gather_facts: false

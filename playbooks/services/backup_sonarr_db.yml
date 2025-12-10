@@ -1,4 +1,7 @@
 ---
+
+# Purpose: Backup Sonarr database to NFS share.
+
 - name: Backup Sonarr database to NFS share
   hosts: pgdb
   become: true

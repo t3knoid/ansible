@@ -1,5 +1,8 @@
 ---
 
+# Purpose: Deploys HashiCorp Vault including installation, CA creation, server 
+# certificate creation, configuration, and CA certificate deployment to clients.
+
 - name: Deploy Hashicorp Vault
   hosts: vault_servers,vault_clients
   become: true

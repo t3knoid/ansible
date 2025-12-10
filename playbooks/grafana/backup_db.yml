@@ -1,4 +1,7 @@
 ---
+
+# Purpose: Backup Grafana database to NFS share
+
 - name: Backup Grafana database to NFS share
   hosts: pgdb
   become: true

@@ -1,6 +1,9 @@
 ---
 
-- import_playbook: create_sonarr_db.yml
+# Purpose: Installs Sonarr application.
+
+- name: Create Sonarr postgresql database
+  import_playbook: create_sonarr_db.yml
 
 - name: Deploy Sonarr
   hosts: sonarr

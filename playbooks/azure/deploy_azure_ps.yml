@@ -1,3 +1,7 @@
+---
+
+# Purpose: Deploy Azure Powershell on the Ansible control node
+
 - name: Deploy Azure Powershell
   hosts: ansible
   gather_facts: true

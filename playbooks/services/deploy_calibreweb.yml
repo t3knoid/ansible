@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Installs Calibreweb application.
+
 - name: Deploy Calibreweb
   hosts: calibreweb
   become: true

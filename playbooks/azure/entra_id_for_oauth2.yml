@@ -1,3 +1,7 @@
+---
+
+# Purpose: Configure Entra ID applications for OAuth2 authentication
+
 - name: Configure Entra ID applications for OAuth2
   hosts: oauth2_proxy
   become: true

@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Deploys sshpass utility on virtual machines.
+
 - name: Deploy sshpass
   hosts: vms
   gather_facts: false

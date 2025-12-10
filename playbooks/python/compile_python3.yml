@@ -1,5 +1,10 @@
 ---
 
+# Purpose: Compile and install Python3 on pvenodes hosts.
+# This is necessary for Proxmox VE nodes where a newer Python
+# version is required but not available via standard package
+# repositories.
+
 - name: Compile and Install Python3
   hosts: pvenodes
   gather_facts: true

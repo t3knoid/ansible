@@ -1,3 +1,7 @@
+---
+
+# Purpose: Stage certificates on the cert staging host in preparation for use by reverse proxy and other services
+
 - name: Stage certificates
   hosts: certs
   gather_facts: false

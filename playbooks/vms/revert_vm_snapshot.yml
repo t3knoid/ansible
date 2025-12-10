@@ -1,4 +1,7 @@
 ---
+
+# Purpose: Reverts virtual machines to a specified snapshot and starts them.
+
 - name: Revert snapshot
   hosts: vms
   gather_facts: false

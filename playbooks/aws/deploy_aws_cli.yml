@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Deploy AWS CLI on target hosts
+
 - name: Deploy AWS CLI
   hosts: all
   become: true

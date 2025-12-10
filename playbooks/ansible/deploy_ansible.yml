@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Deploy and configure Ansible on the control node
+
 - name: Deploy ansible
   hosts: ansible
   gather_facts: true

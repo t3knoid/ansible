@@ -1,4 +1,7 @@
 ---
+
+# Purpose: Check for available updates on Linux hosts
+
 - name: Check for available updates
   hosts: linux
   gather_facts: false
@@ -7,7 +10,9 @@
     - name: Check for available updates (Debian/Ubuntu)
       ansible.builtin.command: apt list --upgradable
       register: available_updates
+      changed_when: false
 
+      when: ansible_facts['os_family'] == 'Debian'
     - name: Print available updates
       ansible.builtin.debug:
         msg: "{{ available_updates.stdout_lines }}"

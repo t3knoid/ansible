@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Creates virtual machines and manages their DNS entries.
+
 - name: Create a VM
   hosts: vms
   gather_facts: false

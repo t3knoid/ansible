@@ -1,9 +1,12 @@
 ---
-# Import database creation playbook to set up Redmine database before deployment
-- import_playbook: create_db.yml
 
-# Import Ruby setup playbook to ensure Ruby environment is ready before deploying Redmine
-- import_playbook: ../ruby/deploy_ruby.yml
+# Purpose: Deploy Redmine application on redmine hosts.
+
+- name: Import database creation playbook to set up Redmine database before deployment
+  import_playbook: create_db.yml
+
+- name: Import Ruby setup playbook to ensure Ruby environment is ready before deploying Redmine
+  import_playbook: ../ruby/deploy_ruby.yml
 
 - name: Deploy Redmine
   hosts: redmine

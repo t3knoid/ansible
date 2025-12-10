@@ -1,3 +1,7 @@
+---
+
+# Purpose: Distribute web certificates from cert staging host to Proxmox nodes
+
 - name: Distribute Proxmox certificates
   hosts: pvenodes
   gather_facts: false

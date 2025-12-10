@@ -1,4 +1,7 @@
 ---
+
+# Purpose: Shuts down virtual machines gracefully.
+
 - name: Stop a VM
   hosts: vms
   gather_facts: false

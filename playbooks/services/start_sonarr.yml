@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Start Sonarr service
+
 - name: Start sonarr
   hosts: sonarr
   become: true

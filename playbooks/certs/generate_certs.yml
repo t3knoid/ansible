@@ -1,3 +1,7 @@
+---
+
+# Purpose: Generate Let’s Encrypt certbot certificates on the cert staging host
+
 - name: Generate certificates
   hosts: certs
   gather_facts: false

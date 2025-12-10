@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Installs Calibre application.
+
 - name: Deploy Calibre
   hosts: calibre
   become: true

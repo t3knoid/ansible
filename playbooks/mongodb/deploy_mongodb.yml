@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Deploy MongoDB on MongoDB hosts
+
 - name: Deploy Mongodb
   hosts: mongodb
   become: true

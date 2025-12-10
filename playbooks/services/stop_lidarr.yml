@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Stops Lidarr service
+
 - name: Stop lidarr
   hosts: lidarr
   become: true

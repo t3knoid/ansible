@@ -1,4 +1,7 @@
 ---
+
+# Purpose: Stops a virtual machine.
+
 - name: Stop a VM
   hosts: vms
   gather_facts: false

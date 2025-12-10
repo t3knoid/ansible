@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Install required Python 3 modules for Ansible operation
+
 - name: Install Ansible Python Modules
   hosts: vms, synology
   gather_facts: true

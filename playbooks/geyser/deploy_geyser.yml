@@ -1,6 +1,9 @@
 ---
 
-- hosts: all
+# Purpose: Deploy Geyser Minecraft server proxy
+
+- name: Deploy Geyser
+  hosts: all
   become: true
 
   roles:

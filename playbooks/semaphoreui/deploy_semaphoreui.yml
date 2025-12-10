@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Installs Semaphore UI application on semaphore hosts.
+
 - name: Deploy postgresql
   ansible.builtin.import_playbook: ../postgresql/deploy_postgresql.yml
 

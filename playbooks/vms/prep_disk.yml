@@ -1,3 +1,7 @@
+---
+
+# Purpose: Prepares and formats local disks on virtual machines and bare metal servers.
+
 - name: Automate finding and formatting a local drive
   hosts: vms, baremetal
   gather_facts: false

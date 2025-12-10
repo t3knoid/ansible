@@ -1,4 +1,8 @@
 ---
+
+# Purpose: Prepares Synology NAS for Ansible management by 
+# configuring DNS entries, reverse proxy, and Python environment.
+
 - name: Import playbooks/dns/delete_dns_entry.yml
   ansible.builtin.import_playbook: ../dns/delete_dns_entry.yml
 

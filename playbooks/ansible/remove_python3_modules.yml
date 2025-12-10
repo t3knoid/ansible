@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Remove Python 3 modules no longer needed for Ansible operation
+
 - name: Remove Ansible modules
   hosts: vms, synology, plex
   gather_facts: true

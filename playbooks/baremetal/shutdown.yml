@@ -1,4 +1,7 @@
 ---
+
+# Purpose: Unconditionally shut down baremetal machine with all defaults
+
 - name: Shutdown a machine
   hosts: all
   gather_facts: false

@@ -1,4 +1,7 @@
 ---
+
+# Purpose: Creates a cloud-init ISO for virtual machines to enable autoinstallation.
+
 - name: Create cloud-init.iso for autoinstall
   hosts: vms
   gather_facts: false

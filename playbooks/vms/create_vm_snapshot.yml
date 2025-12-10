@@ -1,4 +1,7 @@
 ---
+
+# Purpose: Creates snapshots of virtual machines.
+
 - name: Create snapshot
   hosts: vms
   gather_facts: false

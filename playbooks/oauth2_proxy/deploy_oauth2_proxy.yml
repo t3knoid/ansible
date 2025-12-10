@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Deploy OAuth2 Proxy with Entra ID as the identity provider
+
 - name: Deploy OAuth2 Proxy
   hosts: oauth2_proxy
   gather_facts: true

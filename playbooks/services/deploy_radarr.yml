@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Installs Radarr application.
+
 - name: Import create_radarr_db.yml playbook
   ansible.builtin.import_playbook: create_radarr_db.yml
 

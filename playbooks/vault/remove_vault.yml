@@ -1,6 +1,8 @@
 ---
 
-- name: Deploy Hashicorp Vault
+# Purpose: Removes HashiCorp Vault from designated vault servers.
+
+- name: Removes Hashicorp Vault
   hosts: vault_servers
   become: true
   roles:

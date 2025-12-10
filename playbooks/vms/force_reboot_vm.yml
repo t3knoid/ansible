@@ -1,4 +1,7 @@
 ---
+
+# Purpose: Forces a reboot of virtual machines by stopping and starting them.
+
 - name: Reboot a VM
   hosts: vms
   gather_facts: false

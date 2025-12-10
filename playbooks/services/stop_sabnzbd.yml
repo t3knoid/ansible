@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Stops Sabnzbd service
+
 - name: Stop sabnzbd
   hosts: sabnzbd
   become: true

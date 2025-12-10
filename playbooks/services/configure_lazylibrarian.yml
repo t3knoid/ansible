@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Configure Lazy Librarian application.
+
 - name: Configure Lazy Librarian
   hosts: lazylibrarian
   become: true

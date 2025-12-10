@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Installs Ruby on ruby hosts.
+
 - name: Deploy Ruby
   hosts: ruby
   become: true
