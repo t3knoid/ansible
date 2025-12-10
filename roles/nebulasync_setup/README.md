@@ -7,7 +7,6 @@
 ## 📖 Overview
 Installs nebula-sync as documented in its [GitHub page](https://github.com/lovelaze/nebula-sync?tab=readme-ov-file#installation). This role requires that pi-hole role is configured on the target host. The target host is assumed to be the first host listed in the "primary_dns" inventory group.
 
-
 ## 📋 Requirements
 - Minimum Ansible version: `2.9`
 - Supported on: `Ubuntu` (22.04, 24.04)

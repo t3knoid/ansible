@@ -7,7 +7,6 @@
 ## 📖 Overview
 Ombi Setup installs and configures an Ombi Docker container. It uses a Docker image distributed by [linuxserver](https://hub.docker.com/r/linuxserver/ombi)
 
-
 ## 📋 Requirements
 - Minimum Ansible version: `2.9`
 - Supported on: `Ubuntu` (noble)

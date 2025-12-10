@@ -7,7 +7,6 @@
 ## 📖 Overview
 Redmine Setup installs and configures an [Redmine](https://www.redmine.org/). The installation instructions are taken directly from [Redmine's installation guide](https://www.redmine.org/projects/redmine/wiki/RedmineInstall) and adapting [redmineadvisor.com's instructions](https://www.redmineadvisor.com/articles/6_0/install/ubuntu24/) on installing Redmine in Ubuntu 24.
 
-
 ## 📋 Requirements
 - Minimum Ansible version: `2.9`
 - Supported on: `EL` (7, 8)
