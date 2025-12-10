@@ -84,6 +84,10 @@ Provides global defaults common to all roles. It also provides the IP definition
 - `util-0`: `192.168.0.56`
 - `global_ip_address`: `"{{ global_ip_addresses[inventory_hostname] }}"`
 - `global_pihole_api_host`: `"{{ global_ip_addresses['dns-1'] }}"`
+- `global_oauth2_proxy_ports`: ``
+- `code.refol.us`: `4180`
+- `global_oauth2_proxy_metrics_ports`: ``
+- `code.refol.us`: `9100`
 
 ## 🛠 Tasks
 - Global
