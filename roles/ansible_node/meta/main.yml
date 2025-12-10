@@ -1,8 +1,8 @@
 ---
 galaxy_info:
-  role_name: ansible_setup
+  role_name: ansible_node
   author: Francis Refol
-  description: Provides tasks to install and configure Ansible on a control node.
+  description: Configures a node to be used as an Ansible control node.
   license: MIT
   min_ansible_version: "2.9"
   platforms:
