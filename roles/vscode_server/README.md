@@ -4,7 +4,7 @@
 Install and configure Microsoft repository for VSCode.
 
 ## 📋 Requirements
-- Minimum Ansible version: `N/A`
+- Minimum Ansible version: `2.9`
 - Supported on: `Ubuntu` (20.04, 22.04)
 
 ## 🧮 Defaults
