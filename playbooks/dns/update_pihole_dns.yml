@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Update DNS settings on the Pi-hole DNS server
+
 - name: Update Pi-hole DNS
   hosts: dns
   gather_facts: false

@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Install and configure Plex Media Server on plex hosts
+
 - name: Install and configure Plex Media Server
   hosts: plex
   become: true

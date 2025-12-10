@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Adds users to virtual machines and bare metal servers.
+
 - name: Add users to VM
   hosts: vms, baremetal
   gather_facts: false

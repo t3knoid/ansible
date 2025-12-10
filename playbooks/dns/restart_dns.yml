@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Restart the DNS service on the Pi-hole DNS server
+
 - name: Restart DNS
   hosts: dns
   gather_facts: false

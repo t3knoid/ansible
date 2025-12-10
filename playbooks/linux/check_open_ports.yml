@@ -1,4 +1,7 @@
 ---
+
+# Purpose: Check open ports on Linux hosts
+
 - name: Check Open Ports
   hosts: linux
   gather_facts: false
@@ -7,6 +10,7 @@
     - name: Get listening open TCP and UDP ports
       ansible.builtin.command: ss -tuln
       register: open_ports
+      changed_when: false
 
     - name: Print open ports
       ansible.builtin.debug:

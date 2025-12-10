@@ -1,7 +1,11 @@
+---
+
+# Purpose: Checks if Ubuntu is installed on the target machine
+
 - name: Check if Ubuntu is installed
   hosts: all
   gather_facts: false
-  
+
   tasks:
     - name: Import ansible role
       ansible.builtin.import_role:

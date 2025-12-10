@@ -1,4 +1,7 @@
 ---
+
+# Purpose: Converts virtual machines to templates.
+
 - name: Convert to template
   hosts: template
   gather_facts: false

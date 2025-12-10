@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Install and configure Graphite monitoring tool on all hosts
+
 - name: Install and configure graphite
   hosts: all
   gather_facts: true

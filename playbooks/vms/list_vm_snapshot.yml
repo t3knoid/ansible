@@ -1,4 +1,7 @@
 ---
+
+# Purpose: Lists snapshots of virtual machines.
+
 - name: List snapshot
   hosts: vms
   gather_facts: false

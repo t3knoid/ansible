@@ -1,4 +1,7 @@
 ---
+
+# Purpose: Backup Redmine database to NFS share.
+
 - name: Backup Redmine database to NFS share
   hosts: pgdb
   become: true

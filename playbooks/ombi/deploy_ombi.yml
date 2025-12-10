@@ -1,7 +1,9 @@
 ---
 
-# Import database creation playbook to set up Ombi database before deployment
-- import_playbook: create_db.yml
+# Purpose: Deploy Ombi application on Ombi hosts
+
+- name: Import database creation playbook to set up Ombi database before deployment
+  import_playbook: create_db.yml
 
 - name: Deploy Ombi
   hosts: ombi

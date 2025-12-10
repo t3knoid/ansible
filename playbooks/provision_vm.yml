@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Provision a new VM and prepare it as an Ansible node
+
 - name: Create a new VM
   ansible.builtin.import_playbook: vms/provision_vm.yml
 

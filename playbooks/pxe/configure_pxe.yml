@@ -1,3 +1,7 @@
+---
+
+# Purpose: Configure PXE on pxe_client hosts
+
 - name: Configure PXE
   hosts: pxe_client
   gather_facts: false

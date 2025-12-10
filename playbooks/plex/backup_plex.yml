@@ -1,4 +1,7 @@
 ---
+
+# Purpose: Backup Plex Media Server configuration on plex hosts
+
 - name: Backup Plex Media Server configuration
   hosts: plex
   become: true

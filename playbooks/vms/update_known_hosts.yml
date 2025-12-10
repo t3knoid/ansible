@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Updates the known_hosts file with the SSH fingerprints of all virtual machines.
+
 - name: Add host fingerprint to known_hosts
   hosts: all
   gather_facts: false

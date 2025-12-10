@@ -1,6 +1,9 @@
 ---
 
-- hosts: minecraft
+# Purpose: Deploy Minecraft Java server
+
+- name: Deploy Minecraft
+  hosts: minecraft
   become: true
 
   roles:

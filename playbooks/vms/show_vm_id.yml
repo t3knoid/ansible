@@ -1,4 +1,7 @@
 ---
+
+# Purpose: Displays the VMID of virtual machines.
+
 - name: Show the virtual machine's VMID
   hosts: vms
   gather_facts: false

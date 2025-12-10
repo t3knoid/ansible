@@ -1,4 +1,7 @@
 ---
+
+# Purpose: Check memory usage on Linux hosts
+
 - name: Check memory usage
   hosts: linux
   gather_facts: false
@@ -7,6 +10,7 @@
     - name: Use free command to get memory usage
       ansible.builtin.command: free -m
       register: memory_usage
+      changed_when: false
 
     - name: Print memory usage
       ansible.builtin.debug:
@@ -16,23 +20,30 @@
       ansible.builtin.command: swapon --show
       register: swap_usage
       ignore_errors: true  # In case swap is not enabled
+      changed_when: false
+
     - name: Print swap usage
       ansible.builtin.debug:
         msg: "{{ swap_usage.stdout_lines }}"
 
     - name: Check for high memory usage (top 5 processes)
-      ansible.builtin.shell: ps aux --sort=-%mem | head -n 6
+      ansible.builtin.shell: |
+        set -o pipefail
+        ps aux --sort=-%mem | head -n 6
       register: high_memory_usage
-  
+      changed_when: false
+
     - name: Print high memory usage
       ansible.builtin.debug:
         msg: "{{ high_memory_usage.stdout_lines }}"
 
     - name: Check for out of memory (dmesg)
-      ansible.builtin.shell: dmesg | grep -i 'out of memory' || true
+      ansible.builtin.shell: |
+          set -o pipefail
+          dmesg | grep -i 'out of memory' || true
       register: out_of_memory
+      changed_when: false
 
     - name: Print out of memory messages
       ansible.builtin.debug:
         msg: "{{ out_of_memory.stdout_lines }}"
-

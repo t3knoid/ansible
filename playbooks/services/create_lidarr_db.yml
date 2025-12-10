@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Create Lidarr PostgreSQL database.
+
 - name: Create postgresql database
   hosts: pgdb
   become: true

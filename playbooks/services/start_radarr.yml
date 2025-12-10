@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Starts Radarr service.
+
 - name: Start radarr
   hosts: radarr
   become: true

@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Deploy Redis server on redis hosts.
+
 - name: Deploy Redis Server
   hosts: redis
   become: true

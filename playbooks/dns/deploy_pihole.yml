@@ -1,5 +1,6 @@
 ---
 
+# Purpose: Deploy Pi-hole DNS server
 # https://docs.pi-hole.net/main/basic-install/#alternative-1-clone-our-repository-and-run
 
 - name: Install Pi-hole using official script

@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Deploy and configure VSCode Server on target hosts
+
 - name: Install and configure code-server
   hosts: vscode
   become: true

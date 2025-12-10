@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Deploy updates on Linux hosts
+
 - name: Update linux
   hosts: linux
   become: true

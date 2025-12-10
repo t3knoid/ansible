@@ -1,4 +1,7 @@
 ---
+
+# Purpose: Deploys a Wikipedia instance using various setup roles.
+
 - name: Deploy Wikipedia
   hosts: wikipedia
   become: true

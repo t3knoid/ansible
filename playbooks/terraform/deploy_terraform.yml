@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Installs Terraform
+
 - name: Deploy Terraform
   hosts: terraform
   become: true

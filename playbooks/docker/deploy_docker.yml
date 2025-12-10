@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Deploy Docker on Docker hosts
+
 - name: Install Docker
   hosts: docker
   become: true

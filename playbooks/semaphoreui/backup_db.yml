@@ -1,4 +1,7 @@
 ---
+
+# Purpose: Backup Semaphore UI database to NFS share.
+
 - name: Backup Semaphore UI database to NFS share
   hosts: pgdb
   become: true

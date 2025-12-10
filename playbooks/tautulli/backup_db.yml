@@ -1,4 +1,7 @@
 ---
+
+# Purpose: Backs up Tautulli database and configuration files to a specified NFS share.
+
 - name: Backup Tautulli database and config to NFS share
   hosts: tautulli
   become: true

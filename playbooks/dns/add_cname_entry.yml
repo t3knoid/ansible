@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Add CNAME entries to Pi-hole DNS server
+
 - name: Add Pi-hole CNAME entry
   hosts: cname
   gather_facts: false

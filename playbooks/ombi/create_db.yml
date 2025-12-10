@@ -1,6 +1,8 @@
 ---
 
-- name: Create postgresql database
+# Purpose: Create Ombi PostgreSQL database on pgdb hosts
+
+- name: Create Ombi postgresql database
   hosts: pgdb
   become: true
   gather_facts: true

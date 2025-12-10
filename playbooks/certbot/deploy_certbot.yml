@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Deploy Certbot on target hosts
+
 - name: Deploy certbot
   hosts: certbot
   become: true

@@ -1,5 +1,9 @@
 ---
-- hosts: java
+
+# Purpose: Deploy Java runtime environment on Java hosts
+
+- name: Deploy Java
+  hosts: java
   become: true
 
   roles:

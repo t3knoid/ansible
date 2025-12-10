@@ -1,5 +1,8 @@
 ---
-- name: Stop a VM
+
+# Purpose: Starts a virtual machine.
+
+- name: Start a VM
   hosts: vms
   gather_facts: false
   roles:

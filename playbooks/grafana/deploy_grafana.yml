@@ -1,3 +1,7 @@
+---
+
+# Purpose: Deploy Grafana monitoring tool on Grafana hosts
+
 - name: Deploy Grafana
   hosts: grafana
   become: true

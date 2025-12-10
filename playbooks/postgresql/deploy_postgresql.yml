@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Install and configure PostgreSQL on pgdb hosts
+
 - name: Install and configure postgresql
   hosts: pgdb
   become: true

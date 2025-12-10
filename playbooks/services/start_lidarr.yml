@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Starts Lidarr service.
+
 - name: Start lidarr
   hosts: lidarr
   become: true

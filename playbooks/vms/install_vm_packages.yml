@@ -1,4 +1,7 @@
 ---
+
+# Purpose: Installs required packages on virtual machines.
+
 - name: Install required virtual machine packages
   hosts: all
   gather_facts: false

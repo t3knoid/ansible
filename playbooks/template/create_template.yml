@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Creates a VM template using cloud-init on the specified Proxmox node.
+
 - name: Create a Template
   hosts: template
   gather_facts: false

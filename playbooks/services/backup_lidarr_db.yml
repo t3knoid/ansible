@@ -1,4 +1,7 @@
 ---
+
+# Purpose: Backup Lidarr database to NFS share.
+
 - name: Backup Lidarr database to NFS share
   hosts: pgdb
   become: true

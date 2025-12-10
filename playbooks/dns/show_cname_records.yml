@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Show CNAME records from Pi-hole DNS server
+
 - name: Get Pi-hole cname records
   hosts: primary_dns
   gather_facts: false

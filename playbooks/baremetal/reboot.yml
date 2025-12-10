@@ -1,4 +1,7 @@
 ---
+
+# Purpose: Reboot baremetal machines using the vms role's reboot tasks
+
 - name: Reboot a machine
   hosts: all
   gather_facts: false

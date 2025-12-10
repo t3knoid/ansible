@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Show the current configuration of the Pi-hole DNS server
+
 - name: Get Pi-hole host entries
   hosts: primary_dns
   gather_facts: false

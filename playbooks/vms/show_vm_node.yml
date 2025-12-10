@@ -1,4 +1,7 @@
 ---
+
+# Purpose: Displays the Proxmox node hosting the specified virtual machines.
+
 - name: Show the virtual machine's Proxmox node
   hosts: vms
   gather_facts: false

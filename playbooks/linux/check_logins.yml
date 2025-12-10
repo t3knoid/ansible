@@ -1,4 +1,7 @@
 ---
+
+# Purpose: Check for user logins and failed login attempts on Linux hosts
+
 - name: Check for Logins
   hosts: linux
   gather_facts: false
@@ -7,6 +10,8 @@
     - name: Check for user logins in the last 24 hours
       ansible.builtin.command: last -s -1days
       register: recent_logins
+      changed_when: false
+
     - name: Print recent logins
       ansible.builtin.debug:
         msg: "{{ recent_logins.stdout_lines }}"
@@ -15,6 +20,7 @@
       ansible.builtin.shell: grep 'Failed password' /var/log/auth.log | tail -n 10 || true
       register: failed_logins
       ignore_errors: true  # In case auth.log is not accessible
+      changed_when: false
 
     - name: Print failed login attempts
       ansible.builtin.debug:

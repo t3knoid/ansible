@@ -1,3 +1,7 @@
+---
+
+# Purpose: Deploy Prometheus monitoring system
+
 - name: Deploy Prometheus
   hosts: prometheus
   become: true

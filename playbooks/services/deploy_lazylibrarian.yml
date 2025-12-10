@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Installs Lazy Librarian application.
+
 - name: Deploy Lazy Librarian
   hosts: lazylibrarian
   become: true

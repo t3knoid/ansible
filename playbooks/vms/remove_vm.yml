@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Removes virtual machines using either Terraform or Ansible, with confirmation and DNS cleanup. 
+
 - name: Remove the VM
   hosts: removable
   gather_facts: false

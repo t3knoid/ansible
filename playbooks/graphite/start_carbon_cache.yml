@@ -1,4 +1,7 @@
 ---
+
+# Purpose: Start the carbon-cache service on Graphite hosts
+
 - name: Start carbon-cache
   hosts: graphite
   gather_facts: false

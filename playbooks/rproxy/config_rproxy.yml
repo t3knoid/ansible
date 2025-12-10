@@ -1,5 +1,9 @@
 ---
 
+# Purpose: Configures Reverse Proxy for specified sites.
+# rproxy_setup_sites variable should be defined in the inventory
+# or host_vars.
+
 - name: Configure Reverse Proxy
   hosts: rproxy
   become: true

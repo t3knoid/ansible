@@ -1,4 +1,7 @@
 ---
+
+# Purpose: Upgrades the operating system of virtual machines.
+
 - name: Upgrade a VM Operating System
   hosts: vms
   gather_facts: true

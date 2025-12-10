@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Create PostgreSQL database for Semaphore UI application.
+
 - name: Create Semaphore UI postgresql database
   hosts: pgdb
   become: true

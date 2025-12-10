@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Starts all media services.
+
 - name: Start sabnzbd
   ansible.builtin.import_playbook: start_sabnzbd.yml
   

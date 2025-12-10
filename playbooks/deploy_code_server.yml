@@ -1,5 +1,6 @@
 ---
 
+# Purpose: Deploy and configure code-server on target hosts
 - name: Install and configure code-server
   hosts: code_server
   become: true

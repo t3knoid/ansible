@@ -1,5 +1,8 @@
 ---
 
+# Purpose: Deploy Minecraft Bedrock server
+
+- name: Deploy Bedrock Server
 - hosts: bedrock
   become: true
 

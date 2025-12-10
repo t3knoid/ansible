@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Deploys and configures autofs on designated servers.
+
 - name: Deploy autofs
   hosts: autofs
   become: true

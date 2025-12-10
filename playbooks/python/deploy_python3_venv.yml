@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Deploy Python3 virtual environment on python hosts.
+
 - name: Install Python3 Environment
   hosts: python
   gather_facts: true

@@ -1,3 +1,7 @@
+---
+
+# Purpose: Install Ceph storage cluster on Proxmox nodes
+
 - name: Deploy Ceph to Proxmox nodes
   hosts: ceph_nodes
   become: true

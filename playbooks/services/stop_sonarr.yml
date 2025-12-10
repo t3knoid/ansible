@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Stops Sonarr service
+
 - name: Stop sonarr
   hosts: sonarr
   become: true

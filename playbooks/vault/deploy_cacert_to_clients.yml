@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Deploys the Vault CA public certificate to all Vault client machines.
+
 - name: Deploy Vault CA public certificate to vault clients
   hosts: vault_clients
   become: true

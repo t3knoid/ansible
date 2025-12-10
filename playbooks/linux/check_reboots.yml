@@ -1,4 +1,7 @@
 ---
+
+# Purpose: Check for recent reboots on Linux hosts
+
 - name: Check Reboots
   hosts: linux
   gather_facts: false
@@ -6,6 +9,7 @@
     - name: Check for recent reboots
       ansible.builtin.command: who -b
       register: recent_reboots
+      changed_when: false
 
     - name: Print recent reboots
       ansible.builtin.debug:

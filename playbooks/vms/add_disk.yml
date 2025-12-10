@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Adds additional disks to virtual machines.
+
 - name: Add disks to VM
   hosts: vms
   gather_facts: false

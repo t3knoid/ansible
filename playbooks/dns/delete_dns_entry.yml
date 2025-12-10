@@ -1,5 +1,7 @@
 ---
 
+# Purpose: Delete local DNS entries in Pi-hole for VMs, Synology, and Proxmox nodes
+
 - name: Update Pi-hole local DNS
   hosts: vms, synology, pvenodes
   gather_facts: false

@@ -1,6 +1,8 @@
 ---
 
-- name: Create postgresql database
+# Purpose: Create Radarr PostgreSQL database.
+
+- name: Create Radarr postgresql database
   hosts: pgdb
   become: true
   gather_facts: true

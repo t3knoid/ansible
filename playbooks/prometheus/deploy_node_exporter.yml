@@ -1,3 +1,7 @@
+---
+
+# Purpose: Deploy Node Exporter on Prometheus hosts
+
 - name: Deploy Node Exporter
   hosts: prometheus
   become: true
