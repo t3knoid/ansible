@@ -1,4 +1,7 @@
 ---
+
+# Login as admin and create an API token for future requests
+
 - name: Read admin password from file system
   no_log: true
   ansible.builtin.slurp:
@@ -27,12 +30,12 @@
   register: semaphoreui_setup_login_response
 
 # Create a token for the admin user to use for future requests
-# If for some reason the playbook fails after this point, make sure to manually 
+# If for some reason the playbook fails after this point, make sure to manually
 # expire the token in the UI
 - name: Create a new user token
   no_log: true
   ansible.builtin.uri:
-    url:  "{{ semaphoreui_setup_api_base }}/user/tokens"
+    url: "{{ semaphoreui_setup_api_base }}/user/tokens"
     method: POST
     headers:
       Content-Type: application/json

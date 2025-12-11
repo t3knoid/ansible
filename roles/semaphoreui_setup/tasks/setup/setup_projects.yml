@@ -1,7 +1,10 @@
 ---
 
+# Sets up projects in Semaphore UI 
+# This should not be called directly, only via main.yml
+
 - name: Extract project metadata only
-  set_fact:
+  ansible.builtin.set_fact:
     semaphoreui_setup_projects_to_create: >-
       {{
         semaphoreui_setup_projects |
@@ -28,7 +31,7 @@
   register: semaphore_setup_existing_projects
 
 - name: Set list of existing project names
-  set_fact:
+  ansible.builtin.set_fact:
     semaphore_existing_project_names: "{{ semaphore_setup_existing_projects.json | map(attribute='name') | list }}"
 
 # Create projects only if they do not already exist, skipping any that are present in semaphore_existing_project_names
@@ -51,7 +54,7 @@
   when: item.name not in semaphore_existing_project_names
 
 - name: Show created projects
-  debug:
+  ansible.builtin.debug:
     var: item.json.name
   loop: "{{ semaphore_projects_created.results }}"
   loop_control:
@@ -74,15 +77,21 @@
   register: semaphore_setup_existing_projects
 
 - name: Set list of existing project names again for later use
-  set_fact:
+  ansible.builtin.set_fact:
     semaphore_existing_project_names: "{{ semaphore_setup_existing_projects.json | map(attribute='name') | list }}"
 
 - name: Set list of project names and corresponding ids for later use
-  set_fact:
-    semaphoreui_setup_project_ids: "{{ dict(semaphore_setup_existing_projects.json | map(attribute='name') | list | zip(semaphore_setup_existing_projects.json | map(attribute='id') | list)) }}"
+  ansible.builtin.set_fact:
+    semaphoreui_setup_project_ids: >-
+      {{
+        dict(
+          semaphore_setup_existing_projects.json | map(attribute='name') | list |
+          zip(semaphore_setup_existing_projects.json | map(attribute='id') | list)
+        )
+      }}
 
 - name: Loop through all projects
-  include_tasks: setup_project.yml
+  ansible.builtin.include_tasks: setup/setup_project.yml
   loop: "{{ semaphoreui_setup_project_ids | dict2items }}"
   loop_control:
     label: "{{ project_info.key }}"

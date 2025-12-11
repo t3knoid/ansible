@@ -1,5 +1,7 @@
 ---
 
+# Sets up task templates in Semaphore UI
+# Includes setup_template.yml to set up each individual template
 # This should not be called directly, only via setup_projects.yml
 
 - name: Parse existing task templates names
@@ -8,9 +10,9 @@
       {{
         retrieved_templates| map(attribute='name') | list
       }}
-   
+
 - name: Loop through templates in project {{ current_project_name }}
-  ansible.builtin.include_tasks: setup_template.yml
+  ansible.builtin.include_tasks: setup/setup_template.yml
   loop: "{{ project_data_to_add.templates }}"
   loop_control:
     label: "{{ template_to_add.name }}"
