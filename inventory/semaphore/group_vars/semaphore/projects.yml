@@ -1,0 +1,8 @@
+---
+
+semaphoreui_setup_projects_meta:
+  - name: "Home Lab"
+    alert_enabled: false
+    alert: false
+    alert_chat: ""
+    max_parallel_tasks: 0

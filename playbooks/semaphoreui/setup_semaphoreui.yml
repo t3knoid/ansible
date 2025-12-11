@@ -13,4 +13,4 @@
     - name: Import semaphoreui_setup role setup tasks
       ansible.builtin.import_role:
         name: semaphoreui_setup
-        tasks_from: setup_main.yml
+        tasks_from: setup/main.yml
