@@ -6,4 +6,4 @@ autofs_nfs_mounts:
   - mount_name: backups
     server: 192.168.2.250:/mnt/Data/backups_ex
     mount_options: -rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys
-semaphoreui_setup_projects: []
+semaphoreui_setup_projects: [] # This will be built during setup
