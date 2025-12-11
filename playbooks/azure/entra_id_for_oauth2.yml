@@ -7,4 +7,5 @@
   become: true
   roles:
     - global
+    - azure_cli_setup
     - entra_id_oauth2
