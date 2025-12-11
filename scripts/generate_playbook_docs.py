@@ -106,6 +106,8 @@ def main():
     index_entries = []
     folder_entries = defaultdict(list)
 
+    playbooks_dir = Path("playbooks")
+
     # Optional parameter: single playbook path
     if len(sys.argv) > 1:
         playbook_path = Path(sys.argv[1])
