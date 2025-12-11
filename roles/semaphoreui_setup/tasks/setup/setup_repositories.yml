@@ -1,5 +1,6 @@
 ---
 
+# Sets up repositories in Semaphore UI
 # This should not be called directly, only via setup_project.yml
 
 - name: Get ID of the key named "None"
@@ -17,7 +18,7 @@
         retrieved_repos | map(attribute='name') | list
       }}
 
-- name: Create repositories in project {{ current_project_name }} if not already present
+- name: Create repositories in project {{ current_project_name }}
   ansible.builtin.uri:
     url: "{{ semaphoreui_setup_api_base }}/project/{{ current_project_id }}/repositories"
     method: POST

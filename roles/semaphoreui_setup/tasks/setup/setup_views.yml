@@ -1,5 +1,6 @@
 ---
 
+# Sets up views in Semaphore UI
 # This should not be called directly, only via setup_project.yml
 
 - name: Parse existing view names
@@ -9,7 +10,7 @@
         retrieved_views | map(attribute='title') | list
       }}
 
-- name: Create views in project {{ current_project_name }} if not already present
+- name: Create views if not already present in project {{ current_project_name }} 
   ansible.builtin.uri:
     url: "{{ semaphoreui_setup_api_base }}/project/{{ current_project_id }}/views"
     method: POST

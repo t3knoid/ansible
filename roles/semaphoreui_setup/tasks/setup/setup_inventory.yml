@@ -1,24 +1,25 @@
 ---
 
+# Sets up a single inventory in Semaphore UI
 # This should not be called directly, only via setup_inventories.yml
 
 - name: Get the credentials id
   ansible.builtin.set_fact:
-    keystore_id: "{{ (project_keys | selectattr('name', 'equalto', project_inventory_to_add.credentials) ) | map(attribute='id') | first }}"
+    keystore_id: "{{ (project_keys | selectattr('name', 'equalto', project_inventory_to_add.credentials)) | map(attribute='id') | first }}"
   when: project_inventory_to_add.credentials is defined and (project_inventory_to_add.credentials | default([]) | length > 0)
 
 - name: Set project ID payload
-  set_fact:
-    keystore_id_payload: "{{ { 'ssh_key_id': (keystore_id  | int) } }}"
+  ansible.builtin.set_fact:
+    keystore_id_payload: "{{ {'ssh_key_id': (keystore_id  | int)} }}"
 
 - name: Extract inventory metadata and create new payload for api body
-  set_fact:
+  ansible.builtin.set_fact:
     inventory_api_body_payload: >-
       {{
         project_inventory_to_add |
         dict2items |
         rejectattr('key', 'in', ['credentials','sudo_credentials']) |
-        items2dict 
+        items2dict
       }}
 
 - name: Parse existing inventories names
@@ -28,7 +29,7 @@
         project_inventories | map(attribute='name') | list
       }}
 
-- name: Create inventory {{ project_inventory_to_add.name }} if not already present
+- name: Create inventory {{ project_inventory_to_add.name }}
   ansible.builtin.uri:
     url: "{{ inventory_api_url }}"
     method: POST
@@ -39,8 +40,8 @@
     body_format: json
     body: >-
       {{
-        inventory_api_body_payload | 
-        combine(project_id_payload) | 
+        inventory_api_body_payload |
+        combine(project_id_payload) |
         combine(keystore_id_payload)
       }}
     status_code: 201

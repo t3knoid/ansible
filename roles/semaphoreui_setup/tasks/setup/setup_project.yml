@@ -1,6 +1,8 @@
 ---
 
 # This should not be called directly, only via setup_project.yml
+# Configures a project in Semaphore UI by adding views, keystores, repositories,
+# inventories, and task templates
 
 - name: Set current project data
   ansible.builtin.set_fact:
@@ -99,12 +101,12 @@
   register: retrieved_templates_response
 
 - name: Add project views
-  include_tasks: setup_views.yml
+  ansible.builtin.include_tasks: setup_views.yml
   vars:
-      current_project_id: "{{ project_id }}"
-      current_project_name: "{{ project_name }}"
-      project_data_to_add: "{{ project_data }}"
-      retrieved_views: "{{ retrieved_views_response.json }}"
+    current_project_id: "{{ project_id }}"
+    current_project_name: "{{ project_name }}"
+    project_data_to_add: "{{ project_data }}"
+    retrieved_views: "{{ retrieved_views_response.json }}"
   when: project_data.views is defined and (project_data.views | default([])  | length > 0)
 
 - name: Update existing views
@@ -123,12 +125,12 @@
   register: retrieved_views_response
 
 - name: Add project key stores
-  include_tasks: setup_keystores.yml
+  ansible.builtin.include_tasks: setup_keystores.yml
   vars:
-      current_project_id: "{{ project_id }}"
-      current_project_name: "{{ project_name }}"
-      project_data_to_add: "{{ project_data }}"
-      retrieved_keys: "{{ retrieved_keys_response.json }}"
+    current_project_id: "{{ project_id }}"
+    current_project_name: "{{ project_name }}"
+    project_data_to_add: "{{ project_data }}"
+    retrieved_keys: "{{ retrieved_keys_response.json }}"
   when: project_data.keystores is defined and (project_data.keystores | default([])  | length > 0)
 
 - name: Update existing keys
@@ -147,13 +149,13 @@
   register: retrieved_keys_response
 
 - name: Add project repositories
-  include_tasks: setup_repositories.yml
+  ansible.builtin.include_tasks: setup_repositories.yml
   vars:
-      current_project_id: "{{ project_id }}"
-      current_project_name: "{{ project_name }}"
-      project_data_to_add: "{{ project_data }}"
-      retrieved_repos: "{{ retrieved_repos_response.json }}"
-      retrieved_keys: "{{ retrieved_keys_response.json }}"
+    current_project_id: "{{ project_id }}"
+    current_project_name: "{{ project_name }}"
+    project_data_to_add: "{{ project_data }}"
+    retrieved_repos: "{{ retrieved_repos_response.json }}"
+    retrieved_keys: "{{ retrieved_keys_response.json }}"
   when: project_data.repositories is defined and (project_data.repositories | default([])  | length > 0)
 
 - name: Update existing repositories
@@ -169,7 +171,7 @@
   register: retrieved_repos_response
 
 - name: Add project inventories
-  include_tasks: setup_inventories.yml
+  ansible.builtin.include_tasks: setup_inventories.yml
   vars:
       current_project_id: "{{ project_id }}"
       current_project_name: "{{ project_name }}"
@@ -195,7 +197,7 @@
   register: retrieved_inventories_response
 
 - name: Add project task templates
-  include_tasks: setup_templates.yml
+  ansible.builtin.include_tasks: setup_templates.yml
   vars:
     current_project_id: "{{ project_info.value }}"
     current_project_name: "{{ project_info.key }}"
@@ -207,4 +209,3 @@
     retrieved_repos: "{{ retrieved_repos_response.json }}"
     retrieved_environments: "{{ retrieved_environments_response.json }}"
   when: project_data.templates is defined and (project_data.templates | default([])  | length > 0)
-  
