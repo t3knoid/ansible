@@ -36,7 +36,8 @@ _No constant variables found._
 _No handlers defined._
 
 ## 🔗 Dependencies
-_No dependencies listed._
+- `global`
+- `azure_cli_setup`
 
 ## 🚀 Example Usage
 ```yaml
