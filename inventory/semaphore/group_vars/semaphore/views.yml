@@ -1,0 +1,12 @@
+---
+
+semaphoreui_setup_projects_views:
+  "Home Lab":
+    - title: "Linux Checks"
+    - title: "Security Updates"
+    - title: "Backups"
+    - title: "Semaphore"
+    - title: "Certs"
+    - title: "Deploys"
+    - title: "Update Checks"
+    - title: "Reboots"

@@ -1,0 +1,7 @@
+---
+
+semaphoreui_setup_projects_repositories:
+  "Home Lab":
+    - name: "Ansible"
+      git_url: "https://github.com/t3knoid/ansible.git"
+      git_branch: "main"
