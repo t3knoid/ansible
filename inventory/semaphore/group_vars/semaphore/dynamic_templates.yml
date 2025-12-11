@@ -1,0 +1,57 @@
+---
+
+dynamic_template_sets:
+  "Home Lab":
+    - name_prefix: "Check connection to"
+      playbook: "playbooks/linux/check_connection.yml"
+      inventories:
+        - redmine
+        - ombi
+        - plex
+        - dns
+        - minecraft
+        - pg
+        - rproxy
+        - semaphore
+        - prometheus
+        - grafana
+      view: "Linux Checks"
+      credentials:
+        - "Ansible vault password"
+      repository: "Ansible"
+      environment: "Empty"
+    - name_prefix: "Deploy security updates to"
+      playbook: "playbooks/linux/deploy_updates.yml"
+      inventories:
+        - plex
+        - ombi
+        - services
+        - pg
+        - dns
+        - minecraft
+        - redmine
+        - rproxy
+        - ansible
+        - semaphore
+        - prometheus
+        - grafana
+      view: "Security Updates"
+      credentials:
+        - "Ansible vault password"
+      repository: "Ansible"
+      environment: "Empty"
+    - name_prefix: "Reboot"
+      playbook: "playbooks/vms/reboot_vm.yml"
+      inventories:
+        - services
+        - semaphore
+        - rproxy
+        - minecraft
+        - redmine
+        - ombi
+        - plex
+      view: "Reboots"
+      credentials:
+        - "Ansible vault password"
+      repository: "Ansible"
+      environment: "Empty"

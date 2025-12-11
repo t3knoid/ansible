@@ -1,6 +1,5 @@
 ---
-
-# Set up Semaphore UI using its api
+# Set up Semaphore UI using its API
 # https://docs.semaphoreui.com/administration-guide/api/
 
 # The inventory list is the same for all ansible projects. The
@@ -24,10 +23,6 @@
   loop: "{{ inventory_files }}"
   when: item is match('^.*/[^/]+/inventory.ini$')
 
-- name: Show semaphoreui_setup_inventories
-  ansible.builtin.debug:
-    var: semaphoreui_setup_inventories
-
 - name: Login as admin and create an API token for future requests
   ansible.builtin.include_tasks: setup/create_api_token.yml
   when: semaphoreui_setup_api_token is not defined
@@ -35,30 +30,62 @@
 - name: Get list of existing users from Semaphore UI
   ansible.builtin.include_tasks: setup/enum_users.yml
 
-- name: Build full Semaphore UI project structure
+- name: Initialize full Semaphore UI project structure
   ansible.builtin.set_fact:
     semaphoreui_setup_projects: []
 
-- name: Build full semaphoreui_setup_projects structure
+- name: Build projects with static templates
   ansible.builtin.set_fact:
-    semaphoreui_setup_projects: "{{ semaphoreui_setup_projects + [merged] }}"
-  vars:
-    merged:
-      name: "{{ item.name }}"
-      alert_enabled: "{{ item.alert_enabled }}"
-      alert: "{{ item.alert }}"
-      alert_chat: "{{ item.alert_chat }}"
-      max_parallel_tasks: "{{ item.max_parallel_tasks }}"
-      repositories: "{{ semaphoreui__setup_projects_repositories[item.name] | default([]) }}"
-      keystores: "{{ semaphoreui_setup_projects_keystores[item.name] | default([]) }}"
-      views: "{{ semaphoreui_setup_projects_views[item.name] | default([]) }}"
-      templates: "{{ semaphoreui_setup_projects_templates[item.name] | default([]) }}"
+    semaphoreui_setup_projects: >-
+      {{
+        semaphoreui_setup_projects_meta
+        | map('combine', {
+            'repositories': semaphoreui_setup_projects_repositories[item.name] | default([]),
+            'keystores': semaphoreui_setup_projects_keystores[item.name] | default([]),
+            'views': semaphoreui_setup_projects_views[item.name] | default([]),
+            'templates': semaphoreui_setup_projects_templates[item.name] | default([])
+          })
+        | list
+      }}
   loop: "{{ semaphoreui_setup_projects_meta }}"
+  loop_control:
+    loop_var: item
 
-- name: Loop through all the projects in Semaphore UI and set them up
-  ansible.builtin.include_tasks: setup/setup_projects.yml
+- name: Append dynamic template sets to projects (per project)
+  ansible.builtin.set_fact:
+    semaphoreui_setup_projects: >-
+      {{
+        semaphoreui_setup_projects
+        | map(
+            'combine',
+            {
+              'templates': (
+                (item.templates | default([])) +
+                (dynamic_template_sets.get(item.name, [])
+                  | extract_templates_for_project(
+                      semaphoreui_setup_inventories | map(attribute='name') | list,
+                      item.name
+                    )
+                )
+              )
+            }
+          )
+        | list
+      }}
+  loop: "{{ semaphoreui_setup_projects }}"
+  loop_control:
+    loop_var: item
 
-# If the playbook fails before this point, make sure to manually expire the token in the UI
+- name: Debug final project structure
+  ansible.builtin.debug:
+    var: semaphoreui_setup_projects
+
+
+# # Include setup tasks for projects
+# - name: Loop through all the projects in Semaphore UI and set them up
+#   ansible.builtin.include_tasks: setup/setup_projects.yml
+
+# Expire the admin token if playbook fails before this point
 - name: Expire the token
   ansible.builtin.uri:
     url: "{{ semaphoreui_setup_api_base }}/user/tokens/{{ semaphoreui_setup_api_token }}"
