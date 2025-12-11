@@ -1,6 +1,7 @@
 import sys
 from pathlib import Path
 import yaml
+import re
 from collections import defaultdict
 
 def get_playbook_purpose(playbook_path: Path) -> str:
@@ -14,9 +15,9 @@ def get_playbook_purpose(playbook_path: Path) -> str:
 
     for line in lines:
         stripped = line.strip()
-        if not stripped:  # skip blank lines
+        if not stripped:
             continue
-        if stripped == "---":  # skip YAML doc marker
+        if stripped == "---":
             continue
         if stripped.startswith("#"):
             text = stripped.lstrip("#").strip()
@@ -60,23 +61,18 @@ def get_roles(playbook_path: Path) -> list:
                                 roles.append(role_name)
     return roles
 
-
 def sanitize_purpose(text: str) -> str:
     """Sanitize purpose for safe Markdown table rendering."""
     if not text:
         return ""
-    # Collapse newlines into spaces
     sanitized = " ".join(text.splitlines())
-    # Escape pipe characters
     sanitized = sanitized.replace("|", "\\|")
-    # Strip leading/trailing whitespace
     sanitized = sanitized.strip()
-    # Fix malformed Markdown links (ensure [text](url) stays intact)
     sanitized = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", r"[\1](\2)", sanitized)
     return sanitized
 
 def generate_playbook_markdown(playbook_path: Path, playbooks_dir: Path):
-    """Generate README.md content for a playbook."""
+    """Generate documentation content for a playbook."""
     purpose = get_playbook_purpose(playbook_path)
     roles = get_roles(playbook_path)
 
@@ -100,7 +96,13 @@ def generate_playbook_markdown(playbook_path: Path, playbooks_dir: Path):
     return "\n".join(lines), purpose, rel_path
 
 def main():
-    playbooks_dir = Path("playbooks")
+    # Ensure docs/ exists
+    Path("docs").mkdir(exist_ok=True)
+
+    # Ensure docs/playbooks/ exists
+    docs_dir = Path("docs/playbooks")
+    docs_dir.mkdir(parents=True, exist_ok=True)
+
     index_entries = []
     folder_entries = defaultdict(list)
 
@@ -110,26 +112,32 @@ def main():
         if not playbook_path.exists():
             print(f"Playbook {playbook_path} not found.")
             sys.exit(1)
+
         markdown, purpose, rel_path = generate_playbook_markdown(playbook_path, playbooks_dir)
-        readme_path = playbook_path.with_suffix(".md")
-        readme_path.write_text(markdown)
-        print(f"Generated README for {playbook_path}")
+        output_path = docs_dir / rel_path.with_suffix(".md").name
+        output_path.write_text(markdown)
+        print(f"Generated documentation for {playbook_path}")
         return
 
-    # Otherwise, process all playbooks recursively
+    # Process all playbooks recursively
     for playbook_path in playbooks_dir.rglob("*.yml"):
         try:
             markdown, purpose, rel_path = generate_playbook_markdown(playbook_path, playbooks_dir)
-            readme_path = playbook_path.with_suffix(".md")
-            readme_path.write_text(markdown)
+
+            # Write documentation to docs/playbooks/
+            output_path = docs_dir / rel_path.with_suffix(".md").name
+            output_path.write_text(markdown)
+
             index_entries.append({
                 "path": rel_path,
                 "purpose": purpose
             })
+
             folder_entries[playbook_path.parent].append({
                 "path": playbook_path.name,
                 "purpose": purpose
             })
+
         except ValueError as e:
             print(e)
 
@@ -137,7 +145,7 @@ def main():
     root_entries = [e for e in index_entries if len(e["path"].parts) == 1]
     sub_entries = [e for e in index_entries if len(e["path"].parts) > 1]
 
-    # Write global index
+    # Write global index → docs/playbooks/README.md
     index_lines = ["# 📚 Playbook Index\n"]
 
     if root_entries:
@@ -145,33 +153,36 @@ def main():
         index_lines.append("| Playbook | Purpose |")
         index_lines.append("|----------|---------|")
         for entry in sorted(root_entries, key=lambda x: str(x["path"]).lower()):
-            md_path = str(entry["path"]).replace(".yml", ".md")
+            md_path = entry["path"].with_suffix(".md").name
             purp = sanitize_purpose(entry["purpose"])
-            index_lines.append(f"| [`{entry['path']}`]({md_path}) | {entry['purp']} |")
+            index_lines.append(f"| [`{entry['path']}`]({md_path}) | {purp} |")
 
     if sub_entries:
         index_lines.append("\n## 📂 Playbooks in subfolders\n")
         index_lines.append("| Playbook Path | Purpose |")
         index_lines.append("|---------------|---------|")
         for entry in sorted(sub_entries, key=lambda x: str(x["path"]).lower()):
-            md_path = str(entry["path"]).replace(".yml", ".md")
+            md_path = entry["path"].with_suffix(".md").name
             purp = sanitize_purpose(entry["purpose"])
-            index_lines.append(f"| [`{entry['path']}`]({md_path}) | {entry['purp']} |")
+            index_lines.append(f"| [`{entry['path']}`]({md_path}) | {purp} |")
 
-    (playbooks_dir / "README.md").write_text("\n".join(index_lines))
+    (docs_dir / "README.md").write_text("\n".join(index_lines))
 
-    # Write folder-level indexes (skip root playbooks/ folder)
+    # Write folder-level indexes (inside playbooks/* folders)
     for folder, entries in folder_entries.items():
         if folder == playbooks_dir:
             continue
+
         rel_folder = folder.relative_to(playbooks_dir)
         lines = [f"# 📚 Playbooks in `{rel_folder}`\n"]
         lines.append("| Playbook | Purpose |")
         lines.append("|----------|---------|")
+
         for entry in sorted(entries, key=lambda x: x["path"].lower()):
             md_path = entry["path"].replace(".yml", ".md")
             purp = sanitize_purpose(entry["purpose"])
-            lines.append(f"| [`{entry['path']}`]({md_path}) | {entry['purp']} |")
+            lines.append(f"| [`{entry['path']}`](../../docs/playbooks/{md_path}) | {purp} |")
+
         (folder / "README.md").write_text("\n".join(lines))
 
 if __name__ == "__main__":
