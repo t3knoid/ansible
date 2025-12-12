@@ -168,7 +168,11 @@ def main():
             purp = sanitize_purpose(entry["purpose"])
             index_lines.append(f"| [`{entry['path']}`]({md_path}) | {purp} |")
 
+    # Write global index to docs/playbooks/README.md
     (docs_dir / "README.md").write_text("\n".join(index_lines))
+
+    # Also write a mirror index to playbooks/README.md
+    (Path("playbooks") / "README.md").write_text("\n".join(index_lines))
 
     # Write folder-level indexes (inside playbooks/* folders)
     for folder, entries in folder_entries.items():
@@ -186,6 +190,6 @@ def main():
             lines.append(f"| [`{entry['path']}`](../../docs/playbooks/{md_path}) | {purp} |")
 
         (folder / "README.md").write_text("\n".join(lines))
-
+        
 if __name__ == "__main__":
     main()
