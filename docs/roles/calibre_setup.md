@@ -16,7 +16,7 @@ Installs and configures Calibre eBook management software. It uses a Docker imag
 | Variable | Default Value | Description |
 |----------|---------------|-------------|
 | `calibre_setup_config_dir` | `"/config/calibre"` |  |
-| `calibre_setup_version` | `8.13.0-ls368` |  |
+| `calibre_setup_version` | `8.16.2` |  |
 | `calibre_setup_docker_image_name` | `"calibre:{{ calibre_setup_version }}"` |  |
 | `calibre_setup_mount_point` | `/nfs/backups` |  |
 | `calibre_setup_backup_prefix` | `"calibre_"` |  |
