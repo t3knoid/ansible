@@ -1,0 +1,29 @@
+---
+
+# Purpose: Generate Let’s Encrypt certbot certificates for every domain
+
+- name: Generate Let’s Encrypt certbot certificates for every domain
+  hosts: certs
+  gather_facts: false
+  become: true
+  vars:
+    inventory_dir_root: "{{ lookup('ansible.builtin.config','DEFAULT_HOST_LIST')[0] }}"
+    roles_dir_root: "{{ lookup('ansible.builtin.config','DEFAULT_ROLES_PATH')[0] }}"
+  roles:
+    - global
+    - certs
+
+  pre_tasks:
+    - name: Consolidate rproxy_setup_sites
+      refol.general.consolidate_variable:
+        inventory_dir: "{{ inventory_dir_root }}"
+        roles_dir: "{{ roles_dir_root }}"
+        target_var: rproxy_setup_sites
+        debug: false
+      register: consolidated_rproxy_setup_sites
+      delegate_to: localhost
+
+    - name: Set rproxy_setup_sites
+      ansible.builtin.set_fact:
+        rproxy_setup_sites: "{{ consolidated_rproxy_setup_sites.result }}"
+      delegate_to: localhost

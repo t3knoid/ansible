@@ -47,3 +47,4 @@
     loop_var: site
   register: certs_certbot_output
   changed_when: false
+  ignore_errors: true

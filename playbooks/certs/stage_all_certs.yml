@@ -1,0 +1,34 @@
+---
+
+# Purpose: Stage all certificates on the cert staging host in preparation for use by reverse proxy and other services
+
+- name: Stage certificates for every domain
+  hosts: certs
+  gather_facts: false
+  become: true
+  vars:
+    inventory_dir_root: "{{ lookup('ansible.builtin.config','DEFAULT_HOST_LIST')[0] }}"
+    roles_dir_root: "{{ lookup('ansible.builtin.config','DEFAULT_ROLES_PATH')[0] }}"
+  roles:
+    - global
+
+  pre_tasks:
+    - name: Consolidate rproxy_setup_sites
+      refol.general.consolidate_variable:
+        inventory_dir: "{{ inventory_dir_root }}"
+        roles_dir: "{{ roles_dir_root }}"
+        target_var: rproxy_setup_sites
+        debug: false
+      register: consolidated_rproxy_setup_sites
+      delegate_to: localhost
+
+    - name: Set rproxy_setup_sites
+      ansible.builtin.set_fact:
+        rproxy_setup_sites: "{{ consolidated_rproxy_setup_sites.result }}"
+      delegate_to: localhost
+
+  tasks:
+    - name: Include stage.yml from certs role
+      ansible.builtin.import_role:
+        name: certs
+        tasks_from: stage.yml
