@@ -26,7 +26,9 @@
 | [`baremetal/shutdown.yml`](shutdown.md) | Unconditionally shut down baremetal machine with all defaults |
 | [`certbot/deploy_certbot.yml`](deploy_certbot.md) | Deploy Certbot on target hosts |
 | [`certs/distribute_pve_certs.yml`](distribute_pve_certs.md) | Distribute web certificates from cert staging host to Proxmox nodes |
+| [`certs/generate_all_certs.yml`](generate_all_certs.md) | Generate Let’s Encrypt certbot certificates for every domain |
 | [`certs/generate_certs.yml`](generate_certs.md) | Generate Let’s Encrypt certbot certificates on the cert staging host |
+| [`certs/stage_all_certs.yml`](stage_all_certs.md) | Stage all certificates on the cert staging host in preparation for use by reverse proxy and other services |
 | [`certs/stage_certs.yml`](stage_certs.md) | Stage certificates on the cert staging host in preparation for use by reverse proxy and other services |
 | [`dns/add_cname_entry.yml`](add_cname_entry.md) | Add CNAME entries to Pi-hole DNS server |
 | [`dns/add_dns_entry.yml`](add_dns_entry.md) | Update local DNS entries in Pi-hole for VMs, Synology, and Proxmox nodes |
