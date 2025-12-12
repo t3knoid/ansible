@@ -1,3 +1,0 @@
----
-
-rproxy_setup_sites: "{{ 'inventory' | consolidate_rproxy_setup_sites }}" 
