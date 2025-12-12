@@ -30,5 +30,5 @@ autofs_nfs_mounts:
     container_path: /backups
 
 calibreweb_setup_version: 0.6.25 # https://hub.docker.com/r/linuxserver/calibre-web
-calibre_setup_version: 8.15.0 # see https://hub.docker.com/r/linuxserver/calibre
+calibre_setup_version: 8.16.2 # see https://hub.docker.com/r/linuxserver/calibre
 lazylibrarian_setup_version: 488271c5 # see https://hub.docker.com/r/linuxserver/lazylibrarian
