@@ -7,8 +7,8 @@ The following is a snippet of how the source is structured.
 ``` bash
 ├── README.md
 ├── ansible.cfg
+├── docs
 ├── filter_plugins
-├── generate_role_docs.py
 ├── inventory
 │   ├── semaphore
 │   │   ├── group_vars
@@ -29,72 +29,44 @@ The following is a snippet of how the source is structured.
 │   │   ├── create_db.yml
 │   │   ├── deploy_semaphoreui.yml
 │   │   └── setup_semaphoreui.yml
-└── roles
-    ├── README.md
-    ├── global
-    ├── README.md
-    ├── defaults
-    │   └── main
-    │   ├── main.yml
-    │   └── vault.yml
-    ├── meta
-    │   └── main.yml
-    ├── tasks
-    │   └── main.yml
-    └── vars
-        └── main.yml
+├──roles
+│    ├── README.md
+│    ├── global
+│    ├── README.md
+│    ├── defaults
+│    │   └── main
+│    │   ├── main.yml
+│    │   └── vault.yml
+│    ├── meta
+│    │   └── main.yml
+│    ├── tasks
+│    │   └── main.yml
+│    └── vars
+│        └── main.yml
+└── scripts
 ```
 
 These are the main root folders essential to running an Ansible playbook.
 
-- filter_plugins
-- inventory
-- playbooks
-- roles
+| folder | Description           |
+|--------|-----------------------|
+| docs           | Documentation |
+| filter_plugins | Custom filter plugins |
+| inventory      | Ansible inventory |
+| playbooks      | Ansible playbooks |
+| roles          | Ansible roles |
+| scripts        | Custom scripts |
 
 ## Roles
 
-Roles documentation are available in each role folder inside a README.md file. The README.md file is automatically generated using the [generate_role_docs.py](generate_role_docs.py) script located in the root of the repository.
-
-An index of the roles is listed inside the root of the roles/ folder. It is aptly named [README.md](roles/README.md) as well.
-
-The role documentation is generated from metadata information inside each role's meta/main.yml file. Here is an example using the ansible_setup role's metadata file.
-
-``` bash
----
-galaxy_info:
-  role_name: global
-  author: Francis Refol
-  description: Provides tasks to install and configure Ansible on a control node.
-  license: MIT
-  min_ansible_version: "2.9"
-  platforms:
-    - name: EL
-      versions:
-        - "7"
-        - "8"
-    - name: Ubuntu
-      versions:
-        - bionic
-        - focal
-```
-
-Along with this information, the script also extracts all default and static variables in the role. A comment that precedes a variable is assumed to be a comment related to the variable.
-
-Execute the generate_role_docs.py to generate the role documentation.
-
-``` bash
-python scripts/generate_role_docs.py 
-```
-
-## Inventory
-
-TBD
+Roles documentation are available in docs/roles. A README.md file serves as an index to the roles. The role index is also available in roles/README.md. Roles documentation is generated using the [generate_role_docs.py](scripts/generate_role_docs.py). This is automatically executed in GitHub whenever code is commited using GitHub actions. This process is documented in [generate_role_docs.md](docs/scripts/generate_role_docs.md).
 
 ## Playbooks
 
-TBD
+Roles documentation are available in docs/playbooks. A README.md file serves as an index to the playbooks. The playbook index is also available in playbooks/README.md. Playbook documentation is generated using the [generate_playbook_docs.py](scripts/generate_playbook_docs.py). This is automatically executed in GitHub whenever code is commited using GitHub actions. This process is documented in [generate_playbook_docs.md](docs/scripts/generate_playbook_docs.md).
+
+## Inventory
 
 ## Filter Plugins
 
-TBD
+## Scripts
