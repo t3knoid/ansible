@@ -5,6 +5,7 @@ Installs Calibre application.
 
 ## 🔗 Roles Applied
 - [`global`](../roles/global/README.md)
+- [`python3`](../roles/python3/README.md)
 - [`users`](../roles/users/README.md)
 - [`autofs`](../roles/autofs/README.md)
 - [`docker_setup`](../roles/docker_setup/README.md)
