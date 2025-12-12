@@ -1,0 +1,12 @@
+# 📖 Playbook: services/start_sonarr.yml
+
+## 🛠 Purpose
+Start Sonarr service
+
+## 🔗 Roles Applied
+- [`global`](../roles/global/README.md)
+
+## 🚀 Usage
+```bash
+ansible-playbook playbooks/services/start_sonarr.yml
+```
