@@ -104,7 +104,27 @@ inventory/README.md
 
 ---
 
-### 4. **Single-inventory debug mode**
+### 4. **Highlight inventories with multiple hosts**
+
+To help contributors spot inventories with multiple hosts:
+
+* Inventories with **more than one host** are flagged with a 📌 pin next to their name in the global index.
+* Example:
+
+```markdown
+| Inventory | Description |
+|-----------|-------------|
+| [`ad`](ad.md) 📌 | Inventory for `ad` hosts |
+| [`plex`](plex.md) | Inventory for `plex` hosts |
+| [`minecraft`](minecraft.md) 📌 | Inventory for `minecraft` hosts |
+```
+
+* This draws attention to larger inventories without adding extra columns.
+* It helps identify inventories where duplicate hosts or complex group structures may exist.
+
+---
+
+### 5. **Single-inventory debug mode**
 
 To debug a specific inventory file:
 
@@ -118,7 +138,7 @@ python scripts/generate_inventory_docs.py --inventory inventory/ad/inventory.ini
 
 ---
 
-### 5. **Commit and push changes from the workflow**
+### 6. **Commit and push changes from the workflow**
 
 The GitHub Action automatically:
 
@@ -151,6 +171,7 @@ No manual editing of the documentation files is required.
 
   * `docs/inventory/<inventory>.md` per inventory
   * Updated global index in `docs/inventory/README.md` and `inventory/README.md`
+* Inventories with multiple hosts will be visually flagged with 📌
 
 ---
 
@@ -174,6 +195,7 @@ After committing:
 * `docs/inventory/ombi.md` is generated
 * Global host index updated in `docs/inventory/README.md` and `inventory/README.md`
 * Duplicate hosts (if any) are logged as warnings
+* If `ombi` contained multiple hosts, a 📌 pin appears next to it in the global index
 
 ---
 
@@ -190,6 +212,5 @@ The automation handles:
 * Markdown documentation for each inventory
 * Global host index
 * Duplicate host detection and strict mode enforcement
+* Multi-host inventories flagged with 📌
 * Updates to the root inventory README
-
-All handled automatically via the GitHub Action workflow.
