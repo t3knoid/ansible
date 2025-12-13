@@ -1,4 +1,4 @@
-name: Generate Ansible Playbook Docs
+name: Generate Ansible Inventory Docs
 
 on:
   push:
