@@ -38,7 +38,7 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add inventory/README.md docs/inventory/README.md docs/inventory/*.md
+          git add inventories/README.md docs/inventories/README.md docs/inventories/*.md
           if ! git diff --cached --quiet; then
             git commit -m "chore(docs): auto-generate inventory documentation"
             git push origin HEAD:${{ github.ref }}
