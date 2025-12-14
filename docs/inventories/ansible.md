@@ -71,8 +71,8 @@ _No group variables defined._
 
 ### `rproxy`
 - `rproxy_primary`
-- `rproxy_secondary`
 - `rproxy_main`
+- `rproxy_secondary`
 
 ### `cname`
 - `code_server`
