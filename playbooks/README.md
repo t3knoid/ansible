@@ -89,6 +89,7 @@
 | [`redmine/backup_db.yml`](backup_db.md) | Backup Redmine database to NFS share. |
 | [`redmine/create_db.yml`](create_db.md) | Create PostgreSQL database for Redmine application. |
 | [`redmine/deploy_redmine.yml`](deploy_redmine.md) | Deploy Redmine application on redmine hosts. |
+| [`redmine/mirror_wiki.yml`](mirror_wiki.md) | Mirror Redmine wiki to GitHub |
 | [`rproxy/config_rproxy.yml`](config_rproxy.md) | Configures Reverse Proxy for specified sites. rproxy_setup_sites variable should be defined in the inventory or host_vars. |
 | [`rproxy/deploy_rproxy.yml`](deploy_rproxy.md) | Sets up Reverse Proxy on rproxy hosts. |
 | [`ruby/deploy_ruby.yml`](deploy_ruby.md) | Installs Ruby on ruby hosts. |
