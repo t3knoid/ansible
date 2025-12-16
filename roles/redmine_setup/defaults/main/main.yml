@@ -23,3 +23,19 @@ redmine_setup_mount_point: /nfs/backups
 redmine_setup_backup_prefix: "redmine_"
 redmine_setup_backup_filename: "{{ redmine_setup_backup_prefix }}{{ ansible_date_time.date }}.sqlc"
 redmine_setup_backup_path: "{{ redmine_setup_mount_point }}/{{ redmine_setup_backup_filename }}"
+
+# Wiki mirror settings
+# Redmine setup defaults
+
+redmine_setup_wiki_mirror_repo_path: "/data/redmine/wiki-mirror/repo"
+redmine_setup_wiki_mirror_extension: "md"
+redmine_setup_wiki_mirror_debug: false
+# Redmine API access
+redmine_setup_url: "https://homelab.refol.us"
+redmine_setup_project: "home-lab"
+
+# GitHub repo (HTTPS)
+redmine_setup_wiki_mirror_repo_url: "https://github.com/t3knoid/homelab.git"
+redmine_setup_wiki_mirror_repo_path_remote: "t3knoid/homelab.git"
+
+# See vault for redmine_setup_api_key and redmine_setup_github_token
