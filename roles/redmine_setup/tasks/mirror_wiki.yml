@@ -18,12 +18,14 @@
     api_key: "{{ redmine_setup_api_key }}"
     output_dir: "{{ redmine_setup_wiki_mirror_repo_path }}"
     filename_extension: "{{ redmine_setup_wiki_mirror_extension }}"
+    rewrite_links: true
     delete_stale: true
+
     debug: "{{ redmine_setup_wiki_mirror_debug }}"
   register: redmine_setup_wiki_mirror
 
 - name: Stage wiki mirror changes # noqa: command-instead-of-module
-  ansible.builtin.command: git add -A
+  ansible.builtin.command: git add -A --verbose
   args:
     chdir: "{{ redmine_setup_wiki_mirror_repo_path }}"
   register: redmine_setup_staged_files
