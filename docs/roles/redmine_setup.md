@@ -32,6 +32,13 @@ Redmine Setup installs and configures an [Redmine](https://www.redmine.org/). Th
 | `redmine_setup_backup_prefix` | `"redmine_"` |  |
 | `redmine_setup_backup_filename` | `"{{ redmine_setup_backup_prefix }}{{ ansible_date_time.date }}.sqlc"` |  |
 | `redmine_setup_backup_path` | `"{{ redmine_setup_mount_point }}/{{ redmine_setup_backup_filename }}"` |  |
+| `redmine_setup_wiki_mirror_repo_path` | `"/data/redmine/wiki-mirror/repo"` | Redmine setup defaults |
+| `redmine_setup_wiki_mirror_extension` | `"md"` |  |
+| `redmine_setup_wiki_mirror_debug` | `false` |  |
+| `redmine_setup_url` | `"https://homelab.refol.us"` | Redmine API access |
+| `redmine_setup_project` | `"home-lab"` |  |
+| `redmine_setup_wiki_mirror_repo_url` | `"https://github.com/t3knoid/homelab.git"` | GitHub repo (HTTPS) |
+| `redmine_setup_wiki_mirror_repo_path_remote` | `"t3knoid/homelab.git"` |  |
 
 ## 📦 Vars
 _No constant variables found._
@@ -63,13 +70,11 @@ _No constant variables found._
 
 ## 🔔 Handlers
 - Restart PostgreSQL
+- Commit wiki mirror changes
+- Push wiki mirror changes over HTTPS
 
 ## 🔗 Dependencies
-- `global`
-- `users`
-- `postgresql_setup`
-- `ruby_setup`
-- `postgresql_setup`
+_No dependencies listed._
 
 ## 🚀 Example Usage
 ```yaml
