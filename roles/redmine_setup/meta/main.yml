@@ -20,9 +20,3 @@ galaxy_info:
       versions:
         - bionic
         - focal
-dependencies:
-  - role: global
-  - role: users
-  - role: postgresql_setup
-  - role: ruby_setup
-  - role: postgresql_setup

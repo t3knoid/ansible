@@ -1,0 +1,27 @@
+---
+
+- name: Ensure wiki mirror repo is cloned (HTTPS)
+  ansible.builtin.git:
+    repo: "{{ redmine_setup_wiki_mirror_repo_url }}"
+    dest: "{{ redmine_setup_wiki_mirror_repo_path }}"
+    version: main
+    force: true
+  environment:
+    GIT_ASKPASS: /bin/echo
+    GIT_USERNAME: "token"
+    GIT_PASSWORD: "{{ redmine_setup_github_token }}"
+
+- name: Mirror Redmine wiki into local Git repo
+  refol.general.redmine_wiki_mirror:
+    redmine_url: "{{ redmine_setup_url }}"
+    project: "{{ redmine_setup_project }}"
+    api_key: "{{ redmine_setup_api_key }}"
+    output_dir: "{{ redmine_setup_wiki_mirror_repo_path }}"
+    filename_extension: "{{ redmine_setup_wiki_mirror_extension }}"
+    delete_stale: true
+    debug: "{{ redmine_setup_wiki_mirror_debug }}"
+  register: redmine_setup_wiki_mirror
+  notify:
+    - Stage wiki mirror changes 
+    - Commit wiki mirror changes
+    - Push wiki mirror changes over HTTPS

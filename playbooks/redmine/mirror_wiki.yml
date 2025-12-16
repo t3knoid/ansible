@@ -1,0 +1,14 @@
+---
+
+# Purpose: Mirror Redmine wiki to GitHub
+
+- name: Mirror Redmine wiki to GitHub
+  hosts: redmine
+  gather_facts: true
+  become: true
+
+  tasks:
+    - name: Import mirror_wiki task file
+      ansible.builtin.import_role:
+        name: redmine_setup
+        tasks_from: mirror_wiki.yml
