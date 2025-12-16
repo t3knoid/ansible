@@ -21,7 +21,13 @@
     delete_stale: true
     debug: "{{ redmine_setup_wiki_mirror_debug }}"
   register: redmine_setup_wiki_mirror
+
+- name: Stage wiki mirror changes # noqa: command-instead-of-module
+  ansible.builtin.command: git add -A
+  args:
+    chdir: "{{ redmine_setup_wiki_mirror_repo_path }}"
+  register: redmine_setup_staged_files
+  changed_when: redmine_setup_staged_files.stdout != ""
   notify:
-    - Stage wiki mirror changes 
     - Commit wiki mirror changes
     - Push wiki mirror changes over HTTPS
