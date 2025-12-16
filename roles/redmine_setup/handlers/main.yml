@@ -6,12 +6,6 @@
     state: restarted
   delegate_to: "{{ redmine_setup_pg_host }}"
 
-- name: Stage wiki mirror changes # noqa: command-instead-of-module
-  ansible.builtin.command: git add -A
-  args:
-    chdir: "{{ redmine_setup_wiki_mirror_repo_path }}"
-  changed_when: false
-
 - name: Commit wiki mirror changes # noqa: command-instead-of-module
   ansible.builtin.command: git commit -am "Mirror Redmine wiki"
   args:
