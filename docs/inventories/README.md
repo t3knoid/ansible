@@ -30,43 +30,43 @@
 ## 🖥 Global Host Index
 | Host | Inventories | Groups |
 |------|-------------|--------|
-| `ad0` | [`ad`](ad.md) | dc_master, cname, vms |
-| `ansible-0` | [`dns`](dns.md), [`ansible`](ansible.md) | ansible, vscode, python, azure_cli, linux, code_server, nginx, vault_clients |
+| `ad0` | [`ad`](ad.md) | vms, cname, dc_master |
+| `ansible-0` | [`ansible`](ansible.md), [`dns`](dns.md) | ruby, vscode, ansible, code_server, linux, vault_clients, python, nginx, azure_cli |
 | `ansible-1` | [`ansible`](ansible.md) | ansible, python, linux, nginx, pgclient |
-| `books-0` | [`services`](services.md) | cname, vms, autofs, lazylibrarian, calibreweb, calibre, linux |
-| `dns-0` | [`dns`](dns.md) | secondary_dns, vms, python, dns, linux |
-| `dns-1` | [`dns`](dns.md) | cname, vault_servers, python, baremetal, dns, pxe_client, linux, primary_dns |
-| `grafana-0` | [`grafana`](grafana.md) | cname, vms, autofs, python, grafana, linux, removable |
-| `graphite-0` | [`graphite`](graphite.md) | graphite, vms, python, nginx_setup_proxy, pgdb |
-| `jenkins-0` | [`jenkins`](jenkins.md) | jenkins, cname, vms, python, removable |
-| `lidarr-0` | [`services`](services.md) | lidarr, cname, vms, autofs, linux |
-| `minecraft-1` | [`minecraft`](minecraft.md) | cname, vms, python, bedrock, linux |
-| `ombi-0` | [`ombi`](ombi.md) | cname, vms, autofs, python, linux, pgclient |
-| `pg-0` | [`pg`](pg.md), [`ombi`](ombi.md) | autofs, pgdb, python, vms |
-| `pg-1` | [`pg`](pg.md), [`services`](services.md) | autofs, python, vms, pgdb |
-| `pg-2` | [`pg`](pg.md), [`redmine`](redmine.md) | autofs, pgdb, python, vms |
-| `pg-3` | [`pg`](pg.md), [`semaphore`](semaphore.md) | autofs, pgdb, python, vms |
-| `pg-4` | [`grafana`](grafana.md), [`pg`](pg.md) | autofs, pgdb, python, vms |
-| `plex-0` | [`plex`](plex.md) | lamp, cname, autofs, baremetal, python, wikipedia, plex, pxe_client, linux |
-| `prometheus-0` | [`prometheus`](prometheus.md) | cname, vms, autofs, python, prometheus, linux |
-| `pve-0` | [`pve`](pve.md) | pvenodes, cname, ceph_nodes |
-| `pve-1` | [`pve`](pve.md) | pvenodes, ceph_nodes |
-| `pve-2` | [`pve`](pve.md) | pvenodes, cname, template, ceph_nodes |
-| `pxe-0` | [`pxe`](pxe.md), [`dns`](dns.md), [`plex`](plex.md) | pxe, vms |
-| `radarr-0` | [`services`](services.md) | cname, vms, autofs, linux, radarr |
-| `redmine-0` | [`redmine`](redmine.md) | ruby, cname, redmine, autofs, linux, removable |
-| `rproxy-0` | [`ad`](ad.md), [`jenkins`](jenkins.md), [`pve`](pve.md), [`ombi`](ombi.md), [`ansible`](ansible.md), [`redmine`](redmine.md), [`semaphore`](semaphore.md), [`rproxy`](rproxy.md), [`truenas`](truenas.md), [`plex`](plex.md), [`grafana`](grafana.md), [`prometheus`](prometheus.md), [`tautulli`](tautulli.md), [`synology`](synology.md), [`services`](services.md) | certbot, cname, vms, rproxy_main, python, redis, oauth2_proxy, certs, linux |
-| `rproxy-1` | [`ad`](ad.md), [`jenkins`](jenkins.md), [`pve`](pve.md), [`ombi`](ombi.md), [`ansible`](ansible.md), [`redmine`](redmine.md), [`semaphore`](semaphore.md), [`rproxy`](rproxy.md), [`truenas`](truenas.md), [`plex`](plex.md), [`grafana`](grafana.md), [`prometheus`](prometheus.md), [`tautulli`](tautulli.md), [`synology`](synology.md), [`services`](services.md) | python, linux, rproxy_primary, vms |
-| `rproxy-2` | [`ad`](ad.md), [`jenkins`](jenkins.md), [`pve`](pve.md), [`ombi`](ombi.md), [`ansible`](ansible.md), [`redmine`](redmine.md), [`semaphore`](semaphore.md), [`rproxy`](rproxy.md), [`truenas`](truenas.md), [`plex`](plex.md), [`grafana`](grafana.md), [`prometheus`](prometheus.md), [`tautulli`](tautulli.md), [`synology`](synology.md), [`services`](services.md) | python, rproxy_secondary, linux, vms |
-| `sabnzbd-0` | [`services`](services.md) | cname, vms, autofs, sabnzbd, linux |
-| `semaphore-0` | [`semaphore`](semaphore.md) | ansible, semaphore, cname, vms, autofs, python, linux, nginx, pgclient |
-| `sonarr-0` | [`services`](services.md) | cname, vms, autofs, linux, sonarr |
-| `synology-0` | [`synology`](synology.md) | synology, cname |
-| `tautulli-0` | [`tautulli`](tautulli.md) | python, cname, linux, vms |
+| `books-0` | [`services`](services.md) | autofs, calibre, lazylibrarian, vms, cname, calibreweb, linux |
+| `dns-0` | [`dns`](dns.md) | secondary_dns, dns, vms, python, linux |
+| `dns-1` | [`dns`](dns.md) | baremetal, primary_dns, dns, cname, python, linux, pxe_client, vault_servers |
+| `grafana-0` | [`grafana`](grafana.md) | autofs, removable, vms, cname, linux, python, grafana |
+| `graphite-0` | [`graphite`](graphite.md) | nginx_setup_proxy, vms, python, pgdb, graphite |
+| `jenkins-0` | [`jenkins`](jenkins.md) | jenkins, removable, vms, cname, python |
+| `lidarr-0` | [`services`](services.md) | autofs, lidarr, vms, cname, linux |
+| `minecraft-1` | [`minecraft`](minecraft.md) | vms, bedrock, cname, python, linux |
+| `ombi-0` | [`ombi`](ombi.md) | autofs, vms, cname, linux, python, pgclient |
+| `pg-0` | [`ombi`](ombi.md), [`pg`](pg.md) | vms, pgdb, autofs, python |
+| `pg-1` | [`services`](services.md), [`pg`](pg.md) | vms, python, autofs, pgdb |
+| `pg-2` | [`pg`](pg.md), [`redmine`](redmine.md) | vms, pgdb, autofs, python |
+| `pg-3` | [`pg`](pg.md), [`semaphore`](semaphore.md) | vms, pgdb, autofs, python |
+| `pg-4` | [`pg`](pg.md), [`grafana`](grafana.md) | vms, pgdb, autofs, python |
+| `plex-0` | [`plex`](plex.md) | autofs, lamp, baremetal, wikipedia, plex, cname, linux, python, pxe_client |
+| `prometheus-0` | [`prometheus`](prometheus.md) | prometheus, autofs, vms, cname, linux, python |
+| `pve-0` | [`pve`](pve.md) | ceph_nodes, cname, pvenodes |
+| `pve-1` | [`pve`](pve.md) | ceph_nodes, pvenodes |
+| `pve-2` | [`pve`](pve.md) | template, cname, ceph_nodes, pvenodes |
+| `pxe-0` | [`pxe`](pxe.md), [`plex`](plex.md), [`dns`](dns.md) | vms, pxe |
+| `radarr-0` | [`services`](services.md) | radarr, autofs, vms, cname, linux |
+| `redmine-0` | [`redmine`](redmine.md) | autofs, ruby, removable, cname, linux, redmine |
+| `rproxy-0` | [`ad`](ad.md), [`pve`](pve.md), [`truenas`](truenas.md), [`ombi`](ombi.md), [`prometheus`](prometheus.md), [`services`](services.md), [`plex`](plex.md), [`ansible`](ansible.md), [`jenkins`](jenkins.md), [`tautulli`](tautulli.md), [`rproxy`](rproxy.md), [`synology`](synology.md), [`semaphore`](semaphore.md), [`grafana`](grafana.md), [`redmine`](redmine.md) | certs, rproxy_main, vms, redis, cname, linux, python, oauth2_proxy, certbot |
+| `rproxy-1` | [`ad`](ad.md), [`pve`](pve.md), [`truenas`](truenas.md), [`ombi`](ombi.md), [`prometheus`](prometheus.md), [`services`](services.md), [`plex`](plex.md), [`ansible`](ansible.md), [`jenkins`](jenkins.md), [`tautulli`](tautulli.md), [`rproxy`](rproxy.md), [`synology`](synology.md), [`semaphore`](semaphore.md), [`grafana`](grafana.md), [`redmine`](redmine.md) | vms, python, rproxy_primary, linux |
+| `rproxy-2` | [`ad`](ad.md), [`pve`](pve.md), [`truenas`](truenas.md), [`ombi`](ombi.md), [`prometheus`](prometheus.md), [`services`](services.md), [`plex`](plex.md), [`ansible`](ansible.md), [`jenkins`](jenkins.md), [`tautulli`](tautulli.md), [`rproxy`](rproxy.md), [`synology`](synology.md), [`semaphore`](semaphore.md), [`grafana`](grafana.md), [`redmine`](redmine.md) | vms, python, rproxy_secondary, linux |
+| `sabnzbd-0` | [`services`](services.md) | autofs, sabnzbd, vms, cname, linux |
+| `semaphore-0` | [`semaphore`](semaphore.md) | autofs, ansible, vms, cname, linux, python, nginx, semaphore, pgclient |
+| `sonarr-0` | [`services`](services.md) | autofs, vms, cname, linux, sonarr |
+| `synology-0` | [`synology`](synology.md) | cname, synology |
+| `tautulli-0` | [`tautulli`](tautulli.md) | vms, python, cname, linux |
 | `terraform-0` | [`terraform`](terraform.md) | vms |
 | `test-0` | [`test`](test.md) | vms |
-| `truenas-01` | [`truenas`](truenas.md) | nginx, truenas, cname |
-| `ubu24-template` | [`template`](template.md) | removable, ubuntu24, template |
+| `truenas-01` | [`truenas`](truenas.md) | truenas, nginx, cname |
+| `ubu24-template` | [`template`](template.md) | template, ubuntu24, removable |
 | `util-0` | [`util`](util.md) | linux |
 
 ## ⚠️ Duplicate Hosts
