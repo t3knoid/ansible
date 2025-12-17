@@ -38,6 +38,7 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git pull
           git add roles/README.md docs/roles/README.md docs/roles/*.md
           if ! git diff --cached --quiet; then
             git commit -m "chore(docs): auto-generate role documentation"
