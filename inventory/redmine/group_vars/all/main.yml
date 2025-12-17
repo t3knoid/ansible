@@ -33,7 +33,7 @@ postgresql_setup_version: 17
 nginx_setup_disable_default_site: true
 
 rproxy_setup_sites:
-  - server_name: homelab.refol.us
+  - server_name: lab.refol.us
     port: 80
     proxy_pass: "http://{{ global_ip_addresses['redmine-0'] }}"
     allow_list:
@@ -42,6 +42,7 @@ rproxy_setup_sites:
       - 24.105.250.200
       - 70.107.117.124
     restricted: false
+    enable: true
     nginx_setup_server_extra: "rewrite ^/$ /projects/home-lab permanent;"
 
 redmine_setup_version: 6.1.0
