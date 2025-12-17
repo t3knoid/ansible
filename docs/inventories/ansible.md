@@ -51,6 +51,9 @@ _Inventory for `ansible` hosts_
 ### `redis`
 - `rproxy-0`
 
+### `ruby`
+- `ansible-0`
+
 ## ⚙️ Group Variables
 _No group variables defined._
 
@@ -70,9 +73,9 @@ _No group variables defined._
 - `ansible`
 
 ### `rproxy`
+- `rproxy_main`
 - `rproxy_secondary`
 - `rproxy_primary`
-- `rproxy_main`
 
 ### `cname`
 - `code_server`
