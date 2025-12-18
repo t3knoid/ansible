@@ -7,3 +7,8 @@ production:
       address: "{{ redmine_setup_smtp_settings_address }}"
       port: {{ redmine_setup_smtp_settings_port }}
       domain: "{{ global_domain_name }}"
+      authentication: :login
+      user_name: "{{ redmine_setup_smtp_settings_user_name }}"
+      password: "{{ redmine_setup_smtp_settings_password }}"
+      enable_starttls_auto: true
+      expires: 300

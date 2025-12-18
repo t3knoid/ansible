@@ -11,8 +11,8 @@ redmine_setup_download_url: "https://www.redmine.org/releases/{{ redmine_setup_a
 redmine_setup_www_rootdir: /var/lib/redmine
 redmine_setup_www_publicdir: "{{ redmine_setup_www_rootdir }}/public"
 redmine_setup_apache_default_conf: /etc/apache2/sites-enabled/000-default.conf
-redmine_setup_smtp_settings_address: localhost
-redmine_setup_smtp_settings_port: 25
+redmine_setup_smtp_settings_address: smtp-relay.gmail.com
+redmine_setup_smtp_settings_port: 587
 
 # See vault for the following variables
 # redmine_setup_db_name
@@ -31,7 +31,7 @@ redmine_setup_wiki_mirror_repo_path: "/data/redmine/wiki-mirror/repo"
 redmine_setup_wiki_mirror_extension: "md"
 redmine_setup_wiki_mirror_debug: false
 # Redmine API access
-redmine_setup_url: "https://homelab.refol.us"
+redmine_setup_url: "https://lab.refol.us"
 redmine_setup_project: "home-lab"
 
 # GitHub repo (HTTPS)
