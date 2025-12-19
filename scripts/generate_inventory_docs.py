@@ -4,6 +4,7 @@ import shlex
 from pathlib import Path
 from collections import defaultdict
 import argparse
+import os
 import logging
 import shutil
 
@@ -163,27 +164,49 @@ def write_inventory_index(docs_dir: Path, inventory_root: Path):
     lines = ["# 🧭 Inventory Index\n"]
     lines.append("| Inventory | Description |")
     lines.append("|-----------|-------------|")
-
+    # Build docs/inventories README (links local to docs_dir)
+    docs_lines = list(lines)
     for name, meta in sorted(INVENTORY_META.items()):
         rel_path = meta["doc_path"].relative_to(docs_dir)
-        lines.append(f"| [`{name}`]({rel_path}) | {meta['description']} |")
+        docs_lines.append(f"| [`{name}`]({rel_path.as_posix()}) | {meta['description']} |")
 
-    lines.append("\n## 🖥 Global Host Index")
-    lines.append("| Host | Inventories | Groups |")
-    lines.append("|------|-------------|--------|")
+    docs_lines.append("\n## 🖥 Global Host Index")
+    docs_lines.append("| Host | Inventories | Groups |")
+    docs_lines.append("|------|-------------|--------|")
     for host, info in sorted(HOST_INDEX.items()):
-        inv_links = [f"[`{inv}`]({INVENTORY_META[inv]['doc_path'].relative_to(docs_dir)})" for inv in info["inventories"]]
-        lines.append(f"| `{host}` | {', '.join(inv_links)} | {', '.join(info['groups'])} |")
+        inv_links = [f"[`{inv}`]({INVENTORY_META[inv]['doc_path'].relative_to(docs_dir).as_posix()})" for inv in info["inventories"]]
+        docs_lines.append(f"| `{host}` | {', '.join(inv_links)} | {', '.join(sorted(info['groups']))} |")
 
-    lines.append("\n## ⚠️ Duplicate Hosts")
-    lines.append("> **📌 Note – Duplicate Hosts**\n>\n> Hosts appearing in multiple inventories may have conflicting variables or group memberships. Contributors should review these cases and consider refactoring to maintain a single authoritative definition per host.\n> Use `--strict` mode to enforce uniqueness.\n")
+    docs_lines.append("\n## ⚠️ Duplicate Hosts")
+    docs_lines.append("> **📌 Note – Duplicate Hosts**\n>\n> Hosts appearing in multiple inventories may have conflicting variables or group memberships. Contributors should review these cases and consider refactoring to maintain a single authoritative definition per host.\n> Use `--strict` mode to enforce uniqueness.\n")
 
     docs_index_path = docs_dir / "README.md"
-    inventory_index_path = inventory_root / "README.md"
+    content_docs = "\n".join(docs_lines)
+    docs_index_path.write_text(content_docs)
 
-    content = "\n".join(lines)
-    docs_index_path.write_text(content)
-    shutil.copy(docs_index_path, inventory_index_path)
+    # Build inventory/README.md with links pointing to docs/inventories
+    # Compute relative path from inventory_root to docs_dir (e.g. "../docs/inventories")
+    rel_prefix = os.path.relpath(str(docs_dir), start=str(inventory_root))
+    inv_lines = ["# 🧭 Inventory Index\n"]
+    inv_lines.append("| Inventory | Description |")
+    inv_lines.append("|-----------|-------------|")
+    for name, meta in sorted(INVENTORY_META.items()):
+        target = (Path(rel_prefix) / meta["doc_path"].name).as_posix()
+        inv_lines.append(f"| [`{name}`]({target}) | {meta['description']} |")
+
+    inv_lines.append("\n## 🖥 Global Host Index")
+    inv_lines.append("| Host | Inventories | Groups |")
+    inv_lines.append("|------|-------------|--------|")
+    for host, info in sorted(HOST_INDEX.items()):
+        inv_links = [f"[`{inv}`]({(Path(rel_prefix) / INVENTORY_META[inv]['doc_path'].name).as_posix()})" for inv in info["inventories"]]
+        inv_lines.append(f"| `{host}` | {', '.join(inv_links)} | {', '.join(sorted(info['groups']))} |")
+
+    inv_lines.append("\n## ⚠️ Duplicate Hosts")
+    inv_lines.append(docs_lines[-3])
+
+    inventory_index_path = inventory_root / "README.md"
+    content_inv = "\n".join(inv_lines)
+    inventory_index_path.write_text(content_inv)
     logging.info(f"Global inventory index written to {docs_index_path} and {inventory_index_path}")
 
 # ------------------------------
