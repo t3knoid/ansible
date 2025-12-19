@@ -73,9 +73,9 @@ _No group variables defined._
 - `ansible`
 
 ### `rproxy`
+- `rproxy_secondary`
 - `rproxy_main`
 - `rproxy_primary`
-- `rproxy_secondary`
 
 ### `cname`
 - `code_server`
