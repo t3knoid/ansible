@@ -1,137 +1,261 @@
-#!/usr/bin/env python3
-import argparse
-from collections import defaultdict
-from configparser import ConfigParser
-from pathlib import Path
-import logging
-import sys
+# Ansible Inventory Documentation Workflow
 
-logging.basicConfig(level=logging.INFO)
+This document describes how inventory documentation is automatically generated for Ansible inventories in this repository.
+It explains how the documentation generator works, what conventions contributors must follow, and how the GitHub Action workflow integrates with this system.
 
-# Global structures
-HOST_INDEX = defaultdict(lambda: {"inventories": set(), "groups": set()})
-INVENTORY_META = {}
+The goal is to keep inventory documentation **accurate, discoverable, and self-maintaining**, with a global host index and inventory summaries generated entirely from source inventory files.
 
-def parse_ini_inventory(file_path: Path):
-    """
-    Parse an INI-style inventory file and return hosts and group mappings.
-    Hosts with inline variables are handled correctly.
-    """
-    parser = ConfigParser(allow_no_value=True, delimiters=("=",))
-    parser.optionxform = str  # preserve case
-    with file_path.open() as f:
-        content = f.read()
+---
 
-    # ConfigParser expects section headers, so prepend dummy if missing
-    if not content.strip().startswith("["):
-        content = "[all]\n" + content
+## 🐍 Python Script: `generate_inventory_docs.py`
 
-    parser.read_string(content)
+The core of this workflow is the Python script:
 
-    inventory_name = file_path.parent.name
-    INVENTORY_META[inventory_name] = {
-        "doc_path": Path(f"docs/inventory/{inventory_name}.md"),
-        "description": f"Inventory for {inventory_name}"
-    }
+```
+scripts/generate_inventory_docs.py
+```
 
-    for section in parser.sections():
-        for item in parser.items(section):
-            # Split only on first space to separate host name from variables
-            host_line = item[0]
-            host = host_line.split()[0]
-            HOST_INDEX[host]["inventories"].add(inventory_name)
-            HOST_INDEX[host]["groups"].add(section)
+This script parses Ansible inventory files, extracts hosts, groups, and variables, and generates Markdown documentation under `docs/inventory/`.
+It also builds a **global inventory index** that is mirrored into both documentation and the inventory root.
 
-def generate_inventory_markdown(inventory_name: str):
-    """Generate per-inventory Markdown documentation."""
-    doc_path = Path(f"docs/inventory/{inventory_name}.md")
-    lines = [f"# 🖥 Inventory: `{inventory_name}`\n"]
+---
 
-    lines.append("## Hosts")
-    hosts = [h for h, info in HOST_INDEX.items() if inventory_name in info["inventories"]]
-    if hosts:
-        for host in sorted(hosts):
-            groups = ", ".join(sorted(HOST_INDEX[host]["groups"]))
-            lines.append(f"- `{host}` ({groups})")
-    else:
-        lines.append("_No hosts defined._")
+## 1. Inventory Discovery & Parsing
 
-    lines.append("\n## Groups")
-    groups = set()
-    for h in hosts:
-        groups.update(HOST_INDEX[h]["groups"])
-    if groups:
-        for group in sorted(groups):
-            lines.append(f"- `{group}`")
-    else:
-        lines.append("_No groups defined._")
+### Inventory Structure
 
-    doc_path.parent.mkdir(parents=True, exist_ok=True)
-    doc_path.write_text("\n".join(lines))
+Inventories are expected to live under the `inventory/` directory and use **INI-style syntax**:
 
-def write_inventory_index(docs_dir: Path, inventory_root: Path):
-    """Generate global inventory index with 📌 pin for inventories with multiple hosts."""
-    lines = ["# 📚 Inventory Index\n", "| Inventory | Description |", "|-----------|-------------|"]
-    for name, meta in sorted(INVENTORY_META.items()):
-        # Determine host count
-        host_count = sum(1 for h, info in HOST_INDEX.items() if name in info["inventories"])
-        pin = " 📌" if host_count > 1 else ""
-        rel_path = meta["doc_path"].relative_to(docs_dir)
-        lines.append(f"| [`{name}`]({rel_path}){pin} | {meta['description']} |")
+```
+inventory/ad/inventory.ini
+inventory/dns/inventory.ini
+inventory/jenkins/inventory.ini
+```
 
-    index_content = "\n".join(lines)
-    # Write to both docs/inventory and inventory root
-    (docs_dir / "README.md").write_text(index_content)
-    (inventory_root / "README.md").write_text(index_content)
+Each inventory is treated as a **logical unit** for documentation purposes.
 
-def main():
-    parser = argparse.ArgumentParser(description="Generate Ansible inventory documentation")
-    parser.add_argument("--inventory", type=str, help="Path to single inventory file for debugging")
-    parser.add_argument("--strict", action="store_true", help="Enforce unique host definitions")
-    parser.add_argument("--debug", action="store_true", help="Enable debug output")
-    args = parser.parse_args()
+### Parsing Behavior
 
-    if args.debug:
-        logging.getLogger().setLevel(logging.DEBUG)
+The parser:
 
-    docs_dir = Path("docs/inventory")
-    docs_dir.mkdir(parents=True, exist_ok=True)
-    inventory_root = Path("inventory")
+* Reads inventory files line by line
+* Identifies:
 
-    inventory_files = []
+  * Host definitions
+  * Groups (`[group]`)
+  * Group variables (`[group:vars]`)
+  * Child groups (`[group:children]`)
+* Supports **inline host variables**, for example:
 
-    if args.inventory:
-        inv_path = Path(args.inventory)
-        if not inv_path.exists():
-            logging.error(f"Inventory file {inv_path} does not exist.")
-            sys.exit(1)
-        inventory_files = [inv_path]
-    else:
-        inventory_files = list(inventory_root.rglob("inventory.ini"))
+```
+ad0 vms_proxmox_node=pve-0 ansible_host=10.0.0.10
+```
 
-    for inv_file in inventory_files:
-        logging.debug(f"Parsing inventory file: {inv_file}")
-        parse_ini_inventory(inv_file)
+Special care is taken to ensure:
 
-    # Duplicate host detection
-    duplicates = False
-    for host, info in HOST_INDEX.items():
-        if len(info["inventories"]) > 1:
-            logging.warning(f"Duplicate host detected: {host} in inventories: {', '.join(sorted(info['inventories']))}")
-            duplicates = True
+* Variables on host lines are **not mis-parsed as additional hosts**
+* Quoted, list-like, and JSON-like values remain intact
 
-    if args.strict and duplicates:
-        logging.error("Strict mode enabled: duplicate hosts found, exiting.")
-        sys.exit(1)
+---
 
-    # Generate per-inventory docs
-    for inv_name in INVENTORY_META:
-        logging.debug(f"Generating Markdown for inventory: {inv_name}")
-        generate_inventory_markdown(inv_name)
+## 2. Per-Inventory Documentation Generation
 
-    # Generate global index
-    write_inventory_index(docs_dir, inventory_root)
-    logging.info("Inventory documentation generation complete.")
+For each inventory, the script generates a dedicated Markdown document containing:
 
-if __name__ == "__main__":
-    main()
+* Groups and their member hosts
+* Group variables (if present)
+* Host variables (if present)
+* Group child relationships (if present)
+
+These documents are written to:
+
+```
+docs/inventory/<inventory>.md
+```
+
+No documentation is written inside the inventory folders themselves.
+
+---
+
+## 3. Global Inventory Index
+
+A global index is generated that provides a repository-wide view of inventories and hosts.
+
+### Inventory Overview Table
+
+The index includes a table listing:
+
+* Inventory name
+* Inventory description
+* A 📌 **pin icon** next to inventories containing **multiple hosts**
+
+The pin subtly draws attention to larger or more complex inventories without cluttering the table.
+
+### Global Host Index
+
+A second table lists:
+
+* Each host
+* All inventories it appears in
+* All groups it belongs to
+
+This makes it easy to answer questions like:
+
+* *“Where is this host defined?”*
+* *“Which inventory owns this machine?”*
+
+### Index Locations
+
+The generated index is written to **two locations**:
+
+```
+docs/inventory/README.md
+inventory/README.md
+```
+
+This ensures the index is easily discoverable whether browsing documentation or inventory files directly.
+
+---
+
+## 4. Duplicate Host Detection
+
+While parsing, the script tracks **all host definitions across all inventories**.
+
+If a host is found in more than one inventory:
+
+* A warning is logged
+* The host is flagged in the global host index
+
+### Why This Matters
+
+Duplicate host definitions can cause:
+
+* Variable conflicts
+* Confusing group membership
+* Non-deterministic playbook behavior
+
+### 📌 Note — Duplicate Hosts
+
+> Hosts appearing in multiple inventories may have conflicting variables or group memberships.
+> Contributors should review these cases and consider refactoring inventories so each host has a single authoritative definition.
+>
+> A `--strict` mode is available to enforce this rule and fail the run when duplicates are detected.
+
+This feature is intentionally advisory by default, encouraging cleanup without immediately breaking workflows.
+
+---
+
+## 5. Multi-Host Inventory Highlighting
+
+Inventories containing more than one host are marked with a 📌 icon in the global inventory table.
+
+This provides a quick visual cue for:
+
+* Shared services
+* Clustered systems
+* Inventories that may require extra care when modifying
+
+The icon is intentionally subtle to keep the table readable.
+
+---
+
+## 6. Single Inventory Mode (Debugging)
+
+For easier debugging and development, the script supports processing **a single inventory file**:
+
+```bash
+python scripts/generate_inventory_docs.py \
+  --inventory inventory/ad/inventory.ini \
+  --debug
+```
+
+Behavior in this mode:
+
+* Only the specified inventory is parsed
+* Per-inventory documentation is generated
+* The global index is still rebuilt
+* DEBUG-level logging is enabled for easier troubleshooting
+
+---
+
+## 7. CLI Options
+
+| Option               | Description                          |
+| -------------------- | ------------------------------------ |
+| `--inventory <file>` | Process a single inventory file      |
+| `--debug`            | Enable verbose debug logging         |
+| `--strict`           | Fail if duplicate hosts are detected |
+
+---
+
+## 📂 Example Outputs
+
+### Per-Inventory Documentation
+
+```
+docs/inventory/ad.md
+```
+
+Includes:
+
+* Group → host mappings
+* Host variables
+* Group variables
+* Group children
+
+---
+
+### Global Inventory Index
+
+```
+docs/inventory/README.md
+inventory/README.md
+```
+
+Includes:
+
+* Inventory overview table (with 📌 multi-host indicators)
+* Global host index
+* Duplicate host advisory note
+
+---
+
+## ⚙️ GitHub Actions Integration
+
+This workflow is executed automatically by the **Generate Inventory Docs** GitHub Action.
+
+On every push or pull request:
+
+1. The repository is checked out
+2. Python dependencies are installed
+3. `generate_inventory_docs.py` is executed
+4. Documentation changes are committed back to the branch
+
+This ensures inventory documentation is always current and requires **no manual maintenance**.
+
+---
+
+## ✅ Contributor Expectations
+
+* Inventories must use valid INI syntax
+* Inline host variables are supported and encouraged where appropriate
+* Avoid defining the same host in multiple inventories
+* Review PR diffs — documentation updates will include:
+
+  * `docs/inventory/<inventory>.md`
+  * `docs/inventory/README.md`
+  * `inventory/README.md`
+
+---
+
+## 🧭 Summary
+
+This workflow ensures that:
+
+* Inventories remain the **single source of truth**
+* Documentation is always up-to-date
+* Duplicate hosts are visible and actionable
+* Large or complex inventories are easy to spot
+* Contributors spend less time maintaining docs and more time improving infrastructure
+
+All with zero manual documentation effort.
