@@ -26,8 +26,8 @@ Redmine Setup installs and configures an [Redmine](https://www.redmine.org/). Th
 | `redmine_setup_www_rootdir` | `/var/lib/redmine` |  |
 | `redmine_setup_www_publicdir` | `"{{ redmine_setup_www_rootdir }}/public"` |  |
 | `redmine_setup_apache_default_conf` | `/etc/apache2/sites-enabled/000-default.conf` |  |
-| `redmine_setup_smtp_settings_address` | `localhost` |  |
-| `redmine_setup_smtp_settings_port` | `25` |  |
+| `redmine_setup_smtp_settings_address` | `smtp-relay.gmail.com` |  |
+| `redmine_setup_smtp_settings_port` | `587` |  |
 | `redmine_setup_mount_point` | `/nfs/backups` | redmine_setup_db_password |
 | `redmine_setup_backup_prefix` | `"redmine_"` |  |
 | `redmine_setup_backup_filename` | `"{{ redmine_setup_backup_prefix }}{{ ansible_date_time.date }}.sqlc"` |  |
@@ -35,7 +35,7 @@ Redmine Setup installs and configures an [Redmine](https://www.redmine.org/). Th
 | `redmine_setup_wiki_mirror_repo_path` | `"/data/redmine/wiki-mirror/repo"` | Redmine setup defaults |
 | `redmine_setup_wiki_mirror_extension` | `"md"` |  |
 | `redmine_setup_wiki_mirror_debug` | `false` |  |
-| `redmine_setup_url` | `"https://homelab.refol.us"` | Redmine API access |
+| `redmine_setup_url` | `"https://lab.refol.us"` | Redmine API access |
 | `redmine_setup_project` | `"home-lab"` |  |
 | `redmine_setup_wiki_mirror_repo_url` | `"https://github.com/t3knoid/homelab.git"` | GitHub repo (HTTPS) |
 | `redmine_setup_wiki_mirror_repo_path_remote` | `"t3knoid/homelab.git"` |  |
