@@ -1,0 +1,8 @@
+---
+
+- name: Stop and disable code-server service
+  ansible.builtin.systemd:
+    name: "code-server@{{ code_server_user }}"
+    enabled: false
+    state: stopped
+    daemon_reload: true
