@@ -177,8 +177,8 @@ def main():
     ]
 
     for entry in index_entries:
+        desc = sanitize_description(entry["description"])
         readme_lines.append(
-            desc = sanitize_description(entry["description"])
             f"| `{entry['name']}` | {desc} | [View Documentation](../docs/roles/{entry['name']}.md) |"
         )
 
