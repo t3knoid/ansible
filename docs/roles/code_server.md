@@ -32,7 +32,7 @@ _No constant variables found._
 - Install code-server package
 - Create code-server config folder
 - Create code-server config.yaml
-- Enable and start code-server service
+- Disable code-server service
 - Cleanup downloaded file
 - Create or update Nginx site configuration
 - Enable Nginx site configuration
