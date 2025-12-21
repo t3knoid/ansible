@@ -172,13 +172,14 @@ def main():
     # Update roles/README.md with links to docs/roles/
     readme_lines = [
         "# 📚 Roles\n",
-        "| Role | Documentation |",
-        "|------|----------------|"
+        "| Role | Description | Documentation |",
+        "|------|-------------|----------------|"
     ]
 
     for entry in index_entries:
         readme_lines.append(
-            f"| `{entry['name']}` | [View Documentation](../docs/roles/{entry['name']}.md) |"
+            desc = sanitize_description(entry["description"])
+            f"| `{entry['name']}` | {desc} | [View Documentation](../docs/roles/{entry['name']}.md) |"
         )
 
     (roles_dir / "README.md").write_text("\n".join(readme_lines))
