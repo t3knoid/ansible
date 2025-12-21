@@ -1,0 +1,8 @@
+---
+
+- name: Enable and start code-server service
+  ansible.builtin.systemd:
+    name: "code-server@{{ code_server_user }}"
+    enabled: true
+    state: started
+    daemon_reload: true

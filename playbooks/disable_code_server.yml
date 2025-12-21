@@ -1,0 +1,13 @@
+---
+
+# Purpose: Stop and disable code-server on target hosts
+
+- name: Stop and disable code-server
+  hosts: code_server
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Include disable tasks
+      ansible.builtin.include_tasks:
+        file: ../roles/code_server/tasks/disable.yml

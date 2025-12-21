@@ -45,12 +45,9 @@
     mode: "0644"
   notify: Restart code server
 
-- name: Enable and start code-server service
-  ansible.builtin.systemd:
-    name: "code-server@{{ code_server_user }}"
-    enabled: true
-    state: started
-    daemon_reload: true
+- name: Disable code-server service
+  ansible.builtin.include_tasks:
+    file: disable.yml
 
 - name: Cleanup downloaded file
   ansible.builtin.file:

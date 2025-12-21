@@ -1,0 +1,13 @@
+---
+
+# Purpose: Start and enable code-server on target hosts
+
+- name: Start and enable code-server
+  hosts: code_server
+  become: true
+  gather_facts: true
+
+  tasks:
+    - name: Include enable tasks
+      ansible.builtin.include_tasks:
+        file: ../roles/code_server/tasks/enable.yml
