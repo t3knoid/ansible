@@ -80,10 +80,9 @@
   ansible.builtin.debug:
     var: semaphoreui_setup_projects
 
-
-# # Include setup tasks for projects
-# - name: Loop through all the projects in Semaphore UI and set them up
-#   ansible.builtin.include_tasks: setup/setup_projects.yml
+# Include setup tasks for projects
+- name: Loop through all the projects in Semaphore UI and set them up
+  ansible.builtin.include_tasks: setup/setup_projects.yml
 
 # Expire the admin token if playbook fails before this point
 - name: Expire the token
