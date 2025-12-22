@@ -59,14 +59,20 @@ These are the main root folders essential to running an Ansible playbook.
 
 ## Roles
 
-Roles documentation are available in docs/roles. A README.md file serves as an index to the roles. The role index is also available in roles/README.md. Roles documentation is generated using the [generate_role_docs.py](scripts/generate_role_docs.py). This is automatically executed in GitHub whenever code is commited using GitHub actions. This process is documented in [generate_role_docs.md](docs/scripts/generate_role_docs.md).
+Roles documentation are available in docs/roles. A [README.md](roles/README.md) file serves as an index to the roles. Roles documentation is generated using the [generate_role_docs.py](scripts/generate_role_docs.py). This is automatically executed in GitHub whenever code is commited using GitHub actions. This process is documented in [generate_role_docs.md](docs/scripts/generate_role_docs.md).
 
 ## Playbooks
 
-Roles documentation are available in docs/playbooks. A README.md file serves as an index to the playbooks. The playbook index is also available in playbooks/README.md. Playbook documentation is generated using the [generate_playbook_docs.py](scripts/generate_playbook_docs.py). This is automatically executed in GitHub whenever code is commited using GitHub actions. This process is documented in [generate_playbook_docs.md](docs/scripts/generate_playbook_docs.md).
+Roles documentation are available in docs/playbooks. A [README.md](playbooks/README.md) file serves as an index to the playbooks. Playbook documentation is generated using the [generate_playbook_docs.py](scripts/generate_playbook_docs.py). This is automatically executed in GitHub whenever code is commited using GitHub actions. This process is documented in [generate_playbook_docs.md](docs/scripts/generate_playbook_docs.md).
 
 ## Inventory
 
+Inventory documentation are available in docs/inventory. A [README.md](inventory/README.md) file serves as an index to the inventories. Inventory documentation is generated using the [generate_inventory_docs.py](scripts/generate_inventory_docs.py). This is automatically executed in GitHub whenever code is commited using GitHub actions. This process is documented in [generate_inventory_docs.md](docs/scripts/generate_inventory_docs.md).
+
 ## Filter Plugins
 
+The filter plugins folder contains user defined Ansible filter plugins. Each filter plugin is documented in the docs/filters folder.
+
 ## Scripts
+
+This folder contains scripts that are used in GitHub workflows or called from playbooks. Each script is documented in the docs/scripts folder.
