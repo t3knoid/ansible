@@ -9,33 +9,36 @@ server {
     listen [::]:80;
 {% endif %}
 
-{% if rproxy_setup_site.nginx_setup_server_extra is defined%}
-    {{ rproxy_setup_site.nginx_setup_server_extra }}
-{% endif %}
-
+{% if rproxy_setup_site.server_name == 'default_server' %}
+    server_name _;
+    return 302 https://portfolio.refol.us$request_uri;
+{% else %}
     server_name {{ rproxy_setup_site.server_name }};
-{% if rproxy_setup_is_main_proxy_host %}
-    ssl_certificate {{ nginx_setup_certroot }}/{{ rproxy_setup_site.server_name }}/fullchain.pem;
-    ssl_certificate_key {{ nginx_setup_certroot }}/{{ rproxy_setup_site.server_name }}/privkey.pem;
-    {% if rproxy_setup_site.restricted %}
-        {% for ip in rproxy_setup_site.allow_list %}
-            allow {{ ip }};
-        {% endfor %}
-        deny all;
-        satisfy any;
+    {% if rproxy_setup_site.nginx_setup_server_extra is defined%}
+        {{ rproxy_setup_site.nginx_setup_server_extra }}
     {% endif %}
-{% endif %}
+    {% if rproxy_setup_is_main_proxy_host %}
+        ssl_certificate {{ nginx_setup_certroot }}/{{ rproxy_setup_site.server_name }}/fullchain.pem;
+        ssl_certificate_key {{ nginx_setup_certroot }}/{{ rproxy_setup_site.server_name }}/privkey.pem;
+        {% if rproxy_setup_site.restricted %}
+            {% for ip in rproxy_setup_site.allow_list %}
+                allow {{ ip }};
+            {% endfor %}
+            deny all;
+            satisfy any;
+        {% endif %}
+    {% endif %}
 
     index index.html index.htm index.php;
 
     location / {
-{% if rproxy_setup_is_main_proxy_host %}
-    {% if rproxy_setup_site.restricted %}
-        # enable for basic auth
-        auth_basic "Restricted";
-        auth_basic_user_file {{ nginx_setup_homedir }}/.htpasswd;
-    {% endif %}
-    proxy_pass http://backend;
+    {% if rproxy_setup_is_main_proxy_host %}
+        {% if rproxy_setup_site.restricted %}
+            # enable for basic auth
+            auth_basic "Restricted";
+            auth_basic_user_file {{ nginx_setup_homedir }}/.htpasswd;
+        {% endif %}
+        proxy_pass http://backend;
         proxy_set_header Host $http_host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -49,29 +52,31 @@ server {
         proxy_send_timeout         90;
         proxy_read_timeout  90;
         proxy_request_buffering    off; # Required for HTTP CLI commands
-{% else %}
-        proxy_redirect {{ rproxy_setup_site.proxy_pass }}:{{ rproxy_setup_site.port }} https://{{ rproxy_setup_site.server_name }};
-        proxy_pass {{ rproxy_setup_site.proxy_pass }}:{{ rproxy_setup_site.port }};
-        proxy_set_header Origin $http_origin; # Important for CORS
-        proxy_set_header Host {{ rproxy_setup_site.server_name }};
-{% endif %}
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection $http_connection;
+    {% else %}
+            proxy_redirect {{ rproxy_setup_site.proxy_pass }}:{{ rproxy_setup_site.port }} https://{{ rproxy_setup_site.server_name }};
+            proxy_pass {{ rproxy_setup_site.proxy_pass }}:{{ rproxy_setup_site.port }};
+            proxy_set_header Origin $http_origin; # Important for CORS
+            proxy_set_header Host {{ rproxy_setup_site.server_name }};
+    {% endif %}
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection $http_connection;
 
-    }
+        }
 
-    # deny access to .htaccess/.htpasswd files
-    location ~ /\.ht {
-        deny all;
-    }
+        # deny access to .htaccess/.htpasswd files
+        location ~ /\.ht {
+            deny all;
+        }
 
-    location /.well-known/acme-challenge/ {
-        root /var/www/certbot;
-        allow all;
-    }
+        location /.well-known/acme-challenge/ {
+            root /var/www/certbot;
+            allow all;
+        }
 
-{% if rproxy_setup_site.nginx_setup_api_location_block is defined %}
-    {{ rproxy_setup_site.nginx_setup_api_location_block }}
+    {% if rproxy_setup_site.nginx_setup_api_location_block is defined %}
+        {{ rproxy_setup_site.nginx_setup_api_location_block }}
+    {% endif %}
+
 {% endif %}
 }
