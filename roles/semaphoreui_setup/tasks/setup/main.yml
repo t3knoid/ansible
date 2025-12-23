@@ -43,7 +43,8 @@
             'repositories': semaphoreui_setup_projects_repositories[item.name] | default([]),
             'keystores': semaphoreui_setup_projects_keystores[item.name] | default([]),
             'views': semaphoreui_setup_projects_views[item.name] | default([]),
-            'templates': semaphoreui_setup_projects_templates[item.name] | default([])
+            'templates': semaphoreui_setup_projects_templates[item.name] | default([]),
+            'schedules': semaphoreui_setup_projects_schedules[item.name] | default([])
           })
         | list
       }}

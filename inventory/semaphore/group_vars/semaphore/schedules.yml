@@ -1,0 +1,10 @@
+semaphoreui_setup_projects_schedules:
+  "Home Lab":
+    - name: "Semaphore Database Nightly Backup"
+      template: "Backup Semaphore Database"
+      cron: "0 3 * * *"
+      enabled: true
+    - name: "Monthly Cert Rotation"
+      template: "Request Certificates for all hosts"
+      cron: "0 4 1 * *"
+      enabled: true
