@@ -23,6 +23,12 @@ server {
 
     {{ rproxy_setup_site.nginx_setup_server_extra | default('') }}
 
+    # --- Block ChatGPT / GPTBot / Chatbot scrapers ---
+    if ($http_user_agent ~* "GPTBot|ChatGPT-User|ChatGPT") {
+        return 403;
+    }
+    # --------------------------------------------------
+
     {% if is_main %}
         ssl_certificate     {{ nginx_setup_certroot }}/{{ rproxy_setup_site.server_name }}/fullchain.pem;
         ssl_certificate_key {{ nginx_setup_certroot }}/{{ rproxy_setup_site.server_name }}/privkey.pem;
