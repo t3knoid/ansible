@@ -1,0 +1,33 @@
+---
+
+# Sets up schedules in Semaphore UI
+# Called only via setup_project.yml
+
+- name: Parse existing schedule names
+  ansible.builtin.set_fact:
+    existing_schedule_names: >-
+      {{
+        retrieved_schedules | map(attribute='name') | list
+      }}
+
+- name: Create schedules for project {{ current_project_name }}
+  ansible.builtin.uri:
+    url: "{{ semaphoreui_setup_api_base }}/project/{{ current_project_id }}/schedules"
+    method: POST
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+      Authorization: "Bearer {{ semaphoreui_setup_api_token }}"
+    body_format: json
+    body: >-
+      {{
+        schedule_to_add
+        | combine({ 'project_id': current_project_id | int })
+        | combine({ 'template_id': (existing_templates | selectattr('name', 'equalto', schedule_to_add.template) | map(attribute='id') | first | int) })
+      }}
+    status_code: 201
+  when: schedule_to_add.name not in existing_schedule_names
+  loop: "{{ project_data_to_add.schedules }}"
+  loop_control:
+    label: "{{ schedule_to_add.name }}"
+    loop_var: schedule_to_add
