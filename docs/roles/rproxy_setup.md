@@ -24,6 +24,9 @@ _No constant variables found._
 
 ## 📑 Tasks
 - Add upstream block to "{{ nginx_setup_conf }}"
+- Set rproxy_setup_site to default_server
+- Configure default_server
+- Enable default_server site
 
 ## 🔔 Handlers
 - Restart nginx
