@@ -116,3 +116,6 @@ semaphoreui_setup_email_port: "587"
 semaphoreui_setup_oidc_color: "blue"
 semaphoreui_setup_oidc_display_name: "Sign in with Azure (EntraID)"
 semaphoreui_setup_oidc_redirect_url: "https://semaphore.refol.us/api/auth/oidc/azure/redirect"
+
+# timezone
+semaphoreui_setup_timezone: "America/New_York"

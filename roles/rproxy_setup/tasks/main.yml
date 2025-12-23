@@ -18,25 +18,25 @@
 - name: Set rproxy_setup_site to default_server
   ansible.builtin.set_fact:
     rproxy_setup_site:
-      - server_name: default_server
-        port: 80
+      server_name: default_server
+      port: 80
   when: inventory_hostname in groups['rproxy_main']
 
 - name: Configure default_server
   ansible.builtin.template:
     src: site.conf.j2
-    dest: "{{ nginx_setup_sites_available }}/default_server.conf"
+    dest: "{{ nginx_setup_homedir }}/sites-available/default_server.conf"
     owner: root
     group: root
     mode: '0644'
-  notify: Reload nginx
+  notify: Restart nginx
   when: inventory_hostname in groups['rproxy_main']
 
 - name: Enable default_server site
   ansible.builtin.file:
-    src: "{{ nginx_setup_sites_available }}/default_server.conf"
-    dest: "{{ nginx_setup_sites_enabled }}/default_server.conf"
+    src: "{{ nginx_setup_homedir }}/sites-available/default_server.conf"
+    dest: "{{ nginx_setup_homedir }}/sites-enabled/default_server.conf"
     state: link
     force: true
-  notify: Reload nginx
+  notify: Restart nginx
   when: inventory_hostname in groups['rproxy_main']
