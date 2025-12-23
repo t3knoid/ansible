@@ -97,6 +97,7 @@ Installs and configures [Semaphore UI](https://docs.semaphoreui.com/).
 | `semaphoreui_setup_oidc_color` | `"blue"` | See vault for login |
 | `semaphoreui_setup_oidc_display_name` | `"Sign in with Azure (EntraID)"` |  |
 | `semaphoreui_setup_oidc_redirect_url` | `"https://semaphore.refol.us/api/auth/oidc/azure/redirect"` |  |
+| `semaphoreui_setup_timezone` | `"America/New_York"` | timezone |
 
 ## 📦 Vars
 _No constant variables found._
