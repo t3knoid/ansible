@@ -1,0 +1,9 @@
+---
+
+unbound_update_root_hints: true
+unbound_enable_logging: false
+unbound_root_hints_url: "https://www.internic.net/domain/named.cache"
+unbound_interface: "127.0.0.1"
+unbound_verbosity: 1
+unbound_port: 5335
+unbound_assert_upstream: true

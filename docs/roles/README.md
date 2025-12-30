@@ -57,6 +57,7 @@
 | [`synology`](./synology.md) | Provides tasks to manage Synology NAS devices. |
 | [`tautulli_setup`](./tautulli_setup.md) | Installs and configures an Tautulli Docker container. It uses a container distributed by [linuxserver](https://hub.docker.com/r/linuxserver/tautulli). |
 | [`terraform_setup`](./terraform_setup.md) | Installs Terraform |
+| [`unbound`](./unbound.md) | Installs and configures Unbound DNS resolver with optional logging support. |
 | [`users`](./users.md) | Provides tasks to manage system users in Ubuntu and Debian. |
 | [`vault_setup`](./vault_setup.md) | Installs and configures Hashicorp Vault |
 | [`vms`](./vms.md) | Provides tasks to manage virtual machines hosted in Proxmox VE. |
