@@ -11,13 +11,13 @@
     headers:
       sid: "{{ pihole_sid }}"
     return_content: true
-  register: result
+  register: pihole_get_cname_rec
   delegate_to: localhost
-  changed_when: result.status ==  200
+  changed_when: pihole_get_cname_rec.status ==  200
 
 - name: Include delete_session_id.yml tasks
   ansible.builtin.include_tasks: delete_session_id.yml
 
 - name: Show cname records
   ansible.builtin.debug:
-    var: result.json.config.dns.cnameRecords
+    var: pihole_get_cname_rec.json.config.dns.cnameRecords
