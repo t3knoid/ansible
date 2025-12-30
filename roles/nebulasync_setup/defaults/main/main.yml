@@ -1,12 +1,12 @@
 ---
 
-nebulasync_setup_version: 0.2.5
+nebulasync_setup_version: 0.11.1
 nebulasync_setup_archive: "nebula-sync_{{ nebulasync_setup_version }}_linux_amd64.tar.gz"
 nebulasync_setup_download: "https://github.com/lovelaze/nebula-sync/releases/download/v{{ nebulasync_setup_version }}/{{ nebulasync_setup_archive }}"
 nebulasync_setup_installdir: "/usr/local/bin"
 nebulasync_setup_envfilepath: "/etc/nebula-sync.env"
-nebulasync_setup_primary: "{{ global_ip_addresses[groups['primary_dns'][0]] }}|{{ nebulasync_setup_primary_password }}"
-nebulasync_setup_replicas: "{{ global_ip_addresses[groups['secondary_dns'][0]] }}|{{ nebulasync_setup_replicas_password }}"
+nebulasync_setup_primary: "http://{{ global_ip_addresses[groups['primary_dns'][0]] }}|{{ nebulasync_setup_primary_password }}"
+nebulasync_setup_replicas: "http://{{ global_ip_addresses[groups['secondary_dns'][0]] }}|{{ nebulasync_setup_replicas_password }}"
 
 # Settings
 
