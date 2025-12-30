@@ -14,9 +14,7 @@ This script is executed by the **Generate Ansible Role Docs** GitHub Action work
 
 ## 🐍 Python Script: `generate_role_docs.py`
 
-The script  
-[`generate_role_docs.py`](https://homelab.refol.us/projects/home-lab/repository/ansible/revisions/main/entry/scripts/generate_role_docs.py)  
-performs the following steps:
+The script performs the following steps:
 
 ---
 
