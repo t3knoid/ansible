@@ -6,45 +6,47 @@
 - name: Format each cname entries and URL-encode them
   ansible.builtin.set_fact:
     pihole_cname_entries_encoded: "{{ pihole_cname_entries_encoded | default([]) + [(item.domain ~ ',' ~ item.target) | urlencode() ] }}"
-  loop: "{{ pihole_cname_entries }}"
+  loop: "{{ pihole_cname_entries | default([]) }}"
+
+- name: Fail if no CNAME entries provided
+  ansible.builtin.fail:
+    msg: "pihole_cname_entries must be a non-empty list"
+  when: pihole_cname_entries is not defined or (pihole_cname_entries | length) == 0
 
 - name: Add cname record using Pi-hole config/dns/cnameRecords api
-  no_log: false
   ansible.builtin.uri:
     url: "http://{{ pihole_api_host }}/api/config/dns/cnameRecords/{{ item }}"
     method: PUT
     headers:
       sid: "{{ pihole_sid }}"
     return_content: true
-    status_code: [-1, 201, 400]
-  register: result_cname_op
+    status_code: [201, 400]
   delegate_to: localhost
-  loop: "{{ pihole_cname_entries_encoded }}"
+  loop: "{{ pihole_cname_entries_encoded | default([]) }}"
   loop_control:
-    pause: 5 # In order not to overwhelm the API
-  changed_when: result_cname_op.status ==  201
+    pause: 5
+  register: pihole_cname_op
+  no_log: true
+  changed_when: false
 
 - name: Add pause to wait for DNS to restart
   ansible.builtin.pause:
     seconds: 20
 
-- name: Store error message if operation is not successful
+- name: Record whether any CNAMEs were created
   ansible.builtin.set_fact:
-    pihole_error_msg: "{{ pihole_error_msg | default([]) + [{result_cname.item.split('%2C')[0]: result_cname.json.error.message}] }}"
-  when: result_cname.status != 201 and result_cname.json.error is defined
-  loop: "{{ result_cname_op.results }}"
-  loop_control:
-    label: "{{ result_cname.item }}"
-    loop_var: result_cname
+    pihole_cname_changed: "{{ (pihole_cname_op.results | selectattr('status','equalto',201) | list | length) > 0 }}"
+  when: pihole_cname_op is defined
+  changed_when: false
 
-- name: Store message if operation is not successful
+- name: Collect API error messages
   ansible.builtin.set_fact:
-    pihole_error_msg: "{{ pihole_error_msg | default([]) + [{result_cname.item.split('%2C')[0]: result_cname.msg}] }}"
-  when: result_cname.status != 201 and result_cname.json.error is not defined
-  loop: "{{ result_cname_op.results }}"
+    pihole_error_msg: "{{ pihole_error_msg | default([]) + [{ (r.item.split('%2C')[0]) : ((r.json.error.message if (r.json is defined and r.json.error is defined) else r.msg)) }] }}"
+  loop: "{{ pihole_cname_op.results | default([]) }}"
   loop_control:
-    label: "{{ result_cname.item }}"
-    loop_var: result_cname
+    loop_var: r
+    label: "{{ r.item.split('%2C')[0] }}"
+  when: r.status != 201
 
 - name: Include delete_session_id.yml tasks
   ansible.builtin.include_tasks: delete_session_id.yml

@@ -12,7 +12,7 @@
     pihole_host_entry_url_encoded: "{{ pihole_host_entry | urlencode() }}"
 
 - name: Add DNS host entry using config/dns/hosts api
-  no_log: false
+  no_log: true
   ansible.builtin.uri:
     url: "http://{{ pihole_api_host }}/api/config/dns/hosts/{{ pihole_host_entry_url_encoded }}"
     method: PUT
@@ -20,24 +20,19 @@
       sid: "{{ pihole_sid }}"
     return_content: true
     status_code: [201, 400]
-  register: result_hosts_op
+  register: pihole_result_hosts_op
   delegate_to: localhost
-  changed_when: result_hosts_op.status ==  201
+  changed_when: pihole_result_hosts_op.status ==  201
 
 - name: Store error message if operation is not successful
   ansible.builtin.set_fact:
-    pihole_error_msg: "{{ result_hosts_op.json.error.message }}"
-  when: result_hosts_op.status != 201 and result_hosts_op.json.error is defined
-
-- name: Show message if operation is not successful
-  ansible.builtin.set_fact:
-    pihole_error_msg: "{{ result_hosts_op.msg }}"
-  when: result_hosts_op.status != 201 and result_hosts_op.json.error is not defined
+    pihole_error_msg: "{{ (pihole_result_hosts_op.json.error.message if (pihole_result_hosts_op.json is defined and pihole_result_hosts_op.json.error is defined) else pihole_result_hosts_op.msg) }}"
+  when: pihole_result_hosts_op.status != 201
 
 - name: Include delete_session_id.yml tasks
   ansible.builtin.include_tasks: delete_session_id.yml
 
-- name: Add host dns entry operation failure
-  ansible.builtin.fail:
+- name: Show add host dns entry operation failure
+  ansible.builtin.debug:
     msg: "{{ pihole_error_msg }}"
-  when: result_hosts_op.status != 201
+  when: pihole_error_msg is defined

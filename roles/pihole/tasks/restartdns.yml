@@ -12,13 +12,13 @@
       sid: "{{ pihole_sid }}"
     return_content: true
     status_code: [200, 401]
-  register: result
+  register: pihole_restart
   delegate_to: localhost
-  changed_when: result.status ==  200
+  changed_when: pihole_restart.status ==  200
 
 - name: Include delete_session_id.yml tasks
   ansible.builtin.include_tasks: delete_session_id.yml
 
 - name: Show restart command result
   ansible.builtin.debug:
-    var: result.json.status
+    var: pihole_restart.json.status

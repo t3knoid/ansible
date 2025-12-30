@@ -11,11 +11,11 @@
         "password":"{{ pihole_password }}"
       }
     return_content: true
-  register: result
+  register: pihole_session_id
   delegate_to: localhost
   changed_when: false
 
 - name: Store Session ID
   ansible.builtin.set_fact:
-    pihole_sid: "{{ result.json.session.sid }}"
-  when: not result.failed | bool
+    pihole_sid: "{{ pihole_session_id.json.session.sid }}"
+  when: not pihole_session_id.failed | bool

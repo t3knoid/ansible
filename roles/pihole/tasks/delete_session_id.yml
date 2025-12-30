@@ -8,8 +8,8 @@
     headers:
       sid: "{{ pihole_sid }}"
     return_content: false
-    status_code: 204
-  register: session_delete
+    status_code: [-1, 204]
+  register: pihole_session_delete
   delegate_to: localhost
-  changed_when: session_delete.failed | bool
+  changed_when: pihole_session_delete.failed | bool
   when: pihole_sid is defined

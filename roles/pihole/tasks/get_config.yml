@@ -11,13 +11,13 @@
     headers:
       sid: "{{ pihole_sid }}"
     return_content: true
-  register: result
+  register: pihole_get_config
   delegate_to: localhost
-  changed_when: result.status ==  200
+  changed_when: pihole_get_config.status ==  200
 
 - name: Include delete_session_id.yml tasks
   ansible.builtin.include_tasks: delete_session_id.yml
 
 - name: Show Pi-hole configuration
   ansible.builtin.debug:
-    var: result
+    var: pihole_get_config
