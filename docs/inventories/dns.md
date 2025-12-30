@@ -44,6 +44,10 @@ _Inventory for `dns` hosts_
 ### `vault_clients`
 - `ansible-0`
 
+### `unbound`
+- `dns-0`
+- `dns-1`
+
 ## ⚙️ Group Variables
 _No group variables defined._
 

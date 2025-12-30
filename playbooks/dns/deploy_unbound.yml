@@ -1,0 +1,11 @@
+---
+
+# Purpose: Deploy Unbound DNS resolver
+# Based on Pi-hole documentation: https://docs.pi-hole.net/guides/dns/unbound/
+
+- name: Install Unbound DNS resolver
+  hosts: unbound
+  become: true
+  roles:
+    - global
+    - unbound

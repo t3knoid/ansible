@@ -57,6 +57,7 @@
 | `synology` | Provides tasks to manage Synology NAS devices. | [View Documentation](../docs/roles/synology.md) |
 | `tautulli_setup` | Installs and configures an Tautulli Docker container. It uses a container distributed by [linuxserver](https://hub.docker.com/r/linuxserver/tautulli). | [View Documentation](../docs/roles/tautulli_setup.md) |
 | `terraform_setup` | Installs Terraform | [View Documentation](../docs/roles/terraform_setup.md) |
+| `unbound` | Installs and configures Unbound DNS resolver with optional logging support. | [View Documentation](../docs/roles/unbound.md) |
 | `users` | Provides tasks to manage system users in Ubuntu and Debian. | [View Documentation](../docs/roles/users.md) |
 | `vault_setup` | Installs and configures Hashicorp Vault | [View Documentation](../docs/roles/vault_setup.md) |
 | `vms` | Provides tasks to manage virtual machines hosted in Proxmox VE. | [View Documentation](../docs/roles/vms.md) |
