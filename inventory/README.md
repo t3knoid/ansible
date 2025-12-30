@@ -31,7 +31,7 @@
 | Host | Inventories | Groups |
 |------|-------------|--------|
 | `ad0` | [`ad`](../docs/inventories/ad.md) | cname, dc_master, vms |
-| `ansible-0` | [`dns`](../docs/inventories/dns.md), [`ansible`](../docs/inventories/ansible.md) | ansible, azure_cli, code_server, linux, nginx, python, ruby, vault_clients, vscode |
+| `ansible-0` | [`ansible`](../docs/inventories/ansible.md), [`dns`](../docs/inventories/dns.md) | ansible, azure_cli, code_server, linux, nginx, python, ruby, vault_clients, vscode |
 | `ansible-1` | [`ansible`](../docs/inventories/ansible.md) | ansible, linux, nginx, pgclient, python |
 | `books-0` | [`services`](../docs/inventories/services.md) | autofs, calibre, calibreweb, cname, lazylibrarian, linux, vms |
 | `dns-0` | [`dns`](../docs/inventories/dns.md) | dns, linux, python, secondary_dns, vms |
@@ -42,22 +42,22 @@
 | `lidarr-0` | [`services`](../docs/inventories/services.md) | autofs, cname, lidarr, linux, vms |
 | `minecraft-1` | [`minecraft`](../docs/inventories/minecraft.md) | bedrock, cname, linux, python, vms |
 | `ombi-0` | [`ombi`](../docs/inventories/ombi.md) | autofs, cname, linux, pgclient, python, vms |
-| `pg-0` | [`pg`](../docs/inventories/pg.md), [`ombi`](../docs/inventories/ombi.md) | autofs, pgdb, python, vms |
-| `pg-1` | [`pg`](../docs/inventories/pg.md), [`services`](../docs/inventories/services.md) | autofs, pgdb, python, vms |
-| `pg-2` | [`pg`](../docs/inventories/pg.md), [`redmine`](../docs/inventories/redmine.md) | autofs, pgdb, python, vms |
+| `pg-0` | [`ombi`](../docs/inventories/ombi.md), [`pg`](../docs/inventories/pg.md) | autofs, pgdb, python, vms |
+| `pg-1` | [`services`](../docs/inventories/services.md), [`pg`](../docs/inventories/pg.md) | autofs, pgdb, python, vms |
+| `pg-2` | [`redmine`](../docs/inventories/redmine.md), [`pg`](../docs/inventories/pg.md) | autofs, pgdb, python, vms |
 | `pg-3` | [`pg`](../docs/inventories/pg.md), [`semaphore`](../docs/inventories/semaphore.md) | autofs, pgdb, python, vms |
-| `pg-4` | [`pg`](../docs/inventories/pg.md), [`grafana`](../docs/inventories/grafana.md) | autofs, pgdb, python, vms |
+| `pg-4` | [`grafana`](../docs/inventories/grafana.md), [`pg`](../docs/inventories/pg.md) | autofs, pgdb, python, vms |
 | `plex-0` | [`plex`](../docs/inventories/plex.md) | autofs, baremetal, cname, lamp, linux, plex, pxe_client, python, wikipedia |
 | `prometheus-0` | [`prometheus`](../docs/inventories/prometheus.md) | autofs, cname, linux, prometheus, python, vms |
 | `pve-0` | [`pve`](../docs/inventories/pve.md) | ceph_nodes, cname, pvenodes |
 | `pve-1` | [`pve`](../docs/inventories/pve.md) | ceph_nodes, pvenodes |
 | `pve-2` | [`pve`](../docs/inventories/pve.md) | ceph_nodes, cname, pvenodes, template |
-| `pxe-0` | [`dns`](../docs/inventories/dns.md), [`plex`](../docs/inventories/plex.md), [`pxe`](../docs/inventories/pxe.md) | pxe, vms |
+| `pxe-0` | [`pxe`](../docs/inventories/pxe.md), [`plex`](../docs/inventories/plex.md), [`dns`](../docs/inventories/dns.md) | pxe, vms |
 | `radarr-0` | [`services`](../docs/inventories/services.md) | autofs, cname, linux, radarr, vms |
 | `redmine-0` | [`redmine`](../docs/inventories/redmine.md) | autofs, cname, linux, redmine, removable, ruby |
-| `rproxy-0` | [`rproxy`](../docs/inventories/rproxy.md), [`ansible`](../docs/inventories/ansible.md), [`services`](../docs/inventories/services.md), [`grafana`](../docs/inventories/grafana.md), [`synology`](../docs/inventories/synology.md), [`truenas`](../docs/inventories/truenas.md), [`semaphore`](../docs/inventories/semaphore.md), [`prometheus`](../docs/inventories/prometheus.md), [`jenkins`](../docs/inventories/jenkins.md), [`plex`](../docs/inventories/plex.md), [`tautulli`](../docs/inventories/tautulli.md), [`pve`](../docs/inventories/pve.md), [`ombi`](../docs/inventories/ombi.md), [`redmine`](../docs/inventories/redmine.md), [`ad`](../docs/inventories/ad.md) | certbot, certs, cname, linux, oauth2_proxy, python, redis, rproxy_main, vms |
-| `rproxy-1` | [`rproxy`](../docs/inventories/rproxy.md), [`ansible`](../docs/inventories/ansible.md), [`services`](../docs/inventories/services.md), [`grafana`](../docs/inventories/grafana.md), [`synology`](../docs/inventories/synology.md), [`truenas`](../docs/inventories/truenas.md), [`semaphore`](../docs/inventories/semaphore.md), [`prometheus`](../docs/inventories/prometheus.md), [`jenkins`](../docs/inventories/jenkins.md), [`plex`](../docs/inventories/plex.md), [`tautulli`](../docs/inventories/tautulli.md), [`pve`](../docs/inventories/pve.md), [`ombi`](../docs/inventories/ombi.md), [`redmine`](../docs/inventories/redmine.md), [`ad`](../docs/inventories/ad.md) | linux, python, rproxy_primary, vms |
-| `rproxy-2` | [`rproxy`](../docs/inventories/rproxy.md), [`ansible`](../docs/inventories/ansible.md), [`services`](../docs/inventories/services.md), [`grafana`](../docs/inventories/grafana.md), [`synology`](../docs/inventories/synology.md), [`truenas`](../docs/inventories/truenas.md), [`semaphore`](../docs/inventories/semaphore.md), [`prometheus`](../docs/inventories/prometheus.md), [`jenkins`](../docs/inventories/jenkins.md), [`plex`](../docs/inventories/plex.md), [`tautulli`](../docs/inventories/tautulli.md), [`pve`](../docs/inventories/pve.md), [`ombi`](../docs/inventories/ombi.md), [`redmine`](../docs/inventories/redmine.md), [`ad`](../docs/inventories/ad.md) | linux, python, rproxy_secondary, vms |
+| `rproxy-0` | [`ad`](../docs/inventories/ad.md), [`ansible`](../docs/inventories/ansible.md), [`semaphore`](../docs/inventories/semaphore.md), [`rproxy`](../docs/inventories/rproxy.md), [`pve`](../docs/inventories/pve.md), [`prometheus`](../docs/inventories/prometheus.md), [`jenkins`](../docs/inventories/jenkins.md), [`tautulli`](../docs/inventories/tautulli.md), [`truenas`](../docs/inventories/truenas.md), [`plex`](../docs/inventories/plex.md), [`grafana`](../docs/inventories/grafana.md), [`synology`](../docs/inventories/synology.md), [`ombi`](../docs/inventories/ombi.md), [`services`](../docs/inventories/services.md), [`redmine`](../docs/inventories/redmine.md) | certbot, certs, cname, linux, oauth2_proxy, python, redis, rproxy_main, vms |
+| `rproxy-1` | [`ad`](../docs/inventories/ad.md), [`ansible`](../docs/inventories/ansible.md), [`semaphore`](../docs/inventories/semaphore.md), [`rproxy`](../docs/inventories/rproxy.md), [`pve`](../docs/inventories/pve.md), [`prometheus`](../docs/inventories/prometheus.md), [`jenkins`](../docs/inventories/jenkins.md), [`tautulli`](../docs/inventories/tautulli.md), [`truenas`](../docs/inventories/truenas.md), [`plex`](../docs/inventories/plex.md), [`grafana`](../docs/inventories/grafana.md), [`synology`](../docs/inventories/synology.md), [`ombi`](../docs/inventories/ombi.md), [`services`](../docs/inventories/services.md), [`redmine`](../docs/inventories/redmine.md) | linux, python, rproxy_primary, vms |
+| `rproxy-2` | [`ad`](../docs/inventories/ad.md), [`ansible`](../docs/inventories/ansible.md), [`semaphore`](../docs/inventories/semaphore.md), [`rproxy`](../docs/inventories/rproxy.md), [`pve`](../docs/inventories/pve.md), [`prometheus`](../docs/inventories/prometheus.md), [`jenkins`](../docs/inventories/jenkins.md), [`tautulli`](../docs/inventories/tautulli.md), [`truenas`](../docs/inventories/truenas.md), [`plex`](../docs/inventories/plex.md), [`grafana`](../docs/inventories/grafana.md), [`synology`](../docs/inventories/synology.md), [`ombi`](../docs/inventories/ombi.md), [`services`](../docs/inventories/services.md), [`redmine`](../docs/inventories/redmine.md) | linux, python, rproxy_secondary, vms |
 | `sabnzbd-0` | [`services`](../docs/inventories/services.md) | autofs, cname, linux, sabnzbd, vms |
 | `semaphore-0` | [`semaphore`](../docs/inventories/semaphore.md) | ansible, autofs, cname, linux, nginx, pgclient, python, semaphore, vms |
 | `sonarr-0` | [`services`](../docs/inventories/services.md) | autofs, cname, linux, sonarr, vms |
