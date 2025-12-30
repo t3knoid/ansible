@@ -1,0 +1,40 @@
+server:
+  verbosity: {{ unbound_verbosity | default(0) }}
+  interface: 127.0.0.1
+  port: {{ unbound_port | default(5335) }}
+  do-ip4: yes
+  do-udp: yes
+  do-tcp: yes
+  do-ip6: {{ unbound_do_ipv6 | default('yes') }}
+  prefer-ip6: no
+
+  {% if unbound_update_root_hints | default(false) %}
+  root-hints: "/var/lib/unbound/root.hints"
+  {% endif %}
+
+  harden-glue: yes
+  harden-dnssec-stripped: yes
+  use-caps-for-id: no
+  edns-buffer-size: 1232
+  prefetch: yes
+  num-threads: {{ unbound_threads | default(1) }}
+  so-rcvbuf: 1m
+
+  private-address: 192.168.0.0/16
+  private-address: 192.168.2.0/16
+  private-address: 169.254.0.0/16
+  private-address: 172.16.0.0/12
+  private-address: 10.0.0.0/8
+  private-address: fd00::/8
+  private-address: fe80::/10
+  private-address: 192.0.2.0/24
+  private-address: 198.51.100.0/24
+  private-address: 203.0.113.0/24
+  private-address: 255.255.255.255/32
+  private-address: 2001:db8::/32
+
+{% if unbound_enable_logging | default(false) %}
+  logfile: "/var/log/unbound/unbound.log"
+  log-time-ascii: yes
+  verbosity: {{ unbound_logging_verbosity | default(1) }}
+{% endif %}

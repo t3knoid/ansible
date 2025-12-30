@@ -1,0 +1,9 @@
+---
+- name: Restart unbound
+  ansible.builtin.service:
+    name: unbound
+    state: restarted
+
+- name: Reload apparmor
+  ansible.builtin.command: apparmor_parser -r /etc/apparmor.d/usr.sbin.unbound
+  changed_when: false
