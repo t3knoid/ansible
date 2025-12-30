@@ -23,8 +23,8 @@ Installs nebula-sync as documented in its [GitHub page](https://github.com/lovel
 | `nebulasync_setup_primary` | `"http://{{ global_ip_addresses[groups['primary_dns'][0]] }}|{{ nebulasync_setup_primary_password }}"` |  |
 | `nebulasync_setup_replicas` | `"http://{{ global_ip_addresses[groups['secondary_dns'][0]] }}|{{ nebulasync_setup_replicas_password }}"` |  |
 | `nebulasync_setup_settings` | `` | Settings |
-| `- { key` | `'PRIMARY', value: "{{ nebulasync_setup_primary }}" }` |  |
-| `- { key` | `'REPLICAS', value: "{{ nebulasync_setup_replicas }}" }` |  |
+| `- { key` | `'PRIMARY', value: '"{{ nebulasync_setup_primary }}"' }` |  |
+| `- { key` | `'REPLICAS', value: '"{{ nebulasync_setup_replicas }}"' }` |  |
 | `- { key` | `'CRON', value: '0 * * * *' }` |  |
 | `- { key` | `'TZ', value: 'Americas/New_York' }` |  |
 | `- { key` | `'FULL_SYNC', value: 'true' } # Settings after this are only set if FULL_SYNC=false` |  |
