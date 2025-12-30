@@ -11,8 +11,8 @@ nebulasync_setup_replicas: "http://{{ global_ip_addresses[groups['secondary_dns'
 # Settings
 
 nebulasync_setup_settings:
-  - { key: 'PRIMARY', value: "{{ nebulasync_setup_primary }}" }
-  - { key: 'REPLICAS', value: "{{ nebulasync_setup_replicas }}" }
+  - { key: 'PRIMARY', value: '"{{ nebulasync_setup_primary }}"' }
+  - { key: 'REPLICAS', value: '"{{ nebulasync_setup_replicas }}"' }
   - { key: 'CRON', value: '0 * * * *' }
   - { key: 'TZ', value: 'Americas/New_York' }
   - { key: 'FULL_SYNC', value: 'true' } # Settings after this are only set if FULL_SYNC=false
