@@ -1,10 +1,46 @@
 semaphoreui_setup_projects_schedules:
   "Home Lab":
-    - name: "Semaphore Database Nightly Backup"
+    - name: "Semaphore Database Nightly Backup (Daily 01:00)"
       template: "Backup Semaphore Database"
-      cron: "0 3 * * *"
+      cron: "0 1 * * *"
       enabled: true
-    - name: "Monthly Cert Rotation"
+    - name: "Monthly Cert Rotation (Monthly 04:00 on 1st)"
       template: "Request Certificates for all hosts"
       cron: "0 4 1 * *"
+      enabled: true
+    - name: "Ombi Database Weekly Backup (Sun 02:00)"
+      template: "Backup Ombi Database"
+      cron: "0 2 * * 0"
+      enabled: true
+    - name: "Lidarr Database Weekly Backup (Sun 02:15)"
+      template: "Backup Lidarr Database"
+      cron: "15 2 * * 0"
+      enabled: true
+    - name: "Radarr Database Weekly Backup (Sun 02:30)"
+      template: "Backup Radarr Database"
+      cron: "30 2 * * 0"
+      enabled: true
+    - name: "Sonarr Database Weekly Backup (Sun 02:45)"
+      template: "Backup Sonarr Database"
+      cron: "45 2 * * 0"
+      enabled: true
+    - name: "Tautulli Database Weekly Backup (Sun 03:00)"
+      template: "Backup Tautulli Database"
+      cron: "0 3 * * 0"
+      enabled: true
+    - name: "Grafana Database Weekly Backup (Sun 03:15)"
+      template: "Backup Grafana Database"
+      cron: "15 3 * * 0"
+      enabled: true
+    - name: "Plex Weekly Backup (Sun 03:30)"
+      template: "Backup Plex"
+      cron: "30 3 * * 0"
+      enabled: true
+    - name: "Prometheus Database Weekly Backup (Sun 03:45)"
+      template: "Backup Prometheus Database"
+      cron: "45 3 * * 0"
+      enabled: true
+    - name: "Redmine Database Nightly Backup (Daily 04:00)"
+      template: "Backup Redmine Database"
+      cron: "0 4 * * *"
       enabled: true
