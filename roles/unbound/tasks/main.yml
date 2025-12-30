@@ -1,0 +1,117 @@
+---
+# Install and configure Unbound as a local recursive DNS resolver
+# Based on Pi-hole documentation: https://docs.pi-hole.net/guides/dns/unbound
+
+- name: Ensure required packages are installed
+  ansible.builtin.apt:
+    name:
+      - unbound
+      - dns-root-data
+    state: present
+    update_cache: true
+
+- name: Optionally download updated root.hints
+  ansible.builtin.get_url:
+    url: "{{ unbound_root_hints_url }}"
+    dest: "/var/lib/unbound/root.hints"
+    mode: "0644"
+  when: unbound_update_root_hints | default(false)
+
+- name: Ensure Unbound configuration directory exists
+  ansible.builtin.file:
+    path: /etc/unbound/unbound.conf.d
+    state: directory
+    mode: "0755"
+
+- name: Deploy Pi-hole recommended Unbound configuration
+  ansible.builtin.template:
+    src: pi-hole.conf.j2
+    dest: /etc/unbound/unbound.conf.d/pi-hole.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart unbound
+
+- name: Disable unbound-resolvconf.service if present
+  ansible.builtin.systemd:
+    name: unbound-resolvconf.service
+    enabled: false
+    state: stopped
+
+- name: Check if /etc/resolvconf.conf exists
+  ansible.builtin.stat:
+    path: /etc/resolvconf.conf
+  register: unbound_resolvconf_conf
+
+- name: Disable resolvconf_resolvers.conf generation
+  when: unbound_resolvconf_conf.stat.exists
+  ansible.builtin.replace:
+    path: /etc/resolvconf.conf
+    regexp: '^unbound_conf='
+    replace: '#unbound_conf='
+  notify: Restart unbound
+
+- name: Remove resolvconf_resolvers.conf if present
+  ansible.builtin.file:
+    path: /etc/unbound/unbound.conf.d/resolvconf_resolvers.conf
+    state: absent
+  notify: Restart unbound
+
+# Optional logging support
+- name: Ensure Unbound log directory exists
+  ansible.builtin.file:
+    path: /var/log/unbound
+    state: directory
+    owner: unbound
+    group: unbound
+    mode: "0755"
+  when: unbound_enable_logging | default(false)
+  notify: Restart unbound
+
+- name: Ensure Unbound log file exists
+  ansible.builtin.file:
+    path: /var/log/unbound/unbound.log
+    state: touch
+    owner: unbound
+    group: unbound
+    mode: "0644"
+  when: unbound_enable_logging | default(false)
+
+# AppArmor exception for logging
+- name: Add AppArmor rule for Unbound logging
+  ansible.builtin.lineinfile:
+    path: /etc/apparmor.d/local/usr.sbin.unbound
+    line: "/var/log/unbound/unbound.log rw,"
+    create: true
+    mode: "0644"
+  when: unbound_enable_logging | default(false)
+  notify:
+    - Reload apparmor
+    - Restart unbound
+
+- name: Ensure Unbound service is enabled and running
+  ansible.builtin.service:
+    name: unbound
+    state: started
+    enabled: true
+
+- name: Force handlers to run
+  ansible.builtin.meta: flush_handlers
+
+- name: Verify Pi-hole is querying Unbound using dig
+  ansible.builtin.command: >
+    dig en.wikipedia.org @127.0.0.1
+  register: unbound_dig_result
+  changed_when: false
+
+- name: Show dig output
+  ansible.builtin.debug:
+    var: unbound_dig_result.stdout
+
+- name: Assert that Pi-hole forwarded to Unbound (optional)
+  ansible.builtin.assert:
+    that:
+      - "'SERVER: 127.0.0.1#5335' in unbound_dig_result.stdout or 'SERVER: 127.0.0.1#53' in unbound_dig_result.stdout"
+    fail_msg: "Pi-hole does NOT appear to be using Unbound as its upstream resolver."
+    success_msg: "Pi-hole is successfully querying Unbound."
+  when: unbound_assert_upstream | default(true)
