@@ -2,6 +2,8 @@ name: Trigger Semaphore "Setup Semaphore" Task
 
 on:
   push:
+    branches:
+      - main
     paths:
       - "inventory/semaphore/group_vars/semaphore/**"
 
