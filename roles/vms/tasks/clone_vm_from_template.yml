@@ -1,0 +1,27 @@
+---
+
+- name: Get Proxmox template information
+  ansible.builtin.include_tasks: "get_vms_proxmox_template.yml"
+  when: vms_proxmox_template is not defined
+
+- name: Clone VM from a template if VM does not exist
+  community.proxmox.proxmox_kvm:
+    api_host: "{{ global_proxmox_api_host }}"
+    api_user: "{{ global_proxmox_api_user }}"
+    api_password: "{{ global_proxmox_api_password }}"
+    node: "{{ vms_proxmox_template.node }}"
+    name: "{{ vms_name | default(inventory_hostname) }}"
+    clone: "{{ vms_proxmox_template.name }}"
+    full: true
+    storage: "{{ vms_config.storage }}"
+    format: qcow2
+    timeout: 1000
+    ostype: "{{ vms_config.ostype }}"
+    agent: true
+    state: present
+  delegate_to: localhost
+  register: vms_vm_info
+
+- name: Show vms_vm_info
+  ansible.builtin.debug:
+    var: vms_vm_info
