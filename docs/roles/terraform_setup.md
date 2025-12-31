@@ -24,8 +24,7 @@ _No constant variables found._
 
 ## 📑 Tasks
 - Install Terraform dependencies
-- Download Terraform
-- Unzip terraform.zip
+- Download and extract terraform archive
 - Make Terraform executable
 
 ## 🔔 Handlers
