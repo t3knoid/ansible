@@ -1,0 +1,9 @@
+---
+- name: Restart tinyproxy
+  service:
+    name: tinyproxy
+    state: restarted
+
+- name: Reload systemd
+  command: systemctl daemon-reload
+  changed_when: false
