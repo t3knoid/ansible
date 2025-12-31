@@ -4,7 +4,7 @@ vms_config:
   agent: "1"
   cores: "2"
   cpu: host
-  memory: 2048
+  memory: 1024
   ostype: l26
   scsihw: virtio-scsi-single
   sockets: 1
@@ -14,8 +14,11 @@ vms_config:
     backup: true
     size: 20
     storage: local
+  bridge: vmbr0
 
 vms_os: ubuntu_24_server
 vms_autoinstall: true
 vms_enable_serial_terminal: false
 vms_additional_packages: []
+
+vms_use_terraform: false

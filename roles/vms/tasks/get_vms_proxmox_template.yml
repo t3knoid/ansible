@@ -1,0 +1,29 @@
+---
+
+- name: Get a list of vms
+  ansible.builtin.uri:
+    url: 'https://{{ global_proxmox_api_host }}:8006/api2/json/cluster/resources?type=vm'
+    method: GET
+    headers:
+      Authorization: "PVEAPIToken={{ global_proxmox_api_user }}!{{ global_proxmox_api_token_id }}={{ global_proxmox_api_token }}"
+    follow_redirects: safe
+    validate_certs: false
+  register: vms_vm_list
+  delegate_to: localhost
+
+- name: Get node where virtual machine template is located
+  ansible.builtin.set_fact:
+    vms_proxmox_template: "{{ item }}"
+  with_items: "{{ vms_vm_list.json.data }}"
+  loop_control:
+    label: "{{ item.name }}"
+  when: item.name == global_os[vms_os].template
+
+- name: Fail if template does not exist
+  ansible.builtin.fail:
+    msg: "Template was not found in the Proxmox cluster. Exiting."
+  when: vms_proxmox_template is not defined
+
+- name: Show vms_proxmox_template
+  ansible.builtin.debug:
+    var: vms_proxmox_template

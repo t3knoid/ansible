@@ -1,14 +1,26 @@
 ---
 
-- name: Reboot machine and send a message
-  ansible.builtin.reboot:
-    msg: "Reboot initiated by Ansible"
-    connect_timeout: 30
+- name: Include get_vms_vmid tasks
+  ansible.builtin.include_tasks: "get_vms_vmid.yml"
 
-- name: Wait for machine to become reachable
-  ansible.builtin.wait_for:
-    host: "{{ inventory_hostname }}"
-    port: 22
-    delay: 5
-    timeout: 300
+- name: Include get_vms_proxmox_node tasks
+  ansible.builtin.include_tasks: "get_vms_proxmox_node.yml"
+  
+- name: Reboot VM
+  ansible.builtin.uri:
+    url: 'https://{{ global_proxmox_api_host }}:8006/api2/json/nodes/{{ vms_proxmox_node }}/qemu/{{ vms_vmid }}/status/reboot'
+    method: POST
+    headers:
+      Authorization: "PVEAPIToken={{ global_proxmox_api_user }}!{{ global_proxmox_api_token_id }}={{ global_proxmox_api_token }}"
+    follow_redirects: safe
+    validate_certs: false
+  delegate_to: localhost
+  when: vms_vmid is defined
+
+- name: Wait for system to become reachable after reboot
+  ansible.builtin.wait_for_connection:
+    connect_timeout: 20
+    sleep: 5 # seconds to sleep between retries
+    delay: 10 # seconds to wait before first check
+    timeout: 600 # seconds before failing
   delegate_to: localhost

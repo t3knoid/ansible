@@ -4,7 +4,7 @@
   ansible.builtin.include_tasks: "get_vms_vmid.yml"
   when: vms_vmid is not defined
 
-- name: Add second disk using linstor_storage
+- name: Add second disk
   no_log: true
   community.proxmox.proxmox_disk:
     api_host: "{{ global_proxmox_api_host }}"
@@ -20,23 +20,3 @@
     size: "{{ vms_config.disk2.size | default(20) }}"
     state: present
   delegate_to: localhost
-  when: vms_config.disk2 is defined and vms_config.disk2.storage == 'linstor_storage'
-
-- name: Add second disk using local storage
-  no_log: true
-  community.proxmox.proxmox_disk:
-    api_host: "{{ global_proxmox_api_host }}"
-    api_user: "{{ global_proxmox_api_user }}"
-    api_token_id: "{{ global_proxmox_api_token_id }}"
-    api_token_secret: "{{ global_proxmox_api_token }}"
-    api_password: "{{ global_proxmox_api_password }}"
-    vmid: "{{ vms_vmid }}"
-    disk: "{{ vms_config.disk2.disk | default('virtio1') }}"
-    backup: "{{ vms_config.disk2.backup | default(true) }}"
-    cache: none
-    storage: "{{ vms_config.disk2.storage }}"
-    format: "qcow2"
-    size: "{{ vms_config.disk2.size | default(20) }}"
-    state: present
-  delegate_to: localhost
-  when: vms_config.disk2 is defined and vms_config.disk2.storage == 'local'

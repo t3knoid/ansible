@@ -1,8 +1,10 @@
 ---
 
-- name: Import global role
-  ansible.builtin.import_role:
-    name: global
+# Using set_fact ensures that the original vms_proxmox_node value is stored
+# and can be referenced later in the migration task.
+- name: Set vms_node_to_migrate fact
+  ansible.builtin.set_fact:
+    vms_node_to_migrate: "{{ vms_proxmox_node | string }}"
 
 - name: Get a list of vms
   ansible.builtin.uri:
@@ -15,135 +17,41 @@
   register: vms_vm_list
   delegate_to: localhost
 
-- name: Get node where virtual machine template is located
-  ansible.builtin.set_fact:
-    vms_proxmox_template: "{{ item }}"
-  with_items: "{{ vms_vm_list.json.data }}"
-  loop_control:
-    label: "{{ item.name }}"
-  when: item.name == global_os[vms_os].template
-
-- name: Show vms_proxmox_template
-  ansible.builtin.debug:
-    var: vms_proxmox_template
-
-- name: Store boot disk size
-  ansible.builtin.set_fact:
-    vms_boot_disk_size: '{{ vms_proxmox_template.maxdisk | human_readable(unit="G") | split() | first }}'
-
-- name: Fail if template does not exist
-  ansible.builtin.fail:
-    msg: "Template was not found in the Proxmox cluster. Exiting."
-  when: vms_proxmox_template is not defined
-
 - name: Check if vm already exists
   ansible.builtin.set_fact:
     vms_vm_exists: "{{ vms_vm_list.json.data | selectattr('name', 'equalto', vms_name | default(inventory_hostname)) | list | length > 0 }}"
-  when: vms_name is defined
 
-- name: Clone Ubuntu 24.04 template if VM does not exist
-  community.proxmox.proxmox_kvm:
-    api_host: "{{ global_proxmox_api_host }}"
-    api_user: "{{ global_proxmox_api_user }}"
-    api_password: "{{ global_proxmox_api_password }}"
-    node: "{{ vms_proxmox_template.node }}"
-    name: "{{ vms_name | default(inventory_hostname) }}"
-    clone: "{{ vms_proxmox_template.name }}"
-    full: true
-    storage: "{{ vms_config.storage }}"
-    format: qcow2
-    timeout: 1000
-    ostype: "{{ vms_config.ostype }}"
-    agent: true
-    state: present
-  delegate_to: localhost
-  register: vms_vm_info
+- name: Clone VM from a template if VM does not exist
+  ansible.builtin.include_tasks: "clone_vm_from_template.yml"
   when: not vms_vm_exists
 
-- name: Include get_vms_vmid tasks
-  ansible.builtin.include_tasks: "get_vms_vmid.yml"
-  when: vms_vmid is not defined
+- name: Create cloud-init snippets
+  ansible.builtin.include_tasks: "cloud_init_create_snippets.yml"
 
-- name: Show vms_vmid
-  ansible.builtin.debug:
-    var: vms_vmid
+- name: Update virtual machine for cloud-init
+  ansible.builtin.include_tasks: "cloud_init_prep.yml"
 
-- name: Migrate virtual machine
-  ansible.builtin.include_tasks: "migrate.yml"
-
-- name: Update virtual machine
-  community.proxmox.proxmox_kvm:
-    api_host: "{{ global_proxmox_api_host }}"
-    api_user: "{{ global_proxmox_api_user }}"
-    api_password: "{{ global_proxmox_api_password }}"
-    vmid: "{{ vms_vmid | int }}"
-    node: "{{ vms_proxmox_node }}"
-    timeout: 1000
-    cores: "{{ vms_config.cores }}"
-    sockets: "{{ vms_config.sockets }}"
-    memory: "{{ vms_config.memory }}"
-    cpu: "{{ vms_config.cpu }}"
-    ostype: "{{ vms_config.ostype }}"
-    bootdisk: virtio0
-    serial:
-      serial0: socket
-    vga: serial0
-    net:
-      net0: "virtio,bridge=vmbr0"
-    update: true
-    cicustom: "user=local:snippets/{{ inventory_hostname }}-user-data-ci.yml,network=local:snippets/{{ inventory_hostname }}-network-data-ci.yml"
-    citype: nocloud
-  delegate_to: localhost
-  register: vms_vm_info
-
-- name: Show vms_vm_info
-  ansible.builtin.debug:
-    var: vms_vm_info
-
-- name: Store additional boot disk size
-  ansible.builtin.set_fact:
-    vms_disk_size_increase: "{{ vms_config.disk_os.size | int - vms_boot_disk_size | int }}"
-
-- name: Increase boot disk size
-  community.proxmox.proxmox_disk:
-    api_host: "{{ global_proxmox_api_host }}"
-    api_user: "{{ global_proxmox_api_user }}"
-    api_password: "{{ global_proxmox_api_password }}"
-    api_token_id: "{{ global_proxmox_api_token_id }}"
-    api_token_secret: "{{ global_proxmox_api_token }}"
-    vmid: "{{ vms_vmid | int }}"
-    disk: "{{ vms_config.disk_os.disk }}"
-    size: "+{{ vms_disk_size_increase}}G"  # 3.584G is the original disk size
-    state: resized
-  delegate_to: localhost
-  register: vms_increase_disk_size
-
-- name: Show vms_increase_disk_size
-  ansible.builtin.debug:
-    var: vms_increase_disk_size
-
-- name: Include add_disk.yml tasks
-  ansible.builtin.include_tasks: "add_disk.yml"    
+- name: Add additional disk if defined
+  ansible.builtin.include_tasks: "add_disk.yml"
+  when: vms_config.disk2 is defined and vms_config.disk2.storage is defined
 
 - name: Start virtual machine
   ansible.builtin.include_tasks: "start.yml"
 
-- name: Wait for virtual machine to be ready
-  ansible.builtin.wait_for:
-    port: 22
-    host: "{{ global_ip_address }}"
-    delay: 15
-    timeout: 60
-  delegate_to: localhost
-
 - name: Update known_hosts file
   ansible.builtin.include_tasks: "known_hosts.yml"
-  vars:
-    ansible_python_interpreter: /usr/bin/python3
 
 - name: Wait for cloud-init to finish
-  no_log: false
-  ansible.builtin.command: cloud-init status --wait
-  changed_when: false
-  vars:
-    ansible_python_interpreter: /usr/bin/python3
+  ansible.builtin.include_tasks: "cloud_init_wait.yml"
+
+- name: Stop virtual machine before migration
+  ansible.builtin.include_tasks: "stop.yml"
+
+- name: Remove cloud-init disk
+  ansible.builtin.include_tasks: cloud_init_remove_disk.yml
+
+- name: Migrate virtual machine
+  ansible.builtin.include_tasks: "migrate.yml"
+
+- name: Start virtual machine after migration
+  ansible.builtin.include_tasks: "start.yml"

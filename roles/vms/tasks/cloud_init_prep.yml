@@ -1,0 +1,38 @@
+---
+
+- name: Ensure vms_vmid is defined
+  ansible.builtin.include_tasks: "get_vms_vmid.yml"
+  when: vms_vmid is not defined
+
+- name: Get Proxmox template information
+  ansible.builtin.include_tasks: "get_vms_proxmox_template.yml"
+  when: vms_proxmox_template is not defined
+
+- name: Update virtual machine
+  community.proxmox.proxmox_kvm:
+    api_host: "{{ global_proxmox_api_host }}"
+    api_user: "{{ global_proxmox_api_user }}"
+    api_password: "{{ global_proxmox_api_password }}"
+    vmid: "{{ vms_vmid | int }}"
+    node: "{{ vms_proxmox_template.node }}"
+    timeout: 1000
+    cores: "{{ vms_config.cores }}"
+    sockets: "{{ vms_config.sockets }}"
+    memory: "{{ vms_config.memory }}"
+    cpu: "{{ vms_config.cpu }}"
+    ostype: "{{ vms_config.ostype }}"
+    bootdisk: virtio0
+    serial:
+      serial0: socket
+    vga: serial0
+    net:
+      net0: "virtio,bridge={{ vms_config.bridge | default('vmbr0') }}"
+    update: true
+    cicustom: "user=local:snippets/{{ vms_name | default(inventory_hostname) }}-user-data-ci.yml,network=local:snippets/{{ vms_name | default(inventory_hostname) }}-network-data-ci.yml"
+    citype: nocloud
+  delegate_to: localhost
+  register: vms_vm_info
+
+- name: Show vms_vm_info
+  ansible.builtin.debug:
+    var: vms_vm_info
