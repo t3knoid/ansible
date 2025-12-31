@@ -1,3 +1,31 @@
 ---
 
-roles/tinyproxy_setup/tasks/main.yml
+- name: Install Tinyproxy
+  ansible.builtin.apt:
+    name: tinyproxy
+    state: present
+    update_cache: true
+
+- name: Deploy Tinyproxy configuration
+  ansible.builtin.template:
+    src: tinyproxy.conf.j2
+    dest: /etc/tinyproxy/tinyproxy.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart tinyproxy
+
+# Optional: ensure Tinyproxy waits for VPN interface
+- name: Ensure Tinyproxy depends on VPN interface
+  ansible.builtin.lineinfile:
+    path: /lib/systemd/system/tinyproxy.service
+    insertafter: '^\[Unit\]'
+    line: "After={{ tinyproxy_setup_vpn_interface }}.service"
+  when: tinyproxy_setup_use_vpn and tinyproxy_setup_require_vpn
+  notify: Reload systemd
+
+- name: Enable and start Tinyproxy
+  ansible.builtin.service:
+    name: tinyproxy
+    state: "{{ 'started' if tinyproxy_setup_enabled else 'stopped' }}"
+    enabled: "{{ true if tinyproxy_setup_enabled else false }}"
