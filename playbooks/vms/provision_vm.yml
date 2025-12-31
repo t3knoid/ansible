@@ -4,8 +4,6 @@
 
 - name: Provision a VM
   hosts: vms
-  vars:
-    vms_use_terraform: true
   gather_facts: false
   roles:
     - global
