@@ -9,6 +9,7 @@ extra_disks = [
     backup  = {{ vms_config.disk2.backup | default(true) }}
     storage = "{{ vms_config.disk2.storage }}"
     size    = "{{ vms_config.disk2.size }}G"
+    format  = "{{ vms_config.disk2.format | default("qcow2") }}"
   }
 {% endif %}
 ]
