@@ -8,6 +8,9 @@ on:
 
 jobs:
   generate-inventory-docs:
+    # Only run the job logic when the branch is main
+    if: github.ref == 'refs/heads/main'
+    
     runs-on: ubuntu-latest
 
     steps:

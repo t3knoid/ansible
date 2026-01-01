@@ -16,39 +16,39 @@ name: Trigger Semaphore "Setup Semaphore" Task
 
 on:
   push:
+    branches:
+      - main
     paths:
       - "inventory/semaphore/group_vars/semaphore/**"
 
 jobs:
   trigger-semaphore-task:
+    # Only run the job logic when the branch is main
+    if: github.ref == 'refs/heads/main'
+    
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout the repo
-      - name: Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v4
 
-      # Set up Python
-      - name: Set up Python
+      - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      # Install dependencies
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install requests
 
-      # Execute the Semaphore trigger script
-      - name: Trigger Semaphore task
+      - name: Run Semaphore trigger script
         env:
           SEMAPHORE_URL: "https://semaphore.refol.us/api"
           SEMAPHORE_TOKEN: ${{ secrets.SEMAPHORE_API_TOKEN }}
           PROJECT_NAME: "Home Lab"
           TEMPLATE_NAME: "Setup Semaphore"
-        run: |
-          python scripts/execute_semaphoreui_setup.py
+        run: python scripts/execute_semaphoreui_setup.py
 ```
 
 ---

@@ -18,6 +18,9 @@ on:
 
 jobs:
   generate-playbook-docs:
+    # Only run the job logic when the branch is main
+    if: github.ref == 'refs/heads/main'
+    
     runs-on: ubuntu-latest
 
     steps:
@@ -48,10 +51,12 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add playbooks/*/README.md playbooks/README.md
+          
+          git add playbooks/README.md docs/playbooks/README.md docs/playbooks/*.md
+
           if ! git diff --cached --quiet; then
             git commit -m "chore(docs): auto-generate playbook documentation"
-            git push origin HEAD:${{ github.ref }}
+            git push origin main
           else
             echo "No documentation changes to commit."
           fi
