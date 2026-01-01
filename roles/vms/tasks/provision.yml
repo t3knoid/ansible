@@ -1,11 +1,5 @@
 ---
 
-# Using set_fact ensures that the original vms_proxmox_node value is stored
-# and can be referenced later in the migration task.
-- name: Set vms_node_to_migrate fact
-  ansible.builtin.set_fact:
-    vms_node_to_migrate: "{{ vms_proxmox_node | string }}"
-
 - name: Get a list of vms
   ansible.builtin.uri:
     url: 'https://{{ global_proxmox_api_host }}:8006/api2/json/cluster/resources?type=vm'
@@ -25,6 +19,12 @@
   ansible.builtin.include_tasks: "clone_vm_from_template.yml"
   when: not vms_vm_exists
 
+- name: Stop virtual machine before migration
+  ansible.builtin.include_tasks: "stop.yml"
+
+- name: Migrate virtual machine
+  ansible.builtin.include_tasks: "migrate.yml"
+
 - name: Create cloud-init snippets
   ansible.builtin.include_tasks: "cloud_init_create_snippets.yml"
 
@@ -35,23 +35,14 @@
   ansible.builtin.include_tasks: "add_disk.yml"
   when: vms_config.disk2 is defined and vms_config.disk2.storage is defined
 
-- name: Start virtual machine
+- name: Start virtual machine and start the cloud-init process
   ansible.builtin.include_tasks: "start.yml"
-
-- name: Update known_hosts file
-  ansible.builtin.include_tasks: "known_hosts.yml"
 
 - name: Wait for cloud-init to finish
   ansible.builtin.include_tasks: "cloud_init_wait.yml"
 
-- name: Stop virtual machine before migration
-  ansible.builtin.include_tasks: "stop.yml"
-
 - name: Remove cloud-init disk
   ansible.builtin.include_tasks: cloud_init_remove_disk.yml
 
-- name: Migrate virtual machine
-  ansible.builtin.include_tasks: "migrate.yml"
-
-- name: Start virtual machine after migration
-  ansible.builtin.include_tasks: "start.yml"
+- name: Update known_hosts file
+  ansible.builtin.include_tasks: "known_hosts.yml"

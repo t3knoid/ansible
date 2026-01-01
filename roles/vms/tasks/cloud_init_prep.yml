@@ -1,5 +1,9 @@
 ---
 
+# Purpose: Prepare the VM configuration with cloud-init settings
+# on the Proxmox node where the VM resides. This assumes that
+# the VM has been migrated to its target node.
+
 - name: Ensure vms_vmid is defined
   ansible.builtin.include_tasks: "get_vms_vmid.yml"
   when: vms_vmid is not defined
@@ -14,7 +18,7 @@
     api_user: "{{ global_proxmox_api_user }}"
     api_password: "{{ global_proxmox_api_password }}"
     vmid: "{{ vms_vmid | int }}"
-    node: "{{ vms_proxmox_template.node }}"
+    node: "{{ vms_proxmox_node }}"
     timeout: 1000
     cores: "{{ vms_config.cores }}"
     sockets: "{{ vms_config.sockets }}"
