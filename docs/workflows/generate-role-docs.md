@@ -20,36 +20,45 @@ on:
 
 jobs:
   generate-role-docs:
+    # Only run the job logic when the branch is main
+    if: github.ref == 'refs/heads/main'
+    
     runs-on: ubuntu-latest
 
     steps:
+      # Checkout the repo
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0  # needed for committing back
 
+      # Set up Python
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
+      # Install dependencies (if any)
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      # Run the documentation generator
       - name: Generate role docs
         run: |
-          python scripts/generate_role_docs.py
+          python ./scripts/generate_role_docs.py
 
       - name: Commit and push changes
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add roles/*/README.md roles/README.md
+
+          git add roles/README.md docs/roles/README.md docs/roles/*.md
+
           if ! git diff --cached --quiet; then
             git commit -m "chore(docs): auto-generate role documentation"
-            git push origin HEAD:${{ github.ref }}
+            git push origin main
           else
             echo "No documentation changes to commit."
           fi
