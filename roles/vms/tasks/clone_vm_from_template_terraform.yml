@@ -1,0 +1,51 @@
+---
+
+- name: Get Proxmox template information
+  ansible.builtin.include_tasks: "get_vms_proxmox_template.yml"
+  when: vms_proxmox_template is not defined
+
+- name: Ensure Terraform module directory exists
+  ansible.builtin.file:
+    path: "{{ vms_terraform_module_dir }}"
+    state: directory
+    mode: '0755'
+  delegate_to: localhost
+
+- name: Render Terraform module files
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ vms_terraform_module_dir }}/{{ item.dest }}"
+  loop:
+    - { src: "versions.tf.j2",      dest: "versions.tf" }
+    - { src: "variables.tf.j2",     dest: "variables.tf" }
+    - { src: "main.tf.j2",          dest: "main.tf" }
+    - { src: "outputs.tf.j2",       dest: "outputs.tf" }
+    - { src: "terraform.tfvars.j2", dest: "terraform.tfvars" }
+  notify: Validate Terraform config
+  delegate_to: localhost
+
+- meta: flush_handlers
+
+- name: Run terraform init
+  ansible.builtin.command:
+    cmd: terraform init
+    chdir: "{{ vms_terraform_module_dir }}"
+  args:
+    creates: "{{ vms_terraform_module_dir }}/.terraform"
+  delegate_to: localhost
+
+- name: Run terraform plan
+  ansible.builtin.command:
+    cmd: terraform plan -input=false -out=tfplan
+    chdir: "{{ vms_terraform_module_dir }}"
+  register: terraform_plan
+  changed_when: false
+  delegate_to: localhost
+
+- name: Run terraform apply
+  ansible.builtin.command:
+    cmd: terraform apply -input=false tfplan
+    chdir: "{{ vms_terraform_module_dir }}"
+  register: terraform_apply
+  changed_when: "'Apply complete!' in terraform_apply.stdout"
+  delegate_to: localhost

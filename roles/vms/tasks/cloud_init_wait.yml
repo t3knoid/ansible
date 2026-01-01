@@ -1,7 +1,7 @@
 ---
 
 # Does not require Python on the target VM
-- name: Run cloud-init status and wait for completion
+- name: Run 'cloud-init status' and wait for completion
   ansible.builtin.raw: cloud-init status --wait
   register: vms_cloudinit_status
   changed_when: false
