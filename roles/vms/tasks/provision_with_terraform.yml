@@ -1,52 +1,55 @@
 ---
 
-- name: Create terraform root directory
-  ansible.builtin.file:
-    path: "{{ global_terraform_root_dir }}"
-    state: directory
-    mode: '0755'
+# Using set_fact ensures that the original vms_proxmox_node value is stored
+# and can be referenced later in the migration task.
+- name: Set vms_node_to_migrate fact
+  ansible.builtin.set_fact:
+    vms_node_to_migrate: "{{ vms_proxmox_node | string }}"
+
+- name: Get a list of vms
+  ansible.builtin.uri:
+    url: 'https://{{ global_proxmox_api_host }}:8006/api2/json/cluster/resources?type=vm'
+    method: GET
+    headers:
+      Authorization: "PVEAPIToken={{ global_proxmox_api_user }}!{{ global_proxmox_api_token_id }}={{ global_proxmox_api_token }}"
+    follow_redirects: safe
+    validate_certs: false
+  register: vms_vm_list
   delegate_to: localhost
 
-- name: Ensure Terraform root module directory exists
-  ansible.builtin.file:
-    path: "{{ vms_terraform_root_module }}"
-    state: directory
-    mode: '0755'
-  delegate_to: localhost
+- name: Check if vm already exists
+  ansible.builtin.set_fact:
+    vms_vm_exists: "{{ vms_vm_list.json.data | selectattr('name', 'equalto', vms_name | default(inventory_hostname)) | list | length > 0 }}"
 
-- name: Generate Terraform variables.tf
-  ansible.builtin.template:
-    src: variables.tf.j2
-    dest: "{{ vms_terraform_root_module }}/variables.tf"
-  delegate_to: localhost
+- name: Create cloud-init snippets
+  ansible.builtin.include_tasks: "cloud_init_create_snippets.yml"
 
-- name: Generate Terraform main.tf
-  ansible.builtin.template:
-    src: main.tf.j2
-    dest: "{{ vms_terraform_root_module }}/main.tf"
-  notify: Validate Terraform config
-  delegate_to: localhost
+# Terraform provisioning also does the following
+# - increase boot disk size
+# - add second disk
+# - preps cloud-init
 
-- name: Flush handlers immediately
-  meta: flush_handlers
+- name: Clone VM from a template if VM does not exist
+  ansible.builtin.include_tasks: "clone_vm_from_template_terraform.yml"
+  when: not vms_vm_exists
 
-# - name: Run terraform init
-#   ansible.builtin.command:
-#     cmd: terraform init
-#     chdir: "{{ vms_terraform_root_module }}"
-#   register: terraform_init
-#   changed_when: "'Terraform has been successfully initialized' in terraform_init.stdout"
+- name: Start virtual machine
+  ansible.builtin.include_tasks: "start.yml"
 
-# - name: Run terraform plan
-#   ansible.builtin.command:
-#     cmd: terraform plan -input=false -out=tfplan
-#     chdir: "{{ vms_terraform_root_module }}"
-#   register: vms_terraform_plan
-#   changed_when: false
+- name: Update known_hosts file
+  ansible.builtin.include_tasks: "known_hosts.yml"
 
-# - name: Run terraform apply
-#   ansible.builtin.command:
-#     cmd: terraform apply -input=false tfplan
-#     chdir: "{{ vms_terraform_root_module }}"
-#   register: vms_terraform_apply
-#   changed_when: "'Apply complete!' in terraform_apply.stdout"
+- name: Wait for cloud-init to finish
+  ansible.builtin.include_tasks: "cloud_init_wait.yml"
+
+- name: Stop virtual machine before migration
+  ansible.builtin.include_tasks: "stop.yml"
+
+- name: Remove cloud-init disk
+  ansible.builtin.include_tasks: cloud_init_remove_disk.yml
+
+- name: Migrate virtual machine
+  ansible.builtin.include_tasks: "migrate.yml"
+
+- name: Start virtual machine after migration
+  ansible.builtin.include_tasks: "start.yml"
