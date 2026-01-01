@@ -1,13 +1,13 @@
 ---
 
+- name: Create cloud-init snippets
+  ansible.builtin.include_tasks: "cloud_init_create_snippets.yml"
+
 - name: Clone VM from a template
   ansible.builtin.include_tasks: "clone_vm_from_template.yml"
 
 - name: Migrate virtual machine
   ansible.builtin.include_tasks: "migrate.yml"
-
-- name: Create cloud-init snippets
-  ansible.builtin.include_tasks: "cloud_init_create_snippets.yml"
 
 - name: Update virtual machine for cloud-init
   ansible.builtin.include_tasks: "cloud_init_prep.yml"
@@ -27,3 +27,7 @@
 
 - name: Update known_hosts file
   ansible.builtin.include_tasks: "known_hosts.yml"
+
+- name: Reboot to apply pending cloud-init disk removal
+  ansible.builtin.include_tasks: "reboot.yml"
+  

@@ -3,13 +3,17 @@
 - name: Create cloud-init snippets
   ansible.builtin.include_tasks: "cloud_init_create_snippets.yml"
 
-# Terraform provisioning also does the following
-# - increase boot disk size
-# - add second disk
-# - preps cloud-init
-
 - name: Clone VM from a template if VM does not exist
   ansible.builtin.include_tasks: "clone_vm_from_template_terraform.yml"
+
+- name: Migrate virtual machine
+  ansible.builtin.include_tasks: "migrate.yml"
+
+# Update virtual machine for cloud-init
+# Is done during terraform provisioning --- IGNORE ---
+
+# Add additional disk if defined
+# Is done during terraform provisioning --- IGNORE ---
 
 - name: Start virtual machine and start the cloud-init process
   ansible.builtin.include_tasks: "start.yml"
@@ -17,17 +21,11 @@
 - name: Wait for cloud-init to finish
   ansible.builtin.include_tasks: "cloud_init_wait.yml"
 
-- name: Stop virtual machine before migration
-  ansible.builtin.include_tasks: "stop.yml"
-
 - name: Remove cloud-init disk
   ansible.builtin.include_tasks: cloud_init_remove_disk.yml
 
-- name: Migrate virtual machine
-  ansible.builtin.include_tasks: "migrate.yml"
-
-- name: Start virtual machine after migration
-  ansible.builtin.include_tasks: "start.yml"
-
 - name: Update known_hosts file
   ansible.builtin.include_tasks: "known_hosts.yml"
+
+- name: Reboot to apply pending cloud-init disk removal
+  ansible.builtin.include_tasks: "reboot.yml"
