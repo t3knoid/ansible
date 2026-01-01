@@ -6,6 +6,9 @@ provider "proxmox" {
 }
 
 resource "proxmox_vm_qemu" "vm" {
+
+  # Basic VM configuration
+
   name        = var.vm_name
   target_node = var.pve_node
   agent    = var.vm_config.agent
@@ -17,7 +20,7 @@ resource "proxmox_vm_qemu" "vm" {
   memory   = var.vm_config.memory
   boot     = var.vm_config.boot_order
   scsihw   = var.vm_config.scsihw
-  vm_state = "running"
+  vm_state = "stopped"
   automatic_reboot = true
   qemu_os  = var.vm_config.ostype
 
@@ -32,9 +35,10 @@ resource "proxmox_vm_qemu" "vm" {
     storage  = var.vm_config.disk_os.storage
     type     = "disk"
     backup   = var.vm_config.disk_os.backup
+    format   = var.vm_config.disk_os.format
   }
 
-  # Cloud-init disk
+  # Cloud-init disk must be defined for cloud-init to work
   disk {
     slot    = "ide2"
     size    = "4G"
@@ -53,6 +57,7 @@ resource "proxmox_vm_qemu" "vm" {
       storage = disk.value.storage
       size    = disk.value.size
       backup  = disk.value.backup
+      format  = disk.value.format
       # cache = "none" is default in Proxmox provider
     }
   }
@@ -75,4 +80,11 @@ resource "proxmox_vm_qemu" "vm" {
 
   # Do not start on Proxmox host boot
   start_at_node_boot = false
+
+  # Ignore changes to 'node' to avoid recreation of VM on node migration
+  lifecycle {
+    ignore_changes = [
+      target_node
+    ]
+  }
 }

@@ -13,6 +13,7 @@ variable "vm_config" {
       backup  = bool
       size    = number
       storage = string
+      format  = string
     })
     nic0 = object({
       model  = string
@@ -29,6 +30,7 @@ variable "extra_disks" {
     backup  = bool
     storage = string
     size    = string
+    format  = string
   }))
   default = []
 }
