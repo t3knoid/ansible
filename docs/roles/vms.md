@@ -23,11 +23,12 @@ Provides tasks to manage virtual machines hosted in Proxmox VE.
 | `vms_clone_host` | `192.168.2.199` |  |
 | `vms_ip_address_configured` | `false` |  |
 | `vms_clone` | `false` |  |
+| `vms_pve_tls_insecure` | `true` |  |
 
 ## 📦 Vars
 | Variable | Default Value | Description |
 |----------|---------------|-------------|
-| `vms_terraform_root_module` | `"{{ global_terraform_root_dir }}/{{ global_inventory_dir_name }}"` |  |
+| `vms_terraform_module_dir` | `"{{ global_terraform_root_dir }}/{{ inventory_hostname }}"` |  |
 
 ## 📑 Tasks
 - Create new ubuntu virtual machine
