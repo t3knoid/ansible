@@ -1,5 +1,10 @@
 ---
 
+# Purpose: Clone a VM from a Proxmox template using Terraform.
+# This module clones the VM on the same node as the template resides.
+# It also defines the cloud-init configuration for the VM and
+# defines additional disks if specified.
+
 - name: Get Proxmox template information
   ansible.builtin.include_tasks: "get_vms_proxmox_template.yml"
   when: vms_proxmox_template is not defined
