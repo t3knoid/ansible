@@ -1,0 +1,32 @@
+# Hardware definition
+vm_config = {{ vms_config | to_nice_json }}
+
+extra_disks = [
+{% if vms_config.disk2 is defined %}
+  {
+    id      = 1
+    slot    = "{{ vms_config.disk2.disk }}"      # e.g., "virtio1"
+    backup  = {{ vms_config.disk2.backup | default(true) }}
+    storage = "{{ vms_config.disk2.storage }}"
+    size    = "{{ vms_config.disk2.size }}G"
+  }
+{% endif %}
+]
+
+# OS selection
+autoinstall = {{ vms_autoinstall | lower }}
+enable_serial_terminal = {{ vms_enable_serial_terminal | lower }}
+
+# Proxmox API
+pve_api_url = "https://{{ global_proxmox_api_host }}:8006/api2/json"
+pve_user = "{{ global_proxmox_api_user }}"
+pve_password = "{{ global_proxmox_api_password }}"
+pve_tls_insecure = {{ vms_pve_tls_insecure | lower }}
+
+# VM placement
+pve_node = "{{ vms_proxmox_template.node }}"
+vm_name = "{{ inventory_hostname }}"
+
+# Template info discovered by Ansible
+template_name = "{{ vms_proxmox_template.name }}"
+template_node = "{{ vms_proxmox_template.node }}"
