@@ -1,39 +1,70 @@
-#Set your public SSH key here
-variable "ssh_key" {
-  default = "your_public_ssh_key_here"
+variable "vm_config" {
+  type = object({
+    agent   = string
+    cores   = string
+    cpu     = string
+    memory  = number
+    ostype  = string
+    scsihw  = string
+    sockets = number
+    storage = string
+    disk_os = object({
+      disk    = string
+      backup  = bool
+      size    = number
+      storage = string
+      format  = string
+    })
+    nic0 = object({
+      model  = string
+      bridge = string
+    })
+    boot_order = string
+  })
 }
 
-#Establish which Proxmox host you'd like to spin a VM up on
-variable "proxmox_host" {
-    default = "proxmox_host_name"
+variable "extra_disks" {
+  type = list(object({
+    id      = number
+    disk    = string
+    backup  = bool
+    storage = string
+    size    = string
+    format  = string
+  }))
+  default = []
 }
 
-#Specify which template name you'd like to use
+variable "autoinstall" {
+  type    = bool
+  default = false
+}
+
+variable "enable_serial_terminal" {
+  type    = bool
+  default = false
+}
+
+variable "pve_api_url" {}
+variable "pve_user" {}
+variable "pve_password" {}
+variable "pve_tls_insecure" {
+  type    = bool
+  default = false
+}
+
+variable "pve_node" {
+  type = string
+}
+
+variable "vm_name" {
+  type = string
+}
+
 variable "template_name" {
-    default = "ubuntu-2204-template"
+  type = string
 }
 
-#Establish which nic you would like to utilize
-variable "nic_name" {
-    default = "vmbr<number>"
-}
-
-#Establish the VLAN you'd like to use
-variable "vlan_num" {
-    default = "place_vlan_number_here"
-}
-
-#Provide the url of the host you would like the API to communicate on.
-#It is safe to default to setting this as the URL for what you used
-#as your `proxmox_host`, although they can be different
-variable "api_url" {
-    default = "https://<proxmox_host_ip>:8006/api2/json"
-}
-
-#Blank var for use by terraform.tfvars
-variable "token_secret" {
-}
-
-#Blank var for use by terraform.tfvars
-variable "token_id" {
+variable "template_node" {
+  type = string
 }

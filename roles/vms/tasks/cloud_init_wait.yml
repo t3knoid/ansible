@@ -1,0 +1,36 @@
+---
+
+- name: Ensure host is reachable via SSH
+  ansible.builtin.wait_for:
+    host: "{{ inventory_hostname }}"
+    port: 22
+    timeout: 300
+    state: started
+  delegate_to: localhost
+
+# Does not require Python on the target VM
+- name: Run 'cloud-init status' and wait for completion
+  ansible.builtin.raw: cloud-init status --wait
+  register: vms_cloudinit_status
+  changed_when: false
+  failed_when: false
+
+- name: Reboot VM if cloud-init required it
+  ansible.builtin.include_tasks: "reboot.yml"
+  when: "'error' in (vms_cloudinit_status.stdout | lower)"
+
+- name: Ensure host is reachable via SSH
+  ansible.builtin.wait_for:
+    host: "{{ inventory_hostname }}"
+    port: 22
+    timeout: 300
+    state: started
+  delegate_to: localhost
+
+# Second attempt
+- name: Wait for cloud-init to finish (second attempt)
+  ansible.builtin.raw: cloud-init status --wait
+  register: vms_cloudinit_status_second
+  changed_when: false
+  failed_when: "'error' in vms_cloudinit_status_second.stdout"
+  when: "'error' in vms_cloudinit_status.stdout"

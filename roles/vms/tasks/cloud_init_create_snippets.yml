@@ -1,0 +1,35 @@
+---
+
+# Purpose: Create cloud-init user-data and network-data snippets
+# on the Proxmox node where the cloned VM resides. This assumes that
+# the VM has been migrated to its target node.
+
+# This ensures that the current Ansible user can
+# connect via ssh into the new virtual machine
+- name: Generate Ansible user ssh key if needed
+  community.crypto.openssh_keypair:
+    path: ~/.ssh/id_rsa
+  delegate_to: localhost
+  register: vms_sshkey
+
+# https://pve.proxmox.com/wiki/Storage:_Directory
+- name: Make sure /var/lib/vz/snippets folder exists
+  ansible.builtin.file:
+    path: "/var/lib/vz/snippets"
+    state: directory
+  become: true
+  delegate_to: "{{ vms_proxmox_node }}"
+
+- name: Copy user cloud-init file
+  template:
+    src: user-data-ci.j2
+    dest: "/var/lib/vz/snippets/{{ vms_name | default(inventory_hostname) }}-user-data-ci.yml"
+  become: true
+  delegate_to: "{{ vms_proxmox_node }}"
+
+- name: Copy network cloud-init file
+  template:
+    src: network-data-ci.j2
+    dest: "/var/lib/vz/snippets/{{ vms_name | default(inventory_hostname) }}-network-data-ci.yml"
+  become: true
+  delegate_to: "{{ vms_proxmox_node }}"

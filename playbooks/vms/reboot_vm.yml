@@ -5,7 +5,7 @@
 - name: Reboot a VM
   hosts: vms
   gather_facts: false
-  become: true
+  become: false
   roles:
     - global
 

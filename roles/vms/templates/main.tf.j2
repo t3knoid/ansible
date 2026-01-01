@@ -1,86 +1,90 @@
-terraform {
-  required_providers {
-    proxmox = {
-      source = "telmate/proxmox"
-      #latest version as of Nov 30 2022
-      version = "2.9.11"
+provider "proxmox" {
+  pm_api_url      = var.pve_api_url
+  pm_user         = var.pve_user
+  pm_password     = var.pve_password
+  pm_tls_insecure = var.pve_tls_insecure
+}
+
+resource "proxmox_vm_qemu" "vm" {
+
+  # Basic VM configuration
+
+  name        = var.vm_name
+  target_node = var.pve_node
+  agent    = var.vm_config.agent
+  cpu {
+    cores = var.vm_config.cores
+    type  = var.vm_config.cpu
+    sockets = var.vm_config.sockets
+    }
+  memory   = var.vm_config.memory
+  boot     = var.vm_config.boot_order
+  scsihw   = var.vm_config.scsihw
+  vm_state = "stopped"
+  automatic_reboot = true
+  qemu_os  = var.vm_config.ostype
+
+  # Clone from template discovered by Ansible
+  clone      = var.template_name
+  full_clone = true
+
+  # Boot disk
+  disk {
+    slot     = var.vm_config.disk_os.disk
+    size     = "${var.vm_config.disk_os.size}G"
+    storage  = var.vm_config.disk_os.storage
+    type     = "disk"
+    backup   = var.vm_config.disk_os.backup
+    format   = var.vm_config.disk_os.format
+  }
+
+  # Cloud-init disk must be defined for cloud-init to work
+  disk {
+    slot    = "ide2"
+    size    = "4G"
+    storage = "local"
+    type    = "cloudinit"
+    backup  = false
+  }
+
+  # Optional second disk (or more)
+  dynamic "disk" {
+    for_each = var.extra_disks
+    content {
+      slot    = disk.value.disk
+      id      = disk.value.id
+      type    = "disk"
+      storage = disk.value.storage
+      size    = disk.value.size
+      backup  = disk.value.backup
+      format  = disk.value.format
+      # cache = "none" is default in Proxmox provider
     }
   }
-}
 
-# HashiCorp vault
-provider "vault" {
-  address = "{{ vault_address }}"
-  token   = "{{ vault_token }}"
-}
+  # Cloud-init
+  cicustom = "user=local:snippets/${var.vm_name}-user-data-ci.yml,network=local:snippets/${var.vm_name}-network-data-ci.yml"
 
-data "vault_generic_secret" "proxmox_creds" {
-  path = "{{ vault_proxmox_secret_path }}"
-}
-
-
-provider "proxmox" {
-  # References our vars.tf file to plug in the api_url 
-  pm_api_url = var.api_url
-  # References our secrets.tfvars file to plug in our token_id
-  pm_api_token_id = var.token_id
-  # References our secrets.tfvars to plug in our token_secret 
-  pm_api_token_secret = var.token_secret
-  # Default to `true` unless you have TLS working within your pve setup 
-  pm_tls_insecure = true
-}
-
-# Creates a proxmox_vm_qemu entity named blog_demo_test
-resource "proxmox_vm_qemu" "blog_demo_test" {
-  name = "test_vm${count.index + 1}" # count.index starts at 0
-  #name = "test-vm-01"
-  count = 1 # Establishes how many instances will be created 
-  target_node = var.proxmox_host
-
-  # References our vars.tf file to plug in our template name
-  clone = var.template_name
-  # Creates a full clone, rather than linked clone 
-  # https://pve.proxmox.com/wiki/VM_Templates_and_Clones
-  full_clone  = "true"
-
-  # VM Settings. `agent = 1` enables qemu-guest-agent
-  agent = 1
-  os_type = "cloud-init"
-  cores = 2
-  sockets = 1
-  cpu = "host"
-  memory = 2048
-  scsihw = "virtio-scsi-pci"
-  bootdisk = "scsi0"
-
-  disk {
-    slot = 0
-    size = "50G"
-    type = "scsi"
-    storage = "intel-storage" # Name of storage local to the host you are spinning the VM up on
-    # Enables SSD emulation
-    ssd = 1
-    # Enables thin-provisioning
-    discard = "on"
-    #iothread = 1
+  # Serial console
+  serial {
+    id   = 0
+    type = "socket"
   }
 
+  # Network interface
   network {
-    model = "virtio"
-    bridge = var.nic_name
-    tag = var.vlan_num # This tag can be left off if you are not taking advantage of VLANs
+    id     = 0
+    bridge = var.vm_config.nic0.bridge
+    model  = var.vm_config.nic0.model
   }
 
+  # Do not start on Proxmox host boot
+  start_at_node_boot = false
 
+  # Ignore changes to 'node' to avoid recreation of VM on node migration
   lifecycle {
     ignore_changes = [
-      network,
+      target_node
     ]
   }
-  #provisioner "local-exec" {
-    # Provisioner commands can be run here.
-    # We will use provisioner functionality to kick off ansible
-    # playbooks in the future
-    #command = "touch /home/tcude/test.txt"
-  #}
 }

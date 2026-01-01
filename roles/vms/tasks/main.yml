@@ -12,7 +12,7 @@
     storage: "{{ vms_config.storage }}"
     scsihw: "{{ vms_config.scsihw }}"
     net:
-      net0: "virtio,bridge=vmbr0"
+      net0: "virtio,bridge={{ vms_config.nic0.bridge | default('vmbr0') }}"
     virtio:
       virtio0: "{{ vms_config.disk_os.storage }}:{{ vms_config.disk_os.size }}"
     ide:
