@@ -8,7 +8,8 @@
 - name: Validate Terraform config
   ansible.builtin.command:
     cmd: terraform validate
-    chdir: "{{ vms_terraform_root_module }}"
+    chdir: "{{ vms_terraform_module_dir }}"
   register: terraform_validate
   changed_when: false
   failed_when: terraform_validate.rc != 0
+  delegate_to: localhost
