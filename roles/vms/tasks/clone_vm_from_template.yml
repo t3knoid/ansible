@@ -1,10 +1,12 @@
 ---
 
+# Purpose: Clone a VM from a template in the same node as the template resides.
+
 - name: Get Proxmox template information
   ansible.builtin.include_tasks: "get_vms_proxmox_template.yml"
   when: vms_proxmox_template is not defined
 
-- name: Clone VM from a template if VM does not exist
+- name: Clone VM from a template
   community.proxmox.proxmox_kvm:
     api_host: "{{ global_proxmox_api_host }}"
     api_user: "{{ global_proxmox_api_user }}"

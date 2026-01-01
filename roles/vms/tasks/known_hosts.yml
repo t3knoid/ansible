@@ -1,5 +1,13 @@
 ---
 
+- name: Ensure host is reachable via SSH
+  ansible.builtin.wait_for:
+    host: "{{ inventory_hostname }}"
+    port: 22
+    timeout: 300
+    state: started
+  delegate_to: localhost
+
 - name: Ensure the known_hosts file exists
   ansible.builtin.file:
     path: ~/.ssh/known_hosts

@@ -9,7 +9,7 @@
     api_host: "{{ global_proxmox_api_host }}"
     api_user: "{{ global_proxmox_api_user }}"
     api_password: "{{ global_proxmox_api_password }}"
-    node: "{{ vms_node_to_migrate }}"
+    node: "{{ vms_proxmox_node }}"
     vmid: "{{ vms_vmid | int }}"
     migrate: true
     timeout: 300
