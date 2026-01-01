@@ -85,6 +85,7 @@
 | [`proxmox/deploy_pbs.yml`](deploy_pbs.md) | Install Proxmox Backup Server on pbs hosts |
 | [`pxe/configure_pxe.yml`](configure_pxe.md) | Configure PXE on pxe_client hosts |
 | [`pxe/deploy_pxe.yml`](deploy_pxe.md) | Deploy PXE server on pxe hosts |
+| [`python/bootstrap_python3.yml`](bootstrap_python3.md) | Installs Python3 on hosts that do not yet have Python. This is typically used when provisioning new hosts that lack Python3, which is required for Ansible to function. This playbook also sets up a Python virtual environment |
 | [`python/compile_python3.yml`](compile_python3.md) | Compile and install Python3 on pvenodes hosts. This is necessary for Proxmox VE nodes where a newer Python version is required but not available via standard package repositories. |
 | [`python/deploy_python3.yml`](deploy_python3.md) | Deploy Python3 on python hosts. |
 | [`python/deploy_python3_venv.yml`](deploy_python3_venv.md) | Deploy Python3 virtual environment on python hosts. |
