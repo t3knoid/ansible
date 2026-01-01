@@ -1,0 +1,73 @@
+# This file bootstraps Python on a host with no Python installed.
+# It uses raw for all early tasks, then switches to normal modules once Python exists.
+
+- name: Remove legacy deadsnakes.list file
+  ansible.builtin.raw: |
+    if [ -f /etc/apt/sources.list.d/deadsnakes.list ]; then
+      rm -f /etc/apt/sources.list.d/deadsnakes.list
+    fi
+  changed_when: false
+
+- name: Remove legacy ppa_deadsnakes_ppa_noble.list file
+  ansible.builtin.raw: |
+    if [ -f /etc/apt/sources.list.d/ppa_deadsnakes_ppa_noble.list ]; then
+      rm -f /etc/apt/sources.list.d/ppa_deadsnakes_ppa_noble.list
+    fi
+  changed_when: false
+
+- name: Remove existing legacy Deadsnakes repo list file
+  ansible.builtin.raw: |
+    if [ -f /etc/apt/sources.list.d/deadsnakes-ubuntu-ppa-noble.sources.list ]; then
+      rm -f /etc/apt/sources.list.d/deadsnakes-ubuntu-ppa-noble.sources.list
+    fi
+  changed_when: false
+
+- name: Remove existing deadsnakes-ubuntu-ppa-noble.sources file
+  ansible.builtin.raw: |
+    if [ -f /etc/apt/sources.list.d/deadsnakes-ubuntu-ppa-noble.sources ]; then
+      rm -f /etc/apt/sources.list.d/deadsnakes-ubuntu-ppa-noble.sources
+    fi
+  changed_when: false
+
+- name: Add deadsnakes apt repository key
+  ansible.builtin.raw: |
+    curl -fsSL "{{ python3_repo_key_url }}" -o "{{ python3_repo_key_local }}" && \
+    chmod 0644 "{{ python3_repo_key_local }}"
+  changed_when: false
+
+- name: Add deadsnakes apt repository
+  ansible.builtin.raw: |
+    echo "deb [arch=amd64 signed-by={{ python3_repo_key_local }}] {{ python3_repo_base_url }} noble main" \
+      > /etc/apt/sources.list.d/deadsnakes-ubuntu-ppa-noble.list
+    chmod 0644 /etc/apt/sources.list.d/deadsnakes-ubuntu-ppa-noble.list
+  changed_when: false
+
+- name: Update apt cache
+  ansible.builtin.raw: apt-get update -y
+  changed_when: false
+
+- name: Install python{{ python3_version }}
+  ansible.builtin.raw: |
+    if ! dpkg -s python{{ python3_version }} >/dev/null 2>&1; then
+      apt-get install -y python{{ python3_version }}
+    fi
+  changed_when: false
+
+- name: Register Python {{ python3_version }} as an alternative
+  ansible.builtin.raw: |
+    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python{{ python3_version }} 100
+  changed_when: false
+
+- name: Gather facts now that Python is available
+  ansible.builtin.setup:
+
+- name: Set Python interpreter for subsequent tasks
+  ansible.builtin.set_fact:
+    ansible_python_interpreter: "/usr/bin/python{{ python3_version }}"
+
+# ------------------------------------------------------------
+# Normal Ansible tasks can follow
+# ------------------------------------------------------------
+
+- name: Create Python virtual environment
+  ansible.builtin.include_tasks: venv.yml
