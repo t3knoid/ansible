@@ -1,0 +1,17 @@
+---
+
+# Purpose: Installs Python3 on hosts that do not yet have Python.
+# This is typically used when provisioning new hosts that
+# lack Python3, which is required for Ansible to function.
+# This playbook also sets up a Python virtual environment
+
+- name: Bootstrap Python3
+  hosts: python
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Import bootstrap.yml from python3 role
+      ansible.builtin.import_role:
+        name: python3
+        tasks_from: bootstrap.yml
