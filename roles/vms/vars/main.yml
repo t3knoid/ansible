@@ -1,2 +1,2 @@
 ---
-vms_terraform_root_module: "{{ global_terraform_root_dir }}/{{ global_inventory_dir_name }}"
+vms_terraform_module_dir: "{{ global_terraform_root_dir }}/{{ inventory_hostname }}"

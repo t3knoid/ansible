@@ -49,14 +49,14 @@
     src: send_yes_to_vm_console.py.j2
     dest: /tmp/send_yes_to_vm_console.py
     mode: '0755'
-  register: python_script_generated
+  register: vms_python_script_generated
   delegate_to: localhost
 
 - name: Make the Python script executable
   ansible.builtin.file:
     path: /tmp/send_yes_to_vm_console.py
     mode: '0755'
-  when: python_script_generated.changed
+  when: vms_python_script_generated.changed
   delegate_to: localhost
 
 - name: Execute Python script

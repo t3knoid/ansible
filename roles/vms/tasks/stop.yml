@@ -2,11 +2,9 @@
 
 - name: Include get_vms_vmid tasks
   ansible.builtin.include_tasks: "get_vms_vmid.yml"
-  when: vms_vmid is not defined
 
 - name: Include get_vms_proxmox_node tasks
   ansible.builtin.include_tasks: "get_vms_proxmox_node.yml"
-  when: vms_proxmox_node is not defined
   
 - name: Stop VM
   ansible.builtin.uri:

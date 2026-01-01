@@ -40,6 +40,11 @@
     vms_vmid: "{{ vms_found_vmid | first }}"
   when: vms_found_vmid | length > 0
 
+- name: Fail if vm does not exist
+  ansible.builtin.fail:
+    msg: "VM ID was not found in the Proxmox cluster. Exiting."
+  when: vms_vmid is not defined or vms_vmid == '' or vms_vmid is none
+
 - name: Show vms_vmid
   ansible.builtin.debug:
     msg: "{{ inventory_hostname }} has a vmid of {{ vms_vmid }}"

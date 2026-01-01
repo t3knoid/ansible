@@ -4,4 +4,4 @@
 .ansible/
 tmp
 **/*.pyc
-
+/terraform/**
