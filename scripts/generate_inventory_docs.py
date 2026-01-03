@@ -221,7 +221,7 @@ def main():
 
     logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
 
-    docs_dir = Path("docs/inventories")
+    docs_dir = Path("docs/inventory")
     inventory_root = Path("inventory")
 
     if args.inventory:
