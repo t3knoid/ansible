@@ -1,19 +1,17 @@
 ---
-title: "️ GitHub Action: Generate Playbook Docs"
+title: "Generate Ansible Inventory Docs GitHub Action"
 ---
 
-# ⚙️ GitHub Action: Generate Playbook Docs
+# Generate Ansible Inventory Docs GitHub Action
 
-## 📖 Purpose
+This GitHub Action automatically generates documentation for the Ansible inventories whenever changes are pushed to the `main` branch or a pull request is created. It uses the [Generate Inventory Documentation Script](docs/scripts/generate_inventory_docs.md) Python script to generate markdown files for each inventory, and maintains a global index of inventories, and commits the changes back to the repository.
 
-This workflow ensures that documentation for all Ansible roles is **automatically generated and kept up to date**. Whenever code is pushed or a pull request is opened, the workflow runs the [Generate Playbook Documentation Script](docs/scripts/generate_playbook_docs.md) script, which regenerates per‑playbook markdown files, builds folder‑level summaries, maintains a global index of playbooks, and commits the changes back to the repository.
+---
 
-
-## 🛠 Workflow File
-Located at: `.github/workflows/generate-playbook-docs.yml`
+## 📄 Workflow File
 
 ```yaml
-name: Generate Ansible Playbook Docs
+name: Generate Ansible Inventory Docs
 
 on:
   push:
@@ -22,7 +20,7 @@ on:
   pull_request:
 
 jobs:
-  generate-playbook-docs:
+  generate-inventory-docs:
     # Only run the job logic when the branch is main
     if: github.ref == 'refs/heads/main'
     
@@ -48,19 +46,19 @@ jobs:
           pip install -r requirements.txt
 
       # Run the documentation generator
-      - name: Generate playbook docs
+      - name: Generate inventory docs
         run: |
-          python ./scripts/generate_playbook_docs.py
+          python ./scripts/generate_inventory_docs.py
 
       - name: Commit and push changes
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git pull origin main
-          git add playbooks/README.md docs/playbooks/README.md docs/playbooks/*.md
+          git add inventory/README.md docs/inventories/README.md docs/inventories/*.md
 
           if ! git diff --cached --quiet; then
-            git commit -m "chore(docs): auto-generate playbook documentation"
+            git commit -m "chore(docs): auto-generate inventory documentation"
             git push origin main
           else
             echo "No documentation changes to commit."
@@ -96,19 +94,19 @@ jobs:
 
 ---
 
-## 📝 Summary
+## ⚡ Summary
 
 * **Trigger:** Runs on every push to `main` and on pull requests.  
 * **Checkout:** Uses `actions/checkout@v4` with `fetch-depth: 0` so commits can be pushed back.  
 * **Python Setup:** Uses Python 3.11 (adjustable).  
-* **Dependencies:** Installs from `requirements.txt` (currently only PyYAML).  
-* **Script Execution:** Runs `scripts/generate_playbook_docs.py` to regenerate playbook documentation.
+* **Dependencies:** Installs from `requirements.txt` (currently only `PyYAML`).
+* **Script Execution:** Runs `scripts/generate_inventory_docs.py` to regenerate inventory documentation.
 * **Generated Documentation:** The following markdown files are created by the Python script:
-  * `playbooks/README.md`
-  * `docs/playbooks/README.md`
-  * `docs/playbooks/<playbook name>.md`
+  * `inventory/README.md`
+  * `docs/inventory/README.md`
+  * `docs/inventory/*.md`
 * **Commit Logic:**  
-  * Stages only playbook markdowns and the central index.  
+  * Stages only inventory markdowns and the central index.  
   * Commits only if changes exist (`git diff --cached --quiet` prevents empty commits).  
   * Pushes back to the branch that triggered the workflow.  
 * **Permissions:** Requires repository **Actions → Workflow permissions** set to **Read and write** so the built‑in `GITHUB_TOKEN` can push commits.

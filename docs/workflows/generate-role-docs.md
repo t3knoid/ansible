@@ -1,14 +1,19 @@
+---
+title: "️ GitHub Action: Generate Ansible Role Docs"
+---
+
 # ⚙️ GitHub Action: Generate Ansible Role Docs
 
 ## 📖 Purpose
 This workflow ensures that documentation for all Ansible roles is **automatically generated and kept up to date**.  
-Whenever code is pushed or a pull request is opened, the workflow runs the `generate_role_docs.py` script, which regenerates each role’s `README.md`, and updates the central `roles/README.md` index. If changes are detected, they are committed back to the repository.
+Whenever code is pushed or a pull request is opened, the workflow runs the [Generate Role Documentation Script](docs/roles/scripts/generate_role_docs.md), which regenerates each role’s `README.md`, and updates the central `roles/README.md` index. If changes are detected, they are committed back to the repository.
 
 ---
 
 ## 🛠 Workflow File
 Located at: `.github/workflows/generate-role-docs.yml`
 
+{% raw %}
 ```yaml
 name: Generate Ansible Role Docs
 
@@ -53,7 +58,7 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
+          git pull origin main
           git add roles/README.md docs/roles/README.md docs/roles/*.md
 
           if ! git diff --cached --quiet; then
@@ -63,18 +68,23 @@ jobs:
             echo "No documentation changes to commit."
           fi
 ```
+{% endraw %}
 
 ---
 
-## 🔑 Key Points
+## 📝 Summary
 
-- **Trigger:** Runs on every push to `main` and on pull requests.  
-- **Checkout:** Uses `actions/checkout@v4` with `fetch-depth: 0` so commits can be pushed back.  
-- **Python Setup:** Uses Python 3.11 (adjustable).  
-- **Dependencies:** Installs from `requirements.txt` (currently only `PyYAML`).  
-- **Script Execution:** Runs `scripts/generate_role_docs.py` to regenerate docs.  
-- **Commit Logic:**  
-  - Stages only role READMEs and the central index.  
-  - Commits only if changes exist (`git diff --cached --quiet` prevents empty commits).  
-  - Pushes back to the branch that triggered the workflow.  
-- **Permissions:** Requires repository **Actions → Workflow permissions** set to **Read and write** so the built‑in `GITHUB_TOKEN` can push commits.  
+* **Trigger:** Runs on every push to `main` and on pull requests.  
+* **Checkout:** Uses `actions/checkout@v4` with `fetch-depth: 0` so commits can be pushed back.  
+* **Python Setup:** Uses Python 3.11 (adjustable).  
+* **Dependencies:** Installs from `requirements.txt` (currently only PyYAML).  
+* **Script Execution:** Runs `scripts/generate_role_docs.py` to regenerate role documentation.
+* **Generated Documentation:** The following markdown files are created by the Python script:
+  * `roles/README.md`
+  * `docs/roles/README.md`
+  * `docs/roles/<role folder name>.md`
+* **Commit Logic:**  
+  * Stages only role READMEs and the central index.  
+  * Commits only if changes exist (`git diff --cached --quiet` prevents empty commits).  
+  * Pushes back to the branch that triggered the workflow.  
+* **Permissions:** Requires repository **Actions → Workflow permissions** set to **Read and write** so the built‑in `GITHUB_TOKEN` can push commits.
