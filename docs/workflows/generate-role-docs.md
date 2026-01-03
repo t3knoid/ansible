@@ -82,7 +82,7 @@ jobs:
 * **Generated Documentation:** The following markdown files are created by the Python script:
   * `roles/README.md`
   * `docs/roles/README.md`
-  * `docs/roles/<role folder name>.md`
+  * `docs/roles/<role name>.md`
 * **Commit Logic:**  
   * Stages only role READMEs and the central index.  
   * Commits only if changes exist (`git diff --cached --quiet` prevents empty commits).  
