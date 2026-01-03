@@ -11,6 +11,9 @@ _Inventory for `test` hosts_
 ### `removable`
 - `test-0`
 
+### `python`
+- `test-0`
+
 ## ⚙️ Group Variables
 _No group variables defined._
 
