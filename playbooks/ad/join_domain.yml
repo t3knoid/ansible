@@ -3,7 +3,7 @@
 # Purpose: Join hosts to an Active Directory domain
 
 - name: Join active directory domain
-  hosts: vms, baremetal
+  hosts: vms, baremetal, wsl
   gather_facts: false
   become: true
   roles:
