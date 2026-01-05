@@ -3,7 +3,7 @@
 # Purpose: Prepare nodes to be managed by Ansible
 
 - name: Prepare ansible managed node
-  hosts: vms, baremetal
+  hosts: vms, baremetal, wsl
   gather_facts: true
   become: true
   roles:
