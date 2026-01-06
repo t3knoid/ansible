@@ -5,13 +5,12 @@ _Inventory for `ansible` hosts_
 📄 **Source:** [`inventory/ansible/inventory.ini`](../../inventory/ansible/inventory.ini)
 
 ## 👥 Groups & Hosts
-### `ansible`
+### `vms`
 - `ansible-0`
 - `ansible-1`
 
-### `linux`
-- `ansible-0`
-- `ansible-1`
+### `wsl`
+- `dev-0`
 
 ### `pgclient`
 - `ansible-1`
@@ -38,10 +37,6 @@ _Inventory for `ansible` hosts_
 ### `certs`
 - `rproxy-0`
 
-### `python`
-- `ansible-0`
-- `ansible-1`
-
 ### `azure_cli`
 - `ansible-0`
 
@@ -66,16 +61,25 @@ _No group variables defined._
 - `vms_proxmox_node`: `pve-1`
 
 ## 🧩 Group Children
+### `linux`
+- `wsl`
+- `vms`
+
 ### `terraform`
 - `ansible`
 
-### `vms`
-- `ansible`
+### `ansible`
+- `wsl`
+- `vms`
 
 ### `rproxy`
-- `rproxy_primary`
-- `rproxy_main`
 - `rproxy_secondary`
+- `rproxy_main`
+- `rproxy_primary`
 
 ### `cname`
 - `code_server`
+
+### `python`
+- `wsl`
+- `ansible`
