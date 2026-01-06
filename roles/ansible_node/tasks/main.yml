@@ -42,7 +42,7 @@
     create: true
     state: present
     line: '%ansible ALL=(ALL) NOPASSWD:ALL'
-    mode: '0644'
+    mode: '0440'
     validate: 'visudo -cf %s'
 
 - name: Ensure remote temp directory exists
