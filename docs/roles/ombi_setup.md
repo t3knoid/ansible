@@ -44,7 +44,7 @@ _No constant variables found._
 - Restart PostgreSQL
 
 ## 🔗 Dependencies
-- `redis_setup`
+_No dependencies listed._
 
 ## 🚀 Example Usage
 ```yaml
