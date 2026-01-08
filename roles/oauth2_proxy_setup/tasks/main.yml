@@ -36,8 +36,6 @@
       | ternary('redis://:' ~ redis_setup_password | trim ~ '@127.0.0.1:6379/0',
                 'redis://127.0.0.1:6379/0') }}"
 
-
-# Will move this to oauth2_proxy_setup role later
 - name: Replace rproxy_setup_sites with updated list containing secrets
   ansible.builtin.set_fact:
     rproxy_setup_sites: "{{ entra_id_oauth2_updated_sites }}"
