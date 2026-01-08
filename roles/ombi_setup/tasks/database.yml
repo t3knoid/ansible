@@ -58,7 +58,7 @@
   ansible.builtin.lineinfile:
     path: ~/.pgpass
     line: "{{ ombi_setup_pg_host }}:5432:{{ ombi_setup_db_name }}:{{ ombi_setup_db_user }}:{{ ombi_setup_db_password }}"
-    create: yes
+    create: true
     owner: postgres
     group: postgres
     mode: '0600'
