@@ -16,6 +16,8 @@
     cores: "{{ vms_config.cores | default(2) }}"
     sockets: "{{ vms_config.sockets | default(1) }}"
     ostype: "{{ vms_config.ostype | default('l26') }}"
+    net:
+      net0: "virtio,bridge=vmbr0"
     # No disks defined → VM is created with no storage
     state: present
   delegate_to: localhost
