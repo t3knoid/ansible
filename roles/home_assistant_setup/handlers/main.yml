@@ -1,0 +1,46 @@
+---
+
+- name: Check if Home Assistant image already exists
+  ansible.builtin.stat:
+    path: "{{ home_assistant_setup_vz_image_full_path }}"
+  register: home_assistant_image_stat
+  delegate_to: "{{ vms_proxmox_node }}"
+
+- name: Create VM image path directory
+  ansible.builtin.file:
+    path: "{{ home_assistant_setup_vz_image_path }}"
+    state: directory
+    mode: '0700'
+  delegate_to: "{{ vms_proxmox_node }}"
+
+- name: Create temporary directory for qcow2.xz extraction
+  ansible.builtin.tempfile:
+    state: directory
+    suffix: qcow2_extract
+  register: tempdir
+  delegate_to: "{{ vms_proxmox_node }}"
+
+- name: Download Home Assistant QCOW2 image
+  ansible.builtin.get_url:
+    url: "{{ home_assistant_setup_qcow2_image_url }}"
+    dest: "{{ tempdir.path }}/{{ home_assistant_setup_qcow2_image_xz }}"
+    mode: '0640'
+  delegate_to: "{{ vms_proxmox_node }}"
+
+- name: Decompress qcow2.xz
+  ansible.builtin.command: "unxz {{ tempdir.path }}/{{ home_assistant_setup_qcow2_image_xz }}"
+  delegate_to: "{{ vms_proxmox_node }}"
+  changed_when: false
+
+- name: Move qcow2 to Proxmox VM images directory
+  ansible.builtin.command: >
+    mv {{ tempdir.path }}/{{ home_assistant_setup_qcow2_image }}
+    {{ home_assistant_setup_vz_image_full_path }}
+  delegate_to: "{{ vms_proxmox_node }}"
+  changed_when: false
+
+- name: Remove temporary directory
+  ansible.builtin.file:
+    path: "{{ tempdir.path }}"
+    state: absent
+  delegate_to: "{{ vms_proxmox_node }}"

@@ -1,0 +1,27 @@
+---
+
+vms_config:
+  agent: "1"
+  cores: "1"
+  machine: q35
+  cpu: host
+  memory: 2048
+  ostype: l26
+  bios: ovmf
+  scsihw: virtio-scsi-single
+  sockets: 2
+  storage: local
+
+rproxy_setup_sites:
+  - server_name: ha.refol.us
+    port: 80
+    proxy_pass: "http://{{ global_ip_addresses['ha-0'] }}"
+    allow_list:
+      - 192.168.0.0/24
+      - 192.168.2.0/24
+      - 24.105.250.200
+      - 70.107.117.124
+    restricted: false
+    enable: true
+
+home_assistant_setup_version: "16.3"
