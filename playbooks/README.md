@@ -53,6 +53,7 @@
 | [`graphite/restart_carbon_cache.yml`](restart_carbon_cache.md) | Restart the carbon-cache service on Graphite hosts |
 | [`graphite/start_carbon_cache.yml`](start_carbon_cache.md) | Start the carbon-cache service on Graphite hosts |
 | [`graphite/stop_carbon_cache.yml`](stop_carbon_cache.md) | Stop the carbon-cache service on Graphite hosts |
+| [`home-assistant/deploy_home-assistant.yml`](deploy_home-assistant.md) | Deploy Home Assistant on a target host |
 | [`java/deploy_java.yml`](deploy_java.md) | Deploy Java runtime environment on Java hosts |
 | [`jenkins/deploy_jenkins.yml`](deploy_jenkins.md) | Deploy Jenkins automation server on Jenkins hosts |
 | [`linux/check_connection.yml`](check_connection.md) | Check connectivity and gather facts from Linux hosts |
