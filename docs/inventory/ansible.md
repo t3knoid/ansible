@@ -73,9 +73,9 @@ _No group variables defined._
 - `vms`
 
 ### `rproxy`
+- `rproxy_primary`
 - `rproxy_main`
 - `rproxy_secondary`
-- `rproxy_primary`
 
 ### `cname`
 - `code_server`
