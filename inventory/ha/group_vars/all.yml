@@ -14,7 +14,7 @@ vms_config:
 
 rproxy_setup_sites:
   - server_name: ha.refol.us
-    port: 80
+    port: 8123
     proxy_pass: "http://{{ global_ip_addresses['ha-0'] }}"
     allow_list:
       - 192.168.0.0/24
