@@ -1,0 +1,12 @@
+---
+
+# Purpose: Deploy Home Assistant on a target host
+
+- name: Deploy Home Assistant
+  hosts: home_assistant
+  become: true
+  gather_facts: false
+
+  roles:
+    - global
+    - home_assistant_setup

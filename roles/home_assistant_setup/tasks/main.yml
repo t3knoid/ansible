@@ -1,0 +1,82 @@
+---
+
+- name: Create empty VM shell
+  community.proxmox.proxmox_kvm:
+    api_host: "{{ global_proxmox_api_host }}"
+    api_user: "{{ global_proxmox_api_user }}"
+    api_password: "{{ global_proxmox_api_password }}"
+    node: "{{ vms_proxmox_node }}"
+    vmid: "{{ vms_vmid | int }}"
+    name: "{{ vms_name | default(inventory_hostname) }}"
+    machine: "{{ vms_config.machine | default('q35') }}"
+    scsihw: "{{ vms_config.scsihw | default('virtio-scsi-single') }}"
+    cpu: "{{ vms_config.cpu | default('host') }}"
+    bios: "{{ vms_config.bios | default('ovmf') }}"
+    memory: "{{ vms_config.memory | default(2048) }}"
+    cores: "{{ vms_config.cores | default(2) }}"
+    sockets: "{{ vms_config.sockets | default(1) }}"
+    ostype: "{{ vms_config.ostype | default('l26') }}"
+    # No disks defined → VM is created with no storage
+    state: present
+  delegate_to: localhost
+  register: create_vm_result
+  notify:
+    - Check if Home Assistant image already exists
+    - Create VM image path directory
+    - Create temporary directory for qcow2.xz extraction
+    - Download Home Assistant QCOW2 image
+    - Move qcow2 to Proxmox VM images directory
+    - Decompress qcow2.xz
+    - Remove temporary directory
+
+- name: Flush handlers to download and prepare Home Assistant image
+  ansible.builtin.meta: flush_handlers
+
+- name: Check if scsi1 already attached
+  ansible.builtin.command: "qm config {{ vms_vmid }}"
+  register: qm_config
+  delegate_to: "{{ vms_proxmox_node }}"
+  changed_when: false
+
+- name: Execute `qm disk rescan` on Proxmox node
+  ansible.builtin.command: "qm disk rescan"
+  when: "'scsi1:' not in qm_config.stdout"
+  delegate_to: "{{ vms_proxmox_node }}"
+  changed_when: false
+
+- name: Attach unused disk using qm set
+  ansible.builtin.command: >
+    qm set {{ vms_vmid }} --scsi1 {{ home_assistant_setup_disk_volume }}
+  when: "'scsi1:' not in qm_config.stdout"
+  delegate_to: "{{ vms_proxmox_node }}"
+  changed_when: false
+
+- name: Configure boot order to boot from disk
+  ansible.builtin.command: >
+    qm set {{ vms_vmid }} --boot c --bootdisk scsi1
+  when: "'scsi1:' not in qm_config.stdout"
+  delegate_to: "{{ vms_proxmox_node }}"
+  changed_when: false
+
+- name: Start the Home Assistant VM
+  community.proxmox.proxmox_kvm:
+    api_host: "{{ global_proxmox_api_host }}"
+    api_user: "{{ global_proxmox_api_user }}"
+    api_password: "{{ global_proxmox_api_password }}"
+    node: "{{ vms_proxmox_node }}"
+    vmid: "{{ vms_vmid | int }}"
+    state: started
+  register: start_vm_result
+  delegate_to: localhost
+
+- name: Show final message
+  ansible.builtin.debug:
+    msg: "Home Assistant VM (vmid {{ vms_vmid }}) has been created and started on Proxmox node {{ vms_proxmox_node }}."
+  when: start_vm_result is defined and start_vm_result.changed
+
+- name: Wait for Home Assistant to start
+  ansible.builtin.pause:
+    minutes: 2
+    prompt: "Waiting for Home Assistant to start. Press Enter to continue after ensuring Home Assistant is up."
+  when: start_vm_result is defined and start_vm_result.changed
+  delegate_to: localhost

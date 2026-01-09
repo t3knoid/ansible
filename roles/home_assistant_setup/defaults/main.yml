@@ -1,0 +1,12 @@
+---
+
+home_assistant_setup_version: "16.3"
+home_assistant_setup_qcow2_image_xz: "haos_ova-{{ home_assistant_setup_version }}.qcow2.xz"
+home_assistant_setup_qcow2_image_url_base: "https://github.com/home-assistant/operating-system/releases/download/{{ home_assistant_setup_version }}"
+home_assistant_setup_qcow2_image_url: "{{ home_assistant_setup_qcow2_image_url_base }}/{{ home_assistant_setup_qcow2_image_xz }}"
+
+home_assistant_setup_qcow2_image: "{{ home_assistant_setup_qcow2_image_xz | replace('.xz','') }}"
+home_assistant_setup_vz_image_path: "/var/lib/vz/images/{{ vms_vmid }}"
+home_assistant_setup_vz_image_full_path: "{{ home_assistant_setup_vz_image_path }}/{{ home_assistant_setup_qcow2_image }}"
+
+home_assistant_setup_disk_volume: "local:{{ vms_vmid }}/{{ home_assistant_setup_qcow2_image }}"
