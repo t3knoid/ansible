@@ -1,0 +1,8 @@
+---
+
+# Purpose: Deploy Tinyproxy on target hosts
+hosts: fproxy
+become: true
+roles:
+  - role: tinyproxy_setup
+  
