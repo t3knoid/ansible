@@ -51,6 +51,6 @@ _No group variables defined._
 - `redmine`
 
 ### `rproxy`
-- `rproxy_primary`
 - `rproxy_main`
 - `rproxy_secondary`
+- `rproxy_primary`
