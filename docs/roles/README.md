@@ -24,6 +24,7 @@
 | [`global`](./global.md) | Provides global defaults common to all roles. It provides the IP definition of each host in the datacenter. Every host must be defined here with its corresponding IP address. Other global variables are also defined here. |
 | [`grafana_setup`](./grafana_setup.md) | Install and configure Grafana on Debian/Ubuntu |
 | [`graphite_setup`](./graphite_setup.md) | Installs and configures Graphite on Debian/Ubuntu systems. |
+| [`home_assistant_setup`](./home_assistant_setup.md) | Installs Home Assistant using its QCOW2 image on a Proxmox VE host. |
 | [`java_setup`](./java_setup.md) | Installs and configures Java on Debian/Ubuntu systems. |
 | [`jenkins_setup`](./jenkins_setup.md) | Installs and configures Jenkins on Debian/Ubuntu systems. |
 | [`lamp_setup`](./lamp_setup.md) | Install and configure LAMP on Debian/Ubuntu. |
