@@ -1,18 +1,5 @@
 ---
 
-- name: Check if Home Assistant image already exists
-  ansible.builtin.stat:
-    path: "{{ home_assistant_setup_vz_image_full_path }}"
-  register: home_assistant_image_stat
-  delegate_to: "{{ vms_proxmox_node }}"
-
-- name: Create VM image path directory
-  ansible.builtin.file:
-    path: "{{ home_assistant_setup_vz_image_path }}"
-    state: directory
-    mode: '0700'
-  delegate_to: "{{ vms_proxmox_node }}"
-
 - name: Create temporary directory for qcow2.xz extraction
   ansible.builtin.tempfile:
     state: directory
@@ -32,10 +19,13 @@
   delegate_to: "{{ vms_proxmox_node }}"
   changed_when: false
 
-- name: Move qcow2 to Proxmox VM images directory
+- name: Import qcow2 image
   ansible.builtin.command: >
-    mv {{ tempdir.path }}/{{ home_assistant_setup_qcow2_image }}
-    {{ home_assistant_setup_vz_image_full_path }}
+    qm importdisk {{ home_assistant_setup_vmid }}
+    "{{ tempdir.path }}/{{ home_assistant_setup_qcow2_image }}"
+    "{{ home_assistant_setup_disk_storage }}"
+    --format "{{ home_assistant_setup_vz_image_format }}"
+  register: home_assistant_setup_import_disk_result
   delegate_to: "{{ vms_proxmox_node }}"
   changed_when: false
 
@@ -44,3 +34,20 @@
     path: "{{ tempdir.path }}"
     state: absent
   delegate_to: "{{ vms_proxmox_node }}"
+
+- name: Extract disk volume ID from import output
+  ansible.builtin.set_fact:
+    home_assistant_setup_disk_volume: "{{ home_assistant_setup_import_disk_result.stdout | regex_search(\"imported disk\\s+'([^']+)'\", '\\1') | first }}"
+  when: home_assistant_setup_import_disk_result is defined
+
+- name: Attach unused disk using qm set
+  ansible.builtin.command: >
+    qm set {{ vms_vmid }} --{{ home_assistant_setup_disk_id }} {{ home_assistant_setup_disk_volume }}
+  delegate_to: "{{ vms_proxmox_node }}"
+  changed_when: false
+
+- name: Configure boot order to boot from disk
+  ansible.builtin.command: >
+    qm set {{ vms_vmid }} --boot c --bootdisk {{ home_assistant_setup_disk_id }}
+  delegate_to: "{{ vms_proxmox_node }}"
+  changed_when: false

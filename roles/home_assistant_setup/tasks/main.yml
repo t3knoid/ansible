@@ -1,64 +1,96 @@
 ---
 
-- name: Create empty VM shell
+- name: Get next available vmid
+  ansible.builtin.command: pvesh get /cluster/nextid
+  register: home_assistant_setup_next_vmid
+  delegate_to: "{{ vms_proxmox_node }}"
+  changed_when: false
+
+- name: Set home_assistant_setup_vmid fact
+  ansible.builtin.set_fact:
+    home_assistant_setup_vmid: "{{ vms_vmid | default(home_assistant_setup_next_vmid.stdout) }}"
+
+- name: Check if VM exists
+  community.proxmox.proxmox_vm_info:
+    api_host: "{{ global_proxmox_api_host }}"
+    api_user: "{{ global_proxmox_api_user }}"
+    api_token_id: "{{ global_proxmox_api_token_id | default(omit) }}"
+    api_token_secret: "{{ global_proxmox_api_token }}"
+    api_password: "{{ global_proxmox_api_password }}"
+    node: "{{ vms_proxmox_node }}"
+    vmid: "{{ home_assistant_setup_vmid | int }}"
+    config: "current"
+  delegate_to: localhost
+  register: home_assistant_setup_vm_info
+  failed_when: false
+  changed_when: false
+
+- name: Show home_assistant_setup_vm_info debug
+  ansible.builtin.debug:
+    var: home_assistant_setup_vm_info
+
+- name: Set MAC address fact if VM exists
+  ansible.builtin.set_fact:
+    home_assistant_setup_vm_mac_address: >-
+      {{
+          home_assistant_setup_vm_info.proxmox_vms[0].config.net0
+          | regex_search('([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})')
+          | lower
+      }}
+  when: home_assistant_setup_vm_info.proxmox_vms | length > 0
+
+- name: Create empty VM shell if missing
   community.proxmox.proxmox_kvm:
+    agent: "{{ vms_config.agent | default('1') }}"
     api_host: "{{ global_proxmox_api_host }}"
     api_user: "{{ global_proxmox_api_user }}"
     api_password: "{{ global_proxmox_api_password }}"
     node: "{{ vms_proxmox_node }}"
-    vmid: "{{ vms_vmid | int }}"
-    name: "{{ vms_name | default(inventory_hostname) }}"
-    machine: "{{ vms_config.machine | default('q35') }}"
+    vmid: "{{ home_assistant_setup_vmid | int }}"
+    name: "{{ vms_vmname | default(inventory_hostname) }}"
+    machine: "q35"
     scsihw: "{{ vms_config.scsihw | default('virtio-scsi-single') }}"
     cpu: "{{ vms_config.cpu | default('host') }}"
-    bios: "{{ vms_config.bios | default('ovmf') }}"
+    bios: "ovmf"
     memory: "{{ vms_config.memory | default(2048) }}"
     cores: "{{ vms_config.cores | default(2) }}"
     sockets: "{{ vms_config.sockets | default(1) }}"
-    ostype: "{{ vms_config.ostype | default('l26') }}"
+    ostype: "l26"
+    serial:
+      serial0: "{{ vms_config.serial | default('socket') }}"
+    vga: "{{ vms_config.vga | default('serial0') }}"
     net:
-      net0: "virtio,bridge=vmbr0"
-    # No disks defined → VM is created with no storage
+      net0: "{{ vms_config.net0 | default('virtio,bridge=vmbr0') }}"
+    efidisk0:
+      storage: "{{ home_assistant_setup_disk_storage }}"
+      format: raw
+      efitype: "2m"
+      pre_enrolled_keys: false
     state: present
   delegate_to: localhost
-  register: create_vm_result
+  when: home_assistant_setup_vm_info.proxmox_vms | length == 0
+  register: home_assistant_setup_vm_create_result
   notify:
-    - Check if Home Assistant image already exists
-    - Create VM image path directory
     - Create temporary directory for qcow2.xz extraction
     - Download Home Assistant QCOW2 image
-    - Move qcow2 to Proxmox VM images directory
     - Decompress qcow2.xz
+    - Import qcow2 image
     - Remove temporary directory
+    - Extract disk volume ID from import output
+    - Attach unused disk using qm set
+    - Configure boot order to boot from disk
+
+- name: Set Mac address fact from created VM
+  ansible.builtin.set_fact:
+    home_assistant_setup_vm_mac_address: "{{ home_assistant_setup_vm_create_result.mac.net0 }}"
+  when: home_assistant_setup_vm_mac_address is not defined
+
+- name: Show Home Assistant VM creation result
+  ansible.builtin.debug:
+    msg: "Home Assistant VM {{ home_assistant_setup_vmid }} has MAC {{ home_assistant_setup_vm_mac_address }}."
 
 - name: Flush handlers to download and prepare Home Assistant image
   ansible.builtin.meta: flush_handlers
-
-- name: Check if scsi1 already attached
-  ansible.builtin.command: "qm config {{ vms_vmid }}"
-  register: qm_config
-  delegate_to: "{{ vms_proxmox_node }}"
-  changed_when: false
-
-- name: Execute `qm disk rescan` on Proxmox node
-  ansible.builtin.command: "qm disk rescan"
-  when: "'scsi1:' not in qm_config.stdout"
-  delegate_to: "{{ vms_proxmox_node }}"
-  changed_when: false
-
-- name: Attach unused disk using qm set
-  ansible.builtin.command: >
-    qm set {{ vms_vmid }} --scsi1 {{ home_assistant_setup_disk_volume }}
-  when: "'scsi1:' not in qm_config.stdout"
-  delegate_to: "{{ vms_proxmox_node }}"
-  changed_when: false
-
-- name: Configure boot order to boot from disk
-  ansible.builtin.command: >
-    qm set {{ vms_vmid }} --boot c --bootdisk scsi1
-  when: "'scsi1:' not in qm_config.stdout"
-  delegate_to: "{{ vms_proxmox_node }}"
-  changed_when: false
 
 - name: Start the Home Assistant VM
   community.proxmox.proxmox_kvm:
@@ -66,19 +98,67 @@
     api_user: "{{ global_proxmox_api_user }}"
     api_password: "{{ global_proxmox_api_password }}"
     node: "{{ vms_proxmox_node }}"
-    vmid: "{{ vms_vmid | int }}"
+    vmid: "{{ home_assistant_setup_vmid | int }}"
     state: started
-  register: start_vm_result
+  register: home_assistant_setup_start_vm_result
   delegate_to: localhost
+  changed_when: home_assistant_setup_start_vm_result.changed
 
-- name: Show final message
+- name: Show confirmation message
   ansible.builtin.debug:
-    msg: "Home Assistant VM (vmid {{ vms_vmid }}) has been created and started on Proxmox node {{ vms_proxmox_node }}."
-  when: start_vm_result is defined and start_vm_result.changed
+    msg: "Home Assistant VM (vmid {{ home_assistant_setup_vmid }}) has been created and started on Proxmox node {{ vms_proxmox_node }}."
+  when: home_assistant_setup_start_vm_result is defined and home_assistant_setup_start_vm_result.changed
 
-- name: Wait for Home Assistant to start
-  ansible.builtin.pause:
-    minutes: 2
-    prompt: "Waiting for Home Assistant to start. Press Enter to continue after ensuring Home Assistant is up."
-  when: start_vm_result is defined and start_vm_result.changed
+- name: Initialize home_assistant_setup_vm_interfaces by querying QEMU guest agent
+  ansible.builtin.command: >
+    qm guest cmd {{ home_assistant_setup_vmid }} network-get-interfaces
+  register: home_assistant_setup_vm_interfaces
+  delegate_to: "{{ vms_proxmox_node }}"
+  retries: 30
+  delay: 5
+  until: home_assistant_setup_vm_interfaces.stdout is search('"ip-address"')
+  changed_when: false
+  failed_when: false
+
+- name: Wait for VM to report an IP address on the host NIC using its MAC address
+  ansible.builtin.command: >
+    qm guest cmd {{ home_assistant_setup_vmid }} network-get-interfaces
+  register: home_assistant_setup_vm_interfaces
+  delegate_to: "{{ vms_proxmox_node }}"
+  until: >-
+    (home_assistant_setup_vm_interfaces.stdout | default('[]') | from_json
+    | selectattr('hardware-address', 'equalto', (home_assistant_setup_vm_mac_address | lower | trim))
+    | map(attribute='ip-addresses')
+    | first | default([])) | length > 0
+  retries: 30
+  delay: 5
+  changed_when: false
+  failed_when: false
+
+- name: Extract the VM's IPv4 address
+  ansible.builtin.set_fact:
+    home_assistant_setup_vm_ip_address: >-
+      {{
+        home_assistant_setup_vm_interfaces.stdout | default('[]') | from_json
+        | selectattr('hardware-address', 'equalto', (home_assistant_setup_vm_mac_address | lower | trim))
+        | map(attribute='ip-addresses')
+        | flatten
+        | selectattr('ip-address-type', 'equalto', 'ipv4')
+        | map(attribute='ip-address')
+        | first
+      }}
+
+- name: Wait for Home Assistant Web UI to become accessible
+  ansible.builtin.uri:
+    url: "http://{{ home_assistant_setup_vm_ip_address }}:8123/"
+    status_code: 200
+  retries: 30
+  delay: 10
+  register: home_assistant_setup_connection_check
+  until: home_assistant_setup_connection_check.status == 200
   delegate_to: localhost
+
+- name: Show Home Assistant access information
+  ansible.builtin.debug:
+    msg: "Home Assistant is accessible at http://{{ home_assistant_setup_vm_ip_address }}:8123/"
+  when: home_assistant_setup_vm_ip_address is defined
