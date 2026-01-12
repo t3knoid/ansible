@@ -33,7 +33,7 @@ redis_setup_version: "6:8.4.0-1rl1" # Redis is required by oauth2_proxy
 # code_server_password
 # ansible_setup_vault_password
 # rproxy_setup_sites
-# redis_setup_password 
+# redis_setup_password
 rproxy_setup_sites:
   - server_name: code.refol.us
     port: 8000
@@ -44,6 +44,15 @@ rproxy_setup_sites:
       - 24.105.250.200
       - 70.107.117.124
     restricted: false
+    # OAuth2 integration
+    use_oauth2: true
+    oauth2_provider: "entra-id"
+    oauth2_scope: "openid profile email"
+    oauth2_cookie_secret: "base64-random-32-bytes"
+    oauth2_client_id: "uuid-for-site"
+    oauth2_callback_url: "https://code.refol.us/oauth2/callback"
+    oauth2_client_secret: ""
+    oauth2_email_domains: "*"
 
 azure_cli_setup_version: 2.81.0
 
