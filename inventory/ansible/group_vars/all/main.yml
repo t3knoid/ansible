@@ -49,7 +49,7 @@ rproxy_setup_sites:
     oauth2_provider: "entra-id"
     oauth2_scope: "openid profile email"
     oauth2_cookie_secret: "base64-random-32-bytes"
-    oauth2_client_id: "uuid-for-site"
+    oauth2_client_id: "cfb2627b-3529-4675-ab03-d44a58483af4"
     oauth2_callback_url: "https://code.refol.us/oauth2/callback"
     oauth2_client_secret: ""
     oauth2_email_domains: "*"
