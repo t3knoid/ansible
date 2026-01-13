@@ -29,7 +29,6 @@ _No constant variables found._
 - Ensure oauth2-proxy binary is executable
 - Create oauth2-proxy configuration directory
 - Set Redis connection string
-- Replace rproxy_setup_sites with updated list containing secrets
 - Find all oauth2-proxy services
 - Remove oauth2 directives from nginx configuration
 - Clean up oauth2-proxy services
@@ -45,6 +44,7 @@ _No constant variables found._
 
 ## 🔗 Dependencies
 - `redis_setup`
+- `entra_id_oauth2`
 
 ## 🚀 Example Usage
 ```yaml
