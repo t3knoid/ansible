@@ -5,8 +5,8 @@
   <EnableSsl>False</EnableSsl>
   <LaunchBrowser>True</LaunchBrowser>
   <ApiKey>c07e006959b44593952c18f6be3a734c</ApiKey>
-  <AuthenticationMethod>Forms</AuthenticationMethod>
-  <AuthenticationRequired>DisabledForLocalAddresses</AuthenticationRequired>
+  <AuthenticationMethod>{{ radarr_setup_authentication_method }}</AuthenticationMethod>
+  <AuthenticationRequired>{{ radarr_setup_authentication_required }}</AuthenticationRequired>
   <Branch>master</Branch>
   <LogLevel>{{ radarr_setup_debug_level }}</LogLevel>
   <SslCertPath></SslCertPath>
