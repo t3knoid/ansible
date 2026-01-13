@@ -3,6 +3,12 @@
 - name: Stop Docker Container
   ansible.builtin.include_tasks: stop.yml
 
+- name: Get Sabnzbd site hostname
+  ansible.builtin.set_fact:
+    sabnzbd_setup_domain_name: "{{ rproxy_setup_sites
+                                  | selectattr('server_name', 'startswith', 'sabnzbd')
+                                  | first }}"
+
 - name: Create config folder
   ansible.builtin.file:
     path: "{{ sabnzbd_setup_config_dir }}"
