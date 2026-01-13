@@ -27,6 +27,8 @@ Installs and configures Lidarr on Debian/Ubuntu systems. It uses a container dis
 | `lidarr_setup_backup_filename` | `"{{ lidarr_setup_backup_prefix }}{{ ansible_date_time.date }}.sqlc"` |  |
 | `lidarr_setup_backups_dir` | `"{{ lidarr_setup_mount_point }}/lidarr"` |  |
 | `lidarr_setup_backup_path` | `"{{ lidarr_setup_backups_dir }}/{{ lidarr_setup_backup_filename }}"` |  |
+| `lidarr_setup_authentication_method` | `"External"  # Options: Basic, Forms, External` |  |
+| `lidarr_setup_authentication_required` | `"DisabledForLocalAddresses"  # Options: Enabled, DisabledForLocalAddresses` |  |
 
 ## 📦 Vars
 _No constant variables found._
