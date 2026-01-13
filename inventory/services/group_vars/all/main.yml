@@ -5,7 +5,7 @@ vms_autoinstall: true
 vms_enable_serial_terminal: false
 vms_additional_packages: []
 python3_version: 3.12
-
+python3_venv_folder: "/opt/python_{{ python3_version }}"
 postgresql_setup_version: 14
 
 nginx_setup_disable_default_site: true
@@ -26,6 +26,14 @@ rproxy_setup_sites:
               auth_basic off;
               proxy_pass http://{{ global_ip_addresses['lidarr-0'] }}:8686;
           }
+    use_oauth2: true
+    oauth2_provider: "entra-id"
+    oauth2_scope: "openid profile email"
+    oauth2_cookie_secret: "f9Zrfvo3eHBDVvO6dReMduTG3aEqbckgqncXIUyHSR0="
+    oauth2_client_id: ""
+    oauth2_callback_url: "https://lidarr.refol.us/oauth2/callback"
+    oauth2_client_secret: ""
+    oauth2_email_domains: "*"
   - server_name: radarr.refol.us
     port: 7878
     proxy_pass: "http://{{ global_ip_addresses['radarr-0'] }}"
@@ -41,6 +49,14 @@ rproxy_setup_sites:
               auth_basic off;
               proxy_pass http://{{ global_ip_addresses['radarr-0'] }}:7878;
           }
+    use_oauth2: true
+    oauth2_provider: "entra-id"
+    oauth2_scope: "openid profile email"
+    oauth2_cookie_secret: "f9Zrfvo3eHBDVvO6dReMduTG3aEqbckgqncXIUyHSR0="
+    oauth2_client_id: ""
+    oauth2_callback_url: "https://radarr.refol.us/oauth2/callback"
+    oauth2_client_secret: ""
+    oauth2_email_domains: "*"
   - server_name: sabnzbd.refol.us
     port: 8080
     proxy_pass: "http://{{ global_ip_addresses['sabnzbd-0'] }}"
@@ -50,6 +66,14 @@ rproxy_setup_sites:
       - 24.105.250.200
       - 70.107.117.124
     restricted: false
+    use_oauth2: true
+    oauth2_provider: "entra-id"
+    oauth2_scope: "openid profile email"
+    oauth2_cookie_secret: "Qddlic5Zx8ce83TGlEue5H1SFRXAIbOsWlL1XcvDShE="
+    oauth2_client_id: ""
+    oauth2_callback_url: "https://sabnzbd.refol.us/oauth2/callback"
+    oauth2_client_secret: ""
+    oauth2_email_domains: "*"
   - server_name: sonarr.refol.us
     port: 8989
     proxy_pass: "http://{{ global_ip_addresses['sonarr-0'] }}"
@@ -65,6 +89,14 @@ rproxy_setup_sites:
               auth_basic off;
               proxy_pass http://{{ global_ip_addresses['lidarr-0'] }}:8989;
           }
+    use_oauth2: true
+    oauth2_provider: "entra-id"
+    oauth2_scope: "openid profile email"
+    oauth2_cookie_secret: "2mrsvQ-jHoMMsx1k-bQrDhgJlSnpTK-rHMvXx_EkNeY="
+    oauth2_client_id: ""
+    oauth2_callback_url: "https://sonarr.refol.us/oauth2/callback"
+    oauth2_client_secret: ""
+    oauth2_email_domains: "*"
   - server_name: lazy.refol.us
     port: 5299
     proxy_pass: "http://{{ global_ip_addresses['books-0'] }}"
@@ -74,6 +106,14 @@ rproxy_setup_sites:
       - 24.105.250.200
       - 70.107.117.124
     restricted: false
+    use_oauth2: true
+    oauth2_provider: "entra-id"
+    oauth2_scope: "openid profile email"
+    oauth2_cookie_secret: "l0fsUypuYUOMZxZog9A2q5N8sg1lOE_yQj0RGus2V14="
+    oauth2_client_id: ""
+    oauth2_callback_url: "https://lazy.refol.us/oauth2/callback"
+    oauth2_client_secret: ""
+    oauth2_email_domains: "*"
   - server_name: books.refol.us
     port: 8083
     proxy_pass: "http://{{ global_ip_addresses['books-0'] }}"
@@ -92,3 +132,11 @@ rproxy_setup_sites:
       - 24.105.250.200
       - 70.107.117.124
     restricted: false
+    use_oauth2: true
+    oauth2_provider: "entra-id"
+    oauth2_scope: "openid profile email"
+    oauth2_cookie_secret: "sMPVF1klBHROYIQrqLfVa-t09IowPWGUUO43qeShDaI="
+    oauth2_client_id: ""
+    oauth2_callback_url: "https://catalog.refol.us/oauth2/callback"
+    oauth2_client_secret: ""
+    oauth2_email_domains: "*"
