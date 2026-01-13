@@ -11,3 +11,4 @@ galaxy_info:
         - noble
 dependencies:
   - role: redis_setup
+  - role: entra_id_oauth2

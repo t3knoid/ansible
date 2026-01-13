@@ -36,18 +36,13 @@
       | ternary('redis://:' ~ redis_setup_password | trim ~ '@127.0.0.1:6379/0',
                 'redis://127.0.0.1:6379/0') }}"
 
-- name: Replace rproxy_setup_sites with updated list containing secrets
-  ansible.builtin.set_fact:
-    rproxy_setup_sites: "{{ entra_id_oauth2_updated_sites }}"
-  when: entra_id_oauth2_updated_sites is defined and (entra_id_oauth2_updated_sites | length) > 0
-
 # To make sure we are oauth2-proxy service installations
 # are idempotent. Find and remove any service that is not
 # supposed to be enabled. This list is use in the following
 # block.
 - name: Find all oauth2-proxy services
   ansible.builtin.shell:
-    cmd: "set -o pipefail && systemctl list-unit-files | awk '/^oauth2-proxy.*\\.service/ {print $1}'"
+    cmd: "set -o pipefail && systemctl list-unit-files | awk '$1 ~ /^oauth2-proxy/ && $1 ~ /\\.service$/ { print $1 }'"
   args:
     executable: /bin/bash
   register: oauth2_proxy_setup_services
@@ -83,7 +78,7 @@
     )
     or
     (
-      not (
+      (
         rproxy_setup_sites
         | selectattr('server_name','equalto', oauth2_proxy_setup_service_filename | basename | regex_replace('^oauth2-proxy_(.+)\\.service$', '\\1'))
         | map(attribute='use_oauth2')
