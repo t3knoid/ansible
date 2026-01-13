@@ -48,6 +48,18 @@ global_pihole_api_host: "{{ global_ip_addresses['dns-1'] }}"
 
 global_oauth2_proxy_ports:
   code.refol.us: 4180
+  lidarr.refol.us: 4181
+  radarr.refol.us: 4182
+  sonarr.refol.us: 4183
+  sabnzbd.refol.us: 4184
+  lazy.refol.us: 4185
+  catalog.refol.us: 4186
 
 global_oauth2_proxy_metrics_ports:
   code.refol.us: 9100
+  lidarr.refol.us: 9101
+  radarr.refol.us: 9102
+  sonarr.refol.us: 9103
+  sabnzbd.refol.us: 9104
+  lazy.refol.us: 9105
+  catalog.refol.us: 9106
