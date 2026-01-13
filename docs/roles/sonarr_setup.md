@@ -27,6 +27,8 @@ Installs and configures a Sonarr Docker container. It uses a container distribut
 | `sonarr_setup_backup_filename` | `"{{ sonarr_setup_backup_prefix }}{{ ansible_date_time.date }}.sqlc"` |  |
 | `sonarr_setup_backups_dir` | `"{{ sonarr_setup_mount_point }}/sonarr"` |  |
 | `sonarr_setup_backup_path` | `"{{ sonarr_setup_backups_dir }}/{{ sonarr_setup_backup_filename }}"` |  |
+| `sonarr_setup_authentication_method` | `"External"  # Options: Basic, Forms, External` |  |
+| `sonarr_setup_authentication_required` | `"DisabledForLocalAddresses"  # Options: Enabled, DisabledForLocalAddresses` |  |
 
 ## 📦 Vars
 _No constant variables found._
