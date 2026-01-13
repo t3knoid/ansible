@@ -81,6 +81,7 @@ Installs and configures a Sabnzbd Docker container. It uses a Docker image distr
 
 ## 📑 Tasks
 - Stop Docker Container
+- Get Sabnzbd site hostname
 - Create config folder
 - Verify config folder exists
 - Fail if config folder does not exists
