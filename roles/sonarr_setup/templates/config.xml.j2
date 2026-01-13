@@ -5,8 +5,8 @@
   <EnableSsl>False</EnableSsl>
   <LaunchBrowser>True</LaunchBrowser>
   <ApiKey>aa3653c131864c19acc27004431a2db0</ApiKey>
-  <AuthenticationMethod>Forms</AuthenticationMethod>
-  <AuthenticationRequired>DisabledForLocalAddresses</AuthenticationRequired>
+  <AuthenticationMethod>{{ sonarr_setup_authentication_method }}</AuthenticationMethod>
+  <AuthenticationRequired>{{ sonarr_setup_authentication_required }}</AuthenticationRequired>
   <Branch>main</Branch>
   <LogLevel>{{ sonarr_setup_debug_level }}</LogLevel>
   <SslCertPath></SslCertPath>
