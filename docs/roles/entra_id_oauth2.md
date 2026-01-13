@@ -23,14 +23,12 @@ _No constant variables found._
 ## 📑 Tasks
 - Ensure azure.azcollection required Python modules are installed
 - Ensure azure-cli Python module installed
-- Filter sites that require OAuth2
-- Register Entra ID application for each site
 - Calculate secret expiry offset from today
 - Login with service principal
-- Create client secret for each site
-- Build combined secret map
+- Register Entra ID application for each site
 - Build updated list with secrets
 - Append each site with injected secret
+- Update rproxy_setup_sites with injected client IDs and secrets
 
 ## 🔔 Handlers
 _No handlers defined._
