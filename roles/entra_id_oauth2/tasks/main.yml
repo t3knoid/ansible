@@ -75,7 +75,7 @@
     entra_id_oauth2_updated_sites: []
 
 - name: Append each site with injected secret
-  # no_log: true
+  no_log: true
   ansible.builtin.set_fact:
     entra_id_oauth2_updated_sites: >-
       {{

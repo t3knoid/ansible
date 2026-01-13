@@ -56,10 +56,6 @@
   delegate_to: localhost
   changed_when: false
 
-- name: Show entra_id_oauth2_existing_keys
-  ansible.builtin.debug:
-    var: entra_id_oauth2_existing_keys
-
 - name: Delete existing credentials
   no_log: true
   ansible.builtin.command: >
