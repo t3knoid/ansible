@@ -42,17 +42,9 @@
   delegate_to: localhost
   changed_when: false
 
-- name: Filter sites that require OAuth2
-  ansible.builtin.set_fact:
-    entra_id_oauth2_sites: "{{ rproxy_setup_sites
-      | selectattr('use_oauth2', 'defined')
-      | selectattr('use_oauth2', 'equalto', true)
-      | list }}"
-  delegate_to: localhost
-
 # The register_app.yml task file creates or retrieves
 # Entra ID applications for each site in the
-# {{ entra_id_oauth2_sites }} list. Once an application
+# {{ rproxy_setup_sites }} list. Once an application
 # is created or retrieved, a client secret is generated
 # for that application. The client ID and client secret
 # are stored in the variable
@@ -65,10 +57,11 @@
 # tasks.
 - name: Register Entra ID application for each site
   ansible.builtin.include_tasks: register_app.yml
-  loop: "{{ entra_id_oauth2_sites }}"
+  loop: "{{ rproxy_setup_sites }}"
   loop_control:
     label: "{{ item.server_name }}"
   register: entra_id_oauth2_app_results
+  when: item.use_oauth2 is defined and item.use_oauth2
 
 - name: Build updated list with secrets
   ansible.builtin.set_fact:
@@ -86,8 +79,12 @@
           }, recursive=True)
         ]
       }}
-  loop: "{{ entra_id_oauth2_sites }}"
+  loop: "{{ rproxy_setup_sites }}"
+  loop_control:
+    label: "{{ item.server_name }}"
+  when: item.use_oauth2 is defined and item.use_oauth2
 
-# The {{ entra_id_oauth2_updated_sites }} variable now
-# contains the updated list of sites with the correct
-# client IDs and client secrets injected.
+- name: Update rproxy_setup_sites with injected client IDs and secrets
+  ansible.builtin.set_fact:
+    rproxy_setup_sites: "{{ entra_id_oauth2_updated_sites }}"
+  delegate_to: localhost
