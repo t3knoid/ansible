@@ -14,11 +14,6 @@ vms_config:
     backup: true
     size: 20
     storage: local
-  disk2:
-    disk: virtio0
-    backup: true
-    size: 20
-    storage: local
 
 autofs_nfs_mounts:
   - mount_name: music
@@ -33,7 +28,7 @@ autofs_nfs_mounts:
     server: 192.168.2.250:/mnt/Data/tvshows
     mount_options: -rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys
     container_path: /tvshows
-  - mount_name: movies  
+  - mount_name: movies
     server: 192.168.2.250:/mnt/Data/movies
     mount_options: -rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys
     container_path: /movies
@@ -49,8 +44,5 @@ autofs_nfs_mounts:
     server: 192.168.2.250:/mnt/Data/backups_ex/sabnzbd
     mount_options: -rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys
     container_path: /backups
-
-disks_disk_mounts:
-  - { mountpoint: "/config", mountpoint_owner: "{{ users_list[0].username }}", mountpoint_group: "{{ users_list[0].username }}" }
 
 sabnzbd_setup_version: 4.5.5
