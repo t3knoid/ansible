@@ -4,7 +4,7 @@ python3_version: 3.12
 
 autofs_nfs_mounts:
   - mount_name: photos
-    server: 192.168.2.250:/mnt/Data/photos
+    server: 192.168.2.240:/volume1/Photos
     mount_options: -rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys
   - mount_name: music
     server: 192.168.2.250:/mnt/Data/music
@@ -15,7 +15,7 @@ autofs_nfs_mounts:
   - mount_name: tvshows
     server: 192.168.2.250:/mnt/Data/tvshows
     mount_options: -rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys
-  - mount_name: movies  
+  - mount_name: movies
     server: 192.168.2.250:/mnt/Data/movies
     mount_options: -rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys
   - mount_name: downloads
