@@ -20,6 +20,7 @@
 | [`docker_setup`](./docker_setup.md) | Installs Docker and Docker Compose on Debian/Ubuntu systems. |
 | [`elasticsearch_setup`](./elasticsearch_setup.md) | Install and configure Elasticsearch on Debian/Ubuntu |
 | [`entra_id_oauth2`](./entra_id_oauth2.md) | Configures entra_id settings for oAuth2-enabled sites. |
+| [`fstab`](./fstab.md) | Manage fstab entries on Debian/Ubuntu. |
 | [`geyser_setup`](./geyser_setup.md) | Installs and configures GeyserMC on Debian/Ubuntu systems as documented at https://geysermc.org/wiki/geyser/setup/?host=self&platform=standalone |
 | [`global`](./global.md) | Provides global defaults common to all roles. It provides the IP definition of each host in the datacenter. Every host must be defined here with its corresponding IP address. Other global variables are also defined here. |
 | [`grafana_setup`](./grafana_setup.md) | Install and configure Grafana on Debian/Ubuntu |
