@@ -1,0 +1,78 @@
+---
+- name: Initialize fstab mounts list
+  ansible.builtin.set_fact:
+    fstab_mounts: "{{ fstab_mounts | default([]) }}"
+
+- name: Calculate mounts to remove
+  ansible.builtin.set_fact:
+    fstab_mounts_to_remove: "{{ fstab_mounts_managed | default([]) | difference(fstab_mounts | map(attribute='mount_point') | list) }}"
+
+- name: Store currently defined mount points for future reference
+  ansible.builtin.set_fact:
+    fstab_mounts_managed: "{{ fstab_mounts | map(attribute='mount_point') | list }}"
+
+- name: Check if filesystems are mounted
+  ansible.builtin.command:
+    cmd: "mountpoint -q {{ item }}"
+  loop: "{{ fstab_mounts_to_remove }}"
+  when: fstab_mounts_to_remove | length > 0
+  register: fstab_mountpoint_check
+  changed_when: false
+  failed_when: false
+
+- name: Unmount filesystems that are no longer defined
+  ansible.posix.mount:
+    path: "{{ item.item }}"
+    state: unmounted
+  loop: "{{ fstab_mountpoint_check.results }}"
+  when: item.rc == 0 # Only unmount if mountpoint_check succeeded (is mounted)
+  register: fstab_unmount_result
+  failed_when: fstab_unmount_result.rc is defined and fstab_unmount_result.rc != 0 and "not mounted" not in fstab_unmount_result.msg | default("")
+
+- name: Remove mount entries from /etc/fstab that are no longer defined
+  ansible.posix.mount:
+    path: "{{ item }}"
+    state: absent
+  loop: "{{ fstab_mounts_to_remove }}"
+  when: fstab_mounts_to_remove | length > 0
+
+- name: Remove mount directories that are no longer defined
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop: "{{ fstab_mounts_to_remove }}"
+  when: fstab_mounts_to_remove | length > 0
+
+- name: Ensure mount directories exist
+  ansible.builtin.file:
+    path: "{{ item.mount_point }}"
+    state: directory
+    mode: "0755"
+    owner: root
+    group: root
+  loop: "{{ fstab_mounts }}"
+  when: fstab_mounts is defined and fstab_mounts | length > 0
+
+- name: Add mount entries to /etc/fstab
+  ansible.posix.mount:
+    path: "{{ item.mount_point }}"
+    src: "{{ item.device }}"
+    fstype: "{{ item.fstype | default('ext4') }}"
+    opts: "{{ item.opts | default('defaults') }}"
+    state: present
+    boot: "{{ item.boot | default(true) }}"
+  loop: "{{ fstab_mounts }}"
+  when: fstab_mounts is defined and fstab_mounts | length > 0
+  register: fstab_mount_result
+
+- name: Ensure mount entries are presently mounted
+  ansible.posix.mount:
+    path: "{{ item.mount_point }}"
+    src: "{{ item.device }}"
+    fstype: "{{ item.fstype | default('ext4') }}"
+    opts: "{{ item.opts | default('defaults') }}"
+    state: mounted
+    boot: "{{ item.boot | default(true) }}"
+  loop: "{{ fstab_mounts }}"
+  when: fstab_mounts is defined and fstab_mounts | length > 0
+  register: fstab_mount_result
