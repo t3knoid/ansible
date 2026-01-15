@@ -2,31 +2,47 @@
 
 python3_version: 3.12
 
-autofs_nfs_mounts:
-  - mount_name: photos
-    server: 192.168.2.240:/volume1/Photos
-    mount_options: -rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys
-  - mount_name: music
-    server: 192.168.2.250:/mnt/Data/music
-    mount_options: -rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys
-  - mount_name: books
-    server: 192.168.2.250:/mnt/Data/books
-    mount_options: -rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys
-  - mount_name: tvshows
-    server: 192.168.2.250:/mnt/Data/tvshows
-    mount_options: -rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys
-  - mount_name: movies
-    server: 192.168.2.250:/mnt/Data/movies
-    mount_options: -rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys
-  - mount_name: downloads
-    server: 192.168.2.250:/mnt/Data/downloads/complete
-    mount_options: -rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys
-  - mount_name: incomplete-downloads
-    server: 192.168.2.250:/mnt/Data/downloads/incomplete
-    mount_options: -rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys
-  - mount_name: backups
-    server: 192.168.2.250:/mnt/Data/backups_ex
-    mount_options: -rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys
+fstab_mounts:
+  - device: "192.168.2.240:/volume1/Photos"
+    mount_point: "/nfs/photos"
+    fstype: "nfs"
+    opts: "rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys"
+    boot: true
+  - device: "192.168.2.250:/mnt/Data/music"
+    mount_point: "/nfs/music"
+    fstype: "nfs"
+    opts: "rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys"
+    boot: true
+  - device: "192.168.2.250:/mnt/Data/books"
+    mount_point: "/nfs/books"
+    fstype: "nfs"
+    opts: "rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys"
+    boot: true
+  - device: "192.168.2.250:/mnt/Data/tvshows"
+    mount_point: "/nfs/tvshows"
+    fstype: "nfs"
+    opts: "rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys"
+    boot: true
+  - device: "192.168.2.250:/mnt/Data/movies"
+    mount_point: "/nfs/movies"
+    fstype: "nfs"
+    opts: "rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys"
+    boot: true
+  - device: "192.168.2.250:/mnt/Data/downloads/complete"
+    mount_point: "/nfs/downloads"
+    fstype: "nfs"
+    opts: "rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys"
+    boot: true
+  - device: "192.168.2.250:/mnt/Data/downloads/incomplete"
+    mount_point: "/nfs/incomplete-downloads"
+    fstype: "nfs"
+    opts: "rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys"
+    boot: true
+  - device: "192.168.2.250:/mnt/Data/backups_ex"
+    mount_point: "/nfs/backups"
+    fstype: "nfs"
+    opts: "rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys"
+    boot: true
 
 vms_os: ubuntu_24_server
 pxeserver_setup_dhcp_range: "192.168.2.220,192.168.2.220,255.255.255.0"

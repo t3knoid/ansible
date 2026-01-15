@@ -1,0 +1,9 @@
+---
+
+# Purpose: Manages fstab on designated servers.
+
+- name: Deploy fstab
+  hosts: linux
+  become: true
+  roles:
+    - fstab
