@@ -20,6 +20,7 @@
 | `docker_setup` | Installs Docker and Docker Compose on Debian/Ubuntu systems. | [View Documentation](../docs/roles/docker_setup.md) |
 | `elasticsearch_setup` | Install and configure Elasticsearch on Debian/Ubuntu | [View Documentation](../docs/roles/elasticsearch_setup.md) |
 | `entra_id_oauth2` | Configures entra_id settings for oAuth2-enabled sites. | [View Documentation](../docs/roles/entra_id_oauth2.md) |
+| `fstab` | Manage fstab entries on Debian/Ubuntu. | [View Documentation](../docs/roles/fstab.md) |
 | `geyser_setup` | Installs and configures GeyserMC on Debian/Ubuntu systems as documented at https://geysermc.org/wiki/geyser/setup/?host=self&platform=standalone | [View Documentation](../docs/roles/geyser_setup.md) |
 | `global` | Provides global defaults common to all roles. It provides the IP definition of each host in the datacenter. Every host must be defined here with its corresponding IP address. Other global variables are also defined here. | [View Documentation](../docs/roles/global.md) |
 | `grafana_setup` | Install and configure Grafana on Debian/Ubuntu | [View Documentation](../docs/roles/grafana_setup.md) |
