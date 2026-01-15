@@ -1,0 +1,22 @@
+---
+- name: Stop autofs service
+  ansible.builtin.service:
+    name: autofs
+    state: stopped
+    enabled: false
+  failed_when: false
+
+- name: Remove autofs package
+  ansible.builtin.apt:
+    name: autofs
+    state: absent
+    purge: true
+
+- name: Remove autofs configuration files
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /etc/auto.master
+    - /etc/auto.nfs
+    - /etc/auto.master.d
