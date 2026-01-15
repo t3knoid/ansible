@@ -1,0 +1,13 @@
+---
+
+# Purpose: Removes autofs from designated servers.
+
+- name: Remove autofs
+  hosts: linux
+  become: true
+
+  tasks:
+    - name: Include tasks to remove autofs
+      ansible.builtin.include_role:
+        name: autofs
+        tasks_from: remove.yml

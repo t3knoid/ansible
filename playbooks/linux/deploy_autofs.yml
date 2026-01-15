@@ -3,7 +3,7 @@
 # Purpose: Deploys and configures autofs on designated servers.
 
 - name: Deploy autofs
-  hosts: autofs
+  hosts: linux
   become: true
   roles:
     - autofs
