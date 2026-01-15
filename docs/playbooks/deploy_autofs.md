@@ -1,4 +1,4 @@
-# 📖 Playbook: vms/deploy_autofs.yml
+# 📖 Playbook: linux/deploy_autofs.yml
 
 ## 🛠 Purpose
 Deploys and configures autofs on designated servers.
@@ -8,5 +8,5 @@ Deploys and configures autofs on designated servers.
 
 ## 🚀 Usage
 ```bash
-ansible-playbook playbooks/vms/deploy_autofs.yml
+ansible-playbook playbooks/linux/deploy_autofs.yml
 ```

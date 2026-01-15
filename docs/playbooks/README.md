@@ -66,7 +66,10 @@
 | [`linux/check_open_ports.yml`](check_open_ports.md) | Check open ports on Linux hosts |
 | [`linux/check_reboots.yml`](check_reboots.md) | Check for recent reboots on Linux hosts |
 | [`linux/check_syslog.yml`](check_syslog.md) | Check system log entries on Linux hosts |
+| [`linux/deploy_autofs.yml`](deploy_autofs.md) | Deploys and configures autofs on designated servers. |
+| [`linux/deploy_fstab.yml`](deploy_fstab.md) | Manages fstab on designated servers. |
 | [`linux/deploy_updates.yml`](deploy_updates.md) | Deploy updates on Linux hosts |
+| [`linux/remove_autofs.yml`](remove_autofs.md) | Removes autofs from designated servers. |
 | [`minecraft/check_bedrock_version.yml`](check_bedrock_version.md) | Check latest Bedrock version on Bedrock hosts |
 | [`minecraft/deploy_bedrock.yml`](deploy_bedrock.md) | Deploy Minecraft Bedrock server |
 | [`minecraft/deploy_minecraft.yml`](deploy_minecraft.md) | Deploy Minecraft Java server |
@@ -147,7 +150,6 @@
 | [`vms/create_cloud_init_iso.yml`](create_cloud_init_iso.md) | Creates a cloud-init ISO for virtual machines to enable autoinstallation. |
 | [`vms/create_vm.yml`](create_vm.md) | Creates virtual machines and manages their DNS entries. |
 | [`vms/create_vm_snapshot.yml`](create_vm_snapshot.md) | Creates snapshots of virtual machines. |
-| [`vms/deploy_autofs.yml`](deploy_autofs.md) | Deploys and configures autofs on designated servers. |
 | [`vms/deploy_sshpass.yml`](deploy_sshpass.md) | Deploys sshpass utility on virtual machines. |
 | [`vms/force_reboot_vm.yml`](force_reboot_vm.md) | Forces a reboot of virtual machines by stopping and starting them. |
 | [`vms/install_vm_packages.yml`](install_vm_packages.md) | Installs required packages on virtual machines. |
