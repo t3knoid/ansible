@@ -54,10 +54,15 @@
   ansible.builtin.command: docker image prune -f
   changed_when: false
 
+- name: Get list of Docker images
+  ansible.builtin.command: docker images -q
+  register: sonarr_setup_docker_images
+  changed_when: false
+
 - name: Remove all images
   ansible.builtin.shell: "docker rmi -f $(docker images -a -q)"
   changed_when: false
-  ignore_errors: true
+  when: sonarr_setup_docker_images.stdout_lines | length > 0
 
 - name: Pull latest image
   ansible.builtin.command: docker-compose -f "{{ sonarr_setup_config_dir }}/docker-compose.yml" pull
