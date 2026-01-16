@@ -64,16 +64,34 @@ docker_service_deploy_compose_template: "docker-compose.yml.j2"
 
 These allow services to customize behavior without modifying the shared role.
 
-### **Optional config file**
+### **Optional config templates**
 
-Some services have a standalone config file (e.g., `config.xml`, `sabnzbd.ini`). Others do not.
+Some services have one or more standalone configuration files (e.g., `config.xml`, `sabnzbd.ini`, `database.json`). Others rely entirely on environment variables or the docker‑compose file.
+
+To support all cases, the role accepts **a list of config templates**, each with its own source, destination filename, and optional mode.
 
 | Variable | Description |
 |----------|-------------|
-| `docker_service_deploy_config_template` | Template file for the service config (optional) |
-| `docker_service_deploy_config_filename` | Output filename for the config (optional) |
+| `docker_service_deploy_config_templates` | A list of config templates to render into the service’s config directory (optional) |
 
-If either variable is omitted, the config‑templating step is skipped.
+Each item in the list supports:
+
+- `src` — the Jinja2 template filename
+- `dest` — the output filename
+- `mode` — optional file mode (defaults to `0640`)
+
+Example:
+
+```yaml
+docker_service_deploy_config_templates:
+  - src: "database.json.j2"
+    dest: "database.json"
+    mode: "0600"
+  - src: "settings.json.j2"
+    dest: "settings.json"
+```
+
+If the list is omitted or empty, the config‑templating step is skipped.
 
 ---
 

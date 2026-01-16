@@ -6,7 +6,9 @@
   vars:
     docker_service_deploy_config_dir: "{{ lidarr_setup_config_dir }}"
     docker_service_deploy_backups_dir: "{{ lidarr_setup_backups_dir }}"
-    docker_service_deploy_config_template: "config.xml.j2"
-    docker_service_deploy_config_filename: "config.xml"
+    docker_service_deploy_config_templates:
+      - src: "config.xml.j2"
+        dest: "config.xml"
+        mode: "0640"
     docker_service_deploy_compose_template: "docker-compose.yml.j2"
     docker_service_deploy_container_name: "lidarr"
