@@ -17,6 +17,7 @@
 | [`cloudinit`](./cloudinit.md) | Provides tasks to create a virtual machine with cloud-init support. |
 | [`code_server`](./code_server.md) | Installs and configures code server. |
 | [`disks`](./disks.md) | Prepares an attached disk by formatting and mounting to a defined mountpoint. Removes mounts from fstab that is associated with a none existing device. |
+| [`docker_service_deploy`](./docker_service_deploy.md) | Ansible role to deploy and manage Docker services using Docker Compose, with configuration templating and optional pre/post deployment hooks. This role is designed to be reusable for various Docker services. |
 | [`docker_setup`](./docker_setup.md) | Installs Docker and Docker Compose on Debian/Ubuntu systems. |
 | [`elasticsearch_setup`](./elasticsearch_setup.md) | Install and configure Elasticsearch on Debian/Ubuntu |
 | [`entra_id_oauth2`](./entra_id_oauth2.md) | Configures entra_id settings for oAuth2-enabled sites. |

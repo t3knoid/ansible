@@ -34,19 +34,7 @@ Installs and configures a Sonarr Docker container. It uses a container distribut
 _No constant variables found._
 
 ## 📑 Tasks
-- Stop Docker Container
-- Create config folder
-- Verify config folder exists
-- Fail if config folder does not exists
-- Create network backups folder
-- Copy config.yml to target machine
-- Copy docker-compose.yml to target machine
-- Make sure docker service account has access to config dir
-- Prune unused Docker images
-- Get list of Docker images
-- Remove all images
-- Pull latest image
-- Run Docker Container
+- Deploy Sonarr Docker Service
 
 ## 🔔 Handlers
 - Restart PostgreSQL

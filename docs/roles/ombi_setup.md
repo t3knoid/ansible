@@ -22,23 +22,14 @@ Ombi Setup installs and configures an Ombi Docker container. It uses a Docker im
 | `ombi_setup_mount_point` | `/nfs/backups` | ombi_setup_db_password: |
 | `ombi_setup_backup_prefix` | `"ombi_"` |  |
 | `ombi_setup_backup_filename` | `"{{ ombi_setup_backup_prefix }}{{ ansible_date_time.date }}.sqlc"` |  |
-| `ombi_setup_backup_path` | `"{{ ombi_setup_mount_point }}/{{ ombi_setup_backup_filename }}"` |  |
+| `ombi_setup_backups_dir` | `"{{ ombi_setup_mount_point }}/ombi"` |  |
+| `ombi_setup_backup_path` | `"{{ ombi_setup_backups_dir }}/{{ ombi_setup_backup_filename }}"` |  |
 
 ## 📦 Vars
 _No constant variables found._
 
 ## 📑 Tasks
-- Create config folder
-- Verify config folder exists
-- Fail if config folder does not exists
-- Copy database.json to target machine
-- Copy docker-compose.yml to target machine
-- Make sure docker service account has access to config dir
-- Stop Docker Container
-- Prune unused Docker images
-- Remove all images
-- Pull latest image
-- Run Docker Container
+- Deploy Ombi Docker Service
 
 ## 🔔 Handlers
 - Restart PostgreSQL
