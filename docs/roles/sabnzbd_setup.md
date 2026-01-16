@@ -110,6 +110,7 @@ Installs and configures a Sabnzbd Docker container. It uses a Docker image distr
 - Copy docker-compose.yml to target machine
 - Make sure docker service account has access to config dir
 - Prune unused Docker images
+- Get list of Docker images
 - Remove all images
 - Pull latest image
 - Run Docker Container
