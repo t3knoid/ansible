@@ -1,5 +1,0 @@
----
-
-- name: Run Docker Container
-  ansible.builtin.command: docker-compose -f "{{ radarr_setup_config_dir }}/docker-compose.yml" up -d
-  changed_when: false
