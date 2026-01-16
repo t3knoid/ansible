@@ -1,0 +1,24 @@
+---
+
+- name: Stop container
+  ansible.builtin.include_tasks: stop.yml
+
+- name: Run pre-config hook
+  ansible.builtin.include_tasks: "{{ docker_service_deploy_pre_config }}"
+  when: docker_service_deploy_pre_config is defined and docker_service_deploy_pre_config != ''
+
+- name: Configure service
+  ansible.builtin.include_tasks: config.yml
+
+- name: Run post-config hook
+  ansible.builtin.include_tasks: "{{ docker_service_deploy_post_config }}"
+  when: docker_service_deploy_post_config is defined and docker_service_deploy_post_config != ''
+
+- name: Prune unused Docker images
+  ansible.builtin.include_tasks: prune.yml
+
+- name: Pull latest image
+  ansible.builtin.include_tasks: pull.yml
+
+- name: Start container
+  ansible.builtin.include_tasks: start.yml
