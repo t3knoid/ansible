@@ -1,0 +1,18 @@
+---
+
+# Required variables (must be set by the calling role)
+docker_service_deploy_config_dir: ""
+docker_service_deploy_backups_dir: ""
+docker_service_deploy_compose_template: ""
+docker_service_deploy_container_name: ""
+
+# Optional config template
+docker_service_deploy_config_template: ""
+docker_service_deploy_config_filename: ""
+
+# Optional hooks
+docker_service_deploy_pre_config: ""
+docker_service_deploy_post_config: ""
+
+# Owner defaults
+docker_service_deploy_owner: "{{ users_list[0].username }}" # Defined in inventory or parent playbook

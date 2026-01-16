@@ -1,0 +1,15 @@
+---
+
+- name: Prune unused Docker images
+  ansible.builtin.command: docker image prune -f
+  changed_when: false
+
+- name: Get list of Docker images
+  ansible.builtin.command: docker images -q
+  register: docker_service_deploy_images
+  changed_when: false
+
+- name: Remove all images
+  ansible.builtin.shell: "docker rmi -f $(docker images -a -q)"
+  changed_when: false
+  when: docker_service_deploy_images.stdout_lines | length > 0

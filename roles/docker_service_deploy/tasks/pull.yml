@@ -1,0 +1,5 @@
+---
+
+- name: Pull latest image
+  ansible.builtin.command: docker-compose -f "{{ docker_service_deploy_config_dir }}/docker-compose.yml" pull
+  changed_when: false
