@@ -1,0 +1,11 @@
+---
+
+- name: Get Sabnzbd site hostname
+  ansible.builtin.set_fact:
+    sabnzbd_setup_domain_name: >-
+      {{ rproxy_setup_sites
+        | selectattr('server_name', 'defined')
+        | selectattr('server_name', 'search', '^sabnzbd')
+        | map(attribute='server_name')
+        | first
+        | default('', true) }}
