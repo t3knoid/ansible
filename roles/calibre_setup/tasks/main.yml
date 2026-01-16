@@ -1,57 +1,10 @@
 ---
 
-- name: Stop Docker Container
-  ansible.builtin.include_tasks: stop.yml
-
-- name: Create config folder
-  ansible.builtin.file:
-    path: "{{ calibre_setup_config_dir }}"
-    owner: "{{ users_list[0].username }}"
-    group: "{{ users_list[0].username }}"
-    mode: "0755"
-    state: directory
-
-- name: Verify config folder exists
-  ansible.builtin.stat:
-    path: "{{ calibre_setup_config_dir }}"
-  register: calibre_setup_config_dir_stat
-
-- name: Fail if config folder does not exists
-  ansible.builtin.fail:
-    msg: "{{ calibre_setup_config_dir }}"
-  when: calibre_setup_config_dir_stat is not defined
-
-# This assumes that an nfs share has been mounted at /nfs/backups
-- name: Create network calibre backup folder
-  ansible.builtin.file:
-    path: "{{ calibre_setup_backups_dir }}"
-    owner: "{{ users_list[0].username }}"
-    group: "{{ users_list[0].username }}"
-    mode: "0777"
-    state: directory
-
-- name: Copy docker-compose.yml to target machine
-  ansible.builtin.template:
-    src: docker-compose.yml.j2
-    dest: "{{ calibre_setup_config_dir }}/docker-compose.yml"
-    mode: "0640"
-
-- name: Make sure docker service account has access to config dir
-  ansible.builtin.file:
-    path: "{{ calibre_setup_config_dir }}"
-    owner: "{{ users_list[0].username }}"
-    group: "{{ users_list[0].username }}"
-    mode: "0755"
-    recurse: true
-
-- name: Stop Docker Container
-  ansible.builtin.command: docker-compose -f "{{ calibre_setup_config_dir }}/docker-compose.yml" down
-  changed_when: false
-
-- name: Prune unused Docker images
-  ansible.builtin.command: docker image prune -f
-  changed_when: false
-
-- name: Run Docker Container
-  ansible.builtin.command: docker-compose -f "{{ calibre_setup_config_dir }}/docker-compose.yml" up -d
-  changed_when: false
+- name: Deploy Calibre Docker Service
+  ansible.builtin.import_role:
+    name: docker_service_deploy
+  vars:
+    docker_service_deploy_config_dir: "{{ calibre_setup_config_dir }}"
+    docker_service_deploy_backups_dir: "{{ calibre_setup_backups_dir }}"
+    docker_service_deploy_compose_template: "docker-compose.yml.j2"
+    docker_service_deploy_container_name: "calibre"

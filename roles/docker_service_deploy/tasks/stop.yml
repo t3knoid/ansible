@@ -1,0 +1,35 @@
+---
+
+# Using pure docker commands in case we are in
+# an environment where docker compose file
+# is not available
+
+- name: Check if container is running
+  ansible.builtin.command:
+    argv:
+      - docker
+      - ps
+      - --filter
+      - "name={{ docker_service_deploy_container_name }}"
+      - --format
+      - '{{ ".ID" }}'
+  register: docker_service_deploy_status
+  changed_when: false
+
+- name: Set docker_service_deploy_is_running fact
+  ansible.builtin.set_fact:
+    docker_service_deploy_is_running: "{{ docker_service_deploy_status.stdout != '' }}"
+
+- name: Stop Docker container
+  ansible.builtin.command: "docker stop {{ docker_service_deploy_container_name }}"
+  changed_when: false
+  when: docker_service_deploy_is_running
+
+- name: Remove Docker container
+  ansible.builtin.command: "docker rm {{ docker_service_deploy_container_name }}"
+  changed_when: false
+  when: docker_service_deploy_is_running
+
+- name: Remove all unused Docker networks
+  ansible.builtin.command: docker network prune -f
+  changed_when: false
