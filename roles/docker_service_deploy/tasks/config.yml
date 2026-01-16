@@ -26,14 +26,17 @@
     mode: "0777"
     state: directory
 
-- name: Copy service config template
+- name: Copy service config templates
   ansible.builtin.template:
-    src: "{{ docker_service_deploy_config_template }}"
-    dest: "{{ docker_service_deploy_config_dir }}/{{ docker_service_deploy_config_filename }}"
-    mode: "0640"
+    src: "{{ template.src }}"
+    dest: "{{ docker_service_deploy_config_dir }}/{{ template.dest }}"
+    mode: "{{ template.mode | default('0640') }}"
+  loop: "{{ docker_service_deploy_config_templates | default([]) }}"
+  loop_control:
+    label: "{{ template.dest }}"
+    loop_var: template
   when:
-    - docker_service_deploy_config_template is defined
-    - docker_service_deploy_config_filename is defined
+    - docker_service_deploy_config_templates is defined and docker_service_deploy_config_templates | length > 0
 
 - name: Copy docker-compose template
   ansible.builtin.template:
