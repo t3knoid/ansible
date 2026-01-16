@@ -1,82 +1,20 @@
 ---
 
-- name: Stop Docker Container
-  ansible.builtin.include_tasks: stop.yml
-
-- name: Get Sabnzbd site hostname
+- name: Set SABnzbd pre-configuration directory
   ansible.builtin.set_fact:
-    sabnzbd_setup_domain_name: >-
-      {{ rproxy_setup_sites
-        | selectattr('server_name', 'defined')
-        | selectattr('server_name', 'search', '^sabnzbd')
-        | map(attribute='server_name')
-        | first
-        | default('', true) }}
+    sabnzbd_setup_pre_config: "{{ role_path }}/tasks/pre_config.yml"
+  when: sabnzbd_setup_pre_config is not defined or sabnzbd_setup_pre_config != ""
 
-- name: Create config folder
-  ansible.builtin.file:
-    path: "{{ sabnzbd_setup_config_dir }}"
-    owner: "{{ users_list[0].username }}"
-    group: "{{ users_list[0].username }}"
-    mode: "0755"
-    state: directory
-
-- name: Verify config folder exists
-  ansible.builtin.stat:
-    path: "{{ sabnzbd_setup_config_dir }}"
-  register: sabnzbd_setup_config_dir_stat
-
-- name: Fail if config folder does not exists
-  ansible.builtin.fail:
-    msg: "{{ sabnzbd_setup_config_dir }}"
-  when: sabnzbd_setup_config_dir_stat is not defined
-
-# This assumes that an nfs share has been mounted at /nfs/backups
-- name: Create network backups folder
-  ansible.builtin.file:
-    path: "{{ sabnzbd_setup_backups_dir }}"
-    owner: "{{ users_list[0].username }}"
-    group: "{{ users_list[0].username }}"
-    mode: "0777"
-    state: directory
-
-- name: Copy sabnzbd.ini to target machine
-  ansible.builtin.template:
-    src: sabnzbd.ini.j2
-    dest: "{{ sabnzbd_setup_config_dir }}/sabnzbd.ini"
-    mode: "0640"
-
-- name: Copy docker-compose.yml to target machine
-  ansible.builtin.template:
-    src: docker-compose.yml.j2
-    dest: "{{ sabnzbd_setup_config_dir }}/docker-compose.yml"
-    mode: "0640"
-
-- name: Make sure docker service account has access to config dir
-  ansible.builtin.file:
-    path: "{{ sabnzbd_setup_config_dir }}"
-    owner: "{{ users_list[0].username }}"
-    group: "{{ users_list[0].username }}"
-    mode: "0755"
-    recurse: true
-
-- name: Prune unused Docker images
-  ansible.builtin.command: docker image prune -f
-  changed_when: false
-
-- name: Get list of Docker images
-  ansible.builtin.command: docker images -q
-  register: sabnzbd_setup_remove_images
-  changed_when: false
-
-- name: Remove all images
-  ansible.builtin.shell: "docker rmi -f $(docker images -a -q)"
-  changed_when: false
-  when: docker_images.stdout_lines | length > 0
-
-- name: Pull latest image
-  ansible.builtin.command: docker-compose -f "{{ sabnzbd_setup_config_dir }}/docker-compose.yml" pull
-  changed_when: false
-
-- name: Run Docker Container
-  ansible.builtin.include_tasks: start.yml
+- name: Deploy SABnzbd Docker Service
+  ansible.builtin.include_role:
+    name: docker_service_deploy
+  vars:
+    docker_service_deploy_container_name: "sabnzbd"
+    docker_service_deploy_pre_config: "{{ sabnzbd_setup_pre_config }}"
+    docker_service_deploy_config_dir: "{{ sabnzbd_setup_config_dir }}"
+    docker_service_deploy_backups_dir: "{{ sabnzbd_setup_backups_dir }}"
+    docker_service_deploy_config_templates:
+      - src: "sabnzbd.ini.j2"
+        dest: "sabnzbd.ini"
+        mode: "0640"
+    docker_service_deploy_compose_template: "docker-compose.yml.j2"
