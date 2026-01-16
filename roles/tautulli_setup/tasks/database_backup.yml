@@ -1,7 +1,7 @@
 ---
 - name: Ensure backup directory exists
   file:
-    path: "{{ tautulli_setup_backup_dir_final }}"
+    path: "{{ tautulli_setup_backups_dir }}"
     state: directory
     mode: '0755'
 
@@ -25,9 +25,9 @@
       - "Config backup result: {{ config_backup_response.json.response.result }}"
       - "DB backup result: {{ db_backup_response.json.response.result }}"
 
-- name: Find .ini and .db files in /config/backups
+- name: Find .ini and .db files in native backup folder
   find:
-    paths: "{{ tautulli_setup_backup_dir_original }}"
+    paths: "{{ tautulli_setup_backup_dir_native }}"
     patterns:
       - "*.ini"
       - "*.db"
@@ -37,7 +37,7 @@
 - name: Copy backup files to NFS share
   copy:
     src: "{{ item.path }}"
-    dest: "{{ tautulli_setup_backup_dir_final}}"
+    dest: "{{ tautulli_setup_backups_dir}}"
     remote_src: true
   loop: "{{ tautulli_backups.files }}"
   loop_control:
@@ -53,24 +53,24 @@
 
 - name: Keep only the latest 3 backups of *.ini
   ansible.builtin.shell: |
-    ls -1t {{ tautulli_setup_backup_dir_final }}/config.backup-*.ini | grep -v 'sched' | tail -n +4 | xargs -r rm -f
+    ls -1t {{ tautulli_setup_backups_dir }}/config.backup-*.ini | grep -v 'sched' | tail -n +4 | xargs -r rm -f
   args:
     executable: /bin/bash
 
 - name: Keep only the latest 3 backups of *.sched.ini
   ansible.builtin.shell: |
-    ls -1t {{ tautulli_setup_backup_dir_final }}/config.backup-*.sched.ini | tail -n +4 | xargs -r rm -f
+    ls -1t {{ tautulli_setup_backups_dir }}/config.backup-*.sched.ini | tail -n +4 | xargs -r rm -f
   args:
     executable: /bin/bash
 
 - name: Keep only the latest 3 backups of *.db
   ansible.builtin.shell: |
-    ls -1t {{ tautulli_setup_backup_dir_final }}/tautulli.backup-*.db | grep -v 'sched' | tail -n +4 | xargs -r rm -f
+    ls -1t {{ tautulli_setup_backups_dir }}/tautulli.backup-*.db | grep -v 'sched' | tail -n +4 | xargs -r rm -f
   args:
     executable: /bin/bash
 
 - name: Keep only the latest 3 backups of *.sched.db
   ansible.builtin.shell: |
-    ls -1t {{ tautulli_setup_backup_dir_final }}/tautulli.backup-*.sched.db | tail -n +4 | xargs -r rm -f
+    ls -1t {{ tautulli_setup_backups_dir }}/tautulli.backup-*.sched.db | tail -n +4 | xargs -r rm -f
   args:
     executable: /bin/bash

@@ -1,0 +1,53 @@
+---
+
+- name: Create config folder
+  ansible.builtin.file:
+    path: "{{ docker_service_deploy_config_dir }}"
+    owner: "{{ docker_service_deploy_owner }}"
+    group: "{{ docker_service_deploy_owner }}"
+    mode: "0755"
+    state: directory
+
+- name: Verify config folder exists
+  ansible.builtin.stat:
+    path: "{{ docker_service_deploy_config_dir }}"
+  register: docker_service_deploy_config_dir_stat
+
+- name: Fail if config folder does not exist
+  ansible.builtin.fail:
+    msg: "{{ docker_service_deploy_config_dir }}"
+  when: not docker_service_deploy_config_dir_stat.stat.exists
+
+- name: Create backups folder
+  ansible.builtin.file:
+    path: "{{ docker_service_deploy_backups_dir }}"
+    owner: "{{ docker_service_deploy_owner }}"
+    group: "{{ docker_service_deploy_owner }}"
+    mode: "0777"
+    state: directory
+
+- name: Copy service config templates
+  ansible.builtin.template:
+    src: "{{ template.src }}"
+    dest: "{{ docker_service_deploy_config_dir }}/{{ template.dest }}"
+    mode: "{{ template.mode | default('0640') }}"
+  loop: "{{ docker_service_deploy_config_templates | default([]) }}"
+  loop_control:
+    label: "{{ template.dest }}"
+    loop_var: template
+  when:
+    - docker_service_deploy_config_templates is defined and docker_service_deploy_config_templates | length > 0
+
+- name: Copy docker-compose template
+  ansible.builtin.template:
+    src: "{{ docker_service_deploy_compose_template }}"
+    dest: "{{ docker_service_deploy_config_dir }}/docker-compose.yml"
+    mode: "0640"
+
+- name: Ensure docker service account has access
+  ansible.builtin.file:
+    path: "{{ docker_service_deploy_config_dir }}"
+    owner: "{{ docker_service_deploy_owner }}"
+    group: "{{ docker_service_deploy_owner }}"
+    mode: "0755"
+    recurse: true
