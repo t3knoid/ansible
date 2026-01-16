@@ -1,4 +1,4 @@
-# 🖥️ Semaphore UI Setup Guide
+# 🖥️ Contributor Guide: Semaphore UI Setup
 
 This guide explains how to **configure Semaphore UI projects, templates, views, keystores, and schedules** using the `setup_semaphoreui.yml` playbook. It is intended for engineers familiar with Ansible and Semaphore.
 
