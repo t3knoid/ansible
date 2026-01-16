@@ -60,3 +60,23 @@ sabnzbd_setup_servers:
     usage_at_start: 0
     priority: 0
     notes: ""
+  - name: "news.giganews.com"
+    displayname: "news.giganews.com"
+    host: "news.giganews.com"
+    port: 443
+    timeout: 60
+    username: "{{ sabnzbd_setup_giganews_login }}"
+    password: "{{ sabnzbd_setup_giganews_password }}"
+    connections: 100
+    ssl: 1
+    ssl_verify: 3
+    ssl_ciphers: ""
+    enable: 1
+    required: 0
+    optional: 0
+    retention: 0
+    expire_date: ""
+    quota: ""
+    usage_at_start: 0
+    priority: 0
+    notes: ""
