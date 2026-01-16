@@ -1,15 +1,27 @@
----
+# Safely remove only the image associated with this service
 
-- name: Prune unused Docker images
+- name: Get image ID used by container (if it exists)
+  ansible.builtin.command:
+    argv:
+      - docker
+      - inspect
+      - "--format={% raw %}{{ .Image }}{% endraw %}"
+      - "{{ docker_service_deploy_container_name }}"
+  register: docker_service_deploy_image_id
+  failed_when: false
+  changed_when: false
+
+- name: Remove image used by container
+  ansible.builtin.command:
+    argv:
+      - docker
+      - rmi
+      - "-f"
+      - "{{ docker_service_deploy_image_id.stdout }}"
+  when: docker_service_deploy_image_id.stdout != ""
+  changed_when: false
+  failed_when: false
+
+- name: Prune dangling Docker images
   ansible.builtin.command: docker image prune -f
   changed_when: false
-
-- name: Get list of Docker images
-  ansible.builtin.command: docker images -q
-  register: docker_service_deploy_images
-  changed_when: false
-
-- name: Remove all images
-  ansible.builtin.shell: "docker rmi -f $(docker images -a -q)"
-  changed_when: false
-  when: docker_service_deploy_images.stdout_lines | length > 0
