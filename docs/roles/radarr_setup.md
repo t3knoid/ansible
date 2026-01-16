@@ -34,19 +34,7 @@ Installs and configures a Radarr Docker container. It uses an image distributed 
 _No constant variables found._
 
 ## 📑 Tasks
-- Stop Docker Container
-- Create config folder
-- Verify config folder exists
-- Fail if config folder does not exists
-- Create network backups folder
-- Copy config.yml to target machine
-- Copy docker-compose.yml to target machine
-- Make sure docker service account has access to config dir
-- Prune unused Docker images
-- Get list of Docker images
-- Remove all images
-- Pull latest image
-- Run Docker Container
+- Deploy Radarr Docker Service
 
 ## 🔔 Handlers
 - Restart PostgreSQL

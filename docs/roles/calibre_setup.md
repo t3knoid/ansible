@@ -28,16 +28,7 @@ Installs and configures Calibre eBook management software. It uses a Docker imag
 _No constant variables found._
 
 ## 📑 Tasks
-- Stop Docker Container
-- Create config folder
-- Verify config folder exists
-- Fail if config folder does not exists
-- Create network calibre backup folder
-- Copy docker-compose.yml to target machine
-- Make sure docker service account has access to config dir
-- Stop Docker Container
-- Prune unused Docker images
-- Run Docker Container
+- Deploy Calibre Docker Service
 
 ## 🔔 Handlers
 _No handlers defined._

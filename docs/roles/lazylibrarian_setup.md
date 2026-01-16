@@ -32,17 +32,7 @@ Installs and configures LazyLibrarian on Debian/Ubuntu systems. It uses a Docker
 _No constant variables found._
 
 ## 📑 Tasks
-- Stop Docker Container
-- Create config folder
-- Verify config folder exists
-- Fail if config folder does not exists
-- Create network lazylibrarian backup folder
-- Copy docker-compose.yml to target machine
-- Make sure docker service account has access to config dir
-- Stop Docker Container
-- Prune unused Docker images
-- Pull latest image
-- Run Docker Container
+- Deploy Lazylibrarian Docker Service
 
 ## 🔔 Handlers
 - Restart Lazy Librarian

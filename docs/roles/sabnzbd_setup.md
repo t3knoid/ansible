@@ -100,20 +100,8 @@ Installs and configures a Sabnzbd Docker container. It uses a Docker image distr
 | `full web interface no internal login` | `5` |  |
 
 ## 📑 Tasks
-- Stop Docker Container
-- Get Sabnzbd site hostname
-- Create config folder
-- Verify config folder exists
-- Fail if config folder does not exists
-- Create network backups folder
-- Copy sabnzbd.ini to target machine
-- Copy docker-compose.yml to target machine
-- Make sure docker service account has access to config dir
-- Prune unused Docker images
-- Get list of Docker images
-- Remove all images
-- Pull latest image
-- Run Docker Container
+- Set SABnzbd pre-configuration directory
+- Deploy SABnzbd Docker Service
 
 ## 🔔 Handlers
 _No handlers defined._

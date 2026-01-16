@@ -19,22 +19,14 @@ Installs and configures an Tautulli Docker container. It uses a container distri
 | `tautulli_setup_config_dir` | `"/config"` |  |
 | `tautulli_setup_port` | `8181` |  |
 | `tautulli_setup_host` | `"http://localhost:8181"` | tautulli_apikey |
-| `tautulli_setup_backup_dir_final` | `"/nfs/backups/tautulli"` |  |
-| `tautulli_setup_backup_dir_original` | `"{{ tautulli_setup_config_dir }}/backups"` |  |
+| `tautulli_setup_backups_dir` | `"/nfs/backups/tautulli"` |  |
+| `tautulli_setup_backup_dir_native` | `"{{ tautulli_setup_config_dir }}/backups"` |  |
 
 ## 📦 Vars
 _No constant variables found._
 
 ## 📑 Tasks
-- Verify config folder exists
-- Fail if config folder does not exists
-- Copy docker-compose.yml to target machine
-- Make sure docker service account has access to config dir
-- Stop Docker Container
-- Prune unused Docker images
-- Remove all images
-- Pull latest image
-- Run Docker Container
+- Deploy Tautulli Docker Service
 
 ## 🔔 Handlers
 _No handlers defined._
