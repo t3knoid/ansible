@@ -62,24 +62,24 @@ _No group variables defined._
 
 ## 🧩 Group Children
 ### `linux`
-- `wsl`
 - `vms`
+- `wsl`
 
 ### `terraform`
 - `ansible`
 
 ### `ansible`
-- `wsl`
 - `vms`
+- `wsl`
 
 ### `rproxy`
-- `rproxy_main`
 - `rproxy_secondary`
+- `rproxy_main`
 - `rproxy_primary`
 
 ### `cname`
 - `code_server`
 
 ### `python`
-- `wsl`
 - `ansible`
+- `wsl`
