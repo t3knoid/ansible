@@ -1,0 +1,23 @@
+User nobody
+Group nogroup
+Port {{ tinyproxy_setup_port }}
+Listen {{ tinyproxy_setup_listen_address }}
+
+Timeout 600
+LogLevel Info
+
+{% for cidr in tinyproxy_setup_allowed_clients %}
+Allow {{ cidr }}
+{% endfor %}
+
+ViaProxyName "tinyproxy"
+
+# Optional: bind outbound traffic to VPN interface
+{% if tinyproxy_setup_use_vpn %}
+Bind {{ tinyproxy_setup_vpn_interface }}
+{% endif %}
+
+# Optional: set up basic authentication
+{% if tinyproxy_setup_enable_authentication %}
+BasicAuth {{ tinyproxy_setup_auth_username }} {{ tinyproxy_setup_auth_password }}
+{% endif %}

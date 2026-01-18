@@ -1,0 +1,26 @@
+---
+
+vms_config:
+  agent: "1"
+  cores: "2"
+  cpu: host
+  memory: 1024
+  ostype: l26
+  scsihw: virtio-scsi-single
+  sockets: 1
+  storage: local
+  disk_os:
+    disk: virtio0
+    backup: true
+    size: 20
+    storage: local
+
+vms_os: ubuntu_24_server
+vms_autoinstall: true
+vms_enable_serial_terminal: false
+vms_additional_packages: []
+python3_version: 3.12
+python3_venv_folder: "/opt/python_{{ python3_version }}"
+
+# Vault password default (used if environment variable is not set)
+tinyproxy_setup_auth_password: "{{ global_tinyproxy_setup_auth_password }}"

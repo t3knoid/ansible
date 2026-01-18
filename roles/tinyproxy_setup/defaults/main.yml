@@ -1,0 +1,22 @@
+---
+
+tinyproxy_setup_enabled: true
+
+# Basic proxy settings
+tinyproxy_setup_listen_address: "0.0.0.0"
+tinyproxy_setup_port: 8888
+tinyproxy_setup_allowed_clients:
+  - "192.168.0.0/24"
+  - "192.168.2.0/24"
+
+# Optional OpenVPN integration
+tinyproxy_setup_use_vpn: false
+tinyproxy_setup_vpn_interface: "tun0"
+
+# If true, Tinyproxy will only start when VPN interface is up
+tinyproxy_setup_require_vpn: false
+
+tinyproxy_setup_enable_authentication: false
+# Authentication credentials (if authentication is enabled)
+tinyproxy_setup_auth_username: "proxyuser"
+tinyproxy_setup_auth_password: "{{ lookup('env', 'TINYPROXY_SETUP_AUTH_PASSWORD') | default(TINYPROXY_SETUP_AUTH_PASSWORD_DEFAULT) }}"
