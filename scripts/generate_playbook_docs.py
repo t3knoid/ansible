@@ -157,6 +157,30 @@ def main():
         for entry in sorted(root_entries, key=lambda x: str(x["path"]).lower()):
             md_path = entry["path"].with_suffix(".md").name
             purp = sanitize_purpose(entry["purpose"])
+            index_lines.append(f"| [`{entry['path']}`](./{md_path}) | {purp} |")
+
+    if sub_entries:
+        index_lines.append("\n## 📂 Playbooks in subfolders\n")
+        index_lines.append("| Playbook Path | Purpose |")
+        index_lines.append("|---------------|---------|")
+        for entry in sorted(sub_entries, key=lambda x: str(x["path"]).lower()):
+            md_path = entry["path"].with_suffix(".md").name
+            purp = sanitize_purpose(entry["purpose"])
+            index_lines.append(f"| [`{entry['path']}`](./{md_path}) | {purp} |")
+
+    # Write global index to docs/playbooks/README.md
+    (docs_dir / "README.md").write_text("\n".join(index_lines))
+
+    # Write global index → docs/README.md
+    index_lines = ["# 📚 Playbook Index\n"]
+
+    if root_entries:
+        index_lines.append("## 📂 Playbooks in root `playbooks/`\n")
+        index_lines.append("| Playbook | Purpose |")
+        index_lines.append("|----------|---------|")
+        for entry in sorted(root_entries, key=lambda x: str(x["path"]).lower()):
+            md_path = entry["path"].with_suffix(".md").name
+            purp = sanitize_purpose(entry["purpose"])
             index_lines.append(f"| [`{entry['path']}`](../docs/playbooks/{md_path}) | {purp} |")
 
     if sub_entries:
@@ -168,10 +192,7 @@ def main():
             purp = sanitize_purpose(entry["purpose"])
             index_lines.append(f"| [`{entry['path']}`](../docs/playbooks/{md_path}) | {purp} |")
 
-    # Write global index to docs/playbooks/README.md
-    (docs_dir / "README.md").write_text("\n".join(index_lines))
-
-    # Also write a mirror index to playbooks/README.md
+    # Write a mirror index to playbooks/README.md
     (Path("playbooks") / "README.md").write_text("\n".join(index_lines))
 
     # Write folder-level indexes (inside playbooks/* folders)
