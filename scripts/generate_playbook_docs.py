@@ -157,7 +157,7 @@ def main():
         for entry in sorted(root_entries, key=lambda x: str(x["path"]).lower()):
             md_path = entry["path"].with_suffix(".md").name
             purp = sanitize_purpose(entry["purpose"])
-            index_lines.append(f"| [`{entry['path']}`]({md_path}) | {purp} |")
+            index_lines.append(f"| [`{entry['path']}`](../docs/playbooks/{md_path}) | {purp} |")
 
     if sub_entries:
         index_lines.append("\n## 📂 Playbooks in subfolders\n")
@@ -166,7 +166,7 @@ def main():
         for entry in sorted(sub_entries, key=lambda x: str(x["path"]).lower()):
             md_path = entry["path"].with_suffix(".md").name
             purp = sanitize_purpose(entry["purpose"])
-            index_lines.append(f"| [`{entry['path']}`]({md_path}) | {purp} |")
+            index_lines.append(f"| [`{entry['path']}`](../docs/playbooks/{md_path}) | {purp} |")
 
     # Write global index to docs/playbooks/README.md
     (docs_dir / "README.md").write_text("\n".join(index_lines))
@@ -190,6 +190,6 @@ def main():
             lines.append(f"| [`{entry['path']}`](../../docs/playbooks/{md_path}) | {purp} |")
 
         (folder / "README.md").write_text("\n".join(lines))
-        
+
 if __name__ == "__main__":
     main()
