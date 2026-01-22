@@ -71,6 +71,7 @@
 | [`linux/deploy_updates.yml`](./deploy_updates.md) | Deploy updates on Linux hosts |
 | [`linux/remove_autofs.yml`](./remove_autofs.md) | Removes autofs from designated servers. |
 | [`minecraft/check_bedrock_version.yml`](./check_bedrock_version.md) | Check latest Bedrock version on Bedrock hosts |
+| [`minecraft/check_minecraft_version.yml`](./check_minecraft_version.md) | Check latest Minecraft Java Edition version on Minecraft hosts |
 | [`minecraft/deploy_bedrock.yml`](./deploy_bedrock.md) | Deploy Minecraft Bedrock server |
 | [`minecraft/deploy_minecraft.yml`](./deploy_minecraft.md) | Deploy Minecraft Java server |
 | [`mongodb/deploy_mongodb.yml`](./deploy_mongodb.md) | Deploy MongoDB on MongoDB hosts |
