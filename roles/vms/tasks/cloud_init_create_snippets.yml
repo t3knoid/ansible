@@ -4,6 +4,12 @@
 # on the Proxmox node where the cloned VM resides. This assumes that
 # the VM has been migrated to its target node.
 
+- name: Make sure ~/.ssh/ folder exists
+  ansible.builtin.file:
+    path: "~/.ssh/"
+    state: directory
+  delegate_to: localhost
+  
 # This ensures that the current Ansible user can
 # connect via ssh into the new virtual machine
 - name: Generate Ansible user ssh key if needed
