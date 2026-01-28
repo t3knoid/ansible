@@ -11,5 +11,5 @@ vms_config:
   disk_os:
     disk: virtio0
     backup: true
-    size: 20
+    size: 25
     storage: local

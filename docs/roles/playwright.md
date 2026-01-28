@@ -20,8 +20,8 @@ _No constant variables found._
 
 ## 📑 Tasks
 - Ensure pip is available
-- Install Playwright dependencies
 - Install Playwright Python package
+- Install Playwright dependencies
 - Install Playwright firefox browser binaries
 
 ## 🔔 Handlers

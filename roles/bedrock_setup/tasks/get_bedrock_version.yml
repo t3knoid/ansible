@@ -1,0 +1,22 @@
+---
+- name: Run Bedrock version checker script
+  ansible.builtin.script: get_bedrock_version.py
+  register: bedrock_setup_version_output
+  args:
+    executable: "{{ python3_venv_folder }}/bin/python3"
+  changed_when: false
+
+- name: Show currently installed Bedrock version
+  ansible.builtin.debug:
+    msg: "Latest installed Bedrock Server version is {{ bedrock_setup_version }}"
+
+- name: Show latest Bedrock version
+  ansible.builtin.debug:
+    msg: "Latest Bedrock Server version is {{ bedrock_setup_version_output.stdout }}"
+
+- name: Check if latest version is newer
+  ansible.builtin.debug:
+    msg: "Update available: {{ bedrock_setup_version_output.stdout }} is newer than {{ bedrock_setup_version }}"
+  when:
+    - bedrock_setup_version_output.stdout | trim is version(bedrock_setup_version, '>')
+    - bedrock_setup_version_output.stdout | trim != bedrock_setup_version
