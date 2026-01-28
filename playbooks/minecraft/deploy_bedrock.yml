@@ -7,5 +7,4 @@
   become: true
 
   roles:
-    - java_setup
     - bedrock_setup
