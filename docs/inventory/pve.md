@@ -56,6 +56,6 @@ _No group variables defined._
 - `pbsnodes`
 
 ### `rproxy`
-- `rproxy_main`
 - `rproxy_secondary`
 - `rproxy_primary`
+- `rproxy_main`
