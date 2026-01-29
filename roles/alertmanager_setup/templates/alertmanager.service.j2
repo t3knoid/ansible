@@ -9,6 +9,8 @@ After=prometheus.service
 [Service]
 User={{ alertmanager_setup_user }}
 ExecStart={{ alertmanager_setup_binary }} --config.file={{ alertmanager_setup_config_file }} --storage.path={{ alertmanager_setup_work_dir }}/data
+Restart=on-failure
+RestartSec=5
 
 [Install]
 WantedBy=multi-user.target
