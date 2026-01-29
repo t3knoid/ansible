@@ -1,0 +1,14 @@
+[Unit]
+Description=Alertmanager
+After=network.target
+{% if alertmanager_setup_wait_for_prometheus %}
+Wants=prometheus.service
+After=prometheus.service
+{% endif %}
+
+[Service]
+User={{ alertmanager_setup_user }}
+ExecStart={{ alertmanager_setup_binary }} --config.file={{ alertmanager_setup_config_file }} --storage.path={{ alertmanager_setup_work_dir }}/data
+
+[Install]
+WantedBy=multi-user.target

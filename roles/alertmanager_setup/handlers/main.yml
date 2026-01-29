@@ -1,0 +1,11 @@
+---
+- name: Reload systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: Restart AlertManager service
+  ansible.builtin.systemd:
+    name: alertmanager
+    state: restarted
+    enabled: true
+
