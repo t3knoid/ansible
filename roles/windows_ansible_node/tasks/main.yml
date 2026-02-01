@@ -1,0 +1,70 @@
+---
+
+- name: Validate required vars for bootstrap user
+  ansible.builtin.assert:
+    that:
+      - windows_ansible_node_password | length > 0
+    fail_msg: >-
+      Set windows_ansible_node_password when windows_ansible_node_create_user is true.
+  when: windows_ansible_node_create_user
+
+- name: Ensure WinRM service is enabled and running
+  ansible.windows.win_service:
+    name: WinRM
+    start_mode: auto
+    state: started
+  when: windows_ansible_node_enable_winrm
+
+- name: Enable PowerShell remoting
+  ansible.windows.win_powershell:
+    script: |
+      Enable-PSRemoting -Force
+  when: windows_ansible_node_enable_winrm
+
+- name: Configure WinRM authentication and encryption
+  ansible.windows.win_powershell:
+    script: |
+      Set-Item -Path WSMan:\localhost\Service\AllowUnencrypted -Value {{ windows_ansible_node_allow_unencrypted | bool | ternary('$true', '$false') }}
+      Set-Item -Path WSMan:\localhost\Service\Auth\Basic -Value {{ windows_ansible_node_allow_basic | bool | ternary('$true', '$false') }}
+  when: windows_ansible_node_enable_winrm
+
+- name: Ensure WinRM firewall rules are enabled
+  ansible.windows.win_firewall_rule:
+    group: Windows Remote Management
+    enabled: true
+    state: present
+  when: windows_ansible_node_enable_winrm
+
+- name: Ensure bootstrap user exists
+  ansible.windows.win_user:
+    name: "{{ windows_ansible_node_user }}"
+    password: "{{ windows_ansible_node_password }}"
+    state: present
+    password_never_expires: true
+    update_password: on_create
+  when: windows_ansible_node_create_user
+
+- name: Add custom user list to ansible group
+  ansible.windows.win_user:
+    name: "{{ item }}"
+    groups: ansible
+    append: true
+  loop: "{{ windows_ansible_node_custom_sudo_users }}"
+
+- name: Ensure bootstrap user is in required groups
+  ansible.windows.win_group_membership:
+    name: "{{ item }}"
+    members:
+      - "{{ windows_ansible_node_user }}"
+    state: present
+  loop: "{{ windows_ansible_node_groups }}"
+  when: windows_ansible_node_create_user
+
+- name: Ensure remote temp directory exists
+  ansible.windows.win_file:
+    path: "{{ windows_ansible_node_remote_tmp }}"
+    state: directory
+    owner: "{{ windows_ansible_node_user }}"
+    rights:
+      - FullControl
+
