@@ -1,0 +1,14 @@
+---
+windows_ansible_node_user: ansible
+windows_ansible_node_password: ""
+windows_ansible_node_create_user: true
+
+windows_ansible_node_groups:
+  - Administrators
+windows_ansible_node_custom_sudo_users:
+  - semaphore
+
+windows_ansible_node_enable_winrm: true
+windows_ansible_node_allow_unencrypted: false
+windows_ansible_node_allow_basic: false
+windows_ansible_node_remote_tmp: C:\AnsibleTmp
