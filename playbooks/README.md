@@ -134,7 +134,7 @@
 | [`synology/prep_ansible.yml`](../docs/playbooks/prep_ansible.md) | Prepares Synology NAS for Ansible management by configuring DNS entries, reverse proxy, and Python environment. |
 | [`tautulli/backup_db.yml`](../docs/playbooks/backup_db.md) | Backs up Tautulli database and configuration files to a specified NFS share. |
 | [`tautulli/deploy_tautulli.yml`](../docs/playbooks/deploy_tautulli.md) | Deploys Tautulli media tracking service with necessary configurations and NFS mounts. |
-| [`template/create_template.yml`](../docs/playbooks/create_template.md) | Creates a VM template using cloud-init on the specified Proxmox node. |
+| [`template/create_ubuntu_24_04_server_template.yml`](../docs/playbooks/create_ubuntu_24_04_server_template.md) | Creates an Ubuntu 24.04 Server VM template using cloud-init on the specified Proxmox node. |
 | [`terraform/deploy_terraform.yml`](../docs/playbooks/deploy_terraform.md) | Installs Terraform |
 | [`tplink/deploy_omada_controller.yml`](../docs/playbooks/deploy_omada_controller.md) | Installs and configures Tp-Link Omada Controller |
 | [`ubuntu/check_ubuntu_install.yml`](../docs/playbooks/check_ubuntu_install.md) | Checks if Ubuntu is installed on the target machine |
