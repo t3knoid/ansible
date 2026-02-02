@@ -1,0 +1,14 @@
+---
+
+template:
+  ubuntu_24_server:
+    name: "ubuntu-server-24.04-cloudinit"
+    vmid: "9501"
+    memory_mb: 2048
+    storage: local
+    network_device: "virtio,bridge=vmbr0"
+    scsi_controller_model: virtio-scsi-pci
+    cpu_type: host
+    cores: 1
+    ostype: l26
+    proxmox_node: pve-2

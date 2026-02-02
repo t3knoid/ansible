@@ -43,6 +43,7 @@
     --scsihw {{ cloudinit_scsi_controller_model }} \
     --agent enabled={{ cloudinit_agent_enabled | ternary('1', '0') }} \
     --cpu cputype={{ cloudinit_cpu_type }}
+    --ostype {{ cloudinit_template.ostype }}
   args:
     creates: "/var/lib/vz/images/{{ cloudinit_vmid }}/base-{{ cloudinit_vmid }}-disk-0.raw"
   changed_when: false
