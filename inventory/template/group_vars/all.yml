@@ -12,3 +12,15 @@ template:
     cores: 1
     ostype: l26
     proxmox_node: pve-2
+  win_11_business:
+    name: "win11-business-template"
+    vmid: "9600"
+    memory_mb: 4096
+    storage: local
+    disk_size_gb: 64
+    network_device: "virtio,bridge=vmbr0"
+    scsi_controller_model: virtio-scsi-pci
+    cpu_type: host
+    cores: 2
+    ostype: win11
+    proxmox_node: pve-2

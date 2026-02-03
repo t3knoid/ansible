@@ -1,0 +1,46 @@
+---
+win11_business_template_os: "win_11_business"
+win11_business_template: "{{ template[win11_business_template_os] }}"
+win11_business_template_name: "{{ win11_business_template.name }}"
+win11_business_template_vmid: "{{ win11_business_template.vmid }}"
+win11_business_template_memory_mb: "{{ win11_business_template.memory_mb }}"
+win11_business_template_storage: "{{ win11_business_template.storage }}"
+win11_business_template_network_device: "{{ win11_business_template.network_device }}"
+win11_business_template_scsi_controller_model: "{{ win11_business_template.scsi_controller_model }}"
+win11_business_template_cpu_type: "{{ win11_business_template.cpu_type }}"
+win11_business_template_agent_enabled: "{{ win11_business_template.agent_enabled | default(true, true) }}"
+win11_business_template_proxmox_node: "{{ win11_business_template.proxmox_node }}"
+win11_business_template_ostype: "{{ win11_business_template.ostype | default('win11', true) }}"
+win11_business_template_iso_file: "{{ win11_business_template.iso }}"
+win11_business_template_virtio_iso_file: ""
+
+win11_business_template_use_autounattend: true
+win11_business_template_autounattend_template: autounattend.xml.j2
+win11_business_template_autounattend_admin_password: ""
+win11_business_template_autounattend_product_key: ""
+win11_business_template_autounattend_computer_name: "{{ win11_business_template.name }}"
+win11_business_template_autounattend_timezone: "{{ global_timezone | default('UTC') }}"
+win11_business_template_autounattend_language: en-US
+win11_business_template_autounattend_iso_storage: "{{ win11_business_template_iso_storage }}"
+win11_business_template_autounattend_iso_dir: /var/lib/vz/template/iso
+win11_business_template_autounattend_iso_name: "autounattend-win11-{{ win11_business_template_vmid }}.iso"
+win11_business_template_autounattend_xml_path: "/var/lib/vz/snippets/autounattend-{{ win11_business_template_vmid }}.xml"
+win11_business_template_install_iso_tools: true
+
+win11_business_template_bios: "{{ win11_business_template_enable_uefi | ternary('ovmf', 'seabios') }}"
+win11_business_template_enable_uefi: true
+win11_business_template_efidisk_storage: "{{ win11_business_template_storage }}"
+win11_business_template_efidisk_size_gb: 1
+win11_business_template_efidisk_type: 4m
+win11_business_template_uefi_enrolled_keys: true
+
+win11_business_template_enable_tpm: true
+win11_business_template_tpm_storage: "{{ win11_business_template_storage }}"
+win11_business_template_tpm_version: v2.0
+win11_business_template_tpm_size_gb: 1
+
+win11_business_template_boot_order: "ide2;scsi0"
+win11_business_template_start_vm: true
+win11_business_template_pause_for_install: false
+win11_business_template_remove_existing: false
+win11_business_template_set_template: false
