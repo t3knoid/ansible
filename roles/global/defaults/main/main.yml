@@ -24,7 +24,7 @@ global_os:
         distro: windows
         type: server
         iso: en-us_windows_11_business-editions_version_23h2_updated_aug_2024_x64_dvd_4b6aa6b4.iso
-        template:
+        template: win11-business-template
         version: 11
 
 global_domain_name: "refol.us"
