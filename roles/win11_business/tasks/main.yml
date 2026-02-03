@@ -1,0 +1,134 @@
+---
+- name: Load JSON .vmlist file content from proxmox node
+  ansible.builtin.slurp:
+    src: "/etc/pve/.vmlist"
+  register: windows11_business_template_vmlist
+
+- name: Check if virtual machine exists
+  ansible.builtin.set_fact:
+    windows11_business_template_vm_exists: >-
+      {{ windows11_business_template_vmid | string in (windows11_business_template_vmlist.content | b64decode | from_json | json_query('keys(ids)')) }}
+
+- name: Remove existing virtual machine
+  ansible.builtin.command: "qm destroy {{ windows11_business_template_vmid }} --purge"
+  args:
+    removes: "/etc/pve/qemu-server/{{ windows11_business_template_vmid }}.conf"
+  changed_when: false
+  when:
+    - windows11_business_template_vm_exists
+    - windows11_business_template_remove_existing
+
+- name: Ensure VM is created
+  ansible.builtin.command: >
+    qm create {{ win11_business_template_vmid }} --name {{ win11_business_template_name }} \
+    --memory {{ win11_business_template_memory_mb }} \
+    --net0 {{ win11_business_template_network_device }} \
+    --scsihw {{ win11_business_template_scsi_controller_model }} \
+    --agent enabled={{ win11_business_template_agent_enabled | ternary('1', '0') }} \
+    --cpu cputype={{ win11_business_template_cpu_type }} \
+    --cores {{ win11_business_template_cores }} \
+    --sockets {{ win11_business_template_sockets }} \
+    --ostype {{ win11_business_template_ostype }}
+  args:
+    creates: "/etc/pve/qemu-server/{{ win11_business_template_vmid }}.conf"
+  changed_when: false
+
+- name: Ensure ISO tools are installed
+  ansible.builtin.apt:
+    name: genisoimage
+    state: present
+  when: win11_business_template_install_iso_tools
+
+- name: Configure machine type and BIOS
+  ansible.builtin.command: >
+    qm set {{ win11_business_template_vmid }} \
+    --machine {{ win11_business_template_machine_type }} \
+    --bios {{ win11_business_template_bios }}
+  changed_when: false
+
+- name: Ensure primary disk exists
+  ansible.builtin.command: >
+    qm set {{ win11_business_template_vmid }} --scsi0 {{ win11_business_template_storage }}:{{ win11_business_template_disk_size_gb }}
+  changed_when: false
+
+- name: Add UEFI EFI disk
+  ansible.builtin.command: >
+    qm set {{ win11_business_template_vmid }} \
+    --efidisk0 {{ win11_business_template_efidisk_storage }}:{{ win11_business_template_efidisk_size_gb }},efitype={{ win11_business_template_efidisk_type }},pre-enrolled-keys={{ win11_business_template_uefi_enrolled_keys | ternary('1', '0') }}
+  changed_when: false
+  when: win11_business_template_enable_uefi
+
+- name: Add TPM device
+  ansible.builtin.command: >
+    qm set {{ win11_business_template_vmid }} \
+    --tpmstate0 {{ win11_business_template_tpm_storage }}:{{ win11_business_template_tpm_size_gb }},version={{ win11_business_template_tpm_version }}
+  changed_when: false
+  when: win11_business_template_enable_tpm
+
+- name: Attach Windows 11 ISO
+  ansible.builtin.command: >
+    qm set {{ win11_business_template_vmid }} --ide2 {{ win11_business_template_iso_storage }}:iso/{{ win11_business_template_iso_file }},media=cdrom
+  changed_when: false
+
+- name: Ensure snippets directory exists
+  ansible.builtin.file:
+    path: "/var/lib/vz/snippets"
+    state: directory
+    mode: '0755'
+  when: win11_business_template_use_autounattend
+
+- name: Validate autounattend admin password
+  ansible.builtin.assert:
+    that:
+      - windows11_business_template_autounattend_admin_password | length > 0
+    fail_msg: >-
+      Set win11_business_template_autounattend_admin_password when using autounattend.
+  when: win11_business_template_use_autounattend
+
+- name: Render autounattend.xml
+  ansible.builtin.template:
+    src: "{{ win11_business_template_autounattend_template }}"
+    dest: "{{ win11_business_template_autounattend_xml_path }}"
+    mode: '0644'
+  when: win11_business_template_use_autounattend
+
+- name: Build autounattend ISO
+  ansible.builtin.command: >
+    genisoimage -J -r -V "AUTOUNATTEND" -o {{ win11_business_template_autounattend_iso_dir }}/{{ win11_business_template_autounattend_iso_name }} {{ win11_business_template_autounattend_xml_path }}
+  args:
+    creates: "{{ win11_business_template_autounattend_iso_dir }}/{{ win11_business_template_autounattend_iso_name }}"
+  changed_when: false
+  when: win11_business_template_use_autounattend
+
+- name: Attach autounattend ISO
+  ansible.builtin.command: >
+    qm set {{ win11_business_template_vmid }} --ide1 {{ win11_business_template_autounattend_iso_storage }}:iso/{{ win11_business_template_autounattend_iso_name }},media=cdrom
+  changed_when: false
+  when: win11_business_template_use_autounattend
+
+- name: Attach VirtIO drivers ISO
+  ansible.builtin.command: >
+    qm set {{ win11_business_template_vmid }} --ide3 {{ win11_business_template_iso_storage }}:iso/{{ win11_business_template_virtio_iso_file }},media=cdrom
+  changed_when: false
+  when: win11_business_template_virtio_iso_file | length > 0
+
+- name: Configure boot order
+  ansible.builtin.command: >
+    qm set {{ win11_business_template_vmid }} --boot order={{ win11_business_template_boot_order }}
+  changed_when: false
+
+- name: Start VM for manual install
+  ansible.builtin.command: "qm start {{ win11_business_template_vmid }}"
+  changed_when: false
+  when: win11_business_template_start_vm
+
+- name: Pause for manual Windows installation and sysprep
+  ansible.builtin.pause:
+    prompt: >-
+      Complete Windows 11 installation, install VirtIO drivers and QEMU guest agent,
+      then run sysprep /generalize /oobe /shutdown inside the VM. Press Enter to continue.
+  when: win11_business_template_pause_for_install
+- name: Convert VM to template
+  ansible.builtin.command: "qm template {{ win11_business_template_vmid }}"
+  changed_when: false
+  when: win11_business_template_set_template
