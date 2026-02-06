@@ -9,3 +9,9 @@
     state: restarted
     enabled: true
 
+- name: Validate AlertManager configuration
+  ansible.builtin.command:
+    cmd: "{{ alertmanager_setup_home }}/amtool check-config {{ alertmanager_setup_config_file }}"
+  register: alertmanager_config_template_result
+  failed_when: alertmanager_config_template_result.rc != 0
+  changed_when: false

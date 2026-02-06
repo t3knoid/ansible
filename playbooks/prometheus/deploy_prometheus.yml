@@ -8,6 +8,7 @@
   gather_facts: true
   roles:
     - global
+    - users
     - autofs
     - prometheus_setup
     - alertmanager_setup
