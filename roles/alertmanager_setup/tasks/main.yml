@@ -3,19 +3,10 @@
   ansible.builtin.unarchive:
     src: >
       {{ alertmanager_setup_download_base_url }}v{{ alertmanager_setup_version }}/alertmanager-{{ alertmanager_setup_version }}.linux-amd64.tar.gz
-    dest: /opt
+    dest: /opt/
     remote_src: true
     creates: "/opt/alertmanager-{{ alertmanager_setup_version }}.linux-amd64"
     mode: '0755'
-
-- name: Ensure AlertManager user exists
-  ansible.builtin.user:
-    name: "{{ alertmanager_setup_user }}"
-    group: "{{ alertmanager_setup_group }}"
-    system: true
-    create_home: false
-    shell: /sbin/nologin
-    state: present
 
 - name: Create symlink for AlertManager
   ansible.builtin.file:
@@ -55,13 +46,13 @@
     owner: "{{ alertmanager_setup_user }}"
     group: "{{ alertmanager_setup_group }}"
     mode: "{{ alertmanager_setup_data_mode }}"
-  loop_control:
-    label: "{{ dir_name }}"
-    loop_var: dir_name
   loop:
     - etc
     - templates
     - data
+  loop_control:
+    label: "{{ dir_name }}"
+    loop_var: dir_name
 
 - name: Copy AlertManager configuration file
   ansible.builtin.template:
@@ -73,13 +64,12 @@
     backup: true
   notify:
     - Restart AlertManager service
+    - Validate AlertManager configuration
 
 - name: Create AlertManager systemd service file
   ansible.builtin.template:
     src: alertmanager.service.j2
     dest: "{{ alertmanager_setup_service_file }}"
-    owner: "{{ alertmanager_setup_user }}"
-    group: "{{ alertmanager_setup_group }}"
     mode: "{{ alertmanager_setup_service_mode }}"
   notify:
     - Reload systemd daemon
@@ -88,5 +78,3 @@
 - name: Enable and start AlertManager service
   ansible.builtin.systemd:
     name: alertmanager
-    enabled: true
-    state: started

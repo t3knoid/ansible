@@ -6,7 +6,7 @@ global:
   # Default settings applied to all notifications
   resolve_timeout: 5m
   smtp_smarthost: '{{ alertmanager_setup_smtp_settings_address }}:{{ alertmanager_setup_smtp_settings_port }}'
-  smtp_from: 'alertmanager@refol.us'
+  smtp_from: '{{ alertmanager_setup_smtp_from | default("alertmanager@refol.us") }}'
   smtp_auth_username: '{{ alertmanager_setup_smtp_settings_user_name }}'
   smtp_auth_password: '{{ alertmanager_setup_smtp_settings_password }}'
   slack_api_url: '{{ alertmanager_setup_slack_api_url }}'

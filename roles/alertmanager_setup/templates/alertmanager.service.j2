@@ -7,8 +7,9 @@ After=prometheus.service
 {% endif %}
 
 [Service]
+Type=simple
 User={{ alertmanager_setup_user }}
-ExecStart={{ alertmanager_setup_binary }} --config.file={{ alertmanager_setup_config_file }} --storage.path={{ alertmanager_setup_work_dir }}/data
+ExecStart={{ alertmanager_setup_binary }} --config.file={{ alertmanager_setup_config_file }} --web.listen-address={{ alertmanager_setup_listen_address }} --storage.path={{ alertmanager_setup_work_dir }}/data
 Restart=on-failure
 RestartSec=5
 
