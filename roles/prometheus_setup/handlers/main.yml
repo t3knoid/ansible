@@ -14,3 +14,10 @@
     url: "http://{{ global_ip_addresses[ansible_host] }}:9090/-/reload"
     method: POST
     validate_certs: false
+
+- name: Validate Prometheus rules with promtool
+  ansible.builtin.command:
+    cmd: "{{ prometheus_setup_home }}/promtool check rules {{ prometheus_setup_rules_file }}"
+  register: prometheus_setup_promtool_result
+  changed_when: false   # ensures the task is idempotent, only validates
+  failed_when: prometheus_setup_promtool_result.rc != 0
