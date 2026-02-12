@@ -1,0 +1,27 @@
+---
+
+alertmanager_setup_version: 0.30.1
+alertmanager_setup_home: "/opt/alertmanager"
+alertmanager_setup_work_dir: "/data/alertmanager"
+alertmanager_setup_download_base_url: "https://github.com/prometheus/alertmanager/releases/download/"
+alertmanager_setup_user: "{{ (users_list | default([{'username': 'prometheus'}]) | first).username }}" # Same as prometheus user defined in inventory
+alertmanager_setup_group: "{{ (users_list | default([{'username': 'prometheus'}]) | first).username }}"
+alertmanager_setup_service_file: "/etc/systemd/system/alertmanager.service"
+alertmanager_setup_wait_for_prometheus: false
+alertmanager_setup_config_file: "{{ alertmanager_setup_work_dir }}/etc/alertmanager.yml"
+alertmanager_setup_binary: "/usr/local/bin/alertmanager"
+alertmanager_setup_mode: '0755'
+alertmanager_setup_config_mode: '0644'
+alertmanager_setup_service_mode: '0644'
+alertmanager_setup_data_mode: '0755'
+alertmanager_setup_listen_address: "0.0.0.0:9093"
+
+alertmanager_setup_smtp_settings_address: smtp-relay.gmail.com
+alertmanager_setup_smtp_settings_port: 587
+alertmanager_setup_smtp_from: "alertmanager@refol.us"
+# alertmanager_setup_smtp_settings_user_name defined in vault
+# alertmanager_setup_smtp_settings_password defined in vault
+
+# Slack and PagerDuty URLs defined in vault
+# alertmanager_setup_slack_api_url
+# alertmanager_setup_pagerduty_url

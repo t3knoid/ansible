@@ -48,3 +48,4 @@ rproxy_setup_sites:
     restricted: false
 
 prometheus_setup_version: 3.6.0
+alertmanager_setup_version: 0.30.1

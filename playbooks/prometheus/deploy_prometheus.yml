@@ -2,11 +2,13 @@
 
 # Purpose: Deploy Prometheus monitoring system
 
-- name: Deploy Prometheus
+- name: Deploys Prometheus and AlertManager
   hosts: prometheus
   become: true
   gather_facts: true
   roles:
     - global
+    - users
     - autofs
     - prometheus_setup
+    - alertmanager_setup
