@@ -1,0 +1,63 @@
+---
+- name: Ensure sftp user exists
+  ansible.builtin.user:
+    name: "{{ sftp_bastion_user }}"
+    shell: "{{ sftp_bastion_shell }}"
+    create_home: true
+    state: present
+
+- name: Ensure .ssh directory exists
+  ansible.builtin.file:
+    path: "{{ sftp_bastion_home }}/.ssh"
+    state: directory
+    owner: "{{ sftp_bastion_user }}"
+    group: "{{ sftp_bastion_user }}"
+    mode: "0700"
+
+- name: Generate ed25519 key pair for sftp->synology (if missing)
+  ansible.builtin.command: >
+    ssh-keygen -t ed25519
+    -f {{ sftp_bastion_home }}/.ssh/{{ sftp_bastion_key_name }}
+    -N ""
+    -C "{{ sftp_bastion_user }}@{{ ansible_fqdn | default(inventory_hostname) }}"
+  args:
+    creates: "{{ sftp_bastion_home }}/.ssh/{{ sftp_bastion_key_name }}"
+  become: true
+  become_user: "{{ sftp_bastion_user }}"
+
+- name: Ensure key files owned and permissions are correct
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    owner: "{{ sftp_bastion_user }}"
+    group: "{{ sftp_bastion_user }}"
+    mode: "{{ item.mode }}"
+  loop:
+    - {
+      path: "{{ sftp_bastion_home }}/.ssh/{{ sftp_bastion_key_name }}",
+      mode: "0600",
+    }
+    - {
+      path: "{{ sftp_bastion_home }}/.ssh/{{ sftp_bastion_key_name }}.pub",
+      mode: "0644",
+    }
+
+- name: Slurp public key from bastion
+  ansible.builtin.slurp:
+    src: "{{ sftp_bastion_home }}/.ssh/{{ sftp_bastion_key_name }}.pub"
+  register: slurped_pub
+
+- name: Install public key on Synology (delegated)
+  ansible.posix.authorized_key:
+    user: "{{ sftp_bastion_synology_user }}"
+    key: "{{ slurped_pub.content | b64decode }}"
+  delegate_to: "{{ sftp_bastion_synology_host }}"
+  become: true
+
+- name: Place sshd Match User drop-in
+  ansible.builtin.template:
+    src: sshd_match_sftpuser.conf.j2
+    dest: /etc/ssh/sshd_config.d/50-sftpuser.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart sshd
