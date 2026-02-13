@@ -31,7 +31,8 @@ Redmine Setup installs and configures an [Redmine](https://www.redmine.org/). Th
 | `redmine_setup_mount_point` | `/nfs/backups` | redmine_setup_db_password |
 | `redmine_setup_backup_prefix` | `"redmine_"` |  |
 | `redmine_setup_backup_filename` | `"{{ redmine_setup_backup_prefix }}{{ ansible_date_time.date }}.sqlc"` |  |
-| `redmine_setup_backup_path` | `"{{ redmine_setup_mount_point }}/{{ redmine_setup_backup_filename }}"` |  |
+| `redmine_setup_backup_dir` | `"{{ redmine_setup_mount_point }}/redmine"` |  |
+| `redmine_setup_backup_path` | `"{{ redmine_setup_backup_dir }}/{{ redmine_setup_backup_filename }}"` |  |
 | `redmine_setup_wiki_mirror_repo_path` | `"/data/redmine/wiki-mirror/repo"` | Redmine setup defaults |
 | `redmine_setup_wiki_mirror_extension` | `"md"` |  |
 | `redmine_setup_wiki_mirror_debug` | `false` |  |
