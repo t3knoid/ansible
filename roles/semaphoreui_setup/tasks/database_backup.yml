@@ -1,5 +1,13 @@
 ---
 
+- name: Ensure backup directory exists
+  ansible.builtin.file:
+    path: "{{ semaphoreui_setup_backup_dir }}"
+    state: directory
+    owner: postgres
+    group: postgres
+    mode: '0755'
+
 - name: Backup PostgreSQL database using pg_dump
   ansible.builtin.shell: |
     set -euo pipefail
@@ -8,13 +16,13 @@
   args:
     executable: /bin/bash
   become_user: postgres
-  register: pg_backup_result
-  failed_when: pg_backup_result.rc != 0
+  register: semaphoreui_setup_pg_backup_result
+  failed_when: semaphoreui_setup_pg_backup_result.rc != 0
   changed_when: true
 
 - name: Keep only the latest 3 backups
   ansible.builtin.shell: |
-    ls -1t {{ semaphoreui_setup_mount_point }}/{{ semaphoreui_setup_backup_prefix }}*.sqlc | tail -n +4 | xargs -r rm -f
+    ls -1t {{ semaphoreui_setup_backup_dir }}/{{ semaphoreui_setup_backup_prefix }}*.sqlc | tail -n +4 | xargs -r rm -f
   args:
     executable: /bin/bash
   become: true

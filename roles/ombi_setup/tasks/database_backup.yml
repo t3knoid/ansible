@@ -1,5 +1,13 @@
 ---
 
+- name: Ensure backup directory exists
+  ansible.builtin.file:
+    path: "{{ ombi_setup_backup_dir }}"
+    state: directory
+    owner: postgres
+    group: postgres
+    mode: '0755'
+
 - name: Backup PostgreSQL database using pg_dump
   ansible.builtin.shell: |
     set -euo pipefail
@@ -14,7 +22,7 @@
 
 - name: Keep only the latest 3 backups
   ansible.builtin.shell: |
-    ls -1t {{ ombi_setup_mount_point }}/{{ ombi_setup_backup_prefix }}*.sqlc | tail -n +4 | xargs -r rm -f
+    ls -1t {{ ombi_setup_backup_dir }}/{{ ombi_setup_backup_prefix }}*.sqlc | tail -n +4 | xargs -r rm -f
   args:
     executable: /bin/bash
   become: true
