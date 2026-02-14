@@ -54,15 +54,15 @@ Provides global defaults common to all roles. It provides the IP definition of e
 | `global_inventory_dir_name` | `"{{ inventory_dir | basename }}"` |  |
 | `global_ip_addresses` | `` |  |
 | `ansible-0` | `192.168.2.101` |  |
-| `ansible-1` | `192.168.2.102` |  |
+| `ansible-1` | `192.168.20.102` |  |
 | `semaphore-0` | `192.168.2.110` |  |
-| `sonarr-0` | `192.168.2.150` |  |
-| `lidarr-0` | `192.168.2.151` |  |
-| `radarr-0` | `192.168.2.152` |  |
-| `sabnzbd-0` | `192.168.2.153` |  |
-| `ombi-0` | `192.168.2.155` |  |
+| `sonarr-0` | `192.168.20.150` |  |
+| `lidarr-0` | `192.168.20.151` |  |
+| `radarr-0` | `192.168.20.152` |  |
+| `sabnzbd-0` | `192.168.20.153` |  |
+| `ombi-0` | `192.168.20.155` |  |
 | `tautulli-0` | `192.168.2.157` |  |
-| `books-0` | `192.168.2.160` |  |
+| `books-0` | `192.168.20.160` |  |
 | `minecraft-1` | `192.168.2.166` |  |
 | `test-0` | `192.168.2.167` |  |
 | `pg-0` | `192.168.2.170` |  |
@@ -80,9 +80,9 @@ Provides global defaults common to all roles. It provides the IP definition of e
 | `pve-0` | `192.168.2.200` |  |
 | `pve-1` | `192.168.2.201` |  |
 | `pve-2` | `192.168.2.202` |  |
-| `rproxy-0` | `192.168.2.210` |  |
-| `rproxy-1` | `192.168.2.211` |  |
-| `rproxy-2` | `192.168.2.212` |  |
+| `rproxy-0` | `192.168.30.210` |  |
+| `rproxy-1` | `192.168.20.211` |  |
+| `rproxy-2` | `192.168.20.212` |  |
 | `plex-0` | `192.168.2.220` |  |
 | `synology-0` | `192.168.2.240` |  |
 | `truenas-01` | `192.168.2.250` |  |
