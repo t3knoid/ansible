@@ -39,7 +39,8 @@ Install and configure Grafana on Debian/Ubuntu
 | `grafana_setup_mount_point` | `/nfs/backups` | grafana_setup_db_password |
 | `grafana_setup_backup_prefix` | `"grafana_"` |  |
 | `grafana_setup_backup_filename` | `"{{ grafana_setup_backup_prefix }}{{ ansible_date_time.date }}.sqlc"` |  |
-| `grafana_setup_backup_path` | `"{{ grafana_setup_mount_point }}/{{ grafana_setup_backup_filename }}"` |  |
+| `grafana_setup_backup_dir` | `"{{ grafana_setup_mount_point }}/grafana"` |  |
+| `grafana_setup_backup_path` | `"{{ grafana_setup_backup_dir }}/{{ grafana_setup_backup_filename }}"` |  |
 | `grafana_setup_ldap_server` | `"192.168.2.251"` | LDAP settings |
 | `grafana_setup_ldap_port` | `389` |  |
 | `grafana_setup_ldap_use_tls` | `false` |  |

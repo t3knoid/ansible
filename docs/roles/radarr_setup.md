@@ -25,8 +25,8 @@ Installs and configures a Radarr Docker container. It uses an image distributed 
 | `radarr_setup_mount_point` | `/nfs/backups` | radarr_setup_db_password |
 | `radarr_setup_backup_prefix` | `"radarr_"` |  |
 | `radarr_setup_backup_filename` | `"{{ radarr_setup_backup_prefix }}{{ ansible_date_time.date }}.sqlc"` |  |
-| `radarr_setup_backups_dir` | `"{{ radarr_setup_mount_point }}/radarr"` |  |
-| `radarr_setup_backup_path` | `"{{ radarr_setup_backups_dir }}/{{ radarr_setup_backup_filename }}"` |  |
+| `radarr_setup_backup_dir` | `"{{ radarr_setup_mount_point }}/radarr"` |  |
+| `radarr_setup_backup_path` | `"{{ radarr_setup_backup_dir }}/{{ radarr_setup_backup_filename }}"` |  |
 | `radarr_setup_authentication_method` | `"External"  # Options: Basic, Forms, External` |  |
 | `radarr_setup_authentication_required` | `"DisabledForLocalAddresses"  # Options: Enabled, DisabledForLocalAddresses` |  |
 
