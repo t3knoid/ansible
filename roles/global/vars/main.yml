@@ -3,7 +3,7 @@ global_ansible_root_dir: "{{ playbook_dir | dirname | dirname }}"
 global_terraform_root_dir: "{{ global_ansible_root_dir }}/terraform"
 global_inventory_dir_name: "{{ inventory_dir | basename }}"
 global_ip_addresses:
-  ansible-0: 192.168.2.101
+  ansible-0: 192.168.20.101
   ansible-1: 192.168.20.102
   semaphore-0: 192.168.20.110
   sonarr-0: 192.168.20.150
@@ -14,7 +14,6 @@ global_ip_addresses:
   tautulli-0: 192.168.20.157
   books-0: 192.168.20.160
   minecraft-1: 192.168.20.166
-  test-0: 192.168.2.167
   pg-0: 192.168.20.170
   pg-1: 192.168.20.171
   pg-2: 192.168.20.172
@@ -37,8 +36,8 @@ global_ip_addresses:
   truenas-01: 192.168.2.250
   ad0: 192.168.2.251
   dns-0: 192.168.20.252
-  dns-1: 192.168.2.253
-  pxe-0: 192.168.2.254
+  dns-1: 192.168.20.253
+  pxe-0: 192.168.20.254
   util-0: 192.168.0.56
 
 global_ip_address: "{{ global_ip_addresses[inventory_hostname] }}"
