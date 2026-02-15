@@ -1,11 +1,16 @@
 ---
 
-- name: Ensure host is reachable via SSH
-  ansible.builtin.wait_for:
-    host: "{{ inventory_hostname }}"
-    port: 22
-    timeout: 300
-    state: started
+- name: Remove existing backup of known_hosts file
+  ansible.builtin.file:
+    path: ~/.ssh/known_hosts.old
+    state: absent
+  delegate_to: localhost
+
+- name: Remove existing known_host hostname entry
+  ansible.builtin.known_hosts:
+    name: "{{ inventory_hostname }}"
+    path: ~/.ssh/known_hosts
+    state: absent
   delegate_to: localhost
 
 - name: Ensure the known_hosts file exists
@@ -15,13 +20,6 @@
     mode: '0644'
   delegate_to: localhost
   changed_when: false
-
-- name: Remove existing known_host hostname entry
-  ansible.builtin.known_hosts:
-    name: "{{ inventory_hostname }}"
-    path: ~/.ssh/known_hosts
-    state: absent
-  delegate_to: localhost
 
 - name: Add remote host key to known_hosts with hostname entry
   ansible.builtin.known_hosts:
@@ -40,8 +38,8 @@
 
 - name: Add remote host key to known_hosts with ip address entry
   ansible.builtin.known_hosts:
-    key: "{{ lookup('pipe', 'ssh-keyscan -t rsa ' ~ global_ip_address) }}"
     name: "{{ global_ip_address }}"
+    key: "{{ lookup('pipe', 'ssh-keyscan -t rsa ' ~ global_ip_address) }}"
     path: ~/.ssh/known_hosts
     state: present
   delegate_to: localhost
