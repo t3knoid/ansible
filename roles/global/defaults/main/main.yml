@@ -29,10 +29,10 @@ global_os:
 
 global_domain_name: "refol.us"
 global_dns_servers:
-    - 192.168.2.253
-    - 192.168.2.251
+    - 192.168.20.253
+    - 192.168.20.251
     - 8.8.8.8
-global_gateway: 192.168.2.1
+global_gateway: 192.168.20.1
 global_timezone: "America/New_York"
 global_packages_list:
     - vim
