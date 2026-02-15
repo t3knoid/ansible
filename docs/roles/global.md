@@ -42,7 +42,7 @@ Provides global defaults common to all roles. It provides the IP definition of e
 | `version` | `11` |  |
 | `global_domain_name` | `"refol.us"` |  |
 | `global_dns_servers` | `` |  |
-| `global_gateway` | `192.168.2.1` |  |
+| `global_gateway` | `192.168.20.1` |  |
 | `global_timezone` | `"America/New_York"` |  |
 | `global_packages_list` | `` |  |
 
@@ -63,7 +63,7 @@ Provides global defaults common to all roles. It provides the IP definition of e
 | `ombi-0` | `192.168.20.155` |  |
 | `tautulli-0` | `192.168.20.157` |  |
 | `books-0` | `192.168.20.160` |  |
-| `minecraft-1` | `192.168.20.166` |  |
+| `minecraft-1` | `192.168.30.166` |  |
 | `pg-0` | `192.168.20.170` |  |
 | `pg-1` | `192.168.20.171` |  |
 | `pg-2` | `192.168.20.172` |  |
