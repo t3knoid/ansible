@@ -53,29 +53,27 @@ Provides global defaults common to all roles. It provides the IP definition of e
 | `global_terraform_root_dir` | `"{{ global_ansible_root_dir }}/terraform"` |  |
 | `global_inventory_dir_name` | `"{{ inventory_dir | basename }}"` |  |
 | `global_ip_addresses` | `` |  |
-| `ansible-0` | `192.168.2.101` |  |
+| `ansible-0` | `192.168.20.101` |  |
 | `ansible-1` | `192.168.20.102` |  |
-| `semaphore-0` | `192.168.2.110` |  |
+| `semaphore-0` | `192.168.20.110` |  |
 | `sonarr-0` | `192.168.20.150` |  |
 | `lidarr-0` | `192.168.20.151` |  |
 | `radarr-0` | `192.168.20.152` |  |
 | `sabnzbd-0` | `192.168.20.153` |  |
 | `ombi-0` | `192.168.20.155` |  |
-| `tautulli-0` | `192.168.2.157` |  |
+| `tautulli-0` | `192.168.20.157` |  |
 | `books-0` | `192.168.20.160` |  |
-| `minecraft-1` | `192.168.2.166` |  |
-| `test-0` | `192.168.2.167` |  |
-| `pg-0` | `192.168.2.170` |  |
-| `pg-1` | `192.168.2.171` |  |
-| `pg-2` | `192.168.2.172` |  |
-| `pg-3` | `192.168.2.173` |  |
-| `pg-4` | `192.168.2.174` |  |
-| `jenkins-0` | `192.168.2.180` |  |
+| `minecraft-1` | `192.168.20.166` |  |
+| `pg-0` | `192.168.20.170` |  |
+| `pg-1` | `192.168.20.171` |  |
+| `pg-2` | `192.168.20.172` |  |
+| `pg-3` | `192.168.20.173` |  |
+| `pg-4` | `192.168.20.174` |  |
+| `jenkins-0` | `192.168.20.180` |  |
 | `ha-0` | `192.168.2.182` |  |
-| `redmine-0` | `192.168.2.186` |  |
-| `graphite-0` | `192.168.2.190` |  |
-| `prometheus-0` | `192.168.2.192` |  |
-| `grafana-0` | `192.168.2.195` |  |
+| `redmine-0` | `192.168.20.186` |  |
+| `prometheus-0` | `192.168.20.192` |  |
+| `grafana-0` | `192.168.20.195` |  |
 | `ubu24-template` | `192.168.2.199` |  |
 | `pve-0` | `192.168.2.200` |  |
 | `pve-1` | `192.168.2.201` |  |
@@ -87,9 +85,9 @@ Provides global defaults common to all roles. It provides the IP definition of e
 | `synology-0` | `192.168.2.240` |  |
 | `truenas-01` | `192.168.2.250` |  |
 | `ad0` | `192.168.2.251` |  |
-| `dns-0` | `192.168.2.252` |  |
-| `dns-1` | `192.168.2.253` |  |
-| `pxe-0` | `192.168.2.254` |  |
+| `dns-0` | `192.168.20.252` |  |
+| `dns-1` | `192.168.20.253` |  |
+| `pxe-0` | `192.168.20.254` |  |
 | `util-0` | `192.168.0.56` |  |
 | `global_ip_address` | `"{{ global_ip_addresses[inventory_hostname] }}"` |  |
 | `global_pihole_api_host` | `"{{ global_ip_addresses['dns-1'] }}"` |  |
