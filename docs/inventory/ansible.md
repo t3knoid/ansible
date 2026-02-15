@@ -74,12 +74,12 @@ _No group variables defined._
 
 ### `rproxy`
 - `rproxy_secondary`
-- `rproxy_primary`
 - `rproxy_main`
+- `rproxy_primary`
 
 ### `cname`
 - `code_server`
 
 ### `python`
-- `wsl`
 - `ansible`
+- `wsl`
