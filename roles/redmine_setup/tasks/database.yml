@@ -58,7 +58,7 @@
   ansible.builtin.lineinfile:
     path: ~/.pgpass
     line: "{{ redmine_setup_pg_host }}:5432:{{ redmine_setup_db_name }}:{{ redmine_setup_db_user }}:{{ redmine_setup_db_password }}"
-    create: yes
+    create: true
     owner: postgres
     group: postgres
     mode: '0600'

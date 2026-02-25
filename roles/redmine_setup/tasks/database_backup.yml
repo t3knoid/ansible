@@ -1,12 +1,11 @@
 ---
-
 - name: Ensure backup directory exists
   ansible.builtin.file:
     path: "{{ redmine_setup_backup_dir }}"
     state: directory
     owner: postgres
     group: postgres
-    mode: '0755'
+    mode: "0755"
 
 - name: Backup PostgreSQL database using pg_dump
   ansible.builtin.shell: |
@@ -23,6 +22,7 @@
 
 - name: Keep only the latest 3 backups
   ansible.builtin.shell: |
+    set -euo pipefail
     ls -1t {{ redmine_setup_backup_dir }}/{{ redmine_setup_backup_prefix }}*.sqlc | tail -n +4 | xargs -r rm -f
   args:
     executable: /bin/bash
