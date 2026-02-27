@@ -32,7 +32,7 @@ redmine_setup_wiki_mirror_repo_path: "/data/redmine/wiki-mirror/repo"
 redmine_setup_wiki_mirror_extension: "md"
 redmine_setup_wiki_mirror_debug: false
 # Redmine API access
-redmine_setup_url: "https://lab.refol.us"
+redmine_setup_url: "https://api.redmine.refol.us"
 redmine_setup_project: "home-lab"
 
 # GitHub repo (HTTPS)
