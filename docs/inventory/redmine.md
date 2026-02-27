@@ -44,7 +44,7 @@ _No group variables defined._
 ## 🖥 Host Variables
 ### `redmine-0`
 - `vms_proxmox_node`: `pve-1`
-- `pihole_cname_entries`: `[{"domain": "lab.refol.us", "target": "rproxy-0.refol.us"}]`
+- `pihole_cname_entries`: `[{"domain": "lab.refol.us", "target": "rproxy-0.refol.us"}, {"domain": "api.redmine.refol.us", "target": "rproxy-0.refol.us"}]`
 
 ## 🧩 Group Children
 ### `vms`
