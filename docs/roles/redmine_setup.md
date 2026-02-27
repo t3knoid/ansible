@@ -36,7 +36,7 @@ Redmine Setup installs and configures an [Redmine](https://www.redmine.org/). Th
 | `redmine_setup_wiki_mirror_repo_path` | `"/data/redmine/wiki-mirror/repo"` | Redmine setup defaults |
 | `redmine_setup_wiki_mirror_extension` | `"md"` |  |
 | `redmine_setup_wiki_mirror_debug` | `false` |  |
-| `redmine_setup_url` | `"https://lab.refol.us"` | Redmine API access |
+| `redmine_setup_url` | `"https://api.redmine.refol.us"` | Redmine API access |
 | `redmine_setup_project` | `"home-lab"` |  |
 | `redmine_setup_wiki_mirror_repo_url` | `"https://github.com/t3knoid/homelab.git"` | GitHub repo (HTTPS) |
 | `redmine_setup_wiki_mirror_repo_path_remote` | `"t3knoid/homelab.git"` |  |
