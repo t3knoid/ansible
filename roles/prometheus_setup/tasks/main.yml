@@ -92,13 +92,7 @@
     backup: true
   notify:
     - Reload Prometheus configuration
-
-- name: Validate Prometheus rules with promtool
-  ansible.builtin.command:
-    cmd: "{{ prometheus_setup_home }}/promtool check rules {{ prometheus_setup_rules_file }}"
-  register: prometheus_setup_promtool_result
-  changed_when: false   # ensures the task is idempotent, only validates
-  failed_when: prometheus_setup_promtool_result.rc != 0
+    - Validate Prometheus rules with promtool
 
 - name: Create a Prometheus backup directory on /nfs/backups/
   ansible.builtin.file:
@@ -123,8 +117,6 @@
   ansible.builtin.template:
     src: prometheus.service.j2
     dest: "{{ prometheus_setup_service_file }}"
-    owner: "{{ prometheus_setup_user }}"
-    group: "{{ prometheus_setup_group }}"
     mode: "{{ prometheus_setup_data_mode }}"
   notify:
     - Reload systemd daemon
