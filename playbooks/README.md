@@ -46,6 +46,7 @@
 | [`dns/update_pihole_dns.yml`](../docs/playbooks/update_pihole_dns.md) | Update DNS settings on the Pi-hole DNS server |
 | [`docker/deploy_docker.yml`](../docs/playbooks/deploy_docker.md) | Deploy Docker on Docker hosts |
 | [`geyser/deploy_geyser.yml`](../docs/playbooks/deploy_geyser.md) | Deploy Geyser Minecraft server proxy |
+| [`gh_cli/deploy_gh_cli.yml`](../docs/playbooks/deploy_gh_cli.md) | Install GitHub CLI on target hosts |
 | [`grafana/backup_db.yml`](../docs/playbooks/backup_db.md) | Backup Grafana database to NFS share |
 | [`grafana/create_db.yml`](../docs/playbooks/create_db.md) | Create PostgreSQL database for Grafana on the database server |
 | [`grafana/deploy_grafana.yml`](../docs/playbooks/deploy_grafana.md) | Deploy Grafana monitoring tool on Grafana hosts |
