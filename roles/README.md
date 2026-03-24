@@ -23,6 +23,7 @@
 | [`entra_id_oauth2`](../docs/roles/entra_id_oauth2.md) | Configures entra_id settings for oAuth2-enabled sites. |
 | [`fstab`](../docs/roles/fstab.md) | Manage fstab entries on Debian/Ubuntu. |
 | [`geyser_setup`](../docs/roles/geyser_setup.md) | Installs and configures GeyserMC on Debian/Ubuntu systems as documented at https://geysermc.org/wiki/geyser/setup/?host=self&platform=standalone |
+| [`gh_cli_setup`](../docs/roles/gh_cli_setup.md) | Install GitHub CLI (gh) on Debian/Ubuntu |
 | [`global`](../docs/roles/global.md) | Provides global defaults common to all roles. It provides the IP definition of each host in the datacenter. Every host must be defined here with its corresponding IP address. Other global variables are also defined here. |
 | [`grafana_setup`](../docs/roles/grafana_setup.md) | Install and configure Grafana on Debian/Ubuntu |
 | [`graphite_setup`](../docs/roles/graphite_setup.md) | Installs and configures Graphite on Debian/Ubuntu systems. |
