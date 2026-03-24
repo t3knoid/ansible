@@ -49,6 +49,9 @@ _Inventory for `ansible` hosts_
 ### `ruby`
 - `ansible-0`
 
+### `docker`
+- `ansible-0`
+
 ## ⚙️ Group Variables
 _No group variables defined._
 
@@ -62,24 +65,24 @@ _No group variables defined._
 
 ## 🧩 Group Children
 ### `linux`
-- `vms`
 - `wsl`
+- `vms`
 
 ### `terraform`
 - `ansible`
 
 ### `ansible`
-- `vms`
 - `wsl`
+- `vms`
 
 ### `rproxy`
-- `rproxy_secondary`
-- `rproxy_primary`
 - `rproxy_main`
+- `rproxy_primary`
+- `rproxy_secondary`
 
 ### `cname`
 - `code_server`
 
 ### `python`
-- `ansible`
 - `wsl`
+- `ansible`
