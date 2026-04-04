@@ -1,5 +1,4 @@
 ---
-
 - name: Create cloud-init snippets
   ansible.builtin.include_tasks: "cloud_init_create_snippets.yml"
 
@@ -8,6 +7,12 @@
 
 - name: Migrate virtual machine
   ansible.builtin.include_tasks: "migrate.yml"
+
+- name: Increase boot disk size when requested
+  ansible.builtin.include_tasks: "increase_boot_disk_size.yml"
+  when:
+    - vms_config.disk_os is defined
+    - vms_config.disk_os.size is defined
 
 - name: Update virtual machine for cloud-init
   ansible.builtin.include_tasks: "cloud_init_prep.yml"
@@ -30,4 +35,3 @@
 
 - name: Reboot to apply pending cloud-init disk removal
   ansible.builtin.include_tasks: "reboot.yml"
-  
