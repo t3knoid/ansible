@@ -29,6 +29,9 @@ _Inventory for `ecube` hosts_
 ### `removable`
 - `ecube-0`
 
+### `python`
+- `ecube-0`
+
 ## ⚙️ Group Variables
 _No group variables defined._
 
@@ -40,6 +43,6 @@ _No group variables defined._
 
 ## 🧩 Group Children
 ### `rproxy`
-- `rproxy_secondary`
 - `rproxy_primary`
 - `rproxy_main`
+- `rproxy_secondary`
