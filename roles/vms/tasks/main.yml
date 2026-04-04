@@ -12,7 +12,7 @@
     storage: "{{ vms_config.storage }}"
     scsihw: "{{ vms_config.scsihw }}"
     net:
-      net0: "virtio,bridge={{ vms_config.nic0.bridge | default('vmbr0') }}"
+      net0: "{{ vms_net0 }}"
     virtio:
       virtio0: "{{ vms_config.disk_os.storage }}:{{ vms_config.disk_os.size }}"
     ide:
@@ -23,6 +23,15 @@
     memory: "{{ vms_config.memory | int }}"
     ostype: "{{ vms_config.ostype }}"
     state: present
+  vars:
+    vms_nic0: "{{ (vms_config.network | default({})).get('nic0', vms_config.nic0 | default({})) }}"
+    vms_net0: >-
+      {{ vms_config.net0
+         | default(
+           vms_nic0.model | default('virtio')
+           ~ ',bridge=' ~ (vms_nic0.bridge | default('vmbr0'))
+           ~ (',tag=' ~ (vms_nic0.tag | string) if vms_nic0.tag is defined else '')
+         ) }}
   delegate_to: localhost
   register: vms_new_vm_info
 

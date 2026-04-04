@@ -1,5 +1,4 @@
 ---
-
 # Purpose: Prepare the VM configuration with cloud-init settings
 # on the Proxmox node where the VM resides. This assumes that
 # the VM has been migrated to its target node.
@@ -30,10 +29,20 @@
       serial0: socket
     vga: serial0
     net:
-      net0: "virtio,bridge={{ vms_config.bridge | default('vmbr0') }}"
+      net0: "{{ vms_net0 }}"
     update: true
+    update_unsafe: true
     cicustom: "user=local:snippets/{{ vms_name | default(inventory_hostname) }}-user-data-ci.yml,network=local:snippets/{{ vms_name | default(inventory_hostname) }}-network-data-ci.yml"
     citype: nocloud
+  vars:
+    vms_nic0: "{{ (vms_config.network | default({})).get('nic0', vms_config.nic0 | default({})) }}"
+    vms_net0: >-
+      {{ vms_config.net0
+         | default(
+           vms_nic0.model | default('virtio')
+           ~ ',bridge=' ~ (vms_nic0.bridge | default('vmbr0'))
+           ~ (',tag=' ~ (vms_nic0.tag | string) if vms_nic0.tag is defined else '')
+         ) }}
   delegate_to: localhost
   register: vms_vm_info
 
