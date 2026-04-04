@@ -24,6 +24,7 @@ vms_os: ubuntu_24_server
 vms_autoinstall: true
 vms_enable_serial_terminal: false
 vms_additional_packages: []
+python3_version: 3.12
 
 nginx_setup_disable_default_site: true
 
