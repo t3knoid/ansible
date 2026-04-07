@@ -1,0 +1,80 @@
+---
+- name: Download and Extract AlertManager
+  ansible.builtin.unarchive:
+    src: >
+      {{ alertmanager_setup_download_base_url }}v{{ alertmanager_setup_version }}/alertmanager-{{ alertmanager_setup_version }}.linux-amd64.tar.gz
+    dest: /opt/
+    remote_src: true
+    creates: "/opt/alertmanager-{{ alertmanager_setup_version }}.linux-amd64"
+    mode: '0755'
+
+- name: Create symlink for AlertManager
+  ansible.builtin.file:
+    src: "/opt/alertmanager-{{ alertmanager_setup_version }}.linux-amd64"
+    dest: "{{ alertmanager_setup_home }}"
+    state: link
+    force: true
+
+- name: Set ownership for AlertManager directory
+  ansible.builtin.file:
+    path: "/opt/alertmanager-{{ alertmanager_setup_version }}.linux-amd64"
+    owner: "{{ alertmanager_setup_user }}"
+    group: "{{ alertmanager_setup_group }}"
+    recurse: true
+
+- name: Copy AlertManager binary to /usr/local/bin
+  ansible.builtin.copy:
+    src: "{{ alertmanager_setup_home }}/alertmanager"
+    dest: "{{ alertmanager_setup_binary }}"
+    owner: "{{ alertmanager_setup_user }}"
+    group: "{{ alertmanager_setup_group }}"
+    mode: "{{ alertmanager_setup_mode }}"
+    remote_src: true
+
+- name: Create AlertManager working directory
+  ansible.builtin.file:
+    path: "{{ alertmanager_setup_work_dir }}"
+    state: directory
+    owner: "{{ alertmanager_setup_user }}"
+    group: "{{ alertmanager_setup_group }}"
+    mode: "{{ alertmanager_setup_data_mode }}"
+
+- name: Create AlertManager directories for config and templates
+  ansible.builtin.file:
+    path: "{{ alertmanager_setup_work_dir }}/{{ dir_name }}"
+    state: directory
+    owner: "{{ alertmanager_setup_user }}"
+    group: "{{ alertmanager_setup_group }}"
+    mode: "{{ alertmanager_setup_data_mode }}"
+  loop:
+    - etc
+    - templates
+    - data
+  loop_control:
+    label: "{{ dir_name }}"
+    loop_var: dir_name
+
+- name: Copy AlertManager configuration file
+  ansible.builtin.template:
+    src: alertmanager.yml.j2
+    dest: "{{ alertmanager_setup_config_file }}"
+    owner: "{{ alertmanager_setup_user }}"
+    group: "{{ alertmanager_setup_group }}"
+    mode: "{{ alertmanager_setup_config_mode }}"
+    backup: true
+  notify:
+    - Restart AlertManager service
+    - Validate AlertManager configuration
+
+- name: Create AlertManager systemd service file
+  ansible.builtin.template:
+    src: alertmanager.service.j2
+    dest: "{{ alertmanager_setup_service_file }}"
+    mode: "{{ alertmanager_setup_service_mode }}"
+  notify:
+    - Reload systemd daemon
+    - Restart AlertManager service
+
+- name: Enable and start AlertManager service
+  ansible.builtin.systemd:
+    name: alertmanager
