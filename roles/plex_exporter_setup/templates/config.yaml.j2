@@ -1,0 +1,13 @@
+metrics:
+  configs:
+  - name: prom-plex
+    scrape_configs:
+      - job_name: prom-plex
+        static_configs:
+          - targets:
+            - <IP/address and port of the exporter endpoint>
+    remote_write:
+      - url: <Your Metrics instance remote_write endpoint>
+        basic_auth:
+          username: <Your Metrics instance ID>
+          password: <Your Grafana.com API Key>
