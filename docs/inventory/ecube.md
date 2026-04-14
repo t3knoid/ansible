@@ -29,6 +29,9 @@ _Inventory for `ecube` hosts_
 ### `removable`
 - `ecube-0`
 
+### `vscode`
+- `ecube-0`
+
 ### `python`
 - `ecube-0`
 
@@ -39,10 +42,10 @@ _No group variables defined._
 ### `ecube-0`
 - `vms_proxmox_node`: `pve-2`
 - `vms_clone`: `false`
-- `pihole_cname_entries`: `[{"domain": "ecube.refol.us", "target": "rproxy-0.refol.us"}]`
+- `pihole_cname_entries`: `[{"domain": "www.ecube.one", "target": "rproxy-0.refol.us"}]`
 
 ## 🧩 Group Children
 ### `rproxy`
-- `rproxy_primary`
 - `rproxy_main`
+- `rproxy_primary`
 - `rproxy_secondary`
