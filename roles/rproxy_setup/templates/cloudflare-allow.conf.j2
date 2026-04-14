@@ -1,0 +1,4 @@
+# Cloudflare IPv4 ranges - Managed by Ansible
+{% for ip in rproxy_setup_cloudflare_ipv4 %}
+allow {{ ip }};
+{% endfor %}

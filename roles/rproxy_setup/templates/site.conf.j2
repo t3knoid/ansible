@@ -33,6 +33,12 @@ server {
         ssl_certificate     {{ nginx_setup_certroot }}/{{ rproxy_setup_site.server_name }}/fullchain.pem;
         ssl_certificate_key {{ nginx_setup_certroot }}/{{ rproxy_setup_site.server_name }}/privkey.pem;
 
+        {% if rproxy_setup_cloudflare_only | default(false) %}
+        include {{ nginx_setup_homedir }}/snippets/cloudflare-allow.conf;
+        include {{ nginx_setup_homedir }}/snippets/cloudflare-allow-ipv6.conf;
+        deny all;
+        {% endif %}
+
         {% if is_restricted %}
             {% for ip in rproxy_setup_site.allow_list %}
                 allow {{ ip }};
