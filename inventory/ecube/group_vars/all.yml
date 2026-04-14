@@ -31,6 +31,8 @@ nginx_setup_disable_default_site: true
 ecube_setup_http_port: 8443
 ecube_setup_version: "0.1.0"
 
+rproxy_setup_cloudflare_only: true
+
 rproxy_setup_sites:
   - server_name: www.ecube.one
     port: "{{ ecube_setup_http_port }}"
