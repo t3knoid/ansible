@@ -7,12 +7,15 @@ _Inventory for `ecube` hosts_
 ## 👥 Groups & Hosts
 ### `vms`
 - `ecube-0`
+- `ecube-1`
 
 ### `linux`
 - `ecube-0`
+- `ecube-1`
 
 ### `pgdb`
 - `ecube-0`
+- `ecube-1`
 
 ### `rproxy_main`
 - `rproxy-0`
@@ -25,15 +28,19 @@ _Inventory for `ecube` hosts_
 
 ### `cname`
 - `ecube-0`
+- `ecube-1`
 
 ### `removable`
 - `ecube-0`
+- `ecube-1`
 
 ### `vscode`
 - `ecube-0`
+- `ecube-1`
 
 ### `python`
 - `ecube-0`
+- `ecube-1`
 
 ### `certs`
 - `rproxy-0`
@@ -45,10 +52,15 @@ _No group variables defined._
 ### `ecube-0`
 - `vms_proxmox_node`: `pve-2`
 - `vms_clone`: `false`
-- `pihole_cname_entries`: `[{"domain": "www.ecube.one", "target": "rproxy-0.refol.us"}]`
+- `pihole_cname_entries`: `[{"domain": "demo.ecube.one", "target": "rproxy-0.refol.us"}]`
+
+### `ecube-1`
+- `vms_proxmox_node`: `pve-1`
+- `vms_clone`: `false`
+- `pihole_cname_entries`: `[{"domain": "ecube-1.refol.us", "target": "rproxy-0.refol.us"}]`
 
 ## 🧩 Group Children
 ### `rproxy`
-- `rproxy_main`
-- `rproxy_secondary`
 - `rproxy_primary`
+- `rproxy_secondary`
+- `rproxy_main`
