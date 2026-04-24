@@ -74,6 +74,7 @@ Provides global defaults common to all roles. It provides the IP definition of e
 | `redmine-0` | `192.168.20.186` |  |
 | `prometheus-0` | `192.168.20.192` |  |
 | `grafana-0` | `192.168.20.195` |  |
+| `ecube-1` | `192.168.20.197` |  |
 | `ecube-0` | `192.168.20.198` |  |
 | `ubu24-template` | `192.168.20.199` |  |
 | `pve-0` | `192.168.2.200` |  |
