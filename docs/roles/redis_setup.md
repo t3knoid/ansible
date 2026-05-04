@@ -15,13 +15,17 @@ Installs and configures Redis.
 ## ⚙️ Defaults
 | Variable | Default Value | Description |
 |----------|---------------|-------------|
-| `redis_setup_version` | `"6:8.4.0-1rl1"` | run `sudo apt policy redis` to find the latest version available |
+| `redis_setup_keyring_url` | `"https://packages.redis.io/gpg"` | run `sudo apt policy redis` to find the latest version available |
+| `redis_setup_keyring_path` | `"/etc/apt/keyrings/redis-archive-keyring.asc"` |  |
+| `redis_setup_repo_url` | `"https://packages.redis.io/deb"` |  |
+| `redis_setup_version` | `"6:8.4.0-1rl1"` |  |
 | `redis_setup_password` | `"" # Set a password for Redis, leave empty for no password` |  |
 
 ## 📦 Vars
 _No constant variables found._
 
 ## 📑 Tasks
+- Create keyrings directory
 - Add Redis official APT repository key
 - Add Redis official APT repository
 - Update apt cache
