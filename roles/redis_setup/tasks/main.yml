@@ -1,12 +1,19 @@
 ---
+- name: Create keyrings directory
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: "0755"
+
 - name: Add Redis official APT repository key
-  ansible.builtin.apt_key:
-    url: https://packages.redis.io/gpg
-    state: present
+  ansible.builtin.get_url:
+    url: "{{ redis_setup_keyring_url }}"
+    dest: "{{ redis_setup_keyring_path }}"
+    mode: "0644"
 
 - name: Add Redis official APT repository
   ansible.builtin.apt_repository:
-    repo: "deb https://packages.redis.io/deb {{ ansible_distribution_release }} main"
+    repo: "deb [signed-by={{ redis_setup_keyring_path }}] {{ redis_setup_repo_url }} {{ ansible_distribution_release }} main"
     state: present
     filename: redis
 
@@ -45,7 +52,7 @@
 - name: Configure Redis with password and persistence
   ansible.builtin.blockinfile:
     path: /etc/redis/redis.conf
-    insertafter: '^# requirepass'
+    insertafter: "^# requirepass"
     block: |
       requirepass {{ redis_setup_password }}
       appendonly yes
