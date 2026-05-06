@@ -45,6 +45,7 @@
 | [`dns/show_hosts.yml`](../docs/playbooks/show_hosts.md) | Show the current configuration of the Pi-hole DNS server |
 | [`dns/update_pihole_dns.yml`](../docs/playbooks/update_pihole_dns.md) | Update DNS settings on the Pi-hole DNS server |
 | [`docker/deploy_docker.yml`](../docs/playbooks/deploy_docker.md) | Deploy Docker on Docker hosts |
+| [`ecube/deploy_ecube.yml`](../docs/playbooks/deploy_ecube.md) | Deploy ECUBE on ecube hosts. |
 | [`geyser/deploy_geyser.yml`](../docs/playbooks/deploy_geyser.md) | Deploy Geyser Minecraft server proxy |
 | [`gh_cli/deploy_gh_cli.yml`](../docs/playbooks/deploy_gh_cli.md) | Install GitHub CLI on target hosts |
 | [`grafana/backup_db.yml`](../docs/playbooks/backup_db.md) | Backup Grafana database to NFS share |
