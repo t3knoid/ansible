@@ -4,40 +4,40 @@
   ansible.builtin.file:
     path: "{{ semaphoreui_setup_tmpdir }}"
     state: directory
-    owner: semaphore
-    group: semaphore
+    owner: ansible
+    group: ansible
     mode: u=rwX,g=rX,o=rX
 
 - name: Ensure config folder exists
   ansible.builtin.file:
     path: "{{ semaphoreui_setup_etcdir }}"
     state: directory
-    owner: semaphore
-    group: semaphore
+    owner: ansible
+    group: ansible
     mode: u=rwX,g=rX,o=rX
 
 - name: Create Python requirements.txt
   ansible.builtin.template:
     src: requirements.txt.j2
     dest: "{{ semaphoreui_setup_etcdir }}/requirements.txt"
-    owner: semaphore
-    group: semaphore
+    owner: ansible
+    group: ansible
     mode: u=rw,g=rw,o=r
 
 - name: Create vault password file
   ansible.builtin.copy:
     content: "{{ semaphoreui_setup_vault_password }}"
-    dest: "{{ semaphoreui_setup_tmpdir }}/.vault_pass.txt"
-    owner: semaphore
-    group: semaphore
+    dest: "/home/ansible/.vault_pass.txt"
+    owner: ansible
+    group: ansible
     mode: "0664"
 
 - name: Create config.json
   ansible.builtin.template:
     src: config.json.j2
     dest: "{{ semaphoreui_setup_etcdir }}/config.json"
-    owner: semaphore
-    group: semaphore
+    owner: ansible
+    group: ansible
     mode: u=rw,g=rw,o=r
   notify:
     - Restart Semaphore Runner
@@ -47,6 +47,8 @@
   ansible.builtin.template:
     src: semaphore.service.j2
     dest: "/etc/systemd/system/semaphore.service"
+    owner: ansible
+    group: ansible
     mode: u=rw,g=rw,o=r
 
 - name: Generate a random password
