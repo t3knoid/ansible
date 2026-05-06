@@ -56,15 +56,14 @@ _No group variables defined._
 ### `ecube-0`
 - `vms_proxmox_node`: `pve-2`
 - `vms_clone`: `false`
-- `pihole_cname_entries`: `[{"domain": "ecube-0.refol.us", "target": "rproxy-0.refol.us"}]`
 
 ### `ecube-1`
 - `vms_proxmox_node`: `pve-1`
 - `vms_clone`: `false`
-- `pihole_cname_entries`: `[{"domain": "ecube-1.refol.us", "target": "rproxy-0.refol.us"}]`
+- `pihole_cname_entries`: `[{"domain": "demo.ecube.com", "target": "rproxy-0.refol.us"}]`
 
 ## 🧩 Group Children
 ### `rproxy`
+- `rproxy_main`
 - `rproxy_secondary`
 - `rproxy_primary`
-- `rproxy_main`
