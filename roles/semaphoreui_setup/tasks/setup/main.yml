@@ -16,7 +16,7 @@
     semaphoreui_setup_inventories: "{{ semaphoreui_setup_inventories | default([]) + [ {
       'name': item | regex_replace('^.*/([^/]+)/inventory.ini$', '\\1'),
       'type': 'file',
-      'credentials': 'Semaphore user credentials',
+      'credentials': 'Ansible user credentials',
       'sudo_credentials': '',
       'inventory': item
       } ] }}"
