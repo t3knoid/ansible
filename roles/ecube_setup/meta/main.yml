@@ -1,0 +1,16 @@
+---
+galaxy_info:
+  author: Frank Refol
+  role_name: ecube_setup
+  description: Installs ECUBE from GitHub Releases using the upstream Linux installer.
+  license: MIT
+  min_ansible_version: "2.9"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - noble
+    - name: Debian
+      versions:
+        - bookworm
+dependencies:
+  - role: postgresql_setup

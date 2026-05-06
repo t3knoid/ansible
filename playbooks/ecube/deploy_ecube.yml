@@ -1,0 +1,10 @@
+---
+
+# Purpose: Deploy ECUBE on ecube hosts.
+
+- name: Deploy ECUBE
+  hosts: ecube
+  become: true
+  gather_facts: true
+  roles:
+    - ecube_setup

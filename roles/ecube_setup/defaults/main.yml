@@ -1,0 +1,17 @@
+---
+ecube_setup_version: "0.2.0"
+ecube_setup_release_tag: "v{{ ecube_setup_version }}"
+ecube_setup_install_dir: "/opt/ecube"
+ecube_setup_release_base_url: "https://github.com/t3knoid/ecube/releases/download/{{ ecube_setup_release_tag }}"
+ecube_setup_package_archive: "ecube-package-{{ ecube_setup_release_tag }}.tar.gz"
+ecube_setup_package_checksum: "ecube-package-{{ ecube_setup_release_tag }}.sha256"
+ecube_setup_package_url: "{{ ecube_setup_release_base_url }}/{{ ecube_setup_package_archive }}"
+ecube_setup_checksum_url: "{{ ecube_setup_release_base_url }}/{{ ecube_setup_package_checksum }}"
+ecube_setup_download_dir: "/tmp/ecube-{{ ecube_setup_release_tag }}"
+ecube_setup_archive_path: "{{ ecube_setup_download_dir }}/{{ ecube_setup_package_archive }}"
+ecube_setup_checksum_path: "{{ ecube_setup_download_dir }}/{{ ecube_setup_package_checksum }}"
+ecube_setup_extract_dir: "{{ ecube_setup_download_dir }}/extracted"
+ecube_setup_package_dir: "{{ ecube_setup_extract_dir }}/ecube-package-{{ ecube_setup_release_tag }}"
+ecube_setup_install_script_path: "{{ ecube_setup_package_dir }}/install.sh"
+ecube_setup_no_tls: false
+ecube_setup_demo: false
