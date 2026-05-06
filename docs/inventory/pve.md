@@ -56,6 +56,6 @@ _No group variables defined._
 - `pvenodes`
 
 ### `rproxy`
-- `rproxy_secondary`
 - `rproxy_main`
+- `rproxy_secondary`
 - `rproxy_primary`
