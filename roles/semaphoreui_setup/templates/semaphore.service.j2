@@ -7,8 +7,8 @@ ConditionPathExists=/usr/bin/semaphore
 ConditionPathExists={{ semaphoreui_setup_etcdir }}/config.json
 
 [Service]
-User=semaphore
-Group=semaphore
+User=ansible
+Group=ansible
 ExecReload=/bin/kill -HUP $MAINPID
 ExecStart=/bin/bash -c 'source {{ python3_venv_folder }}/bin/activate && /usr/bin/semaphore server --log-level {{ semaphoreui_setup_loglevel | default("INFO") }} --config={{ semaphoreui_setup_etcdir }}/config.json'
 SyslogIdentifier=semaphore
