@@ -5,7 +5,7 @@
     name: docker_service_deploy
   vars:
     docker_service_deploy_config_dir: "{{ radarr_setup_config_dir }}"
-    docker_service_deploy_backups_dir: "{{ radarr_setup_backups_dir }}"
+    docker_service_deploy_backups_dir: "{{ radarr_setup_backup_dir }}"
     docker_service_deploy_config_templates:
       - src: "config.xml.j2"
         dest: "config.xml"
