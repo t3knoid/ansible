@@ -8,6 +8,8 @@ python3_version: 3.12
 
 nginx_setup_disable_default_site: true
 
+postgresql_setup_version: 17
+
 ecube_setup_no_tls: true
 ecube_setup_demo: false
 ecube_setup_http_port: "{{ 80 if ecube_setup_no_tls else 8443 }}"
