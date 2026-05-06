@@ -31,11 +31,20 @@ Installs ECUBE from GitHub Releases using the upstream Linux installer.
 | `ecube_setup_install_script_path` | `"{{ ecube_setup_package_dir }}/install.sh"` |  |
 | `ecube_setup_no_tls` | `false` |  |
 | `ecube_setup_demo` | `false` |  |
+| `ecube_setup_pg_port` | `5432` |  |
+| `ecube_setup_pg_host` | `"{{ global_ip_addresses[groups['pgdb'][0]] }}"` |  |
+| `ecube_setup_mount_point` | `/nfs/backups` | ecube_setup_db_password |
+| `ecube_setup_backup_prefix` | `"ecube_"` |  |
+| `ecube_setup_backup_filename` | `"{{ ecube_setup_backup_prefix }}{{ ansible_date_time.date }}.sqlc"` |  |
+| `ecube_setup_backup_dir` | `"{{ ecube_setup_mount_point }}/ecube"` |  |
+| `ecube_setup_backup_path` | `"{{ ecube_setup_backup_dir }}/{{ ecube_setup_backup_filename }}"` |  |
 
 ## 📦 Vars
 _No constant variables found._
 
 ## 📑 Tasks
+- Update pg_hba.conf to allow password access using host ip address
+- Update pg_hba.conf to allow password access using the database host ip address
 - Install ECUBE installer prerequisites
 - Create ECUBE download directory
 - Download ECUBE package checksum
