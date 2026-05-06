@@ -7,56 +7,103 @@
   ansible.builtin.set_fact:
     vaults: []
 
-# vault_key_id: finds the first item in existing_keys where name == credential_name, 
-#   extracts its id, and converts it to an integer.
-# name: assigns the current credential_name to the vault entry.
-# type: extracts the type of the matching credential.
-#   If it's 'login_password', it sets the vault type to 'password'. 
-#   Otherwise, it uses the original type value.
 - name: Create a vault object for each credential assigned to the task template
   ansible.builtin.set_fact:
-    vaults: "{{ vaults + [ {
-      'vault_key_id': (existing_keys | selectattr('name', 'equalto', credential_name ) | map(attribute='id') | first | int),
-      'name': credential_name,
-      'type': (
-        ((existing_keys | selectattr('name', 'equalto', credential_name ) | map(attribute='type') | first | string) == 'login_password')
-        | ternary('password', (existing_keys | selectattr('name', 'equalto', credential_name ) | map(attribute='type') | first | string))
-      )
-      } ] }}"
+    vaults: "{{ vaults + [template_vault] }}"
+  vars:
+    credential_key: "{{ existing_keys | selectattr('name', 'equalto',
+      credential_name) | first }}"
+    template_vault:
+      vault_key_id: "{{ credential_key.id | int }}"
+      name: "{{ credential_name }}"
+      type: "{{ 'password' if credential_key.type == 'login_password' else
+        credential_key.type | string }}"
   loop: "{{ project_template_to_add.credentials }}"
   loop_control:
     label: "{{ credential_name }}"
     loop_var: credential_name
-  when: project_template_to_add.credentials is defined and (project_template_to_add.credentials | default([])  | length > 0)
+  when: project_template_to_add.credentials is defined and
+    (project_template_to_add.credentials | default([])  | length > 0)
 
 - name: Get the repository id
   ansible.builtin.set_fact:
-    repository_id: "{{ (existing_repos | selectattr('name', 'equalto', project_template_to_add.repository)) | map(attribute='id') | first }}"
-  when: project_template_to_add.repository is defined and (project_template_to_add.repository | default([])  | length > 0)
+    repository_id: "{{ (existing_repos | selectattr('name', 'equalto',
+      project_template_to_add.repository)) | map(attribute='id') | first }}"
+  when: project_template_to_add.repository is defined and
+    (project_template_to_add.repository | default([])  | length > 0)
 
 - name: Get the inventory id
   ansible.builtin.set_fact:
-    inventory_id: "{{ (existing_inventories | selectattr('name', 'equalto', project_template_to_add.inventory)) | map(attribute='id') | first }}"
-  when: project_template_to_add.inventory is defined and (project_template_to_add.inventory | default([])  | length > 0)
+    inventory_id: "{{ (existing_inventories | selectattr('name', 'equalto',
+      project_template_to_add.inventory)) | map(attribute='id') | first }}"
+  when: project_template_to_add.inventory is defined and
+    (project_template_to_add.inventory | default([])  | length > 0)
 
 - name: Get the view id
   ansible.builtin.set_fact:
-    view_id: "{{ (existing_views | selectattr('title', 'equalto', project_template_to_add.view)) | map(attribute='id') | first }}"
-  when: project_template_to_add.view is defined and (project_template_to_add.view | default([])  | length > 0)
+    view_id: "{{ (existing_views | selectattr('title', 'equalto',
+      project_template_to_add.view)) | map(attribute='id') | first }}"
+  when: project_template_to_add.view is defined and (project_template_to_add.view
+    | default([])  | length > 0)
 
-- name: Get the environment id
+- name: Resolve template environments
   ansible.builtin.set_fact:
-    environment_id: "{{ (existing_environments | selectattr('name', 'equalto', project_template_to_add.environment)) | map(attribute='id') | first }}"
-  when: project_template_to_add.environment is defined and (project_template_to_add.environment | default([])  | length > 0)
+    environment_ids: "{{ existing_environments | selectattr('name', 'equalto',
+      project_template_to_add.environment) | map(attribute='id') | list }}"
+  when: project_template_to_add.environment is defined and
+    (project_template_to_add.environment | default([])  | length > 0)
+
+- name: Build template environment payload from resolved environment
+  ansible.builtin.set_fact:
+    template_environment_payload:
+      environment_id: "{{ environment_ids | first | int }}"
+      environment_ids: "{{ environment_ids }}"
+  when: project_template_to_add.environment is defined and
+    (project_template_to_add.environment | default([]) | length > 0) and
+    (environment_ids | length > 0)
+
+- name: Default unresolved template environment to empty
+  ansible.builtin.set_fact:
+    template_environment_payload:
+      environment_ids: []
+  when: project_template_to_add.environment is defined and
+    (project_template_to_add.environment | default([]) | length > 0) and
+    (environment_ids | length == 0)
+
+- name: Default template environments to empty
+  ansible.builtin.set_fact:
+    environment_ids: []
+    template_environment_payload:
+      environment_ids: []
+  when: project_template_to_add.environment is not defined or
+    (project_template_to_add.environment | default([]) | length == 0)
 
 - name: Extract task template metadata and create new payload for api body
   ansible.builtin.set_fact:
     template_api_body_payload: >-
       {{
-        project_template_to_add |
-        dict2items |
-        rejectattr('key', 'in', ['credentials','sudo_credentials','inventory','view','repository','environment']) |
-        items2dict
+        (
+          project_template_to_add |
+          dict2items |
+          rejectattr('key', 'in', ['arguments', 'credentials', 'sudo_credentials', 'inventory', 'view', 'repository', 'environment']) |
+          items2dict
+        )
+        | combine(
+            (
+              project_template_to_add.arguments is defined and
+              project_template_to_add.arguments is not none
+            )
+            | ternary(
+                {
+                  'arguments': (
+                    project_template_to_add.arguments
+                    if project_template_to_add.arguments is string
+                    else (project_template_to_add.arguments | to_json)
+                  )
+                },
+                {}
+              )
+          )
       }}
 
 - name: Parse existing template names
@@ -66,9 +113,89 @@
         existing_templates | map(attribute='name') | list
       }}
 
+- name: Get current task template details for {{ project_template_to_add.name }}
+  changed_when: false
+  check_mode: false
+  ansible.builtin.uri:
+    use_proxy: false
+    url: "{{ semaphoreui_setup_api_base }}/project/{{ selected_project_id
+      }}/templates/{{ existing_template.id }}"
+    method: GET
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+      Authorization: "Bearer {{ semaphoreui_setup_api_token }}"
+    status_code: 200
+    timeout: 5
+  register: existing_template_detail_response
+  vars:
+    existing_template: "{{ (existing_templates | selectattr('name', 'equalto',
+      project_template_to_add.name) | list | first) }}"
+  when: project_template_to_add.name in existing_template_names
+
+- name: Build update payload for task template {{ project_template_to_add.name }}
+  ansible.builtin.set_fact:
+    template_update_body: >-
+      {{
+        (
+          existing_template_detail_response.json
+          | dict2items
+          | rejectattr('key', 'in', ['environment', 'environment_id', 'last_task', 'permissions', 'tasks'])
+          | items2dict
+        )
+        | combine(template_api_body_payload)
+        | combine({ 'id': existing_template.id | int })
+        | combine({ 'project_id': selected_project_id | int })
+        | combine({ 'inventory_id': inventory_id | int })
+        | combine({ 'repository_id': repository_id | int })
+        | combine(template_environment_payload)
+        | combine({ 'view_id': view_id | int })
+        | combine({ 'vaults': existing_template_detail_response.json.vaults | default(vaults) })
+      }}
+  vars:
+    existing_template: "{{ (existing_templates | selectattr('name', 'equalto',
+      project_template_to_add.name) | list | first) }}"
+  when: project_template_to_add.name in existing_template_names
+
+- name: Update task template {{ project_template_to_add.name }}
+  ansible.builtin.uri:
+    url: "{{ semaphoreui_setup_api_base }}/project/{{ selected_project_id
+      }}/templates/{{ existing_template.id }}"
+    method: PUT
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+      Authorization: "Bearer {{ semaphoreui_setup_api_token }}"
+    body_format: json
+    body: "{{ template_update_body }}"
+    status_code:
+      - 204
+      - 400
+    return_content: true
+  register: template_update_response
+  vars:
+    existing_template: "{{ (existing_templates | selectattr('name', 'equalto',
+      project_template_to_add.name) | list | first) }}"
+  when: project_template_to_add.name in existing_template_names
+
+- name: Fail with template update diagnostics for {{ project_template_to_add.name }}
+  ansible.builtin.fail:
+    msg: |-
+      Semaphore rejected template update.
+      Template: {{ project_template_to_add.name }}
+      URL: {{ template_update_response.url | default('') }}
+      Status: {{ template_update_response.status | default('') }}
+      Response JSON: {{ template_update_response.json | default({}) | to_nice_json }}
+      Response content: {{ template_update_response.content | default('') }}
+      Request body: {{ template_update_body | to_nice_json }}
+  when:
+    - project_template_to_add.name in existing_template_names
+    - template_update_response.status | int != 204
+
 - name: Create task template {{ project_template_to_add.name }}
   ansible.builtin.uri:
-    url: "{{ semaphoreui_setup_api_base }}/project/{{ selected_project_id }}/templates"
+    url: "{{ semaphoreui_setup_api_base }}/project/{{ selected_project_id
+      }}/templates"
     method: POST
     headers:
       Content-Type: application/json
@@ -81,7 +208,7 @@
         | combine({ 'project_id': selected_project_id | int })
         | combine({ 'inventory_id': inventory_id | int })
         | combine({ 'repository_id': repository_id | int })
-        | combine({ 'environment_id': environment_id | int })
+        | combine(template_environment_payload)
         | combine({ 'view_id': view_id | int })
         | combine({ 'vaults': vaults })
       }}

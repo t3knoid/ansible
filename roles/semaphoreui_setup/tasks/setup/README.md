@@ -70,7 +70,7 @@ The orchestration file [main.yml](main.yml) performs the following steps:
 4. Create an admin API token if one is not already present.
 5. Enumerate existing Semaphore users.
 6. Build a normalized in-memory project definition from the project data files under [inventory/semaphore/group_vars/semaphore](../../../../inventory/semaphore/group_vars/semaphore).
-7. Expand dynamic template sets with `extract_templates_for_project`.
+7. Expand project-scoped dynamic template sets with `extract_templates_for_project`.
 8. Merge static and dynamic templates into the final `semaphoreui_setup_projects` structure.
 9. Call [setup_projects.yml](setup_projects.yml) to reconcile each project.
 10. Expire the temporary API token when finished.
@@ -80,6 +80,8 @@ The orchestration file [main.yml](main.yml) performs the following steps:
 Dynamic templates exist to avoid repeating the same template definition over and over when multiple inventories should run the same playbook.
 
 Instead of manually defining one static Semaphore template per inventory, you define one shared template pattern in `dynamic_template_sets` and list the inventories it applies to. The setup role then expands that single definition into multiple concrete Semaphore templates, one per inventory.
+
+In this repository, `dynamic_template_sets` is keyed by project name in [inventory/semaphore/group_vars/semaphore/dynamic_templates.yml](../../../../inventory/semaphore/group_vars/semaphore/dynamic_templates.yml). [main.yml](main.yml) passes the project-specific list into the filter, and the filter still honors an explicit `project` field when one is present for compatibility.
 
 This is useful when:
 
@@ -155,7 +157,7 @@ Each file in this directory has a narrow API-oriented responsibility:
 8. [setup_inventories.yml](setup_inventories.yml): loops inventories for a project.
 9. [setup_inventory.yml](setup_inventory.yml): reconciles a single inventory and updates the bound SSH credential when needed.
 10. [setup_templates.yml](setup_templates.yml): loops task templates for a project.
-11. [setup_template.yml](setup_template.yml): creates a single task template with resolved repository, inventory, view, environment, and vault IDs.
+11. [setup_template.yml](setup_template.yml): creates or updates a single task template with resolved repository, inventory, view, environment, and vault IDs.
 12. [setup_schedules.yml](setup_schedules.yml): reconciles schedules.
 
 ## Credentials and Inventory Behavior
@@ -215,24 +217,25 @@ Current reconciliation behavior for keystores:
 
 Implementation details are in [setup_keystores.yml](setup_keystores.yml), but the user-facing change is simply: update [keystores.yml](../../../../inventory/semaphore/group_vars/semaphore/keystores.yml) and rerun the setup playbook.
 
-## How a New Template Is Added
+## How Templates Are Reconciled
 
 Templates enter the workflow from either static project configuration or dynamic template expansion.
 
-A new template can come from:
+A desired template can come from:
 
 1. `semaphoreui_setup_projects_templates` for static templates.
 2. `dynamic_template_sets` expanded by `extract_templates_for_project` for generated templates.
 
-The add flow is:
+The reconciliation flow is:
 
 1. [main.yml](main.yml) builds the final `semaphoreui_setup_projects` structure and merges static and dynamic templates into each project's `templates` list.
 2. [setup_project.yml](setup_project.yml) fetches the current templates, inventories, repositories, views, keys, and environments for the project.
 3. [setup_templates.yml](setup_templates.yml) loops through each desired template and includes [setup_template.yml](setup_template.yml).
 4. [setup_template.yml](setup_template.yml) resolves the IDs for the referenced repository, inventory, view, and environment by name.
 5. It converts each credential name in the template into a Semaphore `vaults` entry using the existing project keystores.
-6. It removes non-API helper fields such as `credentials`, `inventory`, `view`, `repository`, and `environment` from the template definition to create the API payload.
-7. If a template with the same name does not already exist in the project, the role sends a `POST` request to `/project/{project_id}/templates`.
+6. It normalizes the template payload for the Semaphore API, including serializing `arguments` to the JSON string format expected by Semaphore.
+7. If a template with the same name already exists, the role fetches the current template definition, builds an update payload, and sends a `PUT` request to `/project/{project_id}/templates/{template_id}`.
+8. If a template with the same name does not already exist in the project, the role sends a `POST` request to `/project/{project_id}/templates`.
 
 For a template to be created successfully, the referenced resources must already exist in Semaphore for that project:
 
@@ -245,10 +248,9 @@ For a template to be created successfully, the referenced resources must already
 Current reconciliation behavior for templates:
 
 1. Missing templates are created.
-2. Existing templates are detected by name and skipped.
-3. Existing templates are not currently updated in place by this role.
-
-This means that changing the definition of an already-created template in inventory variables does not automatically modify the template in Semaphore unless the role is extended with template update logic.
+2. Existing templates are matched by name and reconciled with a `PUT` update request.
+3. Template environments are resolved by environment name and default to an empty environment list when the configured environment is missing or omitted.
+4. If Semaphore rejects an update, the role fails with request and response diagnostics to make API mismatches easier to debug.
 
 Relevant files:
 
