@@ -18,8 +18,5 @@ vms_config:
     nic0:
       model: virtio
       bridge: vmbr0
-      tag: 90
+      tag: 20
 
-global_gateway: 192.168.90.1
-
-ecube_setup_demo: true
