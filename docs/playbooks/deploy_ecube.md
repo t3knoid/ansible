@@ -4,6 +4,7 @@
 Deploy ECUBE on ecube hosts.
 
 ## 🔗 Roles Applied
+- [`global`](../roles/global/README.md)
 - [`ecube_setup`](../roles/ecube_setup/README.md)
 
 ## 🚀 Usage
