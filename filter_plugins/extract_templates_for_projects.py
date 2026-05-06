@@ -19,8 +19,11 @@ def extract_templates_for_project(dynamic_template_sets, inventory_list, project
     templates = []
 
     for dt in dynamic_template_sets:
-        # Only include template sets for this project
-        if dt.get("project") != project_name:
+        dt_project = dt.get("project")
+
+        # The caller already scopes dynamic_template_sets per project, so an
+        # explicit project field is optional. If it is present, keep honoring it.
+        if dt_project is not None and dt_project != project_name:
             continue
 
         for inv in dt.get("inventories", []):
