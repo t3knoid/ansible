@@ -1,0 +1,15 @@
+---
+
+# Purpose: Backup ECUBE database to NFS share
+
+- name: Backup ECUBE database to NFS share
+  hosts: pgdb
+  become: true
+  roles:
+    - global
+
+  tasks:
+    - name: Import database_backup.yml from ecube_setup.yml role
+      ansible.builtin.import_role:
+        name: ecube_setup
+        tasks_from: database_backup.yml

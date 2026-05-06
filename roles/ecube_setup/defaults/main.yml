@@ -15,3 +15,15 @@ ecube_setup_package_dir: "{{ ecube_setup_extract_dir }}/ecube-package-{{ ecube_s
 ecube_setup_install_script_path: "{{ ecube_setup_package_dir }}/install.sh"
 ecube_setup_no_tls: false
 ecube_setup_demo: false
+
+ecube_setup_pg_port: 5432
+ecube_setup_pg_host: "{{ global_ip_addresses[groups['pgdb'][0]] }}"
+# See vault for the following variables
+# ecube_setup_db_name
+# ecube_setup_db_user
+# ecube_setup_db_password
+ecube_setup_mount_point: /nfs/backups
+ecube_setup_backup_prefix: "ecube_"
+ecube_setup_backup_filename: "{{ ecube_setup_backup_prefix }}{{ ansible_date_time.date }}.sqlc"
+ecube_setup_backup_dir: "{{ ecube_setup_mount_point }}/ecube"
+ecube_setup_backup_path: "{{ ecube_setup_backup_dir }}/{{ ecube_setup_backup_filename }}"

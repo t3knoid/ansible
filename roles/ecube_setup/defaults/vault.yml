@@ -1,0 +1,5 @@
+---
+
+ecube_setup_db_name: ecube
+ecube_setup_db_user: ecube
+ecube_setup_db_password: ecube
