@@ -1,0 +1,72 @@
+---
+- name: Install ECUBE installer prerequisites
+  ansible.builtin.apt:
+    name:
+      - ca-certificates
+      - tar
+    state: present
+    update_cache: true
+
+- name: Create ECUBE download directory
+  ansible.builtin.file:
+    path: "{{ ecube_setup_download_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Download ECUBE package checksum
+  ansible.builtin.get_url:
+    url: "{{ ecube_setup_checksum_url }}"
+    dest: "{{ ecube_setup_checksum_path }}"
+    mode: "0644"
+
+- name: Read ECUBE package checksum
+  ansible.builtin.slurp:
+    path: "{{ ecube_setup_checksum_path }}"
+  register: ecube_setup_checksum_file
+
+- name: Set ECUBE package checksum fact
+  ansible.builtin.set_fact:
+    ecube_setup_package_sha256: >-
+      {{ (ecube_setup_checksum_file.content | b64decode).split()[0] }}
+
+- name: Download ECUBE package archive
+  ansible.builtin.get_url:
+    url: "{{ ecube_setup_package_url }}"
+    dest: "{{ ecube_setup_archive_path }}"
+    checksum: "sha256:{{ ecube_setup_package_sha256 }}"
+    mode: "0644"
+
+- name: Create ECUBE extraction directory
+  ansible.builtin.file:
+    path: "{{ ecube_setup_extract_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Extract ECUBE package archive
+  ansible.builtin.unarchive:
+    src: "{{ ecube_setup_archive_path }}"
+    dest: "{{ ecube_setup_extract_dir }}"
+    remote_src: true
+
+- name: Run ECUBE installer
+  ansible.builtin.command:
+    argv: >-
+      {{
+        [
+          ecube_setup_install_script_path,
+          '--yes',
+          '--install-dir',
+          ecube_setup_install_dir
+        ]
+        + (['--no-tls'] if ecube_setup_no_tls else [])
+        + (['--demo'] if ecube_setup_demo else [])
+      }}
+  args:
+    chdir: "{{ ecube_setup_package_dir }}"
+  register: ecube_setup_install_result
+  changed_when: ecube_setup_install_result.rc == 0
+
+- name: Remove ECUBE downloaded package
+  ansible.builtin.file:
+    path: "{{ ecube_setup_download_dir }}"
+    state: absent
