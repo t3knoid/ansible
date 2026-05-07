@@ -44,7 +44,8 @@
     method: md5
   notify: Restart PostgreSQL
 
-- name: Update pg_hba.conf to allow password access using the database host ip address
+- name: Update pg_hba.conf to allow password access using the database host ip
+    address
   community.postgresql.postgresql_pg_hba:
     dest: "/etc/postgresql/{{ postgresql_setup_version }}/main/pg_hba.conf"
     contype: host
@@ -56,12 +57,14 @@
 
 - name: Ensure .pgpass entry exists without duplication
   ansible.builtin.lineinfile:
-    path: ~/.pgpass
-    line: "{{ redmine_setup_pg_host }}:5432:{{ redmine_setup_db_name }}:{{ redmine_setup_db_user }}:{{ redmine_setup_db_password }}"
+    path:  ~/.pgpass
+    line: "{{ redmine_setup_pg_host }}:{{ redmine_setup_pg_port }}:{{
+      redmine_setup_db_name }}:{{ redmine_setup_db_user }}:{{
+      redmine_setup_db_password }}"
     create: true
     owner: postgres
     group: postgres
-    mode: '0600'
+    mode: "0600"
     state: present
     insertafter: EOF
   become: true

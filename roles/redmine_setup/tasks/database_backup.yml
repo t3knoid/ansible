@@ -10,7 +10,8 @@
 - name: Backup PostgreSQL database using pg_dump
   ansible.builtin.shell: |
     set -euo pipefail
-    pg_dump -U {{ redmine_setup_db_user }} -h {{ redmine_setup_pg_host }} -Fc \
+    pg_bin="/usr/lib/postgresql/{{ postgresql_setup_version }}/bin"
+    "$pg_bin/pg_dump" -U {{ redmine_setup_db_user }} -h {{ redmine_setup_pg_host }} -Fc \
       --file={{ redmine_setup_backup_path }} {{ redmine_setup_db_name }}
   args:
     executable: /bin/bash
