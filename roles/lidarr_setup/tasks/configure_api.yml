@@ -2,20 +2,20 @@
   no_log: true
   ansible.builtin.slurp:
     src: "{{ lidarr_setup_config_dir }}/config.xml"
-  register: lidarr_setup_config_xml_response
+  register: lidarr_setup_config_xml
   changed_when: false
+
+- name: Extract ApiKey from lidarr config file
+  community.general.xml:
+    xmlstring: "{{ lidarr_setup_config_xml.content | b64decode }}"
+    xpath: /Config/ApiKey
+    content: text
+  no_log: true
+  register: lidarr_setup_api_key
 
 - name: Resolve Lidarr API key from deployed config
   ansible.builtin.set_fact:
-    lidarr_setup_resolved_api_key: >-
-      {{
-        (
-          lidarr_setup_config_xml_response.content
-          | b64decode
-          | regex_search('<ApiKey>([^<]+)</ApiKey>', '\\1')
-          | first
-        )
-      }}
+    lidarr_setup_resolved_api_key: "{{ lidarr_setup_api_key.matches[0].ApiKey | trim }}"
 
 - name: Fail when Lidarr API key cannot be resolved
   ansible.builtin.fail:
@@ -81,6 +81,26 @@
     loop_var: lidarr_root_folder
     label: "{{ lidarr_root_folder.path }}"
   when: lidarr_setup_root_folders | length > 0
+
+- name: Trigger Lidarr rescan for configured root folders
+  ansible.builtin.uri:
+    url: "{{ lidarr_setup_api_url }}/api/v1/command"
+    method: POST
+    headers:
+      X-Api-Key: "{{ lidarr_setup_resolved_api_key }}"
+    validate_certs: "{{ lidarr_setup_api_validate_certs }}"
+    body_format: json
+    body:
+      name: RescanFolders
+      folders: "{{ lidarr_setup_root_folders | map(attribute='path') | list }}"
+      filter: Known
+      addNewArtists: true
+    status_code:
+      - 200
+      - 201
+      - 202
+  when: lidarr_setup_root_folders | length > 0
+  changed_when: false
 
 - name: Get existing Lidarr download clients
   ansible.builtin.uri:

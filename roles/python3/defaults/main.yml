@@ -18,6 +18,7 @@ python3_packages_to_install:
   - python3-psycopg2
   - python3-packaging
   - python3-pymysql
+  - python3-lxml
 
 python3_venv_folder: "/opt/python_{{ python3_version }}"
 python3_venv_packages_to_install:
@@ -27,6 +28,7 @@ python3_venv_packages_to_install:
   - psycopg2-binary==2.9.11
   - packaging==25.0
   - PyMySQL==1.1.2
+  - lxml==6.1.0
 
 python3_version_to_compile: 3.12.3
 python3_required_packages_for_compile:

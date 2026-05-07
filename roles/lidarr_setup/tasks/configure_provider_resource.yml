@@ -45,7 +45,7 @@
   no_log: true
   ansible.builtin.slurp:
     src: "{{ lidarr_setup_sabnzbd_config_path }}"
-  register: lidarr_setup_sabnzbd_config_response
+  register: lidarr_setup_sabnzbd_config_ini
   delegate_to: "{{ lidarr_setup_sabnzbd_inventory_host }}"
   when:
     - lidarr_provider_type == 'downloadclient'
@@ -54,29 +54,55 @@
     - lidarr_setup_sabnzbd_inventory_host | default('') | length > 0
   changed_when: false
 
-- name: Resolve SABnzbd API key from deployed config
+- name: Extract SABnzbd API key from misc section
   no_log: true
   ansible.builtin.set_fact:
-    lidarr_setup_provider_item_fields: >-
+    lidarr_setup_sabnzbd_api_key: >-
       {{
-        lidarr_setup_provider_item_fields
-        | combine(
-            {
-              'apiKey': (
-                lidarr_setup_sabnzbd_config_response.content
-                | b64decode
-                | regex_search('(?m)^api_key\s*=\s*(.+)$', '\\1')
-                | first
-              )
-            },
-            recursive=True
-          )
+        (
+          lidarr_setup_sabnzbd_config_ini.content
+          | b64decode
+          | regex_findall('(?s)\[misc\].*?\napi_key\s*=\s*([^\n]+)')
+          | map('regex_replace', '^"(.*)"$', '\\1')
+          | list
+          | join('')
+        )
+        | trim
       }}
   when:
     - lidarr_provider_type == 'downloadclient'
     - lidarr_provider_item.implementation == 'Sabnzbd'
     - lidarr_setup_provider_item_fields.apiKey | default('') | length == 0
-    - lidarr_setup_sabnzbd_config_response is defined
+    - lidarr_setup_sabnzbd_config_ini is defined
+
+- name: Copy SABnzbd API key into Lidarr provider fields
+  no_log: true
+  ansible.builtin.set_fact:
+    lidarr_setup_provider_item_fields: >-
+      {{
+        lidarr_setup_provider_item_fields
+        | combine({'apiKey': lidarr_setup_sabnzbd_api_key}, recursive=True)
+      }}
+  when:
+    - lidarr_provider_type == 'downloadclient'
+    - lidarr_provider_item.implementation == 'Sabnzbd'
+    - lidarr_setup_sabnzbd_api_key | default('') | length > 0
+
+- name: Normalize SABnzbd category field for Lidarr schema
+  ansible.builtin.set_fact:
+    lidarr_setup_provider_item_fields: >-
+      {{
+        (lidarr_setup_provider_item_fields
+        | dict2items
+        | rejectattr('key', 'equalto', 'category')
+        | items2dict)
+        | combine({'musicCategory': lidarr_setup_provider_item_fields.category}, recursive=True)
+      }}
+  when:
+    - lidarr_provider_type == 'downloadclient'
+    - lidarr_provider_item.implementation == 'Sabnzbd'
+    - lidarr_setup_provider_item_fields.category is defined
+    - lidarr_setup_provider_item_fields.musicCategory is not defined
 
 - name: Fail when SABnzbd API key cannot be resolved
   ansible.builtin.fail:
@@ -317,7 +343,7 @@
               'fields': lidarr_setup_provider_existing_resource.fields | default([])
             }
             | combine(
-                lidarr_provider_type == 'downloadclient'
+              (lidarr_provider_type == 'downloadclient')
                 | ternary(
                     {
                       'enable': lidarr_setup_provider_existing_resource.enable,
@@ -330,7 +356,7 @@
                 recursive=True
               )
             | combine(
-                lidarr_provider_type == 'indexer'
+                (lidarr_provider_type == 'indexer')
                 | ternary(
                     {
                       'enableRss': lidarr_setup_provider_existing_resource.enableRss,
@@ -348,7 +374,7 @@
       }}
 
 - name: Create Lidarr provider resource when missing
-  no_log: true
+  no_log: false
   ansible.builtin.uri:
     url: "{{ lidarr_setup_api_url }}/api/v1/{{ lidarr_provider_type }}"
     method: POST
@@ -357,7 +383,10 @@
     validate_certs: "{{ lidarr_setup_api_validate_certs }}"
     body_format: json
     body: "{{ lidarr_setup_provider_payload }}"
-    status_code: 200
+    status_code:
+      - 200
+      - 201
+      - 202
   when: lidarr_setup_provider_existing_resource.id is not defined
 
 - name: Update Lidarr provider resource when changed
@@ -371,7 +400,10 @@
     validate_certs: "{{ lidarr_setup_api_validate_certs }}"
     body_format: json
     body: "{{ lidarr_setup_provider_payload }}"
-    status_code: 200
+    status_code:
+      - 200
+      - 201
+      - 202
   when:
     - lidarr_setup_provider_existing_resource.id is defined
     - lidarr_setup_provider_current_payload != lidarr_setup_provider_payload
