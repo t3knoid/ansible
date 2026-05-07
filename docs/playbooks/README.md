@@ -84,6 +84,7 @@
 | [`ombi/backup_db.yml`](./backup_db.md) | Backup Ombi database to NFS share |
 | [`ombi/create_db.yml`](./create_db.md) | Create Ombi PostgreSQL database on pgdb hosts |
 | [`ombi/deploy_ombi.yml`](./deploy_ombi.md) | Deploy Ombi application on Ombi hosts |
+| [`ombi/restore_db.yml`](./restore_db.md) | Restore Ombi PostgreSQL database from backup. |
 | [`plex/backup_plex.yml`](./backup_plex.md) | Backup Plex Media Server configuration on plex hosts |
 | [`plex/deploy_plex.yml`](./deploy_plex.md) | Install and configure Plex Media Server on plex hosts |
 | [`postgresql/deploy_postgresql.yml`](./deploy_postgresql.md) | Install and configure PostgreSQL on pgdb hosts |
@@ -126,7 +127,6 @@
 | [`services/deploy_sabnzbd.yml`](./deploy_sabnzbd.md) | Installs Sabnzbd application. |
 | [`services/deploy_sonarr.yml`](./deploy_sonarr.md) | Installs Sonarr application. |
 | [`services/restore_lidarr_db.yml`](./restore_lidarr_db.md) | Restore Lidarr PostgreSQL database from backup. |
-| [`services/restore_ombi_db.yml`](./restore_ombi_db.md) | Restore Ombi PostgreSQL database from backup. |
 | [`services/restore_radarr_db.yml`](./restore_radarr_db.md) | Restore Radarr PostgreSQL database from backup. |
 | [`services/restore_sonarr_db.yml`](./restore_sonarr_db.md) | Restore Sonarr PostgreSQL database from backup. |
 | [`services/start_all.yml`](./start_all.md) | Starts all media services. |
