@@ -57,5 +57,5 @@ _No group variables defined._
 ## 🧩 Group Children
 ### `rproxy`
 - `rproxy_primary`
-- `rproxy_secondary`
 - `rproxy_main`
+- `rproxy_secondary`
