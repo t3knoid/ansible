@@ -38,7 +38,7 @@ Install and configure Grafana on Debian/Ubuntu
 | `grafana_setup_pg_host` | `"{{ global_ip_addresses[groups['pgdb'][0]] }}"` |  |
 | `grafana_setup_mount_point` | `/nfs/backups` | grafana_setup_db_password |
 | `grafana_setup_backup_prefix` | `"grafana_"` |  |
-| `grafana_setup_backup_filename` | `"{{ grafana_setup_backup_prefix }}{{ ansible_date_time.date }}.sqlc"` |  |
+| `grafana_setup_backup_filename` | `"{{ grafana_setup_backup_prefix }}{{ ansible_date_time.iso8601_basic_short }}.sqlc"` |  |
 | `grafana_setup_backup_dir` | `"{{ grafana_setup_mount_point }}/grafana"` |  |
 | `grafana_setup_backup_path` | `"{{ grafana_setup_backup_dir }}/{{ grafana_setup_backup_filename }}"` |  |
 | `grafana_setup_restore_path` | `""` |  |

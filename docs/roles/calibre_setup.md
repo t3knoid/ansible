@@ -20,7 +20,7 @@ Installs and configures Calibre eBook management software. It uses a Docker imag
 | `calibre_setup_docker_image_name` | `"calibre:{{ calibre_setup_version }}"` |  |
 | `calibre_setup_mount_point` | `/nfs/backups` |  |
 | `calibre_setup_backup_prefix` | `"calibre_"` |  |
-| `calibre_setup_backup_filename` | `"{{ calibre_setup_backup_prefix }}{{ ansible_date_time.date }}.sqlc"` |  |
+| `calibre_setup_backup_filename` | `"{{ calibre_setup_backup_prefix }}{{ ansible_date_time.iso8601_basic_short }}.sqlc"` |  |
 | `calibre_setup_backups_dir` | `"{{ calibre_setup_mount_point }}/calibre"` |  |
 | `calibre_setup_backup_path` | `"{{ calibre_setup_backups_dir }}/{{ calibre_setup_backup_filename }}"` |  |
 

@@ -38,7 +38,7 @@ Installs and configures [Semaphore UI](https://docs.semaphoreui.com/).
 | `cn` | `"cn"` |  |
 | `semaphoreui_setup_mount_point` | `/nfs/backups` | semaphoreui_setup_db_password: in vault |
 | `semaphoreui_setup_backup_prefix` | `"semaphoreui_"` |  |
-| `semaphoreui_setup_backup_filename` | `"{{ semaphoreui_setup_backup_prefix }}{{ ansible_date_time.date }}.sqlc"` |  |
+| `semaphoreui_setup_backup_filename` | `"{{ semaphoreui_setup_backup_prefix }}{{ ansible_date_time.iso8601_basic_short }}.sqlc"` |  |
 | `semaphoreui_setup_backup_dir` | `"{{ semaphoreui_setup_mount_point }}/semaphoreui"` |  |
 | `semaphoreui_setup_backup_path` | `"{{ semaphoreui_setup_backup_dir }}/{{ semaphoreui_setup_backup_filename }}"` |  |
 | `semaphoreui_setup_restore_path` | `""` |  |
@@ -79,7 +79,7 @@ Installs and configures [Semaphore UI](https://docs.semaphoreui.com/).
 | `- name` | `"Request Certificates for all hosts"` |  |
 | `playbook` | `"playbooks/certs/generate_certs.yml"` |  |
 | `app` | `"ansible"` |  |
-| `arguments` | `"[\"-k\"]"` |  |
+| `arguments` | `'["-k"]'` |  |
 | `inventory` | `"rproxy"` |  |
 | `credentials` | `` |  |
 | `repository` | `"Ansible"` |  |
@@ -88,7 +88,7 @@ Installs and configures [Semaphore UI](https://docs.semaphoreui.com/).
 | `- name` | `"Stage Certificates for all hosts"` |  |
 | `playbook` | `"playbooks/certs/stage_certs.yml"` |  |
 | `app` | `"ansible"` |  |
-| `arguments` | `"[\"-k\"]"` |  |
+| `arguments` | `'["-k"]'` |  |
 | `inventory` | `"rproxy"` |  |
 | `credentials` | `` |  |
 | `repository` | `"Ansible"` |  |

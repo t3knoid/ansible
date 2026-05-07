@@ -30,7 +30,7 @@ Redmine Setup installs and configures an [Redmine](https://www.redmine.org/). Th
 | `redmine_setup_smtp_settings_port` | `587` |  |
 | `redmine_setup_mount_point` | `/nfs/backups` | redmine_setup_db_password |
 | `redmine_setup_backup_prefix` | `"redmine_"` |  |
-| `redmine_setup_backup_filename` | `"{{ redmine_setup_backup_prefix }}{{ ansible_date_time.date }}.sqlc"` |  |
+| `redmine_setup_backup_filename` | `"{{ redmine_setup_backup_prefix }}{{ ansible_date_time.iso8601_basic_short }}.sqlc"` |  |
 | `redmine_setup_backup_dir` | `"{{ redmine_setup_mount_point }}/redmine"` |  |
 | `redmine_setup_backup_path` | `"{{ redmine_setup_backup_dir }}/{{ redmine_setup_backup_filename }}"` |  |
 | `redmine_setup_restore_path` | `""` |  |
