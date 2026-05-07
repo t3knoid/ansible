@@ -43,4 +43,4 @@ rproxy_setup_sites:
       - 70.107.117.124
     restricted: false
 
-tautulli_setup_version: 2.16.0
+tautulli_setup_version: 2.17.1
