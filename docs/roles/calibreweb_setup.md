@@ -20,7 +20,7 @@ Installs and configures Calibre-Web, a web-based eBook management application. I
 | `calibreweb_setup_docker_image_name` | `"calibre-web:{{ calibreweb_setup_version }}"` |  |
 | `calibreweb_setup_mount_point` | `/nfs/backups` |  |
 | `calibreweb_setup_backup_prefix` | `"calibreweb_"` |  |
-| `calibreweb_setup_backup_filename` | `"{{ calibreweb_setup_backup_prefix }}{{ ansible_date_time.date }}.sqlc"` |  |
+| `calibreweb_setup_backup_filename` | `"{{ calibreweb_setup_backup_prefix }}{{ ansible_date_time.iso8601_basic_short }}.sqlc"` |  |
 | `calibreweb_setup_backups_dir` | `"{{ calibreweb_setup_mount_point }}/calibre"` |  |
 | `calibreweb_setup_backup_path` | `"{{ calibreweb_setup_backups_dir }}/{{ calibreweb_setup_backup_filename }}"` |  |
 

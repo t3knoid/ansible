@@ -24,7 +24,7 @@ Installs and configures Lidarr on Debian/Ubuntu systems. It uses a container dis
 | `lidarr_setup_pg_host` | `"{{ global_ip_addresses[groups['pgdb'][0]] }}"` |  |
 | `lidarr_setup_mount_point` | `/nfs/backups` | lidarr_setup_db_password |
 | `lidarr_setup_backup_prefix` | `"lidarr_"` |  |
-| `lidarr_setup_backup_filename` | `"{{ lidarr_setup_backup_prefix }}{{ ansible_date_time.date }}.sqlc"` |  |
+| `lidarr_setup_backup_filename` | `"{{ lidarr_setup_backup_prefix }}{{ ansible_date_time.iso8601_basic_short }}.sqlc"` |  |
 | `lidarr_setup_backups_dir` | `"{{ lidarr_setup_mount_point }}/lidarr"` |  |
 | `lidarr_setup_backup_path` | `"{{ lidarr_setup_backups_dir }}/{{ lidarr_setup_backup_filename }}"` |  |
 | `lidarr_setup_restore_path` | `""` |  |

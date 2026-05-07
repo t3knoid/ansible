@@ -24,7 +24,7 @@ Installs and configures a Radarr Docker container. It uses an image distributed 
 | `radarr_setup_pg_host` | `"{{ global_ip_addresses[groups['pgdb'][0]] }}"` |  |
 | `radarr_setup_mount_point` | `/nfs/backups` | radarr_setup_db_password |
 | `radarr_setup_backup_prefix` | `"radarr_"` |  |
-| `radarr_setup_backup_filename` | `"{{ radarr_setup_backup_prefix }}{{ ansible_date_time.date }}.sqlc"` |  |
+| `radarr_setup_backup_filename` | `"{{ radarr_setup_backup_prefix }}{{ ansible_date_time.iso8601_basic_short }}.sqlc"` |  |
 | `radarr_setup_backup_dir` | `"{{ radarr_setup_mount_point }}/radarr"` |  |
 | `radarr_setup_backup_path` | `"{{ radarr_setup_backup_dir }}/{{ radarr_setup_backup_filename }}"` |  |
 | `radarr_setup_restore_path` | `""` |  |
