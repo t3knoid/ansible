@@ -104,6 +104,7 @@
 | [`redmine/create_db.yml`](./create_db.md) | Create PostgreSQL database for Redmine application. |
 | [`redmine/deploy_redmine.yml`](./deploy_redmine.md) | Deploy Redmine application on redmine hosts. |
 | [`redmine/mirror_wiki.yml`](./mirror_wiki.md) | Mirror Redmine wiki to GitHub |
+| [`redmine/restore_db.yml`](./restore_db.md) | Restore Redmine PostgreSQL database from backup. |
 | [`rproxy/config_rproxy.yml`](./config_rproxy.md) | Configures Reverse Proxy for specified sites. rproxy_setup_sites variable should be defined in the inventory or host_vars. |
 | [`rproxy/deploy_rproxy.yml`](./deploy_rproxy.md) | Sets up Reverse Proxy on rproxy hosts. |
 | [`ruby/deploy_ruby.yml`](./deploy_ruby.md) | Installs Ruby on ruby hosts. |
@@ -111,6 +112,7 @@
 | [`semaphoreui/check_semaphore_version.yml`](./check_semaphore_version.md) | Check the latest version of SemaphoreUI available. |
 | [`semaphoreui/create_db.yml`](./create_db.md) | Create PostgreSQL database for Semaphore UI application. |
 | [`semaphoreui/deploy_semaphoreui.yml`](./deploy_semaphoreui.md) | Installs Semaphore UI application on semaphore hosts. |
+| [`semaphoreui/restore_db.yml`](./restore_db.md) | Restore Semaphoreui PostgreSQL database from backup. |
 | [`semaphoreui/setup_semaphoreui.yml`](./setup_semaphoreui.md) | Sets up Semaphore UI application on semaphore hosts. It configures the Semaphore using the values in the semaphoreui_setup_projects variable. This playbook assumes that Semaphore UI has been installed. |
 | [`services/backup_lidarr_db.yml`](./backup_lidarr_db.md) | Backup Lidarr database to NFS share. |
 | [`services/backup_radarr_db.yml`](./backup_radarr_db.md) | Backup Radarr database to NFS share. |
