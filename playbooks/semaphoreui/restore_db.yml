@@ -1,0 +1,42 @@
+---
+
+# Purpose: Restore Semaphoreui PostgreSQL database from backup.
+
+- name: Stop Semaphoreui before restoring the database
+  hosts: semaphoreui
+  become: true
+  gather_facts: true
+  roles:
+    - global
+
+  tasks:
+    - name: Stop Semaphore service
+      ansible.builtin.service:
+            name: semaphore
+            state: stopped
+
+- name: Restore Semaphoreui database on PostgreSQL host
+  hosts: pgdb
+  become: true
+  gather_facts: true
+  roles:
+    - global
+
+  tasks:
+    - name: Import database_restore.yml from semaphoreui_setup role
+      ansible.builtin.import_role:
+        name: semaphoreui_setup
+        tasks_from: database_restore.yml
+
+- name: Start Semaphoreui after restoring the database
+  hosts: semaphoreui
+  become: true
+  gather_facts: true
+  roles:
+    - global
+
+  tasks:
+    - name: Start Semaphoreui Service
+      ansible.builtin.service:
+            name: semaphore
+            state: started

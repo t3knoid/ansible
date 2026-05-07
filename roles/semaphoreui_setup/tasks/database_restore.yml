@@ -1,0 +1,57 @@
+---
+
+- name: Find Semaphoreui database backups when no restore path is provided
+  ansible.builtin.find:
+    paths: "{{ semaphoreui_setup_backup_dir }}"
+    patterns: "{{ semaphoreui_setup_backup_prefix }}*.sqlc"
+    file_type: file
+  register: semaphoreui_setup_restore_backups
+  when: semaphoreui_setup_restore_path | default('') | length == 0
+
+- name: Fail when no Semaphoreui database backup is available
+  ansible.builtin.fail:
+    msg: >-
+      No Semaphoreui database backup was found in {{ semaphoreui_setup_backup_dir }}. Set
+      semaphoreui_setup_restore_path to a specific .sqlc backup file or create a backup
+      first.
+  when:
+    - semaphoreui_setup_restore_path | default('') | length == 0
+    - semaphoreui_setup_restore_backups.matched | int == 0
+
+- name: Select Semaphoreui database backup to restore
+  ansible.builtin.set_fact:
+    semaphoreui_setup_restore_source_path: >-
+      {{
+        semaphoreui_setup_restore_path
+        if (semaphoreui_setup_restore_path | default('') | length > 0)
+        else (
+          semaphoreui_setup_restore_backups.files
+          | sort(attribute='mtime', reverse=true)
+          | map(attribute='path')
+          | first
+        )
+      }}
+
+- name: Check selected Semaphoreui database backup exists
+  ansible.builtin.stat:
+    path: "{{ semaphoreui_setup_restore_source_path }}"
+  register: semaphoreui_setup_restore_backup_stat
+
+- name: Fail when selected Semaphoreui database backup does not exist
+  ansible.builtin.fail:
+    msg: "Semaphoreui database backup not found: {{ semaphoreui_setup_restore_source_path }}"
+  when: not semaphoreui_setup_restore_backup_stat.stat.exists
+
+- name: Restore PostgreSQL database using pg_restore
+  ansible.builtin.shell: |
+    set -euo pipefail
+    /usr/lib/postgresql/{{ postgresql_setup_version }}/bin/dropdb --if-exists -h {{ semaphoreui_setup_pg_host }} -p {{ semaphoreui_setup_pg_port }} {{ semaphoreui_setup_db_name }}
+    /usr/lib/postgresql/{{ postgresql_setup_version }}/bin/createdb --owner={{ semaphoreui_setup_db_user }} -h {{ semaphoreui_setup_pg_host }} -p {{ semaphoreui_setup_pg_port }} {{ semaphoreui_setup_db_name }}
+    /usr/lib/postgresql/{{ postgresql_setup_version }}/bin/pg_restore --dbname={{ semaphoreui_setup_db_name }} -h {{ semaphoreui_setup_pg_host }} -p {{ semaphoreui_setup_pg_port }} {{ semaphoreui_setup_restore_source_path }}
+  args:
+    executable: /bin/bash
+  become: true
+  become_user: postgres
+  register: semaphoreui_setup_restore_result
+  failed_when: semaphoreui_setup_restore_result.rc != 0
+  changed_when: true
