@@ -6,12 +6,12 @@
     state: directory
     owner: postgres
     group: postgres
-    mode: '0755'
+    mode: "0755"
 
 - name: Backup PostgreSQL database using pg_dump
   ansible.builtin.shell: |
     set -euo pipefail
-    pg_dump -U {{ ombi_setup_db_user }} -h {{ ombi_setup_pg_host }} -Fc \
+    pg_dump -U {{ ombi_setup_db_user }} -h {{ ombi_setup_pg_host }} -p {{ ombi_setup_pg_port }} -Fc \
       --file={{ ombi_setup_backup_path }} {{ ombi_setup_db_name }}
   args:
     executable: /bin/bash
