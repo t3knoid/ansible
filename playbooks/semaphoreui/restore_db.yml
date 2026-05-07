@@ -3,7 +3,7 @@
 # Purpose: Restore Semaphoreui PostgreSQL database from backup.
 
 - name: Stop Semaphoreui before restoring the database
-  hosts: semaphoreui
+  hosts: semaphore
   become: true
   gather_facts: true
   roles:
