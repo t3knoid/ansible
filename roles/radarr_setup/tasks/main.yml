@@ -1,5 +1,4 @@
 ---
-
 - name: Deploy Radarr Docker Service
   ansible.builtin.import_role:
     name: docker_service_deploy
@@ -12,3 +11,7 @@
         mode: "0640"
     docker_service_deploy_compose_template: "docker-compose.yml.j2"
     docker_service_deploy_container_name: "radarr"
+
+- name: Configure Radarr Through API
+  ansible.builtin.import_tasks: configure_api.yml
+  when: radarr_setup_configure_api
