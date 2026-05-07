@@ -82,6 +82,7 @@ Installs and configures Lidarr on Debian/Ubuntu systems. It uses a container dis
 _No constant variables found._
 
 ## 📑 Tasks
+- Deploy Lidarr Docker Service
 - Configure Lidarr Through API
 
 ## 🔔 Handlers
