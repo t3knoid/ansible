@@ -1,0 +1,144 @@
+- name: Read deployed Radarr config file
+  no_log: true
+  ansible.builtin.slurp:
+    src: "{{ radarr_setup_config_dir }}/config.xml"
+  register: radarr_setup_config_xml
+  changed_when: false
+
+- name: Extract ApiKey from radarr config file
+  community.general.xml:
+    xmlstring: "{{ radarr_setup_config_xml.content | b64decode }}"
+    xpath: /Config/ApiKey
+    content: text
+  no_log: true
+  register: radarr_setup_api_key
+
+- name: Resolve Radarr API key from deployed config
+  ansible.builtin.set_fact:
+    radarr_setup_resolved_api_key: "{{ radarr_setup_api_key.matches[0].ApiKey | trim }}"
+
+- name: Fail when Radarr API key cannot be resolved
+  ansible.builtin.fail:
+    msg: >-
+      Unable to resolve the Radarr API key from {{ radarr_setup_config_dir
+      }}/config.xml and no radarr_setup_api_key fallback is defined.
+  when: radarr_setup_resolved_api_key | default('') | length == 0
+
+- name: Wait for Radarr API to become available
+  ansible.builtin.uri:
+    url: "{{ radarr_setup_api_url }}/api/v3/system/status"
+    method: GET
+    headers:
+      X-Api-Key: "{{ radarr_setup_resolved_api_key }}"
+    validate_certs: "{{ radarr_setup_api_validate_certs }}"
+    status_code: 200
+  register: radarr_setup_system_status_response
+  retries: 30
+  delay: 5
+  until: radarr_setup_system_status_response.status == 200
+  changed_when: false
+
+- name: Get existing Radarr root folders
+  ansible.builtin.uri:
+    url: "{{ radarr_setup_api_url }}/api/v3/rootfolder"
+    method: GET
+    headers:
+      X-Api-Key: "{{ radarr_setup_resolved_api_key }}"
+    validate_certs: "{{ radarr_setup_api_validate_certs }}"
+    status_code: 200
+  register: radarr_setup_root_folders_response
+  when: radarr_setup_root_folders | length > 0
+  changed_when: false
+
+- name: Reconcile Radarr root folders
+  ansible.builtin.include_tasks: configure_root_folder.yml
+  loop: "{{ radarr_setup_root_folders }}"
+  loop_control:
+    loop_var: radarr_root_folder
+    label: "{{ radarr_root_folder.path }}"
+  when: radarr_setup_root_folders | length > 0
+
+- name: Get existing Radarr download clients
+  ansible.builtin.uri:
+    url: "{{ radarr_setup_api_url }}/api/v3/downloadclient"
+    method: GET
+    headers:
+      X-Api-Key: "{{ radarr_setup_resolved_api_key }}"
+    validate_certs: "{{ radarr_setup_api_validate_certs }}"
+    status_code: 200
+  register: radarr_setup_download_clients_response
+  when: (radarr_setup_download_clients | length > 0) or (radarr_setup_indexers |
+    length > 0)
+  changed_when: false
+
+- name: Get Radarr download client schema
+  ansible.builtin.uri:
+    url: "{{ radarr_setup_api_url }}/api/v3/downloadclient/schema"
+    method: GET
+    headers:
+      X-Api-Key: "{{ radarr_setup_resolved_api_key }}"
+    validate_certs: "{{ radarr_setup_api_validate_certs }}"
+    status_code: 200
+  register: radarr_setup_download_client_schema_response
+  when: radarr_setup_download_clients | length > 0
+  changed_when: false
+
+- name: Reconcile Radarr download clients
+  ansible.builtin.include_tasks: configure_provider_resource.yml
+  loop: "{{ radarr_setup_download_clients }}"
+  loop_control:
+    loop_var: radarr_provider_item
+    label: "{{ radarr_provider_item.name }}"
+  vars:
+    radarr_provider_type: downloadclient
+    radarr_provider_existing_items: "{{ radarr_setup_download_clients_response.json }}"
+    radarr_provider_schema_items: "{{ radarr_setup_download_client_schema_response.json }}"
+  when: radarr_setup_download_clients | length > 0
+
+- name: Refresh Radarr download clients after reconciliation
+  ansible.builtin.uri:
+    url: "{{ radarr_setup_api_url }}/api/v3/downloadclient"
+    method: GET
+    headers:
+      X-Api-Key: "{{ radarr_setup_resolved_api_key }}"
+    validate_certs: "{{ radarr_setup_api_validate_certs }}"
+    status_code: 200
+  register: radarr_setup_download_clients_response
+  when: radarr_setup_indexers | length > 0
+  changed_when: false
+
+- name: Get existing Radarr indexers
+  ansible.builtin.uri:
+    url: "{{ radarr_setup_api_url }}/api/v3/indexer"
+    method: GET
+    headers:
+      X-Api-Key: "{{ radarr_setup_resolved_api_key }}"
+    validate_certs: "{{ radarr_setup_api_validate_certs }}"
+    status_code: 200
+  register: radarr_setup_indexers_response
+  when: radarr_setup_indexers | length > 0
+  changed_when: false
+
+- name: Get Radarr indexer schema
+  ansible.builtin.uri:
+    url: "{{ radarr_setup_api_url }}/api/v3/indexer/schema"
+    method: GET
+    headers:
+      X-Api-Key: "{{ radarr_setup_resolved_api_key }}"
+    validate_certs: "{{ radarr_setup_api_validate_certs }}"
+    status_code: 200
+  register: radarr_setup_indexer_schema_response
+  when: radarr_setup_indexers | length > 0
+  changed_when: false
+
+- name: Reconcile Radarr indexers
+  ansible.builtin.include_tasks: configure_provider_resource.yml
+  loop: "{{ radarr_setup_indexers }}"
+  loop_control:
+    loop_var: radarr_provider_item
+    label: "{{ radarr_provider_item.name }}"
+  vars:
+    radarr_provider_type: indexer
+    radarr_provider_existing_items: "{{ radarr_setup_indexers_response.json }}"
+    radarr_provider_schema_items: "{{ radarr_setup_indexer_schema_response.json }}"
+  when: radarr_setup_indexers | length > 0
