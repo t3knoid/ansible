@@ -6,7 +6,7 @@
     state: directory
     owner: postgres
     group: postgres
-    mode: "0755"
+    mode: '0755'
 
 - name: Backup PostgreSQL database using pg_dump
   ansible.builtin.shell: |
@@ -15,6 +15,7 @@
       --file={{ ombi_setup_backup_path }} {{ ombi_setup_db_name }}
   args:
     executable: /bin/bash
+  become: true
   become_user: postgres
   register: ombi_setup_pg_backup_result
   failed_when: ombi_setup_pg_backup_result.rc != 0
@@ -22,6 +23,7 @@
 
 - name: Keep only the latest 3 backups
   ansible.builtin.shell: |
+    set -euo pipefail
     ls -1t {{ ombi_setup_backup_dir }}/{{ ombi_setup_backup_prefix }}*.sqlc | tail -n +4 | xargs -r rm -f
   args:
     executable: /bin/bash
