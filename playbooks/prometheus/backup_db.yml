@@ -1,15 +1,15 @@
 ---
 
-# Purpose: Backup Prometheus database to NFS share
+# Purpose: Create a point-in-time copy of all current data stored in Prometheus.
 
-- name: Backup Prometheus database to NFS share
+- name: Backup Prometheus data
   hosts: prometheus
   become: true
   roles:
     - global
 
   tasks:
-    - name: Import backup_db.yml from prometheus_setup role
+    - name: Import database_backup.yml from prometheus_setup role
       ansible.builtin.import_role:
         name: prometheus_setup
-        tasks_from: backup_db.yml
+        tasks_from: database_backup.yml

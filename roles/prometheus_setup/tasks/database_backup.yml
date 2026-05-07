@@ -11,6 +11,55 @@
       skip_head: "{{ prometheus_setup_skip_head | default('false') }}"
   register: prometheus_setup_snapshot_response
 
+- name: Set Prometheus snapshot backup facts
+  ansible.builtin.set_fact:
+    prometheus_setup_snapshot_name: "{{ prometheus_setup_snapshot_response.json.data.name }}"
+    prometheus_setup_snapshot_path: "{{ prometheus_setup_snapshots_dir }}/{{
+      prometheus_setup_snapshot_response.json.data.name }}"
+    prometheus_setup_snapshot_config_archive: "{{ prometheus_setup_snapshots_dir
+      }}/{{ prometheus_setup_snapshot_response.json.data.name }}-config.tar.gz"
+
+- name: Verify Prometheus snapshot directory exists
+  ansible.builtin.stat:
+    path: "{{ prometheus_setup_snapshot_path }}"
+  register: prometheus_setup_snapshot_stat
+
+- name: Fail when Prometheus snapshot directory was not created
+  ansible.builtin.fail:
+    msg: "Prometheus snapshot directory not found: {{ prometheus_setup_snapshot_path
+      }}"
+  when: not prometheus_setup_snapshot_stat.stat.exists
+
+- name: Archive Prometheus configuration alongside snapshot
+  community.general.archive:
+    path:
+      - "{{ prometheus_setup_config_file }}"
+      - "{{ prometheus_setup_rules_file }}"
+    dest: "{{ prometheus_setup_snapshot_config_archive }}"
+    format: gz
+    owner: "{{ prometheus_setup_user }}"
+    group: "{{ prometheus_setup_group }}"
+    mode: "0644"
+
+- name: Prune old Prometheus snapshots and config archives
+  ansible.builtin.shell: |
+    set -euo pipefail
+    retention_count={{ prometheus_setup_backup_retention_count | int }}
+
+    find {{ prometheus_setup_snapshots_dir | quote }} -mindepth 1 -maxdepth 1 -type d -printf '%T@ %p\n' \
+      | sort -nr \
+      | awk -v keep="$retention_count" 'NR > keep {print substr($0, index($0, " ") + 1)}' \
+      | while IFS= read -r snapshot_dir; do
+          [[ -n "$snapshot_dir" ]] || continue
+          rm -rf -- "$snapshot_dir"
+          rm -f -- "${snapshot_dir}-config.tar.gz"
+        done
+  args:
+    executable: /bin/bash
+  changed_when: false
+
 - name: Show snapshot directory
   ansible.builtin.debug:
-    msg: "Snapshot created at: {{ prometheus_setup_snapshot_response.json.data.name }}"
+    msg: >-
+      Snapshot created at: {{ prometheus_setup_snapshot_name }}; config archive
+      created at: {{ prometheus_setup_snapshot_config_archive }}
