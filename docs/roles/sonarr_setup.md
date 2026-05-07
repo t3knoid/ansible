@@ -79,10 +79,7 @@ _No constant variables found._
 - Restart PostgreSQL
 
 ## 🔗 Dependencies
-- `global`
-- `users`
-- `autofs`
-- `docker_setup`
+_No dependencies listed._
 
 ## 🚀 Example Usage
 ```yaml

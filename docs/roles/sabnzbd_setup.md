@@ -107,10 +107,7 @@ Installs and configures a Sabnzbd Docker container. It uses a Docker image distr
 _No handlers defined._
 
 ## 🔗 Dependencies
-- `global`
-- `users`
-- `autofs`
-- `docker_setup`
+_No dependencies listed._
 
 ## 🚀 Example Usage
 ```yaml
