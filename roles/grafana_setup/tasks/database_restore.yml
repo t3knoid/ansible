@@ -2,30 +2,30 @@
 
 - name: Find Grafana database backups when no restore path is provided
   ansible.builtin.find:
-    paths: "{{ grafanaui_setup_backup_dir }}"
-    patterns: "{{ grafanaui_setup_backup_prefix }}*.sqlc"
+    paths: "{{ grafana_setup_backup_dir }}"
+    patterns: "{{ grafana_setup_backup_prefix }}*.sqlc"
     file_type: file
-  register: grafanaui_setup_restore_backups
-  when: grafanaui_setup_restore_path | default('') | length == 0
+  register: grafana_setup_restore_backups
+  when: grafana_setup_restore_path | default('') | length == 0
 
 - name: Fail when no Grafana database backup is available
   ansible.builtin.fail:
     msg: >-
-      No Grafana database backup was found in {{ grafanaui_setup_backup_dir }}. Set
-      grafanaui_setup_restore_path to a specific .sqlc backup file or create a backup
+      No Grafana database backup was found in {{ grafana_setup_backup_dir }}. Set
+      grafana_setup_restore_path to a specific .sqlc backup file or create a backup
       first.
   when:
-    - grafanaui_setup_restore_path | default('') | length == 0
-    - grafanaui_setup_restore_backups.matched | int == 0
+    - grafana_setup_restore_path | default('') | length == 0
+    - grafana_setup_restore_backups.matched | int == 0
 
 - name: Select Grafana database backup to restore
   ansible.builtin.set_fact:
-    grafanaui_setup_restore_source_path: >-
+    grafana_setup_restore_source_path: >-
       {{
-        grafanaui_setup_restore_path
-        if (grafanaui_setup_restore_path | default('') | length > 0)
+        grafana_setup_restore_path
+        if (grafana_setup_restore_path | default('') | length > 0)
         else (
-          grafanaui_setup_restore_backups.files
+          grafana_setup_restore_backups.files
           | sort(attribute='mtime', reverse=true)
           | map(attribute='path')
           | first
@@ -34,24 +34,24 @@
 
 - name: Check selected Grafana database backup exists
   ansible.builtin.stat:
-    path: "{{ grafanaui_setup_restore_source_path }}"
-  register: grafanaui_setup_restore_backup_stat
+    path: "{{ grafana_setup_restore_source_path }}"
+  register: grafana_setup_restore_backup_stat
 
 - name: Fail when selected Grafana database backup does not exist
   ansible.builtin.fail:
-    msg: "Grafana database backup not found: {{ grafanaui_setup_restore_source_path }}"
-  when: not grafanaui_setup_restore_backup_stat.stat.exists
+    msg: "Grafana database backup not found: {{ grafana_setup_restore_source_path }}"
+  when: not grafana_setup_restore_backup_stat.stat.exists
 
 - name: Restore PostgreSQL database using pg_restore
   ansible.builtin.shell: |
     set -euo pipefail
-    /usr/lib/postgresql/{{ postgresql_setup_version }}/bin/dropdb --if-exists -h {{ grafanaui_setup_pg_host }} -p {{ grafanaui_setup_pg_port }} {{ grafanaui_setup_db_name }}
-    /usr/lib/postgresql/{{ postgresql_setup_version }}/bin/createdb --owner={{ grafanaui_setup_db_user }} -h {{ grafanaui_setup_pg_host }} -p {{ grafanaui_setup_pg_port }} {{ grafanaui_setup_db_name }}
-    /usr/lib/postgresql/{{ postgresql_setup_version }}/bin/pg_restore --dbname={{ grafanaui_setup_db_name }} -h {{ grafanaui_setup_pg_host }} -p {{ grafanaui_setup_pg_port }} {{ grafanaui_setup_restore_source_path }}
+    /usr/lib/postgresql/{{ postgresql_setup_version }}/bin/dropdb --if-exists -h {{ grafana_setup_pg_host }} -p {{ grafana_setup_pg_port }} {{ grafana_setup_db_name }}
+    /usr/lib/postgresql/{{ postgresql_setup_version }}/bin/createdb --owner={{ grafana_setup_db_user }} -h {{ grafana_setup_pg_host }} -p {{ grafana_setup_pg_port }} {{ grafana_setup_db_name }}
+    /usr/lib/postgresql/{{ postgresql_setup_version }}/bin/pg_restore --dbname={{ grafana_setup_db_name }} -h {{ grafana_setup_pg_host }} -p {{ grafana_setup_pg_port }} {{ grafana_setup_restore_source_path }}
   args:
     executable: /bin/bash
   become: true
   become_user: postgres
-  register: grafanaui_setup_restore_result
-  failed_when: grafanaui_setup_restore_result.rc != 0
+  register: grafana_setup_restore_result
+  failed_when: grafana_setup_restore_result.rc != 0
   changed_when: true
