@@ -11,7 +11,8 @@
 - name: Backup PostgreSQL database using pg_dump
   ansible.builtin.shell: |
     set -euo pipefail
-    pg_dump -U {{ ecube_setup_db_user }} -h {{ ecube_setup_pg_host }} -Fc \
+    pg_bin="/usr/lib/postgresql/{{ postgresql_setup_version }}/bin"
+    "$pg_bin/pg_dump" -U {{ ecube_setup_db_user }} -h {{ ecube_setup_pg_host }} -Fc \
       --file={{ ecube_setup_backup_path }} {{ ecube_setup_db_name }}
   args:
     executable: /bin/bash
