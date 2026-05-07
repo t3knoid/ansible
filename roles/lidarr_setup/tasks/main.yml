@@ -12,3 +12,7 @@
         mode: "0640"
     docker_service_deploy_compose_template: "docker-compose.yml.j2"
     docker_service_deploy_container_name: "lidarr"
+
+- name: Configure Lidarr Through API
+  ansible.builtin.import_tasks: configure_api.yml
+  when: lidarr_setup_configure_api | bool
