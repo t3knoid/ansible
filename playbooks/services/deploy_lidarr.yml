@@ -2,8 +2,8 @@
 
 # Purpose: Installs Lidarr application.
 
-# - name: Create Lidarr postgresql database
-#   import_playbook: create_lidarr_db.yml
+- name: Create Lidarr postgresql database
+  import_playbook: create_lidarr_db.yml
 
 - name: Deploy lidarr
   hosts: lidarr
