@@ -1,0 +1,139 @@
+- name: Find existing Lidarr root folder
+  ansible.builtin.set_fact:
+    lidarr_setup_existing_root_folder: >-
+      {{
+        (lidarr_setup_root_folders_response.json
+        | selectattr('path', 'equalto', lidarr_root_folder.path)
+        | list
+        | first)
+        | default({})
+      }}
+
+- name: Resolve Lidarr root folder quality profile id
+  ansible.builtin.set_fact:
+    lidarr_setup_root_folder_quality_profile_id: >-
+      {{
+        lidarr_root_folder.default_quality_profile_id
+        | default(
+            lidarr_setup_existing_root_folder.defaultQualityProfileId
+            | default(
+                (
+                  lidarr_setup_quality_profiles_response.json
+                  | selectattr(
+                      'name',
+                      'equalto',
+                      lidarr_root_folder.default_quality_profile_name
+                      | default(lidarr_setup_root_folder_default_quality_profile_name)
+                    )
+                  | map(attribute='id')
+                  | list
+                  | first
+                )
+              )
+          )
+      }}
+
+- name: Resolve Lidarr root folder metadata profile id
+  ansible.builtin.set_fact:
+    lidarr_setup_root_folder_metadata_profile_id: >-
+      {{
+        lidarr_root_folder.default_metadata_profile_id
+        | default(
+            lidarr_setup_existing_root_folder.defaultMetadataProfileId
+            | default(
+                (
+                  lidarr_setup_metadata_profiles_response.json
+                  | selectattr(
+                      'name',
+                      'equalto',
+                      lidarr_root_folder.default_metadata_profile_name
+                      | default(lidarr_setup_root_folder_default_metadata_profile_name)
+                    )
+                  | map(attribute='id')
+                  | list
+                  | first
+                )
+              )
+          )
+      }}
+
+- name: Fail when Lidarr root folder profile ids cannot be resolved
+  ansible.builtin.fail:
+    msg: >-
+      Root folder {{ lidarr_root_folder.path }} requires valid quality and
+      metadata profiles. Set
+      default_quality_profile_id/default_metadata_profile_id or provide matching
+      default_quality_profile_name/default_metadata_profile_name values.
+  when:
+    - (lidarr_setup_root_folder_quality_profile_id is not defined or
+      lidarr_setup_root_folder_quality_profile_id | string | length == 0) or
+      (lidarr_setup_root_folder_metadata_profile_id is not defined or
+      lidarr_setup_root_folder_metadata_profile_id | string | length == 0)
+
+- name: Build desired Lidarr root folder payload
+  ansible.builtin.set_fact:
+    lidarr_setup_root_folder_payload: >-
+      {{
+        {
+          'name': lidarr_root_folder.name | default(lidarr_root_folder.path | basename),
+          'path': lidarr_root_folder.path,
+          'defaultQualityProfileId': lidarr_setup_root_folder_quality_profile_id,
+          'defaultMetadataProfileId': lidarr_setup_root_folder_metadata_profile_id,
+          'defaultMonitorOption': lidarr_root_folder.default_monitor_option | default(lidarr_setup_root_folder_default_monitor_option),
+          'defaultNewItemMonitorOption': lidarr_root_folder.default_new_item_monitor_option | default(lidarr_setup_root_folder_default_new_item_monitor_option),
+          'defaultTags': lidarr_root_folder.default_tags | default(lidarr_setup_existing_root_folder.defaultTags | default([]))
+        }
+        | combine(
+            lidarr_setup_existing_root_folder.id is defined
+            | ternary({'id': lidarr_setup_existing_root_folder.id}, {}),
+            recursive=True
+          )
+      }}
+
+- name: Build current Lidarr root folder state
+  ansible.builtin.set_fact:
+    lidarr_setup_current_root_folder_payload: >-
+      {{
+        lidarr_setup_existing_root_folder.id is defined
+        | ternary(
+            {
+              'id': lidarr_setup_existing_root_folder.id,
+              'name': lidarr_setup_existing_root_folder.name,
+              'path': lidarr_setup_existing_root_folder.path,
+              'defaultQualityProfileId': lidarr_setup_existing_root_folder.defaultQualityProfileId,
+              'defaultMetadataProfileId': lidarr_setup_existing_root_folder.defaultMetadataProfileId,
+              'defaultMonitorOption': lidarr_setup_existing_root_folder.defaultMonitorOption,
+              'defaultNewItemMonitorOption': lidarr_setup_existing_root_folder.defaultNewItemMonitorOption,
+              'defaultTags': lidarr_setup_existing_root_folder.defaultTags | default([])
+            },
+            {}
+          )
+      }}
+
+- name: Create Lidarr root folder when missing
+  ansible.builtin.uri:
+    url: "{{ lidarr_setup_api_url }}/api/v1/rootfolder"
+    method: POST
+    headers:
+      X-Api-Key: "{{ lidarr_setup_resolved_api_key }}"
+    validate_certs: "{{ lidarr_setup_api_validate_certs }}"
+    body_format: json
+    body: "{{ lidarr_setup_root_folder_payload }}"
+    status_code: 200
+  when: lidarr_setup_existing_root_folder.id is not defined
+
+- name: Update Lidarr root folder when changed
+  ansible.builtin.uri:
+    url: "{{ lidarr_setup_api_url }}/api/v1/rootfolder/{{
+      lidarr_setup_existing_root_folder.id }}"
+    method: PUT
+    headers:
+      X-Api-Key: "{{ lidarr_setup_resolved_api_key }}"
+    validate_certs: "{{ lidarr_setup_api_validate_certs }}"
+    body_format: json
+    body: "{{ lidarr_setup_root_folder_payload }}"
+    status_code: 200
+  when:
+    - lidarr_setup_existing_root_folder.id is defined
+    - lidarr_setup_current_root_folder_payload !=
+      lidarr_setup_root_folder_payload
