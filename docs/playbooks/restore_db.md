@@ -1,7 +1,7 @@
-# 📖 Playbook: ombi/restore_db.yml
+# 📖 Playbook: redmine/restore_db.yml
 
 ## 🛠 Purpose
-Restore Ombi PostgreSQL database from backup.
+Restore Redmine PostgreSQL database from backup.
 
 ## 🔗 Roles Applied
 - [`global`](../roles/global/README.md)
@@ -10,5 +10,5 @@ Restore Ombi PostgreSQL database from backup.
 
 ## 🚀 Usage
 ```bash
-ansible-playbook playbooks/ombi/restore_db.yml
+ansible-playbook playbooks/redmine/restore_db.yml
 ```
