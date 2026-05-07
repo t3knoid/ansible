@@ -28,6 +28,53 @@ Installs and configures Lidarr on Debian/Ubuntu systems. It uses a container dis
 | `lidarr_setup_backups_dir` | `"{{ lidarr_setup_mount_point }}/lidarr"` |  |
 | `lidarr_setup_backup_path` | `"{{ lidarr_setup_backups_dir }}/{{ lidarr_setup_backup_filename }}"` |  |
 | `lidarr_setup_restore_path` | `""` |  |
+| `lidarr_setup_api_url` | `"http://127.0.0.1:{{ lidarr_setup_port }}"` |  |
+| `lidarr_setup_api_validate_certs` | `false` |  |
+| `lidarr_setup_root_folders` | `` |  |
+| `- name` | `Music` |  |
+| `path` | `/music` |  |
+| `default_quality_profile_name` | `"Lossless"` |  |
+| `default_metadata_profile_name` | `"Standard"` |  |
+| `default_monitor_option` | `"all"` |  |
+| `default_new_item_monitor_option` | `"all"` |  |
+| `default_tags` | `[]` |  |
+| `lidarr_setup_download_clients` | `` |  |
+| `- name` | `sabnzbd` |  |
+| `implementation` | `Sabnzbd` |  |
+| `enable` | `true` |  |
+| `priority` | `1` |  |
+| `fields` | `` |  |
+| `host` | `"{{ groups['sabnzbd'][0] }}"` |  |
+| `port` | `8080` |  |
+| `category` | `music` |  |
+| `lidarr_setup_indexers` | `` |  |
+| `- name` | `nzbgeek` |  |
+| `implementation` | `Newznab` |  |
+| `enable_rss` | `true` |  |
+| `enable_automatic_search` | `true` |  |
+| `enable_interactive_search` | `true` |  |
+| `priority` | `1` |  |
+| `download_client_name` | `sabnzbd` |  |
+| `fields` | `` |  |
+| `baseUrl` | `https://api.nzbgeek.info` |  |
+| `apiKey` | `"{{ nzbgeek_api_key }}"` |  |
+| `categories` | `` |  |
+| `- name` | `nzb.su` |  |
+| `implementation` | `Newznab` |  |
+| `enable_rss` | `true` |  |
+| `enable_automatic_search` | `true` |  |
+| `enable_interactive_search` | `true` |  |
+| `priority` | `1` |  |
+| `download_client_name` | `sabnzbd` |  |
+| `fields` | `` |  |
+| `baseUrl` | `https://api.nzb.su` |  |
+| `apiKey` | `"{{ nzbsu_api_key }}"` |  |
+| `categories` | `` |  |
+| `lidarr_setup_root_folder_default_quality_profile_name` | `"Any"` |  |
+| `lidarr_setup_root_folder_default_metadata_profile_name` | `"Standard"` |  |
+| `lidarr_setup_root_folder_default_monitor_option` | `"all"` |  |
+| `lidarr_setup_root_folder_default_new_item_monitor_option` | `"all"` |  |
+| `lidarr_setup_configure_api` | `>-` |  |
 | `lidarr_setup_authentication_method` | `"External" # Options: Basic, Forms, External` |  |
 | `lidarr_setup_authentication_required` | `"DisabledForLocalAddresses" # Options: Enabled, DisabledForLocalAddresses` |  |
 
@@ -36,6 +83,7 @@ _No constant variables found._
 
 ## 📑 Tasks
 - Deploy Lidarr Docker Service
+- Configure Lidarr Through API
 
 ## 🔔 Handlers
 - Restart PostgreSQL
