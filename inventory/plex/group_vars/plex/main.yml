@@ -1,5 +1,5 @@
 ---
 
-plex_setup_version: "1.43.0.10492-121068a07"
+plex_setup_version: "1.43.1.10611-1e34174b1"
 # Use nfs share for backups
 plex_setup_backup_dir: /nfs/backups/plex
