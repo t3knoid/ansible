@@ -7,6 +7,7 @@
       --file={{ sonarr_setup_backup_path }} {{ sonarr_setup_db_name }}
   args:
     executable: /bin/bash
+  become: true
   become_user: postgres
   register: pg_backup_result
   failed_when: pg_backup_result.rc != 0
@@ -14,6 +15,7 @@
 
 - name: Keep only the latest 3 backups
   ansible.builtin.shell: |
+    set -euo pipefail
     ls -1t {{ sonarr_setup_mount_point }}/sonarr/{{ sonarr_setup_backup_prefix }}*.sqlc | tail -n +4 | xargs -r rm -f
   args:
     executable: /bin/bash
