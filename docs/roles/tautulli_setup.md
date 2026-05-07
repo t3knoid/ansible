@@ -21,6 +21,7 @@ Installs and configures an Tautulli Docker container. It uses a container distri
 | `tautulli_setup_host` | `"http://localhost:8181"` | tautulli_apikey |
 | `tautulli_setup_backups_dir` | `"/nfs/backups/tautulli"` |  |
 | `tautulli_setup_backup_dir_native` | `"{{ tautulli_setup_config_dir }}/backups"` |  |
+| `tautulli_setup_restore_path` | `""` |  |
 
 ## 📦 Vars
 _No constant variables found._
