@@ -83,11 +83,7 @@ _No constant variables found._
 - Restart PostgreSQL
 
 ## 🔗 Dependencies
-- `python3`
-- `global`
-- `autofs`
-- `users`
-- `docker_setup`
+_No dependencies listed._
 
 ## 🚀 Example Usage
 ```yaml
