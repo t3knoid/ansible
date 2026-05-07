@@ -1,0 +1,57 @@
+---
+
+- name: Find Sonarr database backups when no restore path is provided
+  ansible.builtin.find:
+    paths: "{{ sonarr_setup_backup_dir }}"
+    patterns: "{{ sonarr_setup_backup_prefix }}*.sqlc"
+    file_type: file
+  register: sonarr_setup_restore_backups
+  when: sonarr_setup_restore_path | default('') | length == 0
+
+- name: Fail when no Sonarr database backup is available
+  ansible.builtin.fail:
+    msg: >-
+      No Sonarr database backup was found in {{ sonarr_setup_backup_dir }}. Set
+      sonarr_setup_restore_path to a specific .sqlc backup file or create a backup
+      first.
+  when:
+    - sonarr_setup_restore_path | default('') | length == 0
+    - sonarr_setup_restore_backups.matched | int == 0
+
+- name: Select Sonarr database backup to restore
+  ansible.builtin.set_fact:
+    sonarr_setup_restore_source_path: >-
+      {{
+        sonarr_setup_restore_path
+        if (sonarr_setup_restore_path | default('') | length > 0)
+        else (
+          sonarr_setup_restore_backups.files
+          | sort(attribute='mtime', reverse=true)
+          | map(attribute='path')
+          | first
+        )
+      }}
+
+- name: Check selected Sonarr database backup exists
+  ansible.builtin.stat:
+    path: "{{ sonarr_setup_restore_source_path }}"
+  register: sonarr_setup_restore_backup_stat
+
+- name: Fail when selected Sonarr database backup does not exist
+  ansible.builtin.fail:
+    msg: "Sonarr database backup not found: {{ sonarr_setup_restore_source_path }}"
+  when: not sonarr_setup_restore_backup_stat.stat.exists
+
+- name: Restore PostgreSQL database using pg_restore
+  ansible.builtin.shell: |
+    set -euo pipefail
+    /usr/lib/postgresql/{{ postgresql_setup_version }}/bin/dropdb --if-exists -h {{ sonarr_setup_pg_host }} -p {{ sonarr_setup_pg_port }} {{ sonarr_setup_db_name }}
+    /usr/lib/postgresql/{{ postgresql_setup_version }}/bin/createdb --owner={{ sonarr_setup_db_user }} -h {{ sonarr_setup_pg_host }} -p {{ sonarr_setup_pg_port }} {{ sonarr_setup_db_name }}
+    /usr/lib/postgresql/{{ postgresql_setup_version }}/bin/pg_restore --dbname={{ sonarr_setup_db_name }} -h {{ sonarr_setup_pg_host }} -p {{ sonarr_setup_pg_port }} {{ sonarr_setup_restore_source_path }}
+  args:
+    executable: /bin/bash
+  become: true
+  become_user: postgres
+  register: sonarr_setup_restore_result
+  failed_when: sonarr_setup_restore_result.rc != 0
+  changed_when: true
