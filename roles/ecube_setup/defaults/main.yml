@@ -24,6 +24,6 @@ ecube_setup_pg_host: "{{ global_ip_addresses[groups['pgdb'][0]] }}"
 # ecube_setup_db_password
 ecube_setup_mount_point: /nfs/backups
 ecube_setup_backup_prefix: "ecube_"
-ecube_setup_backup_filename: "{{ ecube_setup_backup_prefix }}{{ ansible_date_time.date }}.sqlc"
+ecube_setup_backup_filename: "{{ ecube_setup_backup_prefix }}{{ ansible_date_time.iso8601_basic_short }}.sqlc"
 ecube_setup_backup_dir: "{{ ecube_setup_mount_point }}/ecube"
 ecube_setup_backup_path: "{{ ecube_setup_backup_dir }}/{{ ecube_setup_backup_filename }}"
