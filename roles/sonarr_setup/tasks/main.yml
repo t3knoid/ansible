@@ -1,5 +1,4 @@
 ---
-
 - name: Deploy Sonarr Docker Service
   ansible.builtin.import_role:
     name: docker_service_deploy
@@ -12,3 +11,7 @@
         mode: "0640"
     docker_service_deploy_compose_template: "docker-compose.yml.j2"
     docker_service_deploy_container_name: "sonarr"
+
+- name: Configure Sonarr Through API
+  ansible.builtin.import_tasks: configure_api.yml
+  when: sonarr_setup_configure_api

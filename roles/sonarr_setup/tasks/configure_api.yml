@@ -1,0 +1,147 @@
+- name: Read deployed Sonarr config file
+  no_log: true
+  ansible.builtin.slurp:
+    src: "{{ sonarr_setup_config_dir }}/config.xml"
+  register: sonarr_setup_config_xml
+  changed_when: false
+
+- name: Extract ApiKey from sonarr config file
+  community.general.xml:
+    xmlstring: "{{ sonarr_setup_config_xml.content | b64decode }}"
+    xpath: /Config/ApiKey
+    content: text
+  no_log: true
+  register: sonarr_setup_api_key
+
+- name: Resolve Sonarr API key from deployed config
+  ansible.builtin.set_fact:
+    sonarr_setup_resolved_api_key: "{{ sonarr_setup_api_key.matches[0].ApiKey | trim }}"
+
+- name: Fail when Sonarr API key cannot be resolved
+  ansible.builtin.fail:
+    msg: >-
+      Unable to resolve the Sonarr API key from {{ sonarr_setup_config_dir
+      }}/config.xml and no sonarr_setup_api_key fallback is defined.
+  when: sonarr_setup_resolved_api_key | default('') | length == 0
+
+- name: Wait for Sonarr API to become available
+  ansible.builtin.uri:
+    url: "{{ sonarr_setup_api_url }}/api/v3/system/status"
+    method: GET
+    headers:
+      X-Api-Key: "{{ sonarr_setup_resolved_api_key }}"
+    validate_certs: "{{ sonarr_setup_api_validate_certs }}"
+    status_code: 200
+  register: sonarr_setup_system_status_response
+  retries: 30
+  delay: 5
+  until: sonarr_setup_system_status_response.status == 200
+  changed_when: false
+
+- name: Get existing Sonarr root folders
+  ansible.builtin.uri:
+    url: "{{ sonarr_setup_api_url }}/api/v3/rootfolder"
+    method: GET
+    headers:
+      X-Api-Key: "{{ sonarr_setup_resolved_api_key }}"
+    validate_certs: "{{ sonarr_setup_api_validate_certs }}"
+    status_code: 200
+  register: sonarr_setup_root_folders_response
+  when: sonarr_setup_root_folders | length > 0
+  changed_when: false
+
+- name: Reconcile Sonarr root folders
+  ansible.builtin.include_tasks: configure_root_folder.yml
+  loop: "{{ sonarr_setup_root_folders }}"
+  loop_control:
+    loop_var: sonarr_root_folder
+    label: "{{ sonarr_root_folder.path }}"
+  when: sonarr_setup_root_folders | length > 0
+
+- name: Get existing Sonarr download clients
+  ansible.builtin.uri:
+    url: "{{ sonarr_setup_api_url }}/api/v3/downloadclient"
+    method: GET
+    headers:
+      X-Api-Key: "{{ sonarr_setup_resolved_api_key }}"
+    validate_certs: "{{ sonarr_setup_api_validate_certs }}"
+    status_code: 200
+  register: sonarr_setup_download_clients_response
+  when: (sonarr_setup_download_clients | length > 0) or (sonarr_setup_indexers |
+    length > 0)
+  changed_when: false
+
+- name: Get Sonarr download client schema
+  ansible.builtin.uri:
+    url: "{{ sonarr_setup_api_url }}/api/v3/downloadclient/schema"
+    method: GET
+    headers:
+      X-Api-Key: "{{ sonarr_setup_resolved_api_key }}"
+    validate_certs: "{{ sonarr_setup_api_validate_certs }}"
+    status_code: 200
+  register: sonarr_setup_download_client_schema_response
+  when: sonarr_setup_download_clients | length > 0
+  changed_when: false
+
+- name: Reconcile Sonarr download clients
+  ansible.builtin.include_tasks: configure_provider_resource.yml
+  loop: "{{ sonarr_setup_download_clients }}"
+  loop_control:
+    loop_var: sonarr_provider_item
+    label: "{{ sonarr_provider_item.name }}"
+  vars:
+    sonarr_provider_type: downloadclient
+    sonarr_provider_existing_items: "{{ sonarr_setup_download_clients_response.json }}"
+    sonarr_provider_schema_items: "{{ sonarr_setup_download_client_schema_response.json }}"
+  when: sonarr_setup_download_clients | length > 0
+
+- name: Refresh Sonarr download clients after reconciliation
+  ansible.builtin.uri:
+    url: "{{ sonarr_setup_api_url }}/api/v3/downloadclient"
+    method: GET
+    headers:
+      X-Api-Key: "{{ sonarr_setup_resolved_api_key }}"
+    validate_certs: "{{ sonarr_setup_api_validate_certs }}"
+    status_code: 200
+  register: sonarr_setup_download_clients_response
+  when: sonarr_setup_indexers | length > 0
+  changed_when: false
+
+- name: Get existing Sonarr indexers
+  ansible.builtin.uri:
+    url: "{{ sonarr_setup_api_url }}/api/v3/indexer"
+    method: GET
+    headers:
+      X-Api-Key: "{{ sonarr_setup_resolved_api_key }}"
+    validate_certs: "{{ sonarr_setup_api_validate_certs }}"
+    status_code: 200
+  register: sonarr_setup_indexers_response
+  when: sonarr_setup_indexers | length > 0
+  changed_when: false
+
+- name: Get Sonarr indexer schema
+  ansible.builtin.uri:
+    url: "{{ sonarr_setup_api_url }}/api/v3/indexer/schema"
+    method: GET
+    headers:
+      X-Api-Key: "{{ sonarr_setup_resolved_api_key }}"
+    validate_certs: "{{ sonarr_setup_api_validate_certs }}"
+    status_code: 200
+  register: sonarr_setup_indexer_schema_response
+  when: sonarr_setup_indexers | length > 0
+  changed_when: false
+
+- name: Reconcile Sonarr indexers
+  ansible.builtin.include_tasks: configure_provider_resource.yml
+  loop: "{{ sonarr_setup_indexers }}"
+  loop_control:
+    loop_var: sonarr_provider_item
+    label: "{{ sonarr_provider_item.name }}"
+  vars:
+    sonarr_provider_type: indexer
+    sonarr_provider_existing_items: "{{ sonarr_setup_indexers_response.json }}"
+    sonarr_provider_schema_items: "{{ sonarr_setup_indexer_schema_response.json }}"
+  when: sonarr_setup_indexers | length > 0
+
+# End of Sonarr API configuration tasks
+
