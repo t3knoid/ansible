@@ -41,6 +41,7 @@ Installs and configures [Semaphore UI](https://docs.semaphoreui.com/).
 | `semaphoreui_setup_backup_filename` | `"{{ semaphoreui_setup_backup_prefix }}{{ ansible_date_time.date }}.sqlc"` |  |
 | `semaphoreui_setup_backup_dir` | `"{{ semaphoreui_setup_mount_point }}/semaphoreui"` |  |
 | `semaphoreui_setup_backup_path` | `"{{ semaphoreui_setup_backup_dir }}/{{ semaphoreui_setup_backup_filename }}"` |  |
+| `semaphoreui_setup_restore_path` | `""` |  |
 | `semaphoreui_setup_api_base` | `"http://localhost:{{ semaphoreui_setup_port }}/api"` | API |
 | `semaphoreui_setup_inventories` | `[]` |  |
 | `semaphoreui_setup_projects` | `` |  |
