@@ -60,7 +60,7 @@ _No constant variables found._
 _No handlers defined._
 
 ## 🔗 Dependencies
-- `postgresql_setup`
+_No dependencies listed._
 
 ## 🚀 Example Usage
 ```yaml
