@@ -24,6 +24,7 @@ Ombi Setup installs and configures an Ombi Docker container. It uses a Docker im
 | `ombi_setup_backup_filename` | `"{{ ombi_setup_backup_prefix }}{{ ansible_date_time.iso8601_basic_short }}.sqlc"` |  |
 | `ombi_setup_backup_dir` | `"{{ ombi_setup_mount_point }}/ombi"` |  |
 | `ombi_setup_backup_path` | `"{{ ombi_setup_backup_dir }}/{{ ombi_setup_backup_filename }}"` |  |
+| `ombi_setup_restore_path` | `""` |  |
 
 ## 📦 Vars
 _No constant variables found._
