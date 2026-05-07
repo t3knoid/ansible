@@ -27,6 +27,7 @@ Installs and configures a Radarr Docker container. It uses an image distributed 
 | `radarr_setup_backup_filename` | `"{{ radarr_setup_backup_prefix }}{{ ansible_date_time.date }}.sqlc"` |  |
 | `radarr_setup_backup_dir` | `"{{ radarr_setup_mount_point }}/radarr"` |  |
 | `radarr_setup_backup_path` | `"{{ radarr_setup_backup_dir }}/{{ radarr_setup_backup_filename }}"` |  |
+| `radarr_setup_restore_path` | `""` |  |
 | `radarr_setup_api_url` | `"http://127.0.0.1:{{ radarr_setup_port }}"` |  |
 | `radarr_setup_api_validate_certs` | `false` |  |
 | `radarr_setup_root_folders` | `` |  |
