@@ -1,0 +1,461 @@
+- name: Find existing Sonarr provider resource
+  ansible.builtin.set_fact:
+    sonarr_setup_provider_existing_resource: >-
+      {{
+        (sonarr_provider_existing_items
+        | selectattr('name', 'match', '(?i)^' ~ (sonarr_provider_item.name | regex_escape) ~ '$')
+        | list
+        | first)
+        | default({})
+      }}
+
+- name: Initialize Sonarr provider item fields
+  ansible.builtin.set_fact:
+    sonarr_setup_provider_item_fields: "{{ sonarr_provider_item.fields | default({}) }}"
+
+- name: Resolve SABnzbd inventory host for Sonarr download client
+  ansible.builtin.set_fact:
+    sonarr_setup_sabnzbd_inventory_host: >-
+      {{
+        sonarr_provider_item.api_key_inventory_host
+        | default((groups.get('sabnzbd', []) | first), true)
+      }}
+  when:
+    - sonarr_provider_type == 'downloadclient'
+    - sonarr_provider_item.implementation == 'Sabnzbd'
+    - sonarr_setup_provider_item_fields.apiKey | default('') | length == 0
+
+- name: Resolve SABnzbd config path for Sonarr download client
+  ansible.builtin.set_fact:
+    sonarr_setup_sabnzbd_config_path: >-
+      {{
+        sonarr_provider_item.api_key_config_path
+        | default(
+            (hostvars[sonarr_setup_sabnzbd_inventory_host].sabnzbd_setup_config_dir | default('/config')) ~ '/sabnzbd.ini',
+            true
+          )
+      }}
+  when:
+    - sonarr_provider_type == 'downloadclient'
+    - sonarr_provider_item.implementation == 'Sabnzbd'
+    - sonarr_setup_provider_item_fields.apiKey | default('') | length == 0
+    - sonarr_setup_sabnzbd_inventory_host | default('') | length > 0
+
+- name: Read deployed SABnzbd config file
+  no_log: true
+  ansible.builtin.slurp:
+    src: "{{ sonarr_setup_sabnzbd_config_path }}"
+  register: sonarr_setup_sabnzbd_config_ini
+  delegate_to: "{{ sonarr_setup_sabnzbd_inventory_host }}"
+  when:
+    - sonarr_provider_type == 'downloadclient'
+    - sonarr_provider_item.implementation == 'Sabnzbd'
+    - sonarr_setup_provider_item_fields.apiKey | default('') | length == 0
+    - sonarr_setup_sabnzbd_inventory_host | default('') | length > 0
+  changed_when: false
+
+- name: Extract SABnzbd API key from misc section
+  no_log: true
+  ansible.builtin.set_fact:
+    sonarr_setup_sabnzbd_api_key: >-
+      {{
+        (
+          sonarr_setup_sabnzbd_config_ini.content
+          | b64decode
+          | regex_findall('(?s)\[misc\].*?\napi_key\s*=\s*([^\n]+)')
+          | map('regex_replace', '^"(.*)"$', '\\1')
+          | list
+          | join('')
+        )
+        | trim
+      }}
+  when:
+    - sonarr_provider_type == 'downloadclient'
+    - sonarr_provider_item.implementation == 'Sabnzbd'
+    - sonarr_setup_provider_item_fields.apiKey | default('') | length == 0
+    - sonarr_setup_sabnzbd_config_ini is defined
+
+- name: Copy SABnzbd API key into Sonarr provider fields
+  no_log: true
+  ansible.builtin.set_fact:
+    sonarr_setup_provider_item_fields: >-
+      {{
+        sonarr_setup_provider_item_fields
+        | combine({'apiKey': sonarr_setup_sabnzbd_api_key}, recursive=True)
+      }}
+  when:
+    - sonarr_provider_type == 'downloadclient'
+    - sonarr_provider_item.implementation == 'Sabnzbd'
+    - sonarr_setup_sabnzbd_api_key | default('') | length > 0
+
+- name: Normalize SABnzbd category field for Sonarr schema
+  ansible.builtin.set_fact:
+    sonarr_setup_provider_item_fields: >-
+      {{
+        (sonarr_setup_provider_item_fields
+        | dict2items
+        | rejectattr('key', 'equalto', 'category')
+        | items2dict)
+        | combine({'tvCategory': sonarr_setup_provider_item_fields.category}, recursive=True)
+      }}
+  when:
+    - sonarr_provider_type == 'downloadclient'
+    - sonarr_provider_item.implementation == 'Sabnzbd'
+    - sonarr_setup_provider_item_fields.category is defined
+    - sonarr_setup_provider_item_fields.tvCategory is not defined
+
+- name: Fail when SABnzbd API key cannot be resolved
+  ansible.builtin.fail:
+    msg: >-
+      Unable to resolve the SABnzbd API key for Sonarr download client {{
+      sonarr_provider_item.name }}. Define fields.apiKey, set
+      api_key_inventory_host, or set api_key_config_path.
+  no_log: true
+  when:
+    - sonarr_provider_type == 'downloadclient'
+    - sonarr_provider_item.implementation == 'Sabnzbd'
+    - sonarr_setup_provider_item_fields.apiKey | default('') | length == 0
+
+- name: Find Sonarr provider schema
+  ansible.builtin.set_fact:
+    sonarr_setup_provider_schema_resource: >-
+      {{
+        (sonarr_provider_schema_items
+        | selectattr('implementation', 'equalto', sonarr_provider_item.implementation)
+        | list
+        | first)
+        | default({})
+      }}
+
+- name: Select Sonarr provider base resource
+  ansible.builtin.set_fact:
+    sonarr_setup_provider_base_resource: >-
+      {{
+        sonarr_setup_provider_existing_resource
+        if (sonarr_setup_provider_existing_resource.id is defined)
+        else sonarr_setup_provider_schema_resource
+      }}
+
+- name: Fail when Sonarr provider has no schema or existing resource
+  ansible.builtin.fail:
+    msg: >-
+      Unable to find a Sonarr {{ sonarr_provider_type }} schema for
+      implementation {{ sonarr_provider_item.implementation }} while reconciling
+      {{ sonarr_provider_item.name }}.
+  when: sonarr_setup_provider_base_resource == {}
+
+- name: Validate Sonarr provider field names
+  ansible.builtin.fail:
+    msg: >-
+      Unknown fields for Sonarr {{ sonarr_provider_type }} {{
+      sonarr_provider_item.name }}: {{ sonarr_setup_provider_unknown_fields |
+      join(', ') }}
+  vars:
+    sonarr_setup_provider_unknown_fields: >-
+      {{
+        sonarr_setup_provider_item_fields.keys()
+        | difference((sonarr_setup_provider_base_resource.fields | default([])) | map(attribute='name') | list)
+      }}
+  when:
+    - sonarr_setup_provider_item_fields | length > 0
+    - sonarr_setup_provider_unknown_fields | length > 0
+
+- name: Initialize Sonarr provider fields
+  ansible.builtin.set_fact:
+    sonarr_setup_provider_fields: []
+
+- name: Build Sonarr provider fields
+  ansible.builtin.set_fact:
+    sonarr_setup_provider_fields: >-
+      {{
+        sonarr_setup_provider_fields + [
+          sonarr_provider_field
+          | combine(
+              (
+                sonarr_provider_field.name in sonarr_setup_provider_item_fields
+              )
+              | ternary({'value': sonarr_setup_provider_item_fields[sonarr_provider_field.name]}, {}),
+              recursive=True
+            )
+        ]
+      }}
+  loop: "{{ sonarr_setup_provider_base_resource.fields | default([]) }}"
+  loop_control:
+    loop_var: sonarr_provider_field
+    label: "{{ sonarr_provider_field.name }}"
+
+- name: Initialize Sonarr provider payload
+  ansible.builtin.set_fact:
+    sonarr_setup_provider_payload:
+      name: "{{ sonarr_provider_item.name }}"
+      implementation: "{{ sonarr_setup_provider_base_resource.implementation }}"
+      implementationName: "{{ sonarr_setup_provider_base_resource.implementationName }}"
+      configContract: "{{ sonarr_setup_provider_base_resource.configContract }}"
+      protocol: "{{ sonarr_provider_item.protocol |
+        default(sonarr_setup_provider_base_resource.protocol) }}"
+      tags: "{{ sonarr_provider_item.tags |
+        default(sonarr_setup_provider_base_resource.tags | default([])) }}"
+      fields: "{{ sonarr_setup_provider_fields }}"
+
+- name: Add existing Sonarr provider id to payload
+  ansible.builtin.set_fact:
+    sonarr_setup_provider_payload: >-
+      {{
+        sonarr_setup_provider_payload
+        | combine({'id': sonarr_setup_provider_existing_resource.id}, recursive=True)
+      }}
+  when: sonarr_setup_provider_existing_resource.id is defined
+
+- name: Resolve Sonarr indexer download client id
+  ansible.builtin.set_fact:
+    sonarr_setup_provider_resolved_download_client_id: >-
+      {{
+        sonarr_provider_item.download_client_id
+        | default(
+            (
+              sonarr_setup_download_clients_response.json
+              | selectattr('name', 'equalto', sonarr_provider_item.download_client_name)
+              | map(attribute='id')
+              | list
+              | first
+            )
+          )
+      }}
+  when:
+    - sonarr_provider_type == 'indexer'
+    - sonarr_provider_item.download_client_id is defined or
+      sonarr_provider_item.download_client_name is defined
+
+- name: Add download client settings to Sonarr provider payload
+  ansible.builtin.set_fact:
+    sonarr_setup_provider_payload: >-
+      {{
+        sonarr_setup_provider_payload
+        | combine(
+            {
+              'enable': sonarr_provider_item.enable | default(sonarr_setup_provider_base_resource.enable),
+              'priority': sonarr_provider_item.priority | default(sonarr_setup_provider_base_resource.priority),
+              'removeCompletedDownloads': sonarr_setup_remove_completed_downloads,
+              'removeFailedDownloads': sonarr_setup_remove_failed_downloads
+            },
+            recursive=True
+          )
+      }}
+  vars:
+    sonarr_setup_remove_completed_downloads: >-
+      {{
+        sonarr_provider_item.remove_completed_downloads
+        | default(
+            sonarr_provider_item.removeCompletedDownloads
+            | default(sonarr_setup_provider_base_resource.removeCompletedDownloads)
+          )
+      }}
+    sonarr_setup_remove_failed_downloads: >-
+      {{
+        sonarr_provider_item.remove_failed_downloads
+        | default(
+            sonarr_provider_item.removeFailedDownloads
+            | default(sonarr_setup_provider_base_resource.removeFailedDownloads)
+          )
+      }}
+  when: sonarr_provider_type == 'downloadclient'
+
+- name: Add indexer settings to Sonarr provider payload
+  ansible.builtin.set_fact:
+    sonarr_setup_provider_payload: >-
+      {{
+        sonarr_setup_provider_payload
+        | combine(
+            {
+              'enableRss': sonarr_setup_enable_rss,
+              'enableAutomaticSearch': sonarr_setup_enable_automatic_search,
+              'enableInteractiveSearch': sonarr_setup_enable_interactive_search,
+              'priority': sonarr_provider_item.priority | default(sonarr_setup_provider_base_resource.priority)
+            },
+            recursive=True
+          )
+      }}
+  vars:
+    sonarr_setup_enable_rss: >-
+      {{
+        sonarr_provider_item.enable_rss
+        | default(sonarr_provider_item.enableRss | default(sonarr_setup_provider_base_resource.enableRss))
+      }}
+    sonarr_setup_enable_automatic_search: >-
+      {{
+        sonarr_provider_item.enable_automatic_search
+        | default(
+            sonarr_provider_item.enableAutomaticSearch
+            | default(sonarr_setup_provider_base_resource.enableAutomaticSearch)
+          )
+      }}
+    sonarr_setup_enable_interactive_search: >-
+      {{
+        sonarr_provider_item.enable_interactive_search
+        | default(
+            sonarr_provider_item.enableInteractiveSearch
+            | default(sonarr_setup_provider_base_resource.enableInteractiveSearch)
+          )
+      }}
+  when: sonarr_provider_type == 'indexer'
+
+- name: Add indexer download client to Sonarr provider payload
+  ansible.builtin.set_fact:
+    sonarr_setup_provider_payload: >-
+      {{
+        sonarr_setup_provider_payload
+        | combine(
+            {'downloadClientId': sonarr_setup_provider_resolved_download_client_id},
+            recursive=True
+          )
+      }}
+  when:
+    - sonarr_provider_type == 'indexer'
+    - sonarr_setup_provider_resolved_download_client_id is defined
+
+- name: Fail when Sonarr indexer download client cannot be resolved
+  ansible.builtin.fail:
+    msg: >-
+      Unable to resolve download client for Sonarr indexer {{
+      sonarr_provider_item.name }}. Set download_client_id or a valid
+      download_client_name.
+  when:
+    - sonarr_provider_type == 'indexer'
+    - sonarr_provider_item.download_client_id is defined or
+      sonarr_provider_item.download_client_name is defined
+    - sonarr_setup_provider_resolved_download_client_id is not defined or
+      sonarr_setup_provider_resolved_download_client_id | string | length == 0
+
+- name: Build current Sonarr provider payload
+  ansible.builtin.set_fact:
+    sonarr_setup_provider_current_payload: >-
+      {{
+        sonarr_setup_provider_existing_resource.id is defined
+        | ternary(
+            {
+              'id': sonarr_setup_provider_existing_resource.id,
+              'name': sonarr_setup_provider_existing_resource.name,
+              'implementation': sonarr_setup_provider_existing_resource.implementation,
+              'implementationName': sonarr_setup_provider_existing_resource.implementationName,
+              'configContract': sonarr_setup_provider_existing_resource.configContract,
+              'protocol': sonarr_setup_provider_existing_resource.protocol,
+              'tags': sonarr_setup_provider_existing_resource.tags | default([]),
+              'fields': sonarr_setup_provider_existing_resource.fields | default([])
+            }
+            | combine(
+              (sonarr_provider_type == 'downloadclient')
+                | ternary(
+                    {
+                      'enable': sonarr_setup_provider_existing_resource.enable,
+                      'priority': sonarr_setup_provider_existing_resource.priority,
+                      'removeCompletedDownloads': sonarr_setup_provider_existing_resource.removeCompletedDownloads,
+                      'removeFailedDownloads': sonarr_setup_provider_existing_resource.removeFailedDownloads
+                    },
+                    {}
+                  ),
+                recursive=True
+              )
+            | combine(
+                (sonarr_provider_type == 'indexer')
+                | ternary(
+                    {
+                      'enableRss': sonarr_setup_provider_existing_resource.enableRss,
+                      'enableAutomaticSearch': sonarr_setup_provider_existing_resource.enableAutomaticSearch,
+                      'enableInteractiveSearch': sonarr_setup_provider_existing_resource.enableInteractiveSearch,
+                      'priority': sonarr_setup_provider_existing_resource.priority,
+                      'downloadClientId': sonarr_setup_provider_existing_resource.downloadClientId
+                    },
+                    {}
+                  ),
+                recursive=True
+              ),
+            {}
+          )
+      }}
+
+- name: Create Sonarr provider resource when missing
+  no_log: true
+  ansible.builtin.uri:
+    url: "{{ sonarr_setup_api_url }}/api/v3/{{ sonarr_provider_type
+      }}?forceSave=true"
+    method: POST
+    headers:
+      X-Api-Key: "{{ sonarr_setup_resolved_api_key }}"
+    validate_certs: "{{ sonarr_setup_api_validate_certs }}"
+    body_format: json
+    body: "{{ sonarr_setup_provider_payload }}"
+    return_content: true
+  register: sonarr_setup_provider_create_response
+  failed_when: false
+  when: sonarr_setup_provider_existing_resource.id is not defined
+
+- name: Fail when Sonarr provider create is rejected
+  ansible.builtin.fail:
+    msg: >-
+      Sonarr rejected {{ sonarr_provider_type }} '{{ sonarr_provider_item.name
+      }}' ({{ sonarr_provider_item.implementation }}) during create with HTTP {{
+      sonarr_setup_provider_create_response.status | default('unknown') }}.
+      Response: {{ sonarr_setup_provider_create_error_details | default('No
+      response body returned.') }}
+  vars:
+    sonarr_setup_provider_create_error_details: >-
+      {{
+        (
+          (sonarr_setup_provider_create_response.json is defined)
+          | ternary(
+              sonarr_setup_provider_create_response.json | to_json,
+              sonarr_setup_provider_create_response.content
+                | default(sonarr_setup_provider_create_response.msg | default('No response body returned.'))
+            )
+        )
+        | regex_replace('\"(apiKey|password|passkey|token|secret)\"\\s*:\\s*\"[^\"]*\"', '"\\1":"***"')
+      }}
+  when:
+    - sonarr_setup_provider_existing_resource.id is not defined
+    - sonarr_setup_provider_create_response.status | default(0) not in [200,
+      201, 202]
+
+- name: Update Sonarr provider resource when changed
+  no_log: true
+  ansible.builtin.uri:
+    url: "{{ sonarr_setup_api_url }}/api/v3/{{ sonarr_provider_type }}/{{
+      sonarr_setup_provider_existing_resource.id }}?forceSave=true"
+    method: PUT
+    headers:
+      X-Api-Key: "{{ sonarr_setup_resolved_api_key }}"
+    validate_certs: "{{ sonarr_setup_api_validate_certs }}"
+    body_format: json
+    body: "{{ sonarr_setup_provider_payload }}"
+    return_content: true
+  register: sonarr_setup_provider_update_response
+  failed_when: false
+  when:
+    - sonarr_setup_provider_existing_resource.id is defined
+    - sonarr_setup_provider_current_payload != sonarr_setup_provider_payload
+
+- name: Fail when Sonarr provider update is rejected
+  ansible.builtin.fail:
+    msg: >-
+      Sonarr rejected {{ sonarr_provider_type }} '{{ sonarr_provider_item.name
+      }}' ({{ sonarr_provider_item.implementation }}) during update with HTTP {{
+      sonarr_setup_provider_update_response.status | default('unknown') }}.
+      Response: {{ sonarr_setup_provider_update_error_details | default('No
+      response body returned.') }}
+  vars:
+    sonarr_setup_provider_update_error_details: >-
+      {{
+        (
+          (sonarr_setup_provider_update_response.json is defined)
+          | ternary(
+              sonarr_setup_provider_update_response.json | to_json,
+              sonarr_setup_provider_update_response.content
+                | default(sonarr_setup_provider_update_response.msg | default('No response body returned.'))
+            )
+        )
+        | regex_replace('\"(apiKey|password|passkey|token|secret)\"\\s*:\\s*\"[^\"]*\"', '"\\1":"***"')
+      }}
+  when:
+    - sonarr_setup_provider_existing_resource.id is defined
+    - sonarr_setup_provider_current_payload != sonarr_setup_provider_payload
+    - sonarr_setup_provider_update_response.status | default(0) not in [200,
+      201, 202]
