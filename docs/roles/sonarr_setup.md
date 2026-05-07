@@ -27,6 +27,7 @@ Installs and configures a Sonarr Docker container. It uses a container distribut
 | `sonarr_setup_backup_filename` | `"{{ sonarr_setup_backup_prefix }}{{ ansible_date_time.date }}.sqlc"` |  |
 | `sonarr_setup_backups_dir` | `"{{ sonarr_setup_mount_point }}/sonarr"` |  |
 | `sonarr_setup_backup_path` | `"{{ sonarr_setup_backups_dir }}/{{ sonarr_setup_backup_filename }}"` |  |
+| `sonarr_setup_restore_path` | `""` |  |
 | `sonarr_setup_api_url` | `"http://127.0.0.1:{{ sonarr_setup_port }}"` |  |
 | `sonarr_setup_api_validate_certs` | `false` |  |
 | `sonarr_setup_root_folders` | `` |  |
