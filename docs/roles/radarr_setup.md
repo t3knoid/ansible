@@ -27,14 +27,56 @@ Installs and configures a Radarr Docker container. It uses an image distributed 
 | `radarr_setup_backup_filename` | `"{{ radarr_setup_backup_prefix }}{{ ansible_date_time.date }}.sqlc"` |  |
 | `radarr_setup_backup_dir` | `"{{ radarr_setup_mount_point }}/radarr"` |  |
 | `radarr_setup_backup_path` | `"{{ radarr_setup_backup_dir }}/{{ radarr_setup_backup_filename }}"` |  |
-| `radarr_setup_authentication_method` | `"External"  # Options: Basic, Forms, External` |  |
-| `radarr_setup_authentication_required` | `"DisabledForLocalAddresses"  # Options: Enabled, DisabledForLocalAddresses` |  |
+| `radarr_setup_api_url` | `"http://127.0.0.1:{{ radarr_setup_port }}"` |  |
+| `radarr_setup_api_validate_certs` | `false` |  |
+| `radarr_setup_root_folders` | `` |  |
+| `- path` | `/movies` |  |
+| `radarr_setup_download_clients` | `` |  |
+| `- name` | `sabnzbd.refol.us` |  |
+| `implementation` | `Sabnzbd` |  |
+| `enable` | `true` |  |
+| `priority` | `1` |  |
+| `remove_completed_downloads` | `true` |  |
+| `remove_failed_downloads` | `true` |  |
+| `fields` | `` |  |
+| `host` | `192.168.20.153` |  |
+| `port` | `8080` |  |
+| `useSsl` | `false` |  |
+| `username` | `frank` |  |
+| `movieCategory` | `movies` |  |
+| `radarr_setup_indexers` | `` |  |
+| `- name` | `Nzb.su` |  |
+| `implementation` | `Newznab` |  |
+| `enable_rss` | `true` |  |
+| `enable_automatic_search` | `true` |  |
+| `enable_interactive_search` | `true` |  |
+| `priority` | `25` |  |
+| `fields` | `` |  |
+| `baseUrl` | `https://api.nzb.su` |  |
+| `apiPath` | `/api` |  |
+| `apiKey` | `"{{ nzbsu_api_key }}"` |  |
+| `categories` | `` |  |
+| `- name` | `NZBgeek` |  |
+| `implementation` | `Newznab` |  |
+| `enable_rss` | `true` |  |
+| `enable_automatic_search` | `true` |  |
+| `enable_interactive_search` | `true` |  |
+| `priority` | `25` |  |
+| `fields` | `` |  |
+| `baseUrl` | `https://api.nzbgeek.info` |  |
+| `apiPath` | `/api` |  |
+| `apiKey` | `"{{ nzbgeek_api_key }}"` |  |
+| `categories` | `` |  |
+| `radarr_setup_configure_api` | `>-` |  |
+| `radarr_setup_authentication_method` | `"External" # Options: Basic, Forms, External` |  |
+| `radarr_setup_authentication_required` | `"DisabledForLocalAddresses" # Options: Enabled, DisabledForLocalAddresses` |  |
 
 ## 📦 Vars
 _No constant variables found._
 
 ## 📑 Tasks
 - Deploy Radarr Docker Service
+- Configure Radarr Through API
 
 ## 🔔 Handlers
 - Restart PostgreSQL
