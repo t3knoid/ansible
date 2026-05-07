@@ -53,6 +53,7 @@
 | [`grafana/backup_db.yml`](./backup_db.md) | Backup Grafana database to NFS share |
 | [`grafana/create_db.yml`](./create_db.md) | Create PostgreSQL database for Grafana on the database server |
 | [`grafana/deploy_grafana.yml`](./deploy_grafana.md) | Deploy Grafana monitoring tool on Grafana hosts |
+| [`grafana/restore_db.yml`](./restore_db.md) | Restore Grafana PostgreSQL database from backup. |
 | [`graphite/deploy_graphite.yml`](./deploy_graphite.md) | Install and configure Graphite monitoring tool on all hosts |
 | [`graphite/restart_carbon_cache.yml`](./restart_carbon_cache.md) | Restart the carbon-cache service on Graphite hosts |
 | [`graphite/start_carbon_cache.yml`](./start_carbon_cache.md) | Start the carbon-cache service on Graphite hosts |
@@ -88,7 +89,7 @@
 | [`plex/backup_plex.yml`](./backup_plex.md) | Backup Plex Media Server configuration on plex hosts |
 | [`plex/deploy_plex.yml`](./deploy_plex.md) | Install and configure Plex Media Server on plex hosts |
 | [`postgresql/deploy_postgresql.yml`](./deploy_postgresql.md) | Install and configure PostgreSQL on pgdb hosts |
-| [`prometheus/backup_db.yml`](./backup_db.md) | Backup Prometheus database to NFS share |
+| [`prometheus/backup_db.yml`](./backup_db.md) | Create a point-in-time copy of all current data stored in Prometheus. |
 | [`prometheus/deploy_node_exporter.yml`](./deploy_node_exporter.md) | Deploy Node Exporter on Prometheus hosts |
 | [`prometheus/deploy_prometheus.yml`](./deploy_prometheus.md) | Deploy Prometheus monitoring system |
 | [`proxmox/deploy_ceph.yml`](./deploy_ceph.md) | Install Ceph storage cluster on Proxmox nodes |
