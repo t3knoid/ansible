@@ -126,6 +126,7 @@
 | [`services/deploy_sabnzbd.yml`](../docs/playbooks/deploy_sabnzbd.md) | Installs Sabnzbd application. |
 | [`services/deploy_sonarr.yml`](../docs/playbooks/deploy_sonarr.md) | Installs Sonarr application. |
 | [`services/restore_lidarr_db.yml`](../docs/playbooks/restore_lidarr_db.md) | Restore Lidarr PostgreSQL database from backup. |
+| [`services/restore_ombi_db.yml`](../docs/playbooks/restore_ombi_db.md) | Restore Ombi PostgreSQL database from backup. |
 | [`services/start_all.yml`](../docs/playbooks/start_all.md) | Starts all media services. |
 | [`services/start_lidarr.yml`](../docs/playbooks/start_lidarr.md) | Starts Lidarr service. |
 | [`services/start_radarr.yml`](../docs/playbooks/start_radarr.md) | Starts Radarr service. |
