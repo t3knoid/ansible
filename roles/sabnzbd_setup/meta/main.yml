@@ -16,8 +16,3 @@ galaxy_info:
       versions:
         - bionic
         - focal
-dependencies:
-  - role: global
-  - role: users
-  - role: autofs
-  - role: docker_setup
