@@ -121,7 +121,7 @@
 | [`services/deploy_calibre.yml`](../docs/playbooks/deploy_calibre.md) | Installs Calibre application. |
 | [`services/deploy_calibreweb.yml`](../docs/playbooks/deploy_calibreweb.md) | Installs Calibreweb application. |
 | [`services/deploy_lazylibrarian.yml`](../docs/playbooks/deploy_lazylibrarian.md) | Installs Lazy Librarian application. |
-| [`services/deploy_lidarr.yml`](../docs/playbooks/deploy_lidarr.md) | Installs Lidarr application. |
+| [`services/deploy_lidarr.yml`](../docs/playbooks/deploy_lidarr.md) | Installs Lidarr application. - name: Create Lidarr postgresql database import_playbook: create_lidarr_db.yml |
 | [`services/deploy_radarr.yml`](../docs/playbooks/deploy_radarr.md) | Installs Radarr application. |
 | [`services/deploy_sabnzbd.yml`](../docs/playbooks/deploy_sabnzbd.md) | Installs Sabnzbd application. |
 | [`services/deploy_sonarr.yml`](../docs/playbooks/deploy_sonarr.md) | Installs Sonarr application. |
