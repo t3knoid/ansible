@@ -1,0 +1,47 @@
+---
+
+# Purpose: Restore Tautulli PostgreSQL database from backup.
+
+- name: Stop Tautulli before restoring the database
+  hosts: tautulli
+  become: true
+  gather_facts: true
+  roles:
+    - global
+
+  tasks:
+    - name: Stop Tautulli container
+      ansible.builtin.import_role:
+        name: docker_service_deploy
+        tasks_from: stop.yml
+      vars:
+        docker_service_deploy_container_name: "tautulli"
+
+- name: Restore Tautulli database on PostgreSQL host
+  hosts: pgdb
+  become: true
+  gather_facts: true
+  roles:
+    - global
+
+  tasks:
+    - name: Import database_restore.yml from tautulli_setup role
+      ansible.builtin.import_role:
+        name: tautulli_setup
+        tasks_from: database_restore.yml
+
+- name: Start Tautulli after restoring the database
+  hosts: tautulli
+  become: true
+  gather_facts: true
+  roles:
+    - global
+
+  tasks:
+    - name: Start Tautulli container
+      ansible.builtin.import_role:
+        name: docker_service_deploy
+        tasks_from: start.yml
+      vars:
+        docker_service_deploy_container_name: "tautulli"
+        docker_service_deploy_config_dir: "{{ tautulli_setup_config_dir | default('/config') }}"
