@@ -47,6 +47,7 @@
 | [`pbs`](./pbs.md) | Installs and configures Proxmox Backup Server on Ubuntu systems. |
 | [`pihole`](./pihole.md) | Installs and configures Pi-hole on Ubuntu systems (https://pi-hole.net/). Provides tasks to manage Pi-hole settings and configurations. |
 | [`playwright`](./playwright.md) | Installs playwright. |
+| [`prometheus_setup`](./prometheus_setup.md) | Installs and configures a Prometheus monitoring system on Debian/Ubuntu. |
 | [`pve`](./pve.md) | Contains tasks to manage the Proxmox Virtual Environment |
 | [`pxeserver_setup`](./pxeserver_setup.md) | The pxeserver_setup role is used to install and configure a [PXE server](https://ubuntu.com/server/docs/how-to-netboot-the-server-installer-on-amd64). For this to work under TP-Link Omada router, enable the "Legal DHCP Servers" setting and set it to the PXE server IP address. |
 | [`python3`](./python3.md) | Installs Python 3 from the Python Software Foundation (PSF) repository. There is also an alternate option is to compile Python 3 from source. |
