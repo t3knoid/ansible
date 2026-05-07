@@ -44,6 +44,7 @@ semaphoreui_setup_backup_prefix: "semaphoreui_"
 semaphoreui_setup_backup_filename: "{{ semaphoreui_setup_backup_prefix }}{{ ansible_date_time.date }}.sqlc"
 semaphoreui_setup_backup_dir: "{{ semaphoreui_setup_mount_point }}/semaphoreui"
 semaphoreui_setup_backup_path: "{{ semaphoreui_setup_backup_dir }}/{{ semaphoreui_setup_backup_filename }}"
+semaphoreui_setup_restore_path: ""
 
 # API
 semaphoreui_setup_api_base: "http://localhost:{{ semaphoreui_setup_port }}/api"
