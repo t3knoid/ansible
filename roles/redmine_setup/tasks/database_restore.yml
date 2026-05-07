@@ -11,9 +11,9 @@
 - name: Fail when no Redmine database backup is available
   ansible.builtin.fail:
     msg: >-
-      No Redmine database backup was found in {{ redmine_setup_backup_dir }}. Set
-      redmine_setup_restore_path to a specific .sqlc backup file or create a backup
-      first.
+      No Redmine database backup was found in {{ redmine_setup_backup_dir }}.
+      Set redmine_setup_restore_path to a specific .sqlc backup file or create a
+      backup first.
   when:
     - redmine_setup_restore_path | default('') | length == 0
     - redmine_setup_restore_backups.matched | int == 0
@@ -39,17 +39,33 @@
 
 - name: Fail when selected Redmine database backup does not exist
   ansible.builtin.fail:
-    msg: "Redmine database backup not found: {{ redmine_setup_restore_source_path }}"
+    msg: "Redmine database backup not found: {{ redmine_setup_restore_source_path
+      }}"
   when: not redmine_setup_restore_backup_stat.stat.exists
 
 - name: Restore PostgreSQL database using pg_restore
   ansible.builtin.shell: |
     set -euo pipefail
-    /usr/lib/postgresql/{{ postgresql_setup_version }}/bin/dropdb --if-exists -h {{ redmine_setup_pg_host }} -p {{ redmine_setup_pg_port }} {{ redmine_setup_db_name }}
-    /usr/lib/postgresql/{{ postgresql_setup_version }}/bin/createdb --owner={{ redmine_setup_db_user }} -h {{ redmine_setup_pg_host }} -p {{ redmine_setup_pg_port }} {{ redmine_setup_db_name }}
-    /usr/lib/postgresql/{{ postgresql_setup_version }}/bin/pg_restore --dbname={{ redmine_setup_db_name }} -h {{ redmine_setup_pg_host }} -p {{ redmine_setup_pg_port }} {{ redmine_setup_restore_source_path }}
+    pg_bin="/usr/lib/postgresql/{{ postgresql_setup_version }}/bin"
+    "$pg_bin/dropdb" \
+      --if-exists \
+      -h {{ redmine_setup_pg_host }} \
+      -p {{ redmine_setup_pg_port }} \
+      {{ redmine_setup_db_name }}
+    "$pg_bin/createdb" \
+      --owner={{ redmine_setup_db_user }} \
+      -h {{ redmine_setup_pg_host }} \
+      -p {{ redmine_setup_pg_port }} \
+      {{ redmine_setup_db_name }}
+    "$pg_bin/pg_restore" \
+      --dbname={{ redmine_setup_db_name }} \
+      -h {{ redmine_setup_pg_host }} \
+      -p {{ redmine_setup_pg_port }} \
+      {{ redmine_setup_restore_source_path }}
   args:
     executable: /bin/bash
+  environment:
+    PGPASSFILE: /var/lib/postgresql/.pgpass
   become: true
   become_user: postgres
   register: redmine_setup_restore_result
