@@ -1,0 +1,57 @@
+---
+
+- name: Find Ombi database backups when no restore path is provided
+  ansible.builtin.find:
+    paths: "{{ ombi_setup_backup_dir }}"
+    patterns: "{{ ombi_setup_backup_prefix }}*.sqlc"
+    file_type: file
+  register: ombi_setup_restore_backups
+  when: ombi_setup_restore_path | default('') | length == 0
+
+- name: Fail when no Ombi database backup is available
+  ansible.builtin.fail:
+    msg: >-
+      No Ombi database backup was found in {{ ombi_setup_backup_dir }}. Set
+      ombi_setup_restore_path to a specific .sqlc backup file or create a backup
+      first.
+  when:
+    - ombi_setup_restore_path | default('') | length == 0
+    - ombi_setup_restore_backups.matched | int == 0
+
+- name: Select Ombi database backup to restore
+  ansible.builtin.set_fact:
+    ombi_setup_restore_source_path: >-
+      {{
+        ombi_setup_restore_path
+        if (ombi_setup_restore_path | default('') | length > 0)
+        else (
+          ombi_setup_restore_backups.files
+          | sort(attribute='mtime', reverse=true)
+          | map(attribute='path')
+          | first
+        )
+      }}
+
+- name: Check selected Ombi database backup exists
+  ansible.builtin.stat:
+    path: "{{ ombi_setup_restore_source_path }}"
+  register: ombi_setup_restore_backup_stat
+
+- name: Fail when selected Ombi database backup does not exist
+  ansible.builtin.fail:
+    msg: "Ombi database backup not found: {{ ombi_setup_restore_source_path }}"
+  when: not ombi_setup_restore_backup_stat.stat.exists
+
+- name: Restore PostgreSQL database using pg_restore
+  ansible.builtin.shell: |
+    set -euo pipefail
+    /usr/lib/postgresql/{{ postgresql_setup_version }}/bin/dropdb --if-exists -h {{ ombi_setup_pg_host }} -p {{ ombi_setup_pg_port }} {{ ombi_setup_db_name }}
+    /usr/lib/postgresql/{{ postgresql_setup_version }}/bin/createdb --owner={{ ombi_setup_db_user }} -h {{ ombi_setup_pg_host }} -p {{ ombi_setup_pg_port }} {{ ombi_setup_db_name }}
+    /usr/lib/postgresql/{{ postgresql_setup_version }}/bin/pg_restore --dbname={{ ombi_setup_db_name }} -h {{ ombi_setup_pg_host }} -p {{ ombi_setup_pg_port }} {{ ombi_setup_restore_source_path }}
+  args:
+    executable: /bin/bash
+  become: true
+  become_user: postgres
+  register: ombi_setup_restore_result
+  failed_when: ombi_setup_restore_result.rc != 0
+  changed_when: true
