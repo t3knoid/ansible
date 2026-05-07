@@ -1,0 +1,47 @@
+---
+
+# Purpose: Restore Radarr PostgreSQL database from backup.
+
+- name: Stop Radarr before restoring the database
+  hosts: radarr
+  become: true
+  gather_facts: true
+  roles:
+    - global
+
+  tasks:
+    - name: Stop Radarr container
+      ansible.builtin.import_role:
+        name: docker_service_deploy
+        tasks_from: stop.yml
+      vars:
+        docker_service_deploy_container_name: "radarr"
+
+- name: Restore Radarr database on PostgreSQL host
+  hosts: pgdb
+  become: true
+  gather_facts: true
+  roles:
+    - global
+
+  tasks:
+    - name: Import database_restore.yml from radarr_setup role
+      ansible.builtin.import_role:
+        name: radarr_setup
+        tasks_from: database_restore.yml
+
+- name: Start Radarr after restoring the database
+  hosts: radarr
+  become: true
+  gather_facts: true
+  roles:
+    - global
+
+  tasks:
+    - name: Start Radarr container
+      ansible.builtin.import_role:
+        name: docker_service_deploy
+        tasks_from: start.yml
+      vars:
+        docker_service_deploy_container_name: "radarr"
+        docker_service_deploy_config_dir: "{{ radarr_setup_config_dir | default('/config') }}"
