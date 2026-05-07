@@ -1,0 +1,47 @@
+---
+
+# Purpose: Restore Lidarr PostgreSQL database from backup.
+
+- name: Stop Lidarr before restoring the database
+  hosts: lidarr
+  become: true
+  gather_facts: true
+  roles:
+    - global
+
+  tasks:
+    - name: Stop Lidarr container
+      ansible.builtin.import_role:
+        name: docker_service_deploy
+        tasks_from: stop.yml
+      vars:
+        docker_service_deploy_container_name: "lidarr"
+
+- name: Restore Lidarr database on PostgreSQL host
+  hosts: pgdb
+  become: true
+  gather_facts: true
+  roles:
+    - global
+
+  tasks:
+    - name: Import database_restore.yml from lidarr_setup role
+      ansible.builtin.import_role:
+        name: lidarr_setup
+        tasks_from: database_restore.yml
+
+- name: Start Lidarr after restoring the database
+  hosts: lidarr
+  become: true
+  gather_facts: true
+  roles:
+    - global
+
+  tasks:
+    - name: Start Lidarr container
+      ansible.builtin.import_role:
+        name: docker_service_deploy
+        tasks_from: start.yml
+      vars:
+        docker_service_deploy_container_name: "lidarr"
+        docker_service_deploy_config_dir: "{{ lidarr_setup_config_dir | default('/config') }}"

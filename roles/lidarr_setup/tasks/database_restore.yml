@@ -1,0 +1,57 @@
+---
+
+- name: Find Lidarr database backups when no restore path is provided
+  ansible.builtin.find:
+    paths: "{{ lidarr_setup_backups_dir }}"
+    patterns: "{{ lidarr_setup_backup_prefix }}*.sqlc"
+    file_type: file
+  register: lidarr_setup_restore_backups
+  when: lidarr_setup_restore_path | default('') | length == 0
+
+- name: Fail when no Lidarr database backup is available
+  ansible.builtin.fail:
+    msg: >-
+      No Lidarr database backup was found in {{ lidarr_setup_backups_dir }}. Set
+      lidarr_setup_restore_path to a specific .sqlc backup file or create a
+      backup first.
+  when:
+    - lidarr_setup_restore_path | default('') | length == 0
+    - lidarr_setup_restore_backups.matched | int == 0
+
+- name: Select Lidarr database backup to restore
+  ansible.builtin.set_fact:
+    lidarr_setup_restore_source_path: >-
+      {{
+        lidarr_setup_restore_path
+        if (lidarr_setup_restore_path | default('') | length > 0)
+        else (
+          lidarr_setup_restore_backups.files
+          | sort(attribute='mtime', reverse=true)
+          | map(attribute='path')
+          | first
+        )
+      }}
+
+- name: Check selected Lidarr database backup exists
+  ansible.builtin.stat:
+    path: "{{ lidarr_setup_restore_source_path }}"
+  register: lidarr_setup_restore_backup_stat
+
+- name: Fail when selected Lidarr database backup does not exist
+  ansible.builtin.fail:
+    msg: "Lidarr database backup not found: {{ lidarr_setup_restore_source_path }}"
+  when: not lidarr_setup_restore_backup_stat.stat.exists
+
+- name: Restore PostgreSQL database using pg_restore
+  ansible.builtin.shell: |
+    set -euo pipefail
+    /usr/lib/postgresql/{{ postgresql_setup_version }}/bin/dropdb --if-exists {{ lidarr_setup_db_name }}
+    /usr/lib/postgresql/{{ postgresql_setup_version }}/bin/createdb --owner={{ lidarr_setup_db_user }} {{ lidarr_setup_db_name }}
+    /usr/lib/postgresql/{{ postgresql_setup_version }}/bin/pg_restore --dbname={{ lidarr_setup_db_name }} {{ lidarr_setup_restore_source_path }}
+  args:
+    executable: /bin/bash
+  become: true
+  become_user: postgres
+  register: lidarr_setup_restore_result
+  failed_when: lidarr_setup_restore_result.rc != 0
+  changed_when: true
