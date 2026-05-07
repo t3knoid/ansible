@@ -1,0 +1,42 @@
+---
+
+# Purpose: Restore Grafana PostgreSQL database from backup.
+
+- name: Stop Grafana before restoring the database
+  hosts: grafana
+  become: true
+  gather_facts: true
+  roles:
+    - global
+
+  tasks:
+    - name: Stop Grafana service
+      ansible.builtin.service:
+            name: grafana
+            state: stopped
+
+- name: Restore Grafana database on PostgreSQL host
+  hosts: pgdb
+  become: true
+  gather_facts: true
+  roles:
+    - global
+
+  tasks:
+    - name: Import database_restore.yml from grafana_setup role
+      ansible.builtin.import_role:
+        name: grafana_setup
+        tasks_from: database_restore.yml
+
+- name: Start Grafana after restoring the database
+  hosts: grafana
+  become: true
+  gather_facts: true
+  roles:
+    - global
+
+  tasks:
+    - name: Start Grafana Service
+      ansible.builtin.service:
+            name: grafana
+            state: started
