@@ -44,9 +44,9 @@ Installs and configures Lidarr on Debian/Ubuntu systems. It uses a container dis
 | `enable` | `true` |  |
 | `priority` | `1` |  |
 | `fields` | `` |  |
-| `host` | `"{{ groups['sabnzbd'][0] }}"` |  |
+| `host` | `"{{ global_ip_addresses[groups['sabnzbd'][0]] }}"` |  |
 | `port` | `8080` |  |
-| `category` | `music` |  |
+| `musicCategory` | `music` |  |
 | `lidarr_setup_indexers` | `` |  |
 | `- name` | `nzbgeek` |  |
 | `implementation` | `Newznab` |  |
@@ -82,7 +82,6 @@ Installs and configures Lidarr on Debian/Ubuntu systems. It uses a container dis
 _No constant variables found._
 
 ## 📑 Tasks
-- Deploy Lidarr Docker Service
 - Configure Lidarr Through API
 
 ## 🔔 Handlers
