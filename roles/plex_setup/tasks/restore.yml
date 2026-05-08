@@ -1,0 +1,48 @@
+---
+
+- name: Find Plex backup archives when restore path is not provided
+  ansible.builtin.find:
+    paths: "{{ plex_setup_backup_dir }}"
+    patterns: "plex_backup_*.tar.gz"
+    recurse: false
+  register: plex_setup_restore_candidates
+  when: plex_setup_restore_path | length == 0
+
+- name: Fail when Plex restore path is not provided and no backups exist
+  ansible.builtin.fail:
+    msg: >-
+      plex_setup_restore_path is empty and no Plex backups matching
+      plex_backup_*.tar.gz were found in {{ plex_setup_backup_dir }}.
+  when:
+    - plex_setup_restore_path | length == 0
+    - plex_setup_restore_candidates.matched == 0
+
+- name: Resolve Plex restore archive path
+  ansible.builtin.set_fact:
+    plex_setup_restore_source_path: >-
+      {{
+        plex_setup_restore_path
+        if plex_setup_restore_path | length > 0
+        else (plex_setup_restore_candidates.files | sort(attribute='mtime') | last).path
+      }}
+
+- name: Check Plex backup archive exists
+  ansible.builtin.stat:
+    path: "{{ plex_setup_restore_source_path }}"
+  register: plex_setup_restore_archive
+
+- name: Fail when Plex backup archive is missing
+  ansible.builtin.fail:
+    msg: "Plex backup archive not found: {{ plex_setup_restore_source_path }}"
+  when: not plex_setup_restore_archive.stat.exists
+
+- name: Remove existing Plex data directory before restore
+  ansible.builtin.file:
+    path: "{{ plex_setup_data_dir }}"
+    state: absent
+
+- name: Restore Plex data directory from backup archive
+  ansible.builtin.unarchive:
+    src: "{{ plex_setup_restore_source_path }}"
+    dest: "{{ plex_setup_data_dir | dirname }}"
+    remote_src: true
