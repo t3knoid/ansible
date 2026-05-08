@@ -1,0 +1,24 @@
+---
+
+# Purpose: Restore Plex Media Server configuration from backup archive.
+
+- name: Restore Plex Media Server configuration
+  hosts: plex
+  become: true
+  tasks:
+    - name: Stop Plex service before restore
+      ansible.builtin.service:
+        name: plexmediaserver
+        state: stopped
+
+    - name: Restore Plex backup
+      block:
+        - name: Run Plex restore task
+          ansible.builtin.import_role:
+            name: plex_setup
+            tasks_from: restore
+      always:
+        - name: Start Plex service after restore attempt
+          ansible.builtin.service:
+            name: plexmediaserver
+            state: started
