@@ -13,11 +13,28 @@ ecube_setup_checksum_path: "{{ ecube_setup_download_dir }}/{{ ecube_setup_packag
 ecube_setup_extract_dir: "{{ ecube_setup_download_dir }}/extracted"
 ecube_setup_package_dir: "{{ ecube_setup_extract_dir }}/ecube-package-{{ ecube_setup_release_tag }}"
 ecube_setup_install_script_path: "{{ ecube_setup_package_dir }}/install.sh"
+ecube_setup_prerequisite_packages:
+  - ca-certificates
+  - tar
+  - curl
+  - openssl
+  - exfatprogs
+  - nfs-common
+  - cifs-utils
+  - smbclient
+  - usbutils
+  - util-linux
+  - passwd
+  - libpam-pwquality
+ecube_setup_linux_modules_extra_package: "linux-modules-extra-{{ ansible_kernel }}"
+ecube_setup_cleanup_downloads: true
 ecube_setup_no_tls: false
 ecube_setup_demo: false
+ecube_setup_http_port: "{{ 80 if ecube_setup_no_tls else 8443 }}"
+ecube_setup_base_url: "{{ 'http' if ecube_setup_no_tls else 'https' }}://127.0.0.1:{{ ecube_setup_http_port }}"
 
 ecube_setup_pg_port: 5432
-ecube_setup_pg_host: "{{ global_ip_addresses[groups['pgdb'][0]] }}"
+ecube_setup_pg_host: "{{ global_ip_address }}"
 # See vault for the following variables
 # ecube_setup_db_name
 # ecube_setup_db_user

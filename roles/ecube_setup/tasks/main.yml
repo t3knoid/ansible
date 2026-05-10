@@ -1,5 +1,4 @@
 ---
-
 - name: Update pg_hba.conf to allow password access using host ip address
   community.postgresql.postgresql_pg_hba:
     dest: "/etc/postgresql/{{ postgresql_setup_version }}/main/pg_hba.conf"
@@ -22,13 +21,26 @@
   delegate_to: "{{ groups['pgdb'][0] }}"
   notify: Restart PostgreSQL
 
-- name: Install ECUBE installer prerequisites
+- name: Install documented ECUBE host prerequisites
   ansible.builtin.apt:
-    name:
-      - ca-certificates
-      - tar
+    name: "{{ ecube_setup_prerequisite_packages }}"
     state: present
     update_cache: true
+
+- name: Check for Ubuntu kernel exFAT support package
+  ansible.builtin.command: "apt-cache show {{ ecube_setup_linux_modules_extra_package }}"
+  register: ecube_setup_linux_modules_extra_check
+  changed_when: false
+  failed_when: false
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Install Ubuntu kernel exFAT support package when available
+  ansible.builtin.apt:
+    name: "{{ ecube_setup_linux_modules_extra_package }}"
+    state: present
+  when:
+    - ansible_distribution == 'Ubuntu'
+    - ecube_setup_linux_modules_extra_check.rc == 0
 
 - name: Create ECUBE download directory
   ansible.builtin.file:
@@ -71,6 +83,13 @@
     dest: "{{ ecube_setup_extract_dir }}"
     remote_src: true
 
+- name: Remove conflicting deadsnakes apt source files
+  ansible.builtin.shell: |
+    find /etc/apt/sources.list.d -maxdepth 1 -type f \( -name '*.list' -o -name '*.sources' \) \
+      -exec grep -lE 'ppa\.launchpadcontent\.net/deadsnakes/ppa/ubuntu|ppa:deadsnakes/ppa' {} + | xargs -r rm -f
+  changed_when: false
+  failed_when: false
+
 - name: Run ECUBE installer
   ansible.builtin.command:
     argv: >-
@@ -79,7 +98,11 @@
           ecube_setup_install_script_path,
           '--yes',
           '--install-dir',
-          ecube_setup_install_dir
+          ecube_setup_install_dir,
+          '--pg-superuser-name',
+          ecube_setup_pgadmin_user,
+          '--pg-superuser-pass',
+          ecube_setup_pgadmin_password
         ]
         + (['--no-tls'] if ecube_setup_no_tls else [])
         + (['--demo'] if ecube_setup_demo else [])
@@ -93,3 +116,6 @@
   ansible.builtin.file:
     path: "{{ ecube_setup_download_dir }}"
     state: absent
+
+- name: Load setup.yml
+  ansible.builtin.include_tasks: setup.yml

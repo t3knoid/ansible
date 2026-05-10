@@ -1,6 +1,6 @@
 ---
 
-# Purpose: Create PostgreSQL database for Grafana on the database server
+# Purpose: Create PostgreSQL database for ECUBE on the database server
 
 - name: Create postgresql database
   hosts: pgdb
