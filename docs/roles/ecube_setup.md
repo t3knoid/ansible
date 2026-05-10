@@ -29,10 +29,15 @@ Installs ECUBE from GitHub Releases using the upstream Linux installer.
 | `ecube_setup_extract_dir` | `"{{ ecube_setup_download_dir }}/extracted"` |  |
 | `ecube_setup_package_dir` | `"{{ ecube_setup_extract_dir }}/ecube-package-{{ ecube_setup_release_tag }}"` |  |
 | `ecube_setup_install_script_path` | `"{{ ecube_setup_package_dir }}/install.sh"` |  |
+| `ecube_setup_prerequisite_packages` | `` |  |
+| `ecube_setup_linux_modules_extra_package` | `"linux-modules-extra-{{ ansible_kernel }}"` |  |
+| `ecube_setup_cleanup_downloads` | `true` |  |
 | `ecube_setup_no_tls` | `false` |  |
 | `ecube_setup_demo` | `false` |  |
+| `ecube_setup_http_port` | `"{{ 80 if ecube_setup_no_tls else 8443 }}"` |  |
+| `ecube_setup_base_url` | `"{{ 'http' if ecube_setup_no_tls else 'https' }}://127.0.0.1:{{ ecube_setup_http_port }}"` |  |
 | `ecube_setup_pg_port` | `5432` |  |
-| `ecube_setup_pg_host` | `"{{ global_ip_addresses[groups['pgdb'][0]] }}"` |  |
+| `ecube_setup_pg_host` | `"{{ global_ip_address }}"` |  |
 | `ecube_setup_mount_point` | `/nfs/backups` | ecube_setup_db_password |
 | `ecube_setup_backup_prefix` | `"ecube_"` |  |
 | `ecube_setup_backup_filename` | `"{{ ecube_setup_backup_prefix }}{{ ansible_date_time.iso8601_basic_short }}.sqlc"` |  |
@@ -45,7 +50,9 @@ _No constant variables found._
 ## 📑 Tasks
 - Update pg_hba.conf to allow password access using host ip address
 - Update pg_hba.conf to allow password access using the database host ip address
-- Install ECUBE installer prerequisites
+- Install documented ECUBE host prerequisites
+- Check for Ubuntu kernel exFAT support package
+- Install Ubuntu kernel exFAT support package when available
 - Create ECUBE download directory
 - Download ECUBE package checksum
 - Read ECUBE package checksum
@@ -53,11 +60,15 @@ _No constant variables found._
 - Download ECUBE package archive
 - Create ECUBE extraction directory
 - Extract ECUBE package archive
+- Remove conflicting deadsnakes apt source files
 - Run ECUBE installer
 - Remove ECUBE downloaded package
+- Load setup.yml
 
 ## 🔔 Handlers
-_No handlers defined._
+- Restart ECUBE
+- Restart PostgreSQL
+- Reload systemd daemon
 
 ## 🔗 Dependencies
 _No dependencies listed._
