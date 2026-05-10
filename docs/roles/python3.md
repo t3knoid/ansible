@@ -31,16 +31,14 @@ Installs Python 3 from the Python Software Foundation (PSF) repository. There is
 _No constant variables found._
 
 ## 📑 Tasks
-- Remove legacy deadsnakes.list file
-- Remove legacy ppa_deadsnakes_ppa_noble.list file
-- Remove existing legacy Deadsnakes repo list file
-- Remove existing deadsnakes-ubuntu-ppa-noble.sources file
+- Find existing deadsnakes apt source files
+- Remove existing deadsnakes apt source files
 - Add deadsnakes apt repository key.
 - Remove deadsnakes apt repository
 - Add deadsnakes apt repository
 - Update apt cache
 - Install python3
-- Register Python {{ python3_version }} as an alternative
+- Register requested Python version as an alternative
 
 ## 🔔 Handlers
 _No handlers defined._
