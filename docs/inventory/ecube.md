@@ -30,15 +30,7 @@ _Inventory for `ecube` hosts_
 ### `rproxy_secondary`
 - `rproxy-2`
 
-### `cname`
-- `ecube-0`
-- `ecube-1`
-
 ### `removable`
-- `ecube-0`
-- `ecube-1`
-
-### `vscode`
 - `ecube-0`
 - `ecube-1`
 
