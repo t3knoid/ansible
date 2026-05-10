@@ -8,7 +8,7 @@
 | [`deploy_vscode_server.yml`](./deploy_vscode_server.md) | Deploy and configure VSCode Server on target hosts |
 | [`disable_code_server.yml`](./disable_code_server.md) | Stop and disable code-server on target hosts |
 | [`enable_code_server.yml`](./enable_code_server.md) | Start and enable code-server on target hosts |
-| [`provision_vm.yml`](./provision_vm.md) | Provision a new VM and prepare it as an Ansible node |
+| [`provision_vm.yml`](./provision_vm.md) | Provision a new VM and prepare it as an Ansible node - name: Create a new VM ansible.builtin.import_playbook: vms/provision_vm.yml - name: Bootstrap Python3 ansible.builtin.import_playbook: python/bootstrap_python3.yml |
 
 ## 📂 Playbooks in subfolders
 
@@ -46,7 +46,7 @@
 | [`dns/update_pihole_dns.yml`](./update_pihole_dns.md) | Update DNS settings on the Pi-hole DNS server |
 | [`docker/deploy_docker.yml`](./deploy_docker.md) | Deploy Docker on Docker hosts |
 | [`ecube/backup_db.yml`](./backup_db.md) | Backup ECUBE database to NFS share |
-| [`ecube/create_db.yml`](./create_db.md) | Create PostgreSQL database for Grafana on the database server |
+| [`ecube/create_db.yml`](./create_db.md) | Create PostgreSQL database for ECUBE on the database server |
 | [`ecube/deploy_ecube.yml`](./deploy_ecube.md) | Deploy ECUBE on ecube hosts. |
 | [`geyser/deploy_geyser.yml`](./deploy_geyser.md) | Deploy Geyser Minecraft server proxy |
 | [`gh_cli/deploy_gh_cli.yml`](./deploy_gh_cli.md) | Install GitHub CLI on target hosts |
@@ -88,6 +88,7 @@
 | [`ombi/restore_db.yml`](./restore_db.md) | Restore Ombi PostgreSQL database from backup. |
 | [`plex/backup_plex.yml`](./backup_plex.md) | Backup Plex Media Server configuration on plex hosts |
 | [`plex/deploy_plex.yml`](./deploy_plex.md) | Install and configure Plex Media Server on plex hosts |
+| [`plex/restore_plex.yml`](./restore_plex.md) | Restore Plex Media Server configuration from backup archive. |
 | [`postgresql/deploy_postgresql.yml`](./deploy_postgresql.md) | Install and configure PostgreSQL on pgdb hosts |
 | [`prometheus/backup_db.yml`](./backup_db.md) | Create a point-in-time copy of all current data stored in Prometheus. |
 | [`prometheus/deploy_node_exporter.yml`](./deploy_node_exporter.md) | Deploy Node Exporter on Prometheus hosts |
