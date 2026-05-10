@@ -1,0 +1,15 @@
+---
+- name: Restart ECUBE
+  ansible.builtin.systemd:
+    name: ecube
+    state: restarted
+
+- name: Restart PostgreSQL
+  ansible.builtin.systemd:
+    name: postgresql
+    state: restarted
+  delegate_to: "{{ ecube_setup_pg_host }}"
+
+- name: Reload systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: true

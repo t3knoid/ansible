@@ -25,6 +25,15 @@
   become_user: postgres
   notify: Restart PostgreSQL
 
+- name: Create Postgres admin user
+  community.postgresql.postgresql_user:
+    name: "{{ ecube_setup_pgadmin_user }}"
+    password: "{{ ecube_setup_pgadmin_password }}"
+    role_attr_flags: SUPERUSER,CREATEDB,CREATEROLE,LOGIN
+    state: present
+  become: true
+  become_user: postgres
+
 - name: Create the PostgreSQL database
   community.postgresql.postgresql_db:
     name: "{{ ecube_setup_db_name }}"
@@ -37,7 +46,7 @@
 - name: Ensure .pgpass entry exists without duplication
   ansible.builtin.lineinfile:
     path: ~/.pgpass
-    line: "{{ ecube_setup_pg_host }}:5432:{{ ecube_setup_db_name }}:{{ ecube_setup_db_user }}:{{ ecube_setup_db_password }}"
+    line: "{{ ecube_setup_pg_host }}:{{ ecube_setup_pg_port }}:{{ ecube_setup_db_name }}:{{ ecube_setup_db_user }}:{{ ecube_setup_db_password }}"
     create: true
     owner: postgres
     group: postgres
