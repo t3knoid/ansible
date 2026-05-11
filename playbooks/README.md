@@ -8,7 +8,7 @@
 | [`deploy_vscode_server.yml`](../docs/playbooks/deploy_vscode_server.md) | Deploy and configure VSCode Server on target hosts |
 | [`disable_code_server.yml`](../docs/playbooks/disable_code_server.md) | Stop and disable code-server on target hosts |
 | [`enable_code_server.yml`](../docs/playbooks/enable_code_server.md) | Start and enable code-server on target hosts |
-| [`provision_vm.yml`](../docs/playbooks/provision_vm.md) | Provision a new VM and prepare it as an Ansible node - name: Create a new VM ansible.builtin.import_playbook: vms/provision_vm.yml - name: Bootstrap Python3 ansible.builtin.import_playbook: python/bootstrap_python3.yml |
+| [`provision_vm.yml`](../docs/playbooks/provision_vm.md) | Provision a new VM and prepare it as an Ansible node |
 
 ## 📂 Playbooks in subfolders
 
