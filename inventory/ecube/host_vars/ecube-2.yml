@@ -1,0 +1,6 @@
+---
+
+global_gateway: 192.168.90.1
+
+ecube_setup_demo: true
+ecube_setup_no_tls: true
