@@ -20,7 +20,7 @@ rproxy_setup_cloudflare_only: true
 rproxy_setup_sites:
   - server_name: demo.ecube.one
     port: "{{ ecube_setup_http_port }}"
-    proxy_pass: "http://{{ global_ip_addresses['ecube-1'] }}"
+    proxy_pass: "http://{{ global_ip_addresses['ecube-2'] }}"
     allow_list:
       - 192.168.0.0/24
       - 192.168.2.0/24
