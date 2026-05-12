@@ -34,6 +34,7 @@ Installs ECUBE from GitHub Releases using the upstream Linux installer.
 | `ecube_setup_cleanup_downloads` | `true` |  |
 | `ecube_setup_no_tls` | `false` |  |
 | `ecube_setup_demo` | `false` |  |
+| `ecube_setup_run_setup_wizard` | `true` |  |
 | `ecube_setup_http_port` | `"{{ 80 if ecube_setup_no_tls else 8443 }}"` |  |
 | `ecube_setup_base_url` | `"{{ 'http' if ecube_setup_no_tls else 'https' }}://127.0.0.1:{{ ecube_setup_http_port }}"` |  |
 | `ecube_setup_pg_port` | `5432` |  |
