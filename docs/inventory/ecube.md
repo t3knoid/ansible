@@ -27,6 +27,9 @@ _Inventory for `ecube` hosts_
 - `ecube-1`
 - `ecube-2`
 
+### `ecube_demo`
+- `ecube-2`
+
 ### `rproxy_main`
 - `rproxy-0`
 
@@ -65,6 +68,6 @@ _No group variables defined._
 
 ## 🧩 Group Children
 ### `rproxy`
+- `rproxy_main`
 - `rproxy_secondary`
 - `rproxy_primary`
-- `rproxy_main`
