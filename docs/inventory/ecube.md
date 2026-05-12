@@ -9,17 +9,23 @@ _Inventory for `ecube` hosts_
 - `ecube-0`
 - `ecube-1`
 
+### `baremetal`
+- `ecube-2`
+
 ### `linux`
 - `ecube-0`
 - `ecube-1`
+- `ecube-2`
 
 ### `ecube`
 - `ecube-0`
 - `ecube-1`
+- `ecube-2`
 
 ### `pgdb`
 - `ecube-0`
 - `ecube-1`
+- `ecube-2`
 
 ### `rproxy_main`
 - `rproxy-0`
@@ -37,6 +43,7 @@ _Inventory for `ecube` hosts_
 ### `python`
 - `ecube-0`
 - `ecube-1`
+- `ecube-2`
 
 ### `certs`
 - `rproxy-0`
@@ -52,10 +59,12 @@ _No group variables defined._
 ### `ecube-1`
 - `vms_proxmox_node`: `pve-1`
 - `vms_clone`: `false`
+
+### `ecube-2`
 - `pihole_cname_entries`: `[{"domain": "demo.ecube.com", "target": "rproxy-0.refol.us"}]`
 
 ## 🧩 Group Children
 ### `rproxy`
-- `rproxy_main`
-- `rproxy_primary`
 - `rproxy_secondary`
+- `rproxy_primary`
+- `rproxy_main`
