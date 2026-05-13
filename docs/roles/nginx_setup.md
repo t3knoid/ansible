@@ -15,7 +15,7 @@ Installs the nginx service.
 ## ⚙️ Defaults
 | Variable | Default Value | Description |
 |----------|---------------|-------------|
-| `nginx_setup_version` | `"1.24.0-2ubuntu7.5"` |  |
+| `nginx_setup_version` | `"1.24.0-2ubuntu7.7"` |  |
 | `nginx_setup_site_name` | `"{{ inventory_hostname }}"` |  |
 | `nginx_setup_worker_connections` | `768` |  |
 | `nginx_setup_homedir` | `/data/nginx` |  |
