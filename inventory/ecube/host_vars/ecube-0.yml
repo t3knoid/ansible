@@ -20,5 +20,6 @@ vms_config:
       bridge: vmbr0
       tag: 20
 
+ecube_setup_trust_proxy_headers: false
 ecube_setup_demo: false
 ecube_setup_no_tls: false

@@ -118,4 +118,6 @@
     state: absent
 
 - name: Load setup.yml
+  when:
+    - ecube_setup_run_setup_wizard | bool
   ansible.builtin.include_tasks: setup.yml
