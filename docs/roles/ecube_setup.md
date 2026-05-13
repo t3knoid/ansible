@@ -38,12 +38,13 @@ Installs ECUBE from GitHub Releases using the upstream Linux installer.
 | `ecube_setup_http_port` | `"{{ 80 if ecube_setup_no_tls else 8443 }}"` |  |
 | `ecube_setup_base_url` | `"{{ 'http' if ecube_setup_no_tls else 'https' }}://127.0.0.1:{{ ecube_setup_http_port }}"` |  |
 | `ecube_setup_pg_port` | `5432` |  |
-| `ecube_setup_pg_host` | `"{{ global_ip_address }}"` |  |
-| `ecube_setup_mount_point` | `/nfs/backups` | ecube_setup_db_password |
+| `ecube_setup_pg_host` | `"127.0.0.1"` |  |
+| `ecube_setup_mount_point` | `/nfs/backups` |  |
 | `ecube_setup_backup_prefix` | `"ecube_"` |  |
 | `ecube_setup_backup_filename` | `"{{ ecube_setup_backup_prefix }}{{ ansible_date_time.iso8601_basic_short }}.sqlc"` |  |
 | `ecube_setup_backup_dir` | `"{{ ecube_setup_mount_point }}/ecube"` |  |
 | `ecube_setup_backup_path` | `"{{ ecube_setup_backup_dir }}/{{ ecube_setup_backup_filename }}"` |  |
+| `ecube_setup_trust_proxy_headers` | `false` |  |
 
 ## 📦 Vars
 _No constant variables found._
