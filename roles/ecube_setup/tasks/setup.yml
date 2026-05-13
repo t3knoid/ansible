@@ -1,5 +1,4 @@
 ---
-
 - name: Wait for ECUBE setup status endpoint
   ansible.builtin.uri:
     url: "{{ ecube_setup_base_url }}/setup/status"
@@ -34,8 +33,8 @@
     validate_certs: false
     body_format: json
     body:
-      host: "{{ ecube_setup_pg_host }}"
-      port: "{{ ecube_setup_pg_port }}"
+      host: "{{ '127.0.0.1' if ecube_setup_pg_host == global_ip_address else ecube_setup_pg_host }}"
+      port: "{{ ecube_setup_pg_port if ecube_setup_pg_host == global_ip_address else 5433 }}"
       admin_username: "{{ ecube_setup_pgadmin_user }}"
       admin_password: "{{ ecube_setup_pgadmin_password }}"
       app_database: "{{ ecube_setup_db_name }}"
