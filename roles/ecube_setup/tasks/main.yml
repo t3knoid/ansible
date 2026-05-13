@@ -7,7 +7,7 @@
     source: "{{ global_ip_address }}/32"
     databases: all
     method: md5
-  delegate_to: "{{ groups['pgdb'][0] }}"
+  delegate_to: "{{ ecube_setup_pg_host }}"
   notify: Restart PostgreSQL
 
 - name: Update pg_hba.conf to allow password access using the database host ip address
@@ -18,7 +18,7 @@
     source: "{{ ecube_setup_pg_host }}/32"
     databases: all
     method: md5
-  delegate_to: "{{ groups['pgdb'][0] }}"
+  delegate_to: "{{ ecube_setup_pg_host }}"
   notify: Restart PostgreSQL
 
 - name: Install documented ECUBE host prerequisites
