@@ -1,5 +1,4 @@
 ---
-
 # Check if the application exists before trying to create it
 # if it already exists, store the app_id for downstream tasks
 # and skip creation.
@@ -35,11 +34,10 @@
       {{
         (
           (entra_id_oauth2_existing_app is defined and
-           entra_id_oauth2_existing_app.applications | length > 0 and
+           (entra_id_oauth2_existing_app.applications | default([])) | length > 0 and
            entra_id_oauth2_existing_app.applications[0].app_id) or
           (entra_id_oauth2_created_app is defined and
-           entra_id_oauth2_created_app.applications | length > 0 and
-           entra_id_oauth2_created_app.applications[0].app_id)
+           entra_id_oauth2_created_app.app_id | default(''))
         ) | default('')
       }}
 
