@@ -6,7 +6,7 @@
     dest: /opt/
     remote_src: true
     creates: "/opt/alertmanager-{{ alertmanager_setup_version }}.linux-amd64"
-    mode: '0755'
+    mode: "0755"
 
 - name: Create symlink for AlertManager
   ansible.builtin.file:
@@ -63,8 +63,8 @@
     mode: "{{ alertmanager_setup_config_mode }}"
     backup: true
   notify:
-    - Restart AlertManager service
     - Validate AlertManager configuration
+    - Restart AlertManager service
 
 - name: Create AlertManager systemd service file
   ansible.builtin.template:
@@ -78,3 +78,5 @@
 - name: Enable and start AlertManager service
   ansible.builtin.systemd:
     name: alertmanager
+    enabled: true
+    state: started
