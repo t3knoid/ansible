@@ -11,6 +11,9 @@ _Inventory for `prometheus` hosts_
 ### `linux`
 - `prometheus-0`
 
+### `alertmanager`
+- `prometheus-0`
+
 ### `prometheus`
 - `prometheus-0`
 
@@ -46,6 +49,6 @@ _No group variables defined._
 
 ## 🧩 Group Children
 ### `rproxy`
-- `rproxy_secondary`
 - `rproxy_main`
 - `rproxy_primary`
+- `rproxy_secondary`
