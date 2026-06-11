@@ -2,39 +2,30 @@
 # Alertmanager configuration file
 # See https://prometheus.io/docs/alerting/latest/configuration/ for details
 
+{% set alertmanager_global = alertmanager_setup_global | combine({}, recursive=True) %}
+{% set alertmanager_receivers = alertmanager_setup_receivers | default([]) %}
+
+{% if alertmanager_setup_smtp_settings_user_name is defined %}
+{% set _ = alertmanager_global.update({'smtp_smarthost': alertmanager_setup_smtp_settings_address ~ ':' ~ alertmanager_setup_smtp_settings_port, 'smtp_from': alertmanager_setup_smtp_from, 'smtp_auth_username': alertmanager_setup_smtp_settings_user_name, 'smtp_auth_password': alertmanager_setup_smtp_settings_password}) %}
+{% endif %}
+{% if alertmanager_setup_slack_api_url is defined %}
+{% set _ = alertmanager_global.update({'slack_api_url': alertmanager_setup_slack_api_url}) %}
+{% endif %}
+{% if alertmanager_setup_pagerduty_url is defined %}
+{% set _ = alertmanager_global.update({'pagerduty_url': alertmanager_setup_pagerduty_url}) %}
+{% endif %}
+
 global:
-  # Default settings applied to all notifications
-  resolve_timeout: 5m
-  smtp_smarthost: '{{ alertmanager_setup_smtp_settings_address }}:{{ alertmanager_setup_smtp_settings_port }}'
-  smtp_from: '{{ alertmanager_setup_smtp_from | default("alertmanager@refol.us") }}'
-  smtp_auth_username: '{{ alertmanager_setup_smtp_settings_user_name }}'
-  smtp_auth_password: '{{ alertmanager_setup_smtp_settings_password }}'
-  slack_api_url: '{{ alertmanager_setup_slack_api_url }}'
-  pagerduty_url: '{{ alertmanager_setup_pagerduty_url }}'
+{{ alertmanager_global | to_nice_yaml(indent=2, sort_keys=false) | indent(2, true) }}
 
-# Notification templates
 templates:
-  - '{{ alertmanager_setup_work_dir }}/templates/*.tmpl'
+{{ alertmanager_setup_templates | to_nice_yaml(indent=2, sort_keys=false) | indent(2, true) }}
 
-# The root route
 route:
-  receiver: 'default-receiver'
-  group_by: ['alertname', 'cluster', 'service']
-  group_wait: 30s
-  group_interval: 5m
-  repeat_interval: 4h
-  routes:
-    # Child routes here
+{{ alertmanager_setup_route | to_nice_yaml(indent=2, sort_keys=false) | indent(2, true) }}
 
-# Alert receivers
 receivers:
-  - name: 'default-receiver'
-    # Receiver configuration here
+{{ alertmanager_receivers | to_nice_yaml(indent=2, sort_keys=false) | indent(2, true) }}
 
-# Inhibition rules
 inhibit_rules:
-  - source_match:
-      severity: 'critical'
-    target_match:
-      severity: 'warning'
-    equal: ['alertname', 'cluster', 'service']
+{{ alertmanager_setup_inhibit_rules | to_nice_yaml(indent=2, sort_keys=false) | indent(2, true) }}
