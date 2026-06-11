@@ -1,6 +1,6 @@
 ---
 
-# Sets up projects in Semaphore UI 
+# Sets up projects in Semaphore UI
 # This should not be called directly, only via main.yml
 
 - name: Extract project metadata only

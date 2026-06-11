@@ -1,0 +1,123 @@
+---
+- name: Update pg_hba.conf to allow password access using host ip address
+  community.postgresql.postgresql_pg_hba:
+    dest: "/etc/postgresql/{{ postgresql_setup_version }}/main/pg_hba.conf"
+    contype: host
+    users: all
+    source: "{{ global_ip_address }}/32"
+    databases: all
+    method: md5
+  delegate_to: "{{ ecube_setup_pg_host }}"
+  notify: Restart PostgreSQL
+
+- name: Update pg_hba.conf to allow password access using the database host ip address
+  community.postgresql.postgresql_pg_hba:
+    dest: "/etc/postgresql/{{ postgresql_setup_version }}/main/pg_hba.conf"
+    contype: host
+    users: all
+    source: "{{ ecube_setup_pg_host }}/32"
+    databases: all
+    method: md5
+  delegate_to: "{{ ecube_setup_pg_host }}"
+  notify: Restart PostgreSQL
+
+- name: Install documented ECUBE host prerequisites
+  ansible.builtin.apt:
+    name: "{{ ecube_setup_prerequisite_packages }}"
+    state: present
+    update_cache: true
+
+- name: Check for Ubuntu kernel exFAT support package
+  ansible.builtin.command: "apt-cache show {{ ecube_setup_linux_modules_extra_package }}"
+  register: ecube_setup_linux_modules_extra_check
+  changed_when: false
+  failed_when: false
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Install Ubuntu kernel exFAT support package when available
+  ansible.builtin.apt:
+    name: "{{ ecube_setup_linux_modules_extra_package }}"
+    state: present
+  when:
+    - ansible_distribution == 'Ubuntu'
+    - ecube_setup_linux_modules_extra_check.rc == 0
+
+- name: Create ECUBE download directory
+  ansible.builtin.file:
+    path: "{{ ecube_setup_download_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Download ECUBE package checksum
+  ansible.builtin.get_url:
+    url: "{{ ecube_setup_checksum_url }}"
+    dest: "{{ ecube_setup_checksum_path }}"
+    mode: "0644"
+
+- name: Read ECUBE package checksum
+  ansible.builtin.slurp:
+    path: "{{ ecube_setup_checksum_path }}"
+  register: ecube_setup_checksum_file
+
+- name: Set ECUBE package checksum fact
+  ansible.builtin.set_fact:
+    ecube_setup_package_sha256: >-
+      {{ (ecube_setup_checksum_file.content | b64decode).split()[0] }}
+
+- name: Download ECUBE package archive
+  ansible.builtin.get_url:
+    url: "{{ ecube_setup_package_url }}"
+    dest: "{{ ecube_setup_archive_path }}"
+    checksum: "sha256:{{ ecube_setup_package_sha256 }}"
+    mode: "0644"
+
+- name: Create ECUBE extraction directory
+  ansible.builtin.file:
+    path: "{{ ecube_setup_extract_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Extract ECUBE package archive
+  ansible.builtin.unarchive:
+    src: "{{ ecube_setup_archive_path }}"
+    dest: "{{ ecube_setup_extract_dir }}"
+    remote_src: true
+
+- name: Remove conflicting deadsnakes apt source files
+  ansible.builtin.shell: |
+    find /etc/apt/sources.list.d -maxdepth 1 -type f \( -name '*.list' -o -name '*.sources' \) \
+      -exec grep -lE 'ppa\.launchpadcontent\.net/deadsnakes/ppa/ubuntu|ppa:deadsnakes/ppa' {} + | xargs -r rm -f
+  changed_when: false
+  failed_when: false
+
+- name: Run ECUBE installer
+  ansible.builtin.command:
+    argv: >-
+      {{
+        [
+          ecube_setup_install_script_path,
+          '--yes',
+          '--install-dir',
+          ecube_setup_install_dir,
+          '--pg-superuser-name',
+          ecube_setup_pgadmin_user,
+          '--pg-superuser-pass',
+          ecube_setup_pgadmin_password
+        ]
+        + (['--no-tls'] if ecube_setup_no_tls else [])
+        + (['--demo'] if ecube_setup_demo else [])
+      }}
+  args:
+    chdir: "{{ ecube_setup_package_dir }}"
+  register: ecube_setup_install_result
+  changed_when: ecube_setup_install_result.rc == 0
+
+- name: Remove ECUBE downloaded package
+  ansible.builtin.file:
+    path: "{{ ecube_setup_download_dir }}"
+    state: absent
+
+- name: Load setup.yml
+  when:
+    - ecube_setup_run_setup_wizard | bool
+  ansible.builtin.include_tasks: setup.yml

@@ -1,0 +1,30 @@
+---
+
+vms_os: ubuntu_24_server
+vms_autoinstall: true
+vms_enable_serial_terminal: false
+vms_additional_packages: []
+python3_version: 3.12
+
+nginx_setup_disable_default_site: true
+
+postgresql_setup_version: 17
+
+ecube_setup_no_tls: true
+ecube_setup_demo: false
+ecube_setup_http_port: "{{ 80 if ecube_setup_no_tls else 8443 }}"
+ecube_setup_version: "0.2.0"
+
+rproxy_setup_cloudflare_only: true
+
+rproxy_setup_sites:
+  - server_name: demo.ecube.one
+    port: "{{ ecube_setup_http_port }}"
+    proxy_pass: "http://{{ global_ip_addresses['ecube-1'] }}"
+    allow_list:
+      - 192.168.0.0/24
+      - 192.168.2.0/24
+      - 24.105.250.200
+      - 70.107.117.124
+    restricted: false
+    enable: true

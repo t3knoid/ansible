@@ -1,8 +1,60 @@
 ---
-
 # - name: Include nginx variables
 #   ansible.builtin.include_vars:
 #     dir: ../../../roles/nginx_setup/defaults/main
+
+- name: Ensure nginx snippets directory exists
+  ansible.builtin.file:
+    path: "{{ nginx_setup_homedir }}/snippets"
+    state: directory
+    mode: "0755"
+  when:
+    - inventory_hostname in groups['rproxy_main']
+    - rproxy_setup_cloudflare_only
+  tags: rproxy_setup_cloudflare
+
+- name: Deploy Cloudflare IPv4 allowlist snippet
+  ansible.builtin.template:
+    src: cloudflare-allow.conf.j2
+    dest: "{{ nginx_setup_homedir }}/snippets/cloudflare-allow.conf"
+    mode: "0644"
+  when:
+    - inventory_hostname in groups['rproxy_main']
+    - rproxy_setup_cloudflare_only
+  notify: Restart nginx
+  tags: rproxy_setup_cloudflare
+
+- name: Deploy Cloudflare IPv6 allowlist snippet
+  ansible.builtin.template:
+    src: cloudflare-allow-ipv6.conf.j2
+    dest: "{{ nginx_setup_homedir }}/snippets/cloudflare-allow-ipv6.conf"
+    mode: "0644"
+  when:
+    - inventory_hostname in groups['rproxy_main']
+    - rproxy_setup_cloudflare_only
+  notify: Restart nginx
+  tags: rproxy_setup_cloudflare
+
+- name: Remove Cloudflare IPv4 allowlist snippet when disabled
+  ansible.builtin.file:
+    path: "{{ nginx_setup_homedir }}/snippets/cloudflare-allow.conf"
+    state: absent
+  when:
+    - inventory_hostname in groups['rproxy_main']
+    - not rproxy_setup_cloudflare_only
+  notify: Restart nginx
+  tags: rproxy_setup_cloudflare
+
+- name: Remove Cloudflare IPv6 allowlist snippet when disabled
+  ansible.builtin.file:
+    path: "{{ nginx_setup_homedir }}/snippets/cloudflare-allow-ipv6.conf"
+    state: absent
+  when:
+    - inventory_hostname in groups['rproxy_main']
+    - not rproxy_setup_cloudflare_only
+  notify: Restart nginx
+  tags: rproxy_setup_cloudflare
+
 - name: Create or update Nginx site configuration
   ansible.builtin.template:
     src: site.conf.j2

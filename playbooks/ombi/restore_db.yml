@@ -1,0 +1,47 @@
+---
+
+# Purpose: Restore Ombi PostgreSQL database from backup.
+
+- name: Stop Ombi before restoring the database
+  hosts: ombi
+  become: true
+  gather_facts: true
+  roles:
+    - global
+
+  tasks:
+    - name: Stop Ombi container
+      ansible.builtin.import_role:
+        name: docker_service_deploy
+        tasks_from: stop.yml
+      vars:
+        docker_service_deploy_container_name: "ombi"
+
+- name: Restore Ombi database on PostgreSQL host
+  hosts: pgdb
+  become: true
+  gather_facts: true
+  roles:
+    - global
+
+  tasks:
+    - name: Import database_restore.yml from ombi_setup role
+      ansible.builtin.import_role:
+        name: ombi_setup
+        tasks_from: database_restore.yml
+
+- name: Start Ombi after restoring the database
+  hosts: ombi
+  become: true
+  gather_facts: true
+  roles:
+    - global
+
+  tasks:
+    - name: Start Ombi container
+      ansible.builtin.import_role:
+        name: docker_service_deploy
+        tasks_from: start.yml
+      vars:
+        docker_service_deploy_container_name: "ombi"
+        docker_service_deploy_config_dir: "{{ ombi_setup_config_dir | default('/config') }}"

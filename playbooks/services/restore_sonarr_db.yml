@@ -1,0 +1,47 @@
+---
+
+# Purpose: Restore Sonarr PostgreSQL database from backup.
+
+- name: Stop Sonarr before restoring the database
+  hosts: sonarr
+  become: true
+  gather_facts: true
+  roles:
+    - global
+
+  tasks:
+    - name: Stop Sonarr container
+      ansible.builtin.import_role:
+        name: docker_service_deploy
+        tasks_from: stop.yml
+      vars:
+        docker_service_deploy_container_name: "sonarr"
+
+- name: Restore Sonarr database on PostgreSQL host
+  hosts: pgdb
+  become: true
+  gather_facts: true
+  roles:
+    - global
+
+  tasks:
+    - name: Import database_restore.yml from sonarr_setup role
+      ansible.builtin.import_role:
+        name: sonarr_setup
+        tasks_from: database_restore.yml
+
+- name: Start Sonarr after restoring the database
+  hosts: sonarr
+  become: true
+  gather_facts: true
+  roles:
+    - global
+
+  tasks:
+    - name: Start Sonarr container
+      ansible.builtin.import_role:
+        name: docker_service_deploy
+        tasks_from: start.yml
+      vars:
+        docker_service_deploy_container_name: "sonarr"
+        docker_service_deploy_config_dir: "{{ sonarr_setup_config_dir | default('/config') }}"

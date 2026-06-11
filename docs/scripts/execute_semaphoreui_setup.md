@@ -2,13 +2,14 @@
 
 ## 📖 Purpose
 
-This script provides a lightweight, API‑driven interface for triggering a Semaphore UI task template by name. It is used by GitHub Actions to execute the **Setup Semaphore** task inside the **Home Lab** project whenever inventory changes occur.  
+This script provides a lightweight, API‑driven interface for triggering a Semaphore UI task template by name. It is used by GitHub Actions to execute the **Setup Semaphore** task inside the **Home Lab** project whenever inventory changes occur.
 
 Instead of running Ansible locally, this script delegates execution to Semaphore UI, ensuring consistent environments, centralized automation, and a clean separation between **desired state** (Git) and **state application** (Semaphore).
 
 ---
 
-## 📁 Location  
+## 📁 Location
+
 `scripts/execute_semaphoreui_setup.py`
 
 ---
@@ -17,11 +18,11 @@ Instead of running Ansible locally, this script delegates execution to Semaphore
 
 The script performs the following steps:
 
-1. **Reads required environment variables**  
-   - Semaphore API URL  
-   - API token  
-   - Project name  
-   - Template name  
+1. **Reads required environment variables**
+   - Semaphore API URL
+   - API token
+   - Project name
+   - Template name
 
 2. **Authenticates with Semaphore UI** using a Bearer token.
 
@@ -31,9 +32,9 @@ The script performs the following steps:
 
 5. **Executes the template** using Semaphore’s REST API.
 
-6. **Prints execution details**, including:  
-   - Execution ID  
-   - Direct monitoring URL  
+6. **Prints execution details**, including:
+   - Execution ID
+   - Direct monitoring URL
 
 This makes it easy for GitHub Actions logs to link directly to the running task.
 
@@ -43,12 +44,12 @@ This makes it easy for GitHub Actions logs to link directly to the running task.
 
 The script relies entirely on environment variables for configuration:
 
-| Variable Name       | Description |
-|---------------------|-------------|
-| `SEMAPHORE_URL`     | Base API URL (e.g., `https://semaphore.refol.us/api`) |
-| `SEMAPHORE_TOKEN`   | API token used for authentication |
-| `PROJECT_NAME`      | Name of the Semaphore project (e.g., `Home Lab`) |
-| `TEMPLATE_NAME`     | Name of the task template to execute (e.g., `Setup Semaphore`) |
+| Variable Name     | Description                                                    |
+| ----------------- | -------------------------------------------------------------- |
+| `SEMAPHORE_URL`   | Base API URL (e.g., `https://semaphore.refol.us/api`)          |
+| `SEMAPHORE_TOKEN` | API token used for authentication                              |
+| `PROJECT_NAME`    | Name of the Semaphore project (e.g., `Home Lab`)               |
+| `TEMPLATE_NAME`   | Name of the task template to execute (e.g., `Setup Semaphore`) |
 
 These are injected by GitHub Actions, but the script can also be run locally by exporting the same variables.
 
@@ -58,19 +59,19 @@ These are injected by GitHub Actions, but the script can also be run locally by 
 
 The script is intentionally simple and modular:
 
-- `get_env()`  
+- `get_env()`
   Ensures required environment variables are present.
 
-- `fetch_project_id()`  
+- `fetch_project_id()`
   Retrieves the project list and finds the matching project.
 
-- `fetch_template_id()`  
+- `fetch_template_id()`
   Retrieves templates for the project and finds the matching template.
 
-- `execute_template()`  
+- `execute_template()`
   Sends the API request to start a new task execution.
 
-- `main()`  
+- `main()`
   Orchestrates the full flow and prints results.
 
 ---
@@ -94,19 +95,35 @@ This will trigger the task and print the execution URL.
 
 ## 🔑 Key Points
 
-- **No hard‑coded IDs** — the script resolves project and template IDs dynamically.  
-- **API‑driven** — uses Semaphore’s REST API for all operations.  
-- **Reusable** — can be called from GitHub Actions, CLI, or other automation.  
-- **Minimal dependencies** — only requires the `requests` library.  
+- **No hard‑coded IDs** — the script resolves project and template IDs dynamically.
+- **API‑driven** — uses Semaphore’s REST API for all operations.
+- **Reusable** — can be called from GitHub Actions, CLI, or other automation.
+- **Minimal dependencies** — only requires the `requests` library.
 - **Contributor‑friendly** — clear error messages and explicit environment variables.
+
+---
+
+## ⚠️ Cloudflare Caveat
+
+If Semaphore UI is behind Cloudflare, this script may fail even when the API token and URL are correct.
+
+One confirmed cause is **Cloudflare Bot Fight Mode**. When it is enabled, requests from GitHub Actions or other non-browser clients can be challenged and receive a Cloudflare HTML page such as `Just a moment...` instead of the expected Semaphore API JSON.
+
+Symptoms include:
+
+- failures while fetching projects or templates
+- HTML returned from `/api/projects` instead of JSON
+- Cloudflare challenge text such as `Enable JavaScript and cookies to continue`
+
+If this happens, disable **Bot Fight Mode** or exempt the Semaphore API path or hostname from Cloudflare bot challenges. The Semaphore API must be reachable by non-browser clients for this script to work.
 
 ---
 
 ## 🧩 Related Documentation
 
-- **Workflow:**  
+- **Workflow:**
   [`trigger-semaphoreui-setup.yml`](../workflows/trigger-semaphoreui-setup.md)
 
-- **Semaphore UI:**  
-  Project: *Home Lab*  
-  Task Template: *Setup Semaphore*
+- **Semaphore UI:**
+  Project: _Home Lab_
+  Task Template: _Setup Semaphore_

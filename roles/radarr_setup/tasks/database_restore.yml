@@ -1,0 +1,57 @@
+---
+
+- name: Find Radarr database backups when no restore path is provided
+  ansible.builtin.find:
+    paths: "{{ radarr_setup_backup_dir }}"
+    patterns: "{{ radarr_setup_backup_prefix }}*.sqlc"
+    file_type: file
+  register: radarr_setup_restore_backups
+  when: radarr_setup_restore_path | default('') | length == 0
+
+- name: Fail when no Radarr database backup is available
+  ansible.builtin.fail:
+    msg: >-
+      No Radarr database backup was found in {{ radarr_setup_backup_dir }}. Set
+      radarr_setup_restore_path to a specific .sqlc backup file or create a backup
+      first.
+  when:
+    - radarr_setup_restore_path | default('') | length == 0
+    - radarr_setup_restore_backups.matched | int == 0
+
+- name: Select Radarr database backup to restore
+  ansible.builtin.set_fact:
+    radarr_setup_restore_source_path: >-
+      {{
+        radarr_setup_restore_path
+        if (radarr_setup_restore_path | default('') | length > 0)
+        else (
+          radarr_setup_restore_backups.files
+          | sort(attribute='mtime', reverse=true)
+          | map(attribute='path')
+          | first
+        )
+      }}
+
+- name: Check selected Radarr database backup exists
+  ansible.builtin.stat:
+    path: "{{ radarr_setup_restore_source_path }}"
+  register: radarr_setup_restore_backup_stat
+
+- name: Fail when selected Radarr database backup does not exist
+  ansible.builtin.fail:
+    msg: "Radarr database backup not found: {{ radarr_setup_restore_source_path }}"
+  when: not radarr_setup_restore_backup_stat.stat.exists
+
+- name: Restore PostgreSQL database using pg_restore
+  ansible.builtin.shell: |
+    set -euo pipefail
+    /usr/lib/postgresql/{{ postgresql_setup_version }}/bin/dropdb --if-exists -h {{ radarr_setup_pg_host }} -p {{ radarr_setup_pg_port }} {{ radarr_setup_db_name }}
+    /usr/lib/postgresql/{{ postgresql_setup_version }}/bin/createdb --owner={{ radarr_setup_db_user }} -h {{ radarr_setup_pg_host }} -p {{ radarr_setup_pg_port }} {{ radarr_setup_db_name }}
+    /usr/lib/postgresql/{{ postgresql_setup_version }}/bin/pg_restore --dbname={{ radarr_setup_db_name }} -h {{ radarr_setup_pg_host }} -p {{ radarr_setup_pg_port }} {{ radarr_setup_restore_source_path }}
+  args:
+    executable: /bin/bash
+  become: true
+  become_user: postgres
+  register: radarr_setup_restore_result
+  failed_when: radarr_setup_restore_result.rc != 0
+  changed_when: true

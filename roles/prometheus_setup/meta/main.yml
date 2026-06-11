@@ -2,7 +2,8 @@
 galaxy_info:
   role_name: prometheus_setup
   author: Frank Refol
-  description: Installs Prometheus.
+  description: >
+    Installs and configures a Prometheus monitoring system on Debian/Ubuntu.
   license: MIT
   min_ansible_version: "2.9"
   platforms:

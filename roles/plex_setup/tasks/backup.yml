@@ -6,7 +6,7 @@
     state: directory
     owner: root
     group: root
-    mode: '0755'
+    mode: "0755"
 
 - name: Stop Plex service before backup
   ansible.builtin.service:
@@ -17,7 +17,7 @@
   community.general.archive:
     path: "{{ plex_setup_data_dir }}"
     dest: "{{ plex_setup_backup_file }}"
-    mode: '0755'
+    mode: "0755"
     format: gz
     remove: false
 
@@ -26,17 +26,17 @@
     name: plexmediaserver
     state: started
 
-- name: Find backups that are older than 7 days (keep a weeks worth of backups)
+- name: Find Plex backups
   ansible.builtin.find:
     paths: "{{ plex_setup_backup_dir }}"
     patterns: "plex_backup_*.tar.gz"
-    age: 7d
     recurse: false
-  register: plex_setup_old_backups
+  register: plex_setup_backups
 
-- name: Remove old backups (keep last 7)
+- name: Remove old backups and keep the latest 7
   ansible.builtin.file:
     path: "{{ item.path }}"
     state: absent
-  loop: "{{ plex_setup_old_backups.files[-7:] | sort(attribute='mtime') }}"
-  when: plex_setup_old_backups.matched > 7
+  loop: "{{ (plex_setup_backups.files |
+    sort(attribute='mtime'))[:(plex_setup_backups.matched - 7)] }}"
+  when: plex_setup_backups.matched > 7

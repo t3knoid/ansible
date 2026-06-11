@@ -19,10 +19,12 @@
 | [`disks`](./disks.md) | Prepares an attached disk by formatting and mounting to a defined mountpoint. Removes mounts from fstab that is associated with a none existing device. |
 | [`docker_service_deploy`](./docker_service_deploy.md) | Ansible role to deploy and manage Docker services using Docker Compose, with configuration templating and optional pre/post deployment hooks. This role is designed to be reusable for various Docker services. |
 | [`docker_setup`](./docker_setup.md) | Installs Docker and Docker Compose on Debian/Ubuntu systems. |
+| [`ecube_setup`](./ecube_setup.md) | Installs ECUBE from GitHub Releases using the upstream Linux installer. |
 | [`elasticsearch_setup`](./elasticsearch_setup.md) | Install and configure Elasticsearch on Debian/Ubuntu |
 | [`entra_id_oauth2`](./entra_id_oauth2.md) | Configures entra_id settings for oAuth2-enabled sites. |
 | [`fstab`](./fstab.md) | Manage fstab entries on Debian/Ubuntu. |
 | [`geyser_setup`](./geyser_setup.md) | Installs and configures GeyserMC on Debian/Ubuntu systems as documented at https://geysermc.org/wiki/geyser/setup/?host=self&platform=standalone |
+| [`gh_cli_setup`](./gh_cli_setup.md) | Install GitHub CLI (gh) on Debian/Ubuntu |
 | [`global`](./global.md) | Provides global defaults common to all roles. It provides the IP definition of each host in the datacenter. Every host must be defined here with its corresponding IP address. Other global variables are also defined here. |
 | [`grafana_setup`](./grafana_setup.md) | Install and configure Grafana on Debian/Ubuntu |
 | [`graphite_setup`](./graphite_setup.md) | Installs and configures Graphite on Debian/Ubuntu systems. |
@@ -45,6 +47,7 @@
 | [`pbs`](./pbs.md) | Installs and configures Proxmox Backup Server on Ubuntu systems. |
 | [`pihole`](./pihole.md) | Installs and configures Pi-hole on Ubuntu systems (https://pi-hole.net/). Provides tasks to manage Pi-hole settings and configurations. |
 | [`playwright`](./playwright.md) | Installs playwright. |
+| [`prometheus_setup`](./prometheus_setup.md) | Installs and configures a Prometheus monitoring system on Debian/Ubuntu. |
 | [`pve`](./pve.md) | Contains tasks to manage the Proxmox Virtual Environment |
 | [`pxeserver_setup`](./pxeserver_setup.md) | The pxeserver_setup role is used to install and configure a [PXE server](https://ubuntu.com/server/docs/how-to-netboot-the-server-installer-on-amd64). For this to work under TP-Link Omada router, enable the "Legal DHCP Servers" setting and set it to the PXE server IP address. |
 | [`python3`](./python3.md) | Installs Python 3 from the Python Software Foundation (PSF) repository. There is also an alternate option is to compile Python 3 from source. |

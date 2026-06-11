@@ -49,6 +49,12 @@ _Inventory for `ansible` hosts_
 ### `ruby`
 - `ansible-0`
 
+### `docker`
+- `ansible-0`
+
+### `gh_cli`
+- `ansible-0`
+
 ## ⚙️ Group Variables
 _No group variables defined._
 
@@ -73,13 +79,13 @@ _No group variables defined._
 - `vms`
 
 ### `rproxy`
-- `rproxy_primary`
 - `rproxy_secondary`
 - `rproxy_main`
+- `rproxy_primary`
 
 ### `cname`
 - `code_server`
 
 ### `python`
-- `ansible`
 - `wsl`
+- `ansible`

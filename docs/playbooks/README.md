@@ -45,10 +45,15 @@
 | [`dns/show_hosts.yml`](./show_hosts.md) | Show the current configuration of the Pi-hole DNS server |
 | [`dns/update_pihole_dns.yml`](./update_pihole_dns.md) | Update DNS settings on the Pi-hole DNS server |
 | [`docker/deploy_docker.yml`](./deploy_docker.md) | Deploy Docker on Docker hosts |
+| [`ecube/backup_db.yml`](./backup_db.md) | Backup ECUBE database to NFS share |
+| [`ecube/create_db.yml`](./create_db.md) | Create PostgreSQL database for ECUBE on the database server |
+| [`ecube/deploy_ecube.yml`](./deploy_ecube.md) | Deploy ECUBE on ecube hosts. |
 | [`geyser/deploy_geyser.yml`](./deploy_geyser.md) | Deploy Geyser Minecraft server proxy |
+| [`gh_cli/deploy_gh_cli.yml`](./deploy_gh_cli.md) | Install GitHub CLI on target hosts |
 | [`grafana/backup_db.yml`](./backup_db.md) | Backup Grafana database to NFS share |
 | [`grafana/create_db.yml`](./create_db.md) | Create PostgreSQL database for Grafana on the database server |
 | [`grafana/deploy_grafana.yml`](./deploy_grafana.md) | Deploy Grafana monitoring tool on Grafana hosts |
+| [`grafana/restore_db.yml`](./restore_db.md) | Restore Grafana PostgreSQL database from backup. |
 | [`graphite/deploy_graphite.yml`](./deploy_graphite.md) | Install and configure Graphite monitoring tool on all hosts |
 | [`graphite/restart_carbon_cache.yml`](./restart_carbon_cache.md) | Restart the carbon-cache service on Graphite hosts |
 | [`graphite/start_carbon_cache.yml`](./start_carbon_cache.md) | Start the carbon-cache service on Graphite hosts |
@@ -80,10 +85,12 @@
 | [`ombi/backup_db.yml`](./backup_db.md) | Backup Ombi database to NFS share |
 | [`ombi/create_db.yml`](./create_db.md) | Create Ombi PostgreSQL database on pgdb hosts |
 | [`ombi/deploy_ombi.yml`](./deploy_ombi.md) | Deploy Ombi application on Ombi hosts |
+| [`ombi/restore_db.yml`](./restore_db.md) | Restore Ombi PostgreSQL database from backup. |
 | [`plex/backup_plex.yml`](./backup_plex.md) | Backup Plex Media Server configuration on plex hosts |
 | [`plex/deploy_plex.yml`](./deploy_plex.md) | Install and configure Plex Media Server on plex hosts |
+| [`plex/restore_plex.yml`](./restore_plex.md) | Restore Plex Media Server configuration from backup archive. |
 | [`postgresql/deploy_postgresql.yml`](./deploy_postgresql.md) | Install and configure PostgreSQL on pgdb hosts |
-| [`prometheus/backup_db.yml`](./backup_db.md) | Backup Prometheus database to NFS share |
+| [`prometheus/backup_db.yml`](./backup_db.md) | Create a point-in-time copy of all current data stored in Prometheus. |
 | [`prometheus/deploy_node_exporter.yml`](./deploy_node_exporter.md) | Deploy Node Exporter on Prometheus hosts |
 | [`prometheus/deploy_prometheus.yml`](./deploy_prometheus.md) | Deploy Prometheus monitoring system |
 | [`proxmox/deploy_ceph.yml`](./deploy_ceph.md) | Install Ceph storage cluster on Proxmox nodes |
@@ -99,6 +106,7 @@
 | [`redmine/create_db.yml`](./create_db.md) | Create PostgreSQL database for Redmine application. |
 | [`redmine/deploy_redmine.yml`](./deploy_redmine.md) | Deploy Redmine application on redmine hosts. |
 | [`redmine/mirror_wiki.yml`](./mirror_wiki.md) | Mirror Redmine wiki to GitHub |
+| [`redmine/restore_db.yml`](./restore_db.md) | Restore Redmine PostgreSQL database from backup. |
 | [`rproxy/config_rproxy.yml`](./config_rproxy.md) | Configures Reverse Proxy for specified sites. rproxy_setup_sites variable should be defined in the inventory or host_vars. |
 | [`rproxy/deploy_rproxy.yml`](./deploy_rproxy.md) | Sets up Reverse Proxy on rproxy hosts. |
 | [`ruby/deploy_ruby.yml`](./deploy_ruby.md) | Installs Ruby on ruby hosts. |
@@ -106,6 +114,7 @@
 | [`semaphoreui/check_semaphore_version.yml`](./check_semaphore_version.md) | Check the latest version of SemaphoreUI available. |
 | [`semaphoreui/create_db.yml`](./create_db.md) | Create PostgreSQL database for Semaphore UI application. |
 | [`semaphoreui/deploy_semaphoreui.yml`](./deploy_semaphoreui.md) | Installs Semaphore UI application on semaphore hosts. |
+| [`semaphoreui/restore_db.yml`](./restore_db.md) | Restore Semaphoreui PostgreSQL database from backup. |
 | [`semaphoreui/setup_semaphoreui.yml`](./setup_semaphoreui.md) | Sets up Semaphore UI application on semaphore hosts. It configures the Semaphore using the values in the semaphoreui_setup_projects variable. This playbook assumes that Semaphore UI has been installed. |
 | [`services/backup_lidarr_db.yml`](./backup_lidarr_db.md) | Backup Lidarr database to NFS share. |
 | [`services/backup_radarr_db.yml`](./backup_radarr_db.md) | Backup Radarr database to NFS share. |
@@ -121,6 +130,9 @@
 | [`services/deploy_radarr.yml`](./deploy_radarr.md) | Installs Radarr application. |
 | [`services/deploy_sabnzbd.yml`](./deploy_sabnzbd.md) | Installs Sabnzbd application. |
 | [`services/deploy_sonarr.yml`](./deploy_sonarr.md) | Installs Sonarr application. |
+| [`services/restore_lidarr_db.yml`](./restore_lidarr_db.md) | Restore Lidarr PostgreSQL database from backup. |
+| [`services/restore_radarr_db.yml`](./restore_radarr_db.md) | Restore Radarr PostgreSQL database from backup. |
+| [`services/restore_sonarr_db.yml`](./restore_sonarr_db.md) | Restore Sonarr PostgreSQL database from backup. |
 | [`services/start_all.yml`](./start_all.md) | Starts all media services. |
 | [`services/start_lidarr.yml`](./start_lidarr.md) | Starts Lidarr service. |
 | [`services/start_radarr.yml`](./start_radarr.md) | Starts Radarr service. |
@@ -134,7 +146,8 @@
 | [`synology/prep_ansible.yml`](./prep_ansible.md) | Prepares Synology NAS for Ansible management by configuring DNS entries, reverse proxy, and Python environment. |
 | [`tautulli/backup_db.yml`](./backup_db.md) | Backs up Tautulli database and configuration files to a specified NFS share. |
 | [`tautulli/deploy_tautulli.yml`](./deploy_tautulli.md) | Deploys Tautulli media tracking service with necessary configurations and NFS mounts. |
-| [`template/create_template.yml`](./create_template.md) | Creates a VM template using cloud-init on the specified Proxmox node. |
+| [`tautulli/restore_db.yml`](./restore_db.md) | Restore Tautulli PostgreSQL database from backup. |
+| [`template/create_ubuntu_24_04_server_template.yml`](./create_ubuntu_24_04_server_template.md) | Creates an Ubuntu 24.04 Server VM template using cloud-init on the specified Proxmox node. |
 | [`terraform/deploy_terraform.yml`](./deploy_terraform.md) | Installs Terraform |
 | [`tplink/deploy_omada_controller.yml`](./deploy_omada_controller.md) | Installs and configures Tp-Link Omada Controller |
 | [`ubuntu/check_ubuntu_install.yml`](./check_ubuntu_install.md) | Checks if Ubuntu is installed on the target machine |

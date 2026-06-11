@@ -1,0 +1,14 @@
+---
+
+# Purpose: Creates an Ubuntu 24.04 Server VM template using cloud-init on the specified Proxmox node.
+
+- name: Create an Ubuntu 24.04 Server Template
+  hosts: ubuntu24
+  gather_facts: false
+  become: true
+  roles:
+    - global
+    - role: cloudinit
+      delegate_to: "{{ template['ubuntu_24_server'].proxmox_node }}"
+      vars:
+        ansible_python_interpreter: /usr/bin/python3

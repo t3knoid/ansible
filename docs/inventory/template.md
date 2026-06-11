@@ -5,9 +5,6 @@ _Inventory for `template` hosts_
 📄 **Source:** [`inventory/template/inventory.ini`](../../inventory/template/inventory.ini)
 
 ## 👥 Groups & Hosts
-### `template`
-- `ubu24-template`
-
 ### `ubuntu24`
 - `ubu24-template`
 

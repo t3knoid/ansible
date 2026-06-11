@@ -24,26 +24,62 @@ Installs and configures a Sonarr Docker container. It uses a container distribut
 | `sonarr_setup_pg_host` | `"{{ global_ip_addresses[groups['pgdb'][0]] }}"` |  |
 | `sonarr_setup_mount_point` | `/nfs/backups` | sonarr_setup_db_password |
 | `sonarr_setup_backup_prefix` | `"sonarr_"` |  |
-| `sonarr_setup_backup_filename` | `"{{ sonarr_setup_backup_prefix }}{{ ansible_date_time.date }}.sqlc"` |  |
+| `sonarr_setup_backup_filename` | `"{{ sonarr_setup_backup_prefix }}{{ ansible_date_time.iso8601_basic_short }}.sqlc"` |  |
 | `sonarr_setup_backups_dir` | `"{{ sonarr_setup_mount_point }}/sonarr"` |  |
 | `sonarr_setup_backup_path` | `"{{ sonarr_setup_backups_dir }}/{{ sonarr_setup_backup_filename }}"` |  |
-| `sonarr_setup_authentication_method` | `"External"  # Options: Basic, Forms, External` |  |
-| `sonarr_setup_authentication_required` | `"DisabledForLocalAddresses"  # Options: Enabled, DisabledForLocalAddresses` |  |
+| `sonarr_setup_restore_path` | `""` |  |
+| `sonarr_setup_api_url` | `"http://127.0.0.1:{{ sonarr_setup_port }}"` |  |
+| `sonarr_setup_api_validate_certs` | `false` |  |
+| `sonarr_setup_root_folders` | `` |  |
+| `- path` | `/tv` |  |
+| `sonarr_setup_download_clients` | `` |  |
+| `- name` | `sabnzbd` |  |
+| `implementation` | `Sabnzbd` |  |
+| `enable` | `true` |  |
+| `priority` | `1` |  |
+| `fields` | `` |  |
+| `host` | `"{{ global_ip_addresses[groups['sabnzbd'][0]] }}"` |  |
+| `port` | `8080` |  |
+| `tvCategory` | `tv` |  |
+| `sonarr_setup_indexers` | `` |  |
+| `- name` | `nzbgeek` |  |
+| `implementation` | `Newznab` |  |
+| `enable_rss` | `true` |  |
+| `enable_automatic_search` | `true` |  |
+| `enable_interactive_search` | `true` |  |
+| `priority` | `1` |  |
+| `download_client_name` | `sabnzbd` |  |
+| `fields` | `` |  |
+| `baseUrl` | `https://api.nzbgeek.info` |  |
+| `apiKey` | `"{{ nzbgeek_api_key }}"` |  |
+| `categories` | `` |  |
+| `- name` | `nzb.su` |  |
+| `implementation` | `Newznab` |  |
+| `enable_rss` | `true` |  |
+| `enable_automatic_search` | `true` |  |
+| `enable_interactive_search` | `true` |  |
+| `priority` | `1` |  |
+| `download_client_name` | `sabnzbd` |  |
+| `fields` | `` |  |
+| `baseUrl` | `https://api.nzb.su` |  |
+| `apiKey` | `"{{ nzbsu_api_key }}"` |  |
+| `categories` | `` |  |
+| `sonarr_setup_configure_api` | `>-` |  |
+| `sonarr_setup_authentication_method` | `"External" # Options: Basic, Forms, External` |  |
+| `sonarr_setup_authentication_required` | `"DisabledForLocalAddresses" # Options: Enabled, DisabledForLocalAddresses` |  |
 
 ## 📦 Vars
 _No constant variables found._
 
 ## 📑 Tasks
 - Deploy Sonarr Docker Service
+- Configure Sonarr Through API
 
 ## 🔔 Handlers
 - Restart PostgreSQL
 
 ## 🔗 Dependencies
-- `global`
-- `users`
-- `autofs`
-- `docker_setup`
+_No dependencies listed._
 
 ## 🚀 Example Usage
 ```yaml

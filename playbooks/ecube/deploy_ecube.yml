@@ -1,0 +1,16 @@
+---
+
+# Purpose: Deploy ECUBE on ecube hosts.
+
+- name: Create ECUBE postgresql database
+  import_playbook: create_db.yml
+
+- name: Deploy ECUBE
+  hosts: ecube
+  become: true
+  gather_facts: true
+  roles:
+    - global
+    - users
+    - autofs
+    - ecube_setup

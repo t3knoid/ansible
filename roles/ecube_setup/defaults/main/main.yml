@@ -1,0 +1,53 @@
+---
+ecube_setup_version: "0.2.0"
+ecube_setup_release_tag: "v{{ ecube_setup_version }}"
+ecube_setup_install_dir: "/opt/ecube"
+ecube_setup_release_base_url: "https://github.com/t3knoid/ecube/releases/download/{{ ecube_setup_release_tag }}"
+ecube_setup_package_archive: "ecube-package-{{ ecube_setup_release_tag }}.tar.gz"
+ecube_setup_package_checksum: "ecube-package-{{ ecube_setup_release_tag }}.sha256"
+ecube_setup_package_url: "{{ ecube_setup_release_base_url }}/{{ ecube_setup_package_archive }}"
+ecube_setup_checksum_url: "{{ ecube_setup_release_base_url }}/{{ ecube_setup_package_checksum }}"
+ecube_setup_download_dir: "/tmp/ecube-{{ ecube_setup_release_tag }}"
+ecube_setup_archive_path: "{{ ecube_setup_download_dir }}/{{ ecube_setup_package_archive }}"
+ecube_setup_checksum_path: "{{ ecube_setup_download_dir }}/{{ ecube_setup_package_checksum }}"
+ecube_setup_extract_dir: "{{ ecube_setup_download_dir }}/extracted"
+ecube_setup_package_dir: "{{ ecube_setup_extract_dir }}/ecube-package-{{ ecube_setup_release_tag }}"
+ecube_setup_install_script_path: "{{ ecube_setup_package_dir }}/install.sh"
+ecube_setup_prerequisite_packages:
+  - ca-certificates
+  - tar
+  - curl
+  - openssl
+  - exfatprogs
+  - nfs-common
+  - cifs-utils
+  - smbclient
+  - usbutils
+  - util-linux
+  - passwd
+  - libpam-pwquality
+ecube_setup_linux_modules_extra_package: "linux-modules-extra-{{ ansible_kernel }}"
+ecube_setup_cleanup_downloads: true
+ecube_setup_no_tls: false
+ecube_setup_demo: false
+ecube_setup_run_setup_wizard: true
+ecube_setup_http_port: "{{ 80 if ecube_setup_no_tls else 8443 }}"
+ecube_setup_base_url: "{{ 'http' if ecube_setup_no_tls else 'https' }}://127.0.0.1:{{ ecube_setup_http_port }}"
+
+ecube_setup_pg_port: 5432
+ecube_setup_pg_host: "{{ global_ip_address }}"
+ecube_setup_mount_point: /nfs/backups
+ecube_setup_backup_prefix: "ecube_"
+ecube_setup_backup_filename: "{{ ecube_setup_backup_prefix }}{{ ansible_date_time.iso8601_basic_short }}.sqlc"
+ecube_setup_backup_dir: "{{ ecube_setup_mount_point }}/ecube"
+ecube_setup_backup_path: "{{ ecube_setup_backup_dir }}/{{ ecube_setup_backup_filename }}"
+ecube_setup_trust_proxy_headers: false
+
+# These are stored in the vault
+# ecube_setup_db_name
+# ecube_setup_db_user
+# ecube_setup_db_password
+# ecube_setup_pgadmin_user
+# ecube_setup_pgadmin_password
+# ecube_setup_admin_username
+# ecube_setup_admin_password

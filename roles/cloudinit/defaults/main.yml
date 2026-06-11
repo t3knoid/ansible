@@ -1,9 +1,15 @@
 ---
 
+cloudinit_template_os: "ubuntu_24_server"
+cloudinit_template: "{{ template[cloudinit_template_os] }}"
+cloudinit_template_name: "{{ cloudinit_template.name }}"
+cloudinit_vmid: "{{ cloudinit_template.vmid }}"
+cloudinit_memory_mb: "{{ cloudinit_template.memory_mb }}"
+cloudinit_storage: "{{ cloudinit_template.storage }}"
+cloudinit_network_device: "{{ cloudinit_template.network_device }}"
+cloudinit_scsi_controller_model: "{{ cloudinit_template.scsi_controller_model }}"
+cloudinit_cpu_type: "{{ cloudinit_template.cpu_type }}"
+cloudinit_agent_enabled: "{{ cloudinit_template.agent_enabled | default(true, true) }}"
+cloudinit_proxmox_node: "{{ cloudinit_template.proxmox_node }}"
 cloudinit_download_dest: "/tmp/{{ global_os[cloudinit_template_os].cloudinit_img }}"
-cloudinit_memory_mb: 2048
-cloudinit_storage: local
-cloudinit_network_device: "virtio,bridge=vmbr0"
-cloudinit_scsi_controller_model: virtio-scsi-pci
-cloudinit_cpu_type: host
-cloudinit_agent_enabled: true
+cloudinit_ostype: "{{ cloudinit_template.ostype | default('l26', true) }}"

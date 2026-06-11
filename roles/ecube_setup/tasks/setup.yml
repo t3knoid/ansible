@@ -1,0 +1,99 @@
+---
+- name: Wait for ECUBE setup status endpoint
+  ansible.builtin.uri:
+    url: "{{ ecube_setup_base_url }}/setup/status"
+    validate_certs: false
+    status_code: 200
+  register: ecube_setup_status
+  retries: 20
+  delay: 3
+  until: ecube_setup_status.status == 200
+
+- name: Show ecube_setup_status
+  ansible.builtin.debug:
+    var: ecube_setup_status.json
+
+- name: Check if ECUBE database is already provisioned
+  when:
+    - not ecube_setup_status.json.initialized
+  ansible.builtin.uri:
+    url: "{{ ecube_setup_base_url }}/setup/database/provision-status"
+    validate_certs: false
+    status_code: 200
+  register: ecube_setup_provision_status
+
+- name: Provision ECUBE database via setup API if not already provisioned
+  when:
+    - not ecube_setup_status.json.initialized
+    - not (ecube_setup_provision_status.skipped | default(false))
+    - not ecube_setup_provision_status.json.provisioned
+  ansible.builtin.uri:
+    url: "{{ ecube_setup_base_url }}/setup/database/provision"
+    method: POST
+    validate_certs: false
+    body_format: json
+    body:
+      host: "{{ '127.0.0.1' if ecube_setup_pg_host == global_ip_address else ecube_setup_pg_host }}"
+      port: "{{ ecube_setup_pg_port if ecube_setup_pg_host == global_ip_address else 5433 }}"
+      admin_username: "{{ ecube_setup_pgadmin_user }}"
+      admin_password: "{{ ecube_setup_pgadmin_password }}"
+      app_database: "{{ ecube_setup_db_name }}"
+      app_username: "{{ ecube_setup_db_user }}"
+      app_password: "{{ ecube_setup_db_password }}"
+    status_code: 200
+  register: ecube_setup_database_provision_result
+
+- name: Show database provision result
+  when:
+    - ecube_setup_database_provision_result is defined
+    - not (ecube_setup_database_provision_result.skipped | default(false))
+  ansible.builtin.debug:
+    var: ecube_setup_database_provision_result.json
+
+- name: Get ECUBE public auth config if demo mode is enabled
+  when: ecube_setup_demo | bool
+  ansible.builtin.uri:
+    url: "{{ ecube_setup_base_url }}/auth/public-config"
+    validate_certs: false
+    status_code: 200
+  register: ecube_setup_public_config
+
+- name: Override admin credentials with demo credentials when demo mode is enabled
+  no_log: true
+  when:
+    - ecube_setup_demo | bool
+    - ecube_setup_public_config is defined
+  ansible.builtin.set_fact:
+    ecube_setup_admin_username: "{{ ecube_setup_public_config.json.setup_account_username }}"
+    ecube_setup_admin_password: "{{ ecube_setup_public_config.json.shared_password }}"
+
+- name: Run first-run initialization via setup API if not already initialized
+  when:
+    - not ecube_setup_status.json.initialized
+  ansible.builtin.uri:
+    url: "{{ ecube_setup_base_url }}/setup/initialize"
+    method: POST
+    validate_certs: false
+    body_format: json
+    body:
+      username: "{{ ecube_setup_admin_username }}"
+      password: "{{ ecube_setup_admin_password }}"
+      trust_proxy_headers: "{{ ecube_setup_trust_proxy_headers }}"
+    status_code: 200
+  register: ecube_setup_result
+
+- name: Show setup initialization result
+  when:
+    - ecube_setup_result is defined
+    - not (ecube_setup_result.skipped | default(false))
+  ansible.builtin.debug:
+    var: ecube_setup_result.json
+
+- name: Remove ECUBE downloaded package artifacts
+  when: ecube_setup_cleanup_downloads | bool
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "{{ ecube_setup_download_dir }}"
+    - "{{ ecube_setup_extract_dir }}"

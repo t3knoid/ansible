@@ -1,14 +1,17 @@
 ---
-
 - name: Deploy Radarr Docker Service
   ansible.builtin.import_role:
     name: docker_service_deploy
   vars:
     docker_service_deploy_config_dir: "{{ radarr_setup_config_dir }}"
-    docker_service_deploy_backups_dir: "{{ radarr_setup_backups_dir }}"
+    docker_service_deploy_backups_dir: "{{ radarr_setup_backup_dir }}"
     docker_service_deploy_config_templates:
       - src: "config.xml.j2"
         dest: "config.xml"
         mode: "0640"
     docker_service_deploy_compose_template: "docker-compose.yml.j2"
     docker_service_deploy_container_name: "radarr"
+
+- name: Configure Radarr Through API
+  ansible.builtin.import_tasks: configure_api.yml
+  when: radarr_setup_configure_api

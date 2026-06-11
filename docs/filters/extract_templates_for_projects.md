@@ -28,7 +28,7 @@ Each entry in `dynamic_template_sets` must contain:
 
 | Key           | Type | Description                                                            |
 | ------------- | ---- | ---------------------------------------------------------------------- |
-| `project`     | str  | Name of the project this template set belongs to.                      |
+| `project`     | str  | Optional. Name of the project this template set belongs to.            |
 | `name_prefix` | str  | Prefix to use when naming the template (e.g., "Check connection to").  |
 | `playbook`    | str  | Path to the playbook to run.                                           |
 | `inventories` | list | List of inventories the template applies to.                           |
@@ -43,8 +43,8 @@ Each entry in `dynamic_template_sets` must contain:
 
 ## 🔹 **Filter Behavior**
 
-1. Iterates over all dynamic template sets.
-2. Filters to only include sets matching the `project_name`.
+1. Iterates over all dynamic template sets passed to the filter.
+2. If a template set includes `project`, filters to only include sets matching the `project_name`.
 3. Expands each template across all inventories listed in the template set.
 4. Generates a **list of dictionaries** in the following format:
 
@@ -80,7 +80,7 @@ Each entry in `dynamic_template_sets` must contain:
 
 ### **Explanation**
 
-1. `dynamic_template_sets` contains all dynamic template definitions.
+1. `dynamic_template_sets` contains the dynamic template definitions to expand.
 2. `semaphoreui_setup_inventories` is the list of inventories detected for this project.
 3. `"Home Lab"` is the project name for which templates are generated.
 4. The filter returns a list of **fully expanded task templates** ready to append to `semaphoreui_setup_projects`.
@@ -100,7 +100,7 @@ Dynamic templates are merged into the project definition during setup:
         | map(
             'combine',
             {
-              'templates': item.templates + (dynamic_template_sets
+              'templates': item.templates + (dynamic_template_sets.get(item.name, [])
                                              | extract_templates_for_project(semaphoreui_setup_inventories, item.name))
             }
           )
@@ -112,3 +112,5 @@ Dynamic templates are merged into the project definition during setup:
 ```
 
 This ensures that **dynamic templates** are fully included alongside **static templates** before Semaphore UI task creation.
+
+In this repository, `dynamic_template_sets` is keyed by project name in `dynamic_templates.yml`, so the role passes the project-specific list into the filter. The optional `project` field is still supported for compatibility.

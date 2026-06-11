@@ -1,0 +1,57 @@
+---
+
+- name: Find Tautulli database backups when no restore path is provided
+  ansible.builtin.find:
+    paths: "{{ tautulli_setup_backup_dir }}"
+    patterns: "{{ tautulli_setup_backup_prefix }}*.sqlc"
+    file_type: file
+  register: tautulli_setup_restore_backups
+  when: tautulli_setup_restore_path | default('') | length == 0
+
+- name: Fail when no Tautulli database backup is available
+  ansible.builtin.fail:
+    msg: >-
+      No Tautulli database backup was found in {{ tautulli_setup_backup_dir }}. Set
+      tautulli_setup_restore_path to a specific .sqlc backup file or create a backup
+      first.
+  when:
+    - tautulli_setup_restore_path | default('') | length == 0
+    - tautulli_setup_restore_backups.matched | int == 0
+
+- name: Select Tautulli database backup to restore
+  ansible.builtin.set_fact:
+    tautulli_setup_restore_source_path: >-
+      {{
+        tautulli_setup_restore_path
+        if (tautulli_setup_restore_path | default('') | length > 0)
+        else (
+          tautulli_setup_restore_backups.files
+          | sort(attribute='mtime', reverse=true)
+          | map(attribute='path')
+          | first
+        )
+      }}
+
+- name: Check selected Tautulli database backup exists
+  ansible.builtin.stat:
+    path: "{{ tautulli_setup_restore_source_path }}"
+  register: tautulli_setup_restore_backup_stat
+
+- name: Fail when selected Tautulli database backup does not exist
+  ansible.builtin.fail:
+    msg: "Tautulli database backup not found: {{ tautulli_setup_restore_source_path }}"
+  when: not tautulli_setup_restore_backup_stat.stat.exists
+
+- name: Restore PostgreSQL database using pg_restore
+  ansible.builtin.shell: |
+    set -euo pipefail
+    /usr/lib/postgresql/{{ postgresql_setup_version }}/bin/dropdb --if-exists -h {{ tautulli_setup_pg_host }} -p {{ tautulli_setup_pg_port }} {{ tautulli_setup_db_name }}
+    /usr/lib/postgresql/{{ postgresql_setup_version }}/bin/createdb --owner={{ tautulli_setup_db_user }} -h {{ tautulli_setup_pg_host }} -p {{ tautulli_setup_pg_port }} {{ tautulli_setup_db_name }}
+    /usr/lib/postgresql/{{ postgresql_setup_version }}/bin/pg_restore --dbname={{ tautulli_setup_db_name }} -h {{ tautulli_setup_pg_host }} -p {{ tautulli_setup_pg_port }} {{ tautulli_setup_restore_source_path }}
+  args:
+    executable: /bin/bash
+  become: true
+  become_user: postgres
+  register: tautulli_setup_restore_result
+  failed_when: tautulli_setup_restore_result.rc != 0
+  changed_when: true

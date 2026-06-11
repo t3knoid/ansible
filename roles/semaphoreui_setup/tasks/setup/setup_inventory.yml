@@ -5,12 +5,10 @@
 
 - name: Get the credentials id
   ansible.builtin.set_fact:
-    keystore_id: "{{ (project_keys | selectattr('name', 'equalto', project_inventory_to_add.credentials)) | map(attribute='id') | first }}"
-  when: project_inventory_to_add.credentials is defined and (project_inventory_to_add.credentials | default([]) | length > 0)
-
-- name: Set project ID payload
-  ansible.builtin.set_fact:
-    keystore_id_payload: "{{ {'ssh_key_id': (keystore_id  | int)} }}"
+    keystore_id: "{{ (project_keys | selectattr('name', 'equalto',
+      project_inventory_to_add.credentials)) | map(attribute='id') | first }}"
+  when: project_inventory_to_add.credentials is defined and
+    (project_inventory_to_add.credentials | default([]) | length > 0)
 
 - name: Extract inventory metadata and create new payload for api body
   ansible.builtin.set_fact:
@@ -29,6 +27,38 @@
         project_inventories | map(attribute='name') | list
       }}
 
+- name: Update inventory {{ project_inventory_to_add.name }}
+  ansible.builtin.uri:
+    url: "{{ inventory_api_url }}/{{ existing_inventory.id }}"
+    method: PUT
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+      Authorization: "Bearer {{ semaphoreui_setup_api_token }}"
+    body_format: json
+    body: >-
+      {{
+        inventory_api_body_payload |
+        combine({
+          'id': (existing_inventory.id | int),
+          'project_id': (current_project_id | int),
+          'ssh_key_id': (keystore_id | int),
+          'become_key_id': (existing_inventory.become_key_id | default(None)),
+          'template_id': (existing_inventory.template_id | default(None)),
+          'repository_id': (existing_inventory.repository_id | default(None)),
+          'runner_tag': (existing_inventory.runner_tag | default(None))
+        })
+      }}
+    status_code: 204
+  vars:
+    existing_inventory: "{{ (project_inventories | selectattr('name', 'equalto',
+      project_inventory_to_add.name) | list | first) }}"
+  when:
+    - project_inventory_to_add.name in existing_inventory_names
+    - existing_inventory.type != inventory_api_body_payload.type or
+      existing_inventory.inventory != inventory_api_body_payload.inventory or
+      (existing_inventory.ssh_key_id | default(None)) != (keystore_id | int)
+
 - name: Create inventory {{ project_inventory_to_add.name }}
   ansible.builtin.uri:
     url: "{{ inventory_api_url }}"
@@ -41,8 +71,10 @@
     body: >-
       {{
         inventory_api_body_payload |
-        combine(project_id_payload) |
-        combine(keystore_id_payload)
+        combine({
+          'project_id': current_project_id | int,
+          'ssh_key_id': keystore_id | int
+        })
       }}
     status_code: 201
   when: project_inventory_to_add.name not in existing_inventory_names

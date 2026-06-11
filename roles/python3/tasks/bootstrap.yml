@@ -1,32 +1,10 @@
 # This file bootstraps Python on a host with no Python installed.
 # It uses raw for all early tasks, then switches to normal modules once Python exists.
 
-- name: Remove legacy deadsnakes.list file
+- name: Remove existing deadsnakes apt source files
   ansible.builtin.raw: |
-    if [ -f /etc/apt/sources.list.d/deadsnakes.list ]; then
-      rm -f /etc/apt/sources.list.d/deadsnakes.list
-    fi
-  changed_when: false
-
-- name: Remove legacy ppa_deadsnakes_ppa_noble.list file
-  ansible.builtin.raw: |
-    if [ -f /etc/apt/sources.list.d/ppa_deadsnakes_ppa_noble.list ]; then
-      rm -f /etc/apt/sources.list.d/ppa_deadsnakes_ppa_noble.list
-    fi
-  changed_when: false
-
-- name: Remove existing legacy Deadsnakes repo list file
-  ansible.builtin.raw: |
-    if [ -f /etc/apt/sources.list.d/deadsnakes-ubuntu-ppa-noble.sources.list ]; then
-      rm -f /etc/apt/sources.list.d/deadsnakes-ubuntu-ppa-noble.sources.list
-    fi
-  changed_when: false
-
-- name: Remove existing deadsnakes-ubuntu-ppa-noble.sources file
-  ansible.builtin.raw: |
-    if [ -f /etc/apt/sources.list.d/deadsnakes-ubuntu-ppa-noble.sources ]; then
-      rm -f /etc/apt/sources.list.d/deadsnakes-ubuntu-ppa-noble.sources
-    fi
+    find /etc/apt/sources.list.d -maxdepth 1 -type f \( -name '*.list' -o -name '*.sources' \) \
+      -exec grep -lE 'ppa\.launchpadcontent\.net/deadsnakes/ppa/ubuntu|ppa:deadsnakes/ppa' {} + | xargs -r rm -f
   changed_when: false
 
 - name: Add deadsnakes apt repository key
@@ -46,14 +24,14 @@
   ansible.builtin.raw: apt-get update -y
   changed_when: false
 
-- name: Install python{{ python3_version }}
+- name: Install requested Python version
   ansible.builtin.raw: |
     if ! dpkg -s python{{ python3_version }} >/dev/null 2>&1; then
       apt-get install -y python{{ python3_version }}
     fi
   changed_when: false
 
-- name: Register Python {{ python3_version }} as an alternative
+- name: Register requested Python version as an alternative
   ansible.builtin.raw: |
     update-alternatives --install /usr/bin/python3 python3 /usr/bin/python{{ python3_version }} 100
   changed_when: false
@@ -65,9 +43,9 @@
 - name: Gather facts now that Python is available
   ansible.builtin.setup:
 
-# ------------------------------------------------------------
-# Normal Ansible tasks can follow
-# ------------------------------------------------------------
+    # ------------------------------------------------------------
+    # Normal Ansible tasks can follow
+    # ------------------------------------------------------------
 
 - name: Create Python virtual environment
   ansible.builtin.include_tasks: venv.yml

@@ -1,0 +1,23 @@
+- name: Find existing Radarr root folder
+  ansible.builtin.set_fact:
+    radarr_setup_existing_root_folder: >-
+      {{
+        (radarr_setup_root_folders_response.json
+        | selectattr('path', 'equalto', radarr_root_folder.path)
+        | list
+        | first)
+        | default({})
+      }}
+
+- name: Create Radarr root folder when missing
+  ansible.builtin.uri:
+    url: "{{ radarr_setup_api_url }}/api/v3/rootfolder"
+    method: POST
+    headers:
+      X-Api-Key: "{{ radarr_setup_resolved_api_key }}"
+    validate_certs: "{{ radarr_setup_api_validate_certs }}"
+    body_format: json
+    body:
+      path: "{{ radarr_root_folder.path }}"
+    status_code: 201
+  when: radarr_setup_existing_root_folder.id is not defined

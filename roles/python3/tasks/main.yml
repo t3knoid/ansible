@@ -1,30 +1,24 @@
 ---
+- name: Find existing deadsnakes apt source files
+  ansible.builtin.shell: |
+    find /etc/apt/sources.list.d -maxdepth 1 -type f \( -name '*.list' -o -name '*.sources' \) \
+      -exec grep -lE 'ppa\.launchpadcontent\.net/deadsnakes/ppa/ubuntu|ppa:deadsnakes/ppa' {} +
+  register: python3_deadsnakes_source_files
+  changed_when: false
+  failed_when: false
 
-- name: Remove legacy deadsnakes.list file
+- name: Remove existing deadsnakes apt source files
   ansible.builtin.file:
-    path: "/etc/apt/sources.list.d/deadsnakes.list"
+    path: "{{ item }}"
     state: absent
-
-- name: Remove legacy ppa_deadsnakes_ppa_noble.list file
-  ansible.builtin.file:
-    path: "/etc/apt/sources.list.d/ppa_deadsnakes_ppa_noble.list"
-    state: absent
-
-- name: Remove existing legacy Deadsnakes repo list file
-  ansible.builtin.file:
-    path: "/etc/apt/sources.list.d/deadsnakes-ubuntu-ppa-noble.sources.list"
-    state: absent
-
-- name: Remove existing deadsnakes-ubuntu-ppa-noble.sources file
-  ansible.builtin.file:
-    path: "/etc/apt/sources.list.d/deadsnakes-ubuntu-ppa-noble.sources"
-    state: absent
+  loop: "{{ python3_deadsnakes_source_files.stdout_lines }}"
+  when: python3_deadsnakes_source_files.stdout_lines | length > 0
 
 - name: Add deadsnakes apt repository key.
   ansible.builtin.get_url:
     url: "{{ python3_repo_key_url }}"
     dest: "{{ python3_repo_key_local }}"
-    mode: '0644'
+    mode: "0644"
     force: true
 
 - name: Remove deadsnakes apt repository
@@ -48,7 +42,7 @@
     package: "python{{ python3_version }}"
     autoremove: true
 
-- name: Register Python {{ python3_version }} as an alternative
+- name: Register requested Python version as an alternative
   community.general.alternatives:
     name: python3
     path: "/usr/bin/python{{ python3_version }}"

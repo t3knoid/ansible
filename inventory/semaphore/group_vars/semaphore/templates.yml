@@ -1,11 +1,10 @@
 ---
-
 semaphoreui_setup_projects_templates:
   "Home Lab":
     - name: "Backup Semaphore Database"
       playbook: "playbooks/semaphoreui/backup_db.yml"
       app: "ansible"
-      arguments: "[\"-k\"]"
+      arguments: '["-k"]'
       inventory: "semaphore"
       credentials:
         - "Ansible vault password"
@@ -15,7 +14,7 @@ semaphoreui_setup_projects_templates:
     - name: "Backup Ombi Database"
       playbook: "playbooks/ombi/backup_db.yml"
       app: "ansible"
-      arguments: "[\"-k\"]"
+      arguments: '["-k"]'
       inventory: "ombi"
       credentials:
         - "Ansible vault password"
@@ -25,7 +24,7 @@ semaphoreui_setup_projects_templates:
     - name: "Backup Lidarr Database"
       playbook: "playbooks/services/backup_lidarr_db.yml"
       app: "ansible"
-      arguments: "[\"-k\"]"
+      arguments: '["-k"]'
       inventory: "services"
       credentials:
         - "Ansible vault password"
@@ -35,7 +34,7 @@ semaphoreui_setup_projects_templates:
     - name: "Backup Sonarr Database"
       playbook: "playbooks/services/backup_sonarr_db.yml"
       app: "ansible"
-      arguments: "[\"-k\"]"
+      arguments: '["-k"]'
       inventory: "services"
       credentials:
         - "Ansible vault password"
@@ -45,7 +44,7 @@ semaphoreui_setup_projects_templates:
     - name: "Backup Radarr Database"
       playbook: "playbooks/services/backup_radarr_db.yml"
       app: "ansible"
-      arguments: "[\"-k\"]"
+      arguments: '["-k"]'
       inventory: "services"
       credentials:
         - "Ansible vault password"
@@ -55,7 +54,7 @@ semaphoreui_setup_projects_templates:
     - name: "Backup Tautulli Database"
       playbook: "playbooks/tautulli/backup_db.yml"
       app: "ansible"
-      arguments: "[\"-k\"]"
+      arguments: '["-k"]'
       inventory: "tautulli"
       credentials:
         - "Ansible vault password"
@@ -65,7 +64,7 @@ semaphoreui_setup_projects_templates:
     - name: "Backup Plex"
       playbook: "playbooks/plex/backup_plex.yml"
       app: "ansible"
-      arguments: "[\"-k\"]"
+      arguments: '["-k"]'
       inventory: "plex"
       credentials:
         - "Ansible vault password"
@@ -75,7 +74,7 @@ semaphoreui_setup_projects_templates:
     - name: "Backup Grafana Database"
       playbook: "playbooks/grafana/backup_db.yml"
       app: "ansible"
-      arguments: "[\"-k\"]"
+      arguments: '["-k"]'
       inventory: "grafana"
       credentials:
         - "Ansible vault password"
@@ -85,7 +84,7 @@ semaphoreui_setup_projects_templates:
     - name: "Backup Prometheus Database"
       playbook: "playbooks/prometheus/backup_db.yml"
       app: "ansible"
-      arguments: "[\"-k\"]"
+      arguments: '["-k"]'
       inventory: "prometheus"
       credentials:
         - "Ansible vault password"
@@ -95,7 +94,7 @@ semaphoreui_setup_projects_templates:
     - name: "Backup Redmine Database"
       playbook: "playbooks/redmine/backup_db.yml"
       app: "ansible"
-      arguments: "[\"-k\"]"
+      arguments: '["-k"]'
       inventory: "redmine"
       credentials:
         - "Ansible vault password"
@@ -105,7 +104,7 @@ semaphoreui_setup_projects_templates:
     - name: "Setup Semaphore"
       playbook: "playbooks/semaphoreui/setup_semaphoreui.yml"
       app: "ansible"
-      arguments: "[\"-k\"]"
+      arguments: '["-k"]'
       inventory: "semaphore"
       credentials:
         - "Ansible vault password"
@@ -115,7 +114,7 @@ semaphoreui_setup_projects_templates:
     - name: "Request Certificates for lab.refol.us"
       playbook: "playbooks/certs/generate_certs.yml"
       app: "ansible"
-      arguments: "[\"-k\"]"
+      arguments: '["-k"]'
       inventory: "redmine"
       credentials:
         - "Ansible vault password"
@@ -125,7 +124,7 @@ semaphoreui_setup_projects_templates:
     - name: "Stage Certificates for lab.refol.us"
       playbook: "playbooks/certs/stage_certs.yml"
       app: "ansible"
-      arguments: "[\"-k\"]"
+      arguments: '["-k"]'
       inventory: "redmine"
       credentials:
         - "Ansible vault password"
@@ -135,7 +134,7 @@ semaphoreui_setup_projects_templates:
     - name: "Request Certificates for all hosts"
       playbook: "playbooks/certs/generate_all_certs.yml"
       app: "ansible"
-      arguments: "[\"-k\"]"
+      arguments: '["-k"]'
       inventory: "rproxy"
       credentials:
         - "Ansible vault password"
@@ -145,7 +144,7 @@ semaphoreui_setup_projects_templates:
     - name: "Stage Certificates for all hosts"
       playbook: "playbooks/certs/stage_all_certs.yml"
       app: "ansible"
-      arguments: "[\"-k\"]"
+      arguments: '["-k"]'
       inventory: "rproxy"
       credentials:
         - "Ansible vault password"
@@ -155,7 +154,7 @@ semaphoreui_setup_projects_templates:
     - name: "Distribute Certificates to Proxmox Nodes"
       playbook: "playbooks/certs/distribute_pve_certs.yml"
       app: "ansible"
-      arguments: "[\"-k\"]"
+      arguments: '["-k"]'
       inventory: "pve"
       credentials:
         - "Ansible vault password"
@@ -165,7 +164,7 @@ semaphoreui_setup_projects_templates:
     - name: "Deploy Sonarr"
       playbook: "playbooks/services/deploy_sonarr.yml"
       app: "ansible"
-      arguments: "[\"-k\"]"
+      arguments: '["-k"]'
       inventory: "services"
       credentials:
         - "Ansible vault password"
@@ -175,7 +174,7 @@ semaphoreui_setup_projects_templates:
     - name: "Deploy Radarr"
       playbook: "playbooks/services/deploy_radarr.yml"
       app: "ansible"
-      arguments: "[\"-k\"]"
+      arguments: '["-k"]'
       inventory: "services"
       credentials:
         - "Ansible vault password"
@@ -185,7 +184,7 @@ semaphoreui_setup_projects_templates:
     - name: "Deploy Lidarr"
       playbook: "playbooks/services/deploy_lidarr.yml"
       app: "ansible"
-      arguments: "[\"-k\"]"
+      arguments: '["-k"]'
       inventory: "services"
       credentials:
         - "Ansible vault password"
@@ -195,7 +194,7 @@ semaphoreui_setup_projects_templates:
     - name: "Deploy Calibreweb"
       playbook: "playbooks/services/deploy_calibreweb.yml"
       app: "ansible"
-      arguments: "[\"-k\"]"
+      arguments: '["-k"]'
       inventory: "services"
       credentials:
         - "Ansible vault password"
@@ -205,7 +204,7 @@ semaphoreui_setup_projects_templates:
     - name: "Deploy Calibre"
       playbook: "playbooks/services/deploy_calibre.yml"
       app: "ansible"
-      arguments: "[\"-k\"]"
+      arguments: '["-k"]'
       inventory: "services"
       credentials:
         - "Ansible vault password"
@@ -215,7 +214,7 @@ semaphoreui_setup_projects_templates:
     - name: "Deploy Lazy Librarian"
       playbook: "playbooks/services/deploy_lazylibrarian.yml"
       app: "ansible"
-      arguments: "[\"-k\"]"
+      arguments: '["-k"]'
       inventory: "services"
       credentials:
         - "Ansible vault password"
@@ -225,7 +224,7 @@ semaphoreui_setup_projects_templates:
     - name: "Deploy Sabnzbd"
       playbook: "playbooks/services/deploy_sabnzbd.yml"
       app: "ansible"
-      arguments: "[\"-k\"]"
+      arguments: '["-k"]'
       inventory: "services"
       credentials:
         - "Ansible vault password"
@@ -235,7 +234,7 @@ semaphoreui_setup_projects_templates:
     - name: "Deploy Redmine"
       playbook: "playbooks/redmine/deploy_redmine.yml"
       app: "ansible"
-      arguments: "[\"-k\"]"
+      arguments: '["-k"]'
       inventory: "redmine"
       credentials:
         - "Ansible vault password"
@@ -245,7 +244,7 @@ semaphoreui_setup_projects_templates:
     - name: "Deploy Plex"
       playbook: "playbooks/plex/deploy_plex.yml"
       app: "ansible"
-      arguments: "[\"-k\"]"
+      arguments: '["-k"]'
       inventory: "plex"
       credentials:
         - "Ansible vault password"
@@ -255,7 +254,7 @@ semaphoreui_setup_projects_templates:
     - name: "Deploy Bedrock"
       playbook: "playbooks/minecraft/deploy_bedrock.yml"
       app: "ansible"
-      arguments: "[\"-k\"]"
+      arguments: '["-k"]'
       inventory: "minecraft"
       credentials:
         - "Ansible vault password"
@@ -265,7 +264,7 @@ semaphoreui_setup_projects_templates:
     - name: "Deploy Ombi"
       playbook: "playbooks/ombi/deploy_ombi.yml"
       app: "ansible"
-      arguments: "[\"-k\"]"
+      arguments: '["-k"]'
       inventory: "ombi"
       credentials:
         - "Ansible vault password"
@@ -275,8 +274,28 @@ semaphoreui_setup_projects_templates:
     - name: "Deploy Code Server"
       playbook: "playbooks/deploy_code_server.yml"
       app: "ansible"
-      arguments: "[\"-k\"]"
+      arguments: '["-k"]'
       inventory: "ansible"
+      credentials:
+        - "Ansible vault password"
+      repository: "Ansible"
+      view: "Deploys"
+      environment: "Empty"
+    - name: "Deploy ECUBE"
+      playbook: "playbooks/ecube/deploy_ecube.yml"
+      app: "ansible"
+      arguments: '["-k"]'
+      inventory: "ecube"
+      credentials:
+        - "Ansible vault password"
+      repository: "Ansible"
+      view: "Deploys"
+      environment: "Empty"
+    - name: "Deploy Tautulli"
+      playbook: "playbooks/tautulli/deploy_tautulli.yml"
+      app: "ansible"
+      arguments: '["-k"]'
+      inventory: "tautulli"
       credentials:
         - "Ansible vault password"
       repository: "Ansible"
@@ -285,7 +304,7 @@ semaphoreui_setup_projects_templates:
     - name: "Bedrock Update Check"
       playbook: "playbooks/minecraft/check_bedrock_version.yml"
       app: "ansible"
-      arguments: "[\"-k\"]"
+      arguments: '["-k"]'
       inventory: "minecraft"
       credentials:
         - "Ansible vault password"
@@ -295,7 +314,7 @@ semaphoreui_setup_projects_templates:
     - name: "SemaphoreUI Update Check"
       playbook: "playbooks/semaphoreui/check_semaphore_version.yml"
       app: "ansible"
-      arguments: "[\"-k\"]"
+      arguments: '["-k"]'
       inventory: "semaphore"
       credentials:
         - "Ansible vault password"
@@ -305,7 +324,7 @@ semaphoreui_setup_projects_templates:
     - name: "Reboot Sonarr"
       playbook: "playbooks/vms/reboot_vm.yml"
       app: "ansible"
-      arguments: "[\"-k -l sonarr\"]"
+      arguments: '["-k -l sonarr"]'
       inventory: "services"
       credentials:
         - "Ansible vault password"
@@ -315,7 +334,7 @@ semaphoreui_setup_projects_templates:
     - name: "Reboot Radarr"
       playbook: "playbooks/vms/reboot_vm.yml"
       app: "ansible"
-      arguments: "[\"-k\",\"-l radarr\"]"
+      arguments: '["-k","-l radarr"]'
       inventory: "services"
       credentials:
         - "Ansible vault password"
@@ -325,7 +344,7 @@ semaphoreui_setup_projects_templates:
     - name: "Reboot Lidarr"
       playbook: "playbooks/vms/reboot_vm.yml"
       app: "ansible"
-      arguments: "[\"-k\",\"-l lidarr\"]"
+      arguments: '["-k","-l lidarr"]'
       inventory: "services"
       credentials:
         - "Ansible vault password"
@@ -335,7 +354,7 @@ semaphoreui_setup_projects_templates:
     - name: "Reboot Sabnzbd"
       playbook: "playbooks/vms/reboot_vm.yml"
       app: "ansible"
-      arguments: "[\"-k\",\"-l sabnzbd\"]"
+      arguments: '["-k","-l sabnzbd"]'
       inventory: "services"
       credentials:
         - "Ansible vault password"
@@ -345,7 +364,7 @@ semaphoreui_setup_projects_templates:
     - name: "Reboot Plex"
       playbook: "playbooks/vms/reboot_vm.yml"
       app: "ansible"
-      arguments: "[\"-k\",\"-l plex\"]"
+      arguments: '["-k","-l plex"]'
       inventory: "plex"
       credentials:
         - "Ansible vault password"
@@ -355,7 +374,7 @@ semaphoreui_setup_projects_templates:
     - name: "Reboot Reverse Proxy Servers"
       playbook: "playbooks/vms/reboot_vm.yml"
       app: "ansible"
-      arguments: "[\"-k\"]"
+      arguments: '["-k"]'
       inventory: "rproxy"
       credentials:
         - "Ansible vault password"
@@ -365,8 +384,18 @@ semaphoreui_setup_projects_templates:
     - name: "Mirror Redmine Wiki"
       playbook: "playbooks/redmine/mirror_wiki.yml"
       app: "ansible"
-      arguments: "[\"-k\"]"
+      arguments: '["-k"]'
       inventory: "redmine"
+      credentials:
+        - "Ansible vault password"
+      repository: "Ansible"
+      view: "Deploys"
+      environment: "Empty"
+    - name: "Deploy demo.ecube.one"
+      playbook: "playbooks/ecube/deploy_ecube.yml"
+      app: "ansible"
+      arguments: '["-k", "-l ecube_demo"]'
+      inventory: "ecube"
       credentials:
         - "Ansible vault password"
       repository: "Ansible"

@@ -1,0 +1,409 @@
+- name: Find existing Lidarr provider resource
+  ansible.builtin.set_fact:
+    lidarr_setup_provider_existing_resource: >-
+      {{
+        (lidarr_provider_existing_items
+        | selectattr('name', 'equalto', lidarr_provider_item.name)
+        | list
+        | first)
+        | default({})
+      }}
+
+- name: Initialize Lidarr provider item fields
+  ansible.builtin.set_fact:
+    lidarr_setup_provider_item_fields: "{{ lidarr_provider_item.fields | default({}) }}"
+
+- name: Resolve SABnzbd inventory host for Lidarr download client
+  ansible.builtin.set_fact:
+    lidarr_setup_sabnzbd_inventory_host: >-
+      {{
+        lidarr_provider_item.api_key_inventory_host
+        | default((groups.get('sabnzbd', []) | first), true)
+      }}
+  when:
+    - lidarr_provider_type == 'downloadclient'
+    - lidarr_provider_item.implementation == 'Sabnzbd'
+    - lidarr_setup_provider_item_fields.apiKey | default('') | length == 0
+
+- name: Resolve SABnzbd config path for Lidarr download client
+  ansible.builtin.set_fact:
+    lidarr_setup_sabnzbd_config_path: >-
+      {{
+        lidarr_provider_item.api_key_config_path
+        | default(
+            (hostvars[lidarr_setup_sabnzbd_inventory_host].sabnzbd_setup_config_dir | default('/config')) ~ '/sabnzbd.ini',
+            true
+          )
+      }}
+  when:
+    - lidarr_provider_type == 'downloadclient'
+    - lidarr_provider_item.implementation == 'Sabnzbd'
+    - lidarr_setup_provider_item_fields.apiKey | default('') | length == 0
+    - lidarr_setup_sabnzbd_inventory_host | default('') | length > 0
+
+- name: Read deployed SABnzbd config file
+  no_log: true
+  ansible.builtin.slurp:
+    src: "{{ lidarr_setup_sabnzbd_config_path }}"
+  register: lidarr_setup_sabnzbd_config_ini
+  delegate_to: "{{ lidarr_setup_sabnzbd_inventory_host }}"
+  when:
+    - lidarr_provider_type == 'downloadclient'
+    - lidarr_provider_item.implementation == 'Sabnzbd'
+    - lidarr_setup_provider_item_fields.apiKey | default('') | length == 0
+    - lidarr_setup_sabnzbd_inventory_host | default('') | length > 0
+  changed_when: false
+
+- name: Extract SABnzbd API key from misc section
+  no_log: true
+  ansible.builtin.set_fact:
+    lidarr_setup_sabnzbd_api_key: >-
+      {{
+        (
+          lidarr_setup_sabnzbd_config_ini.content
+          | b64decode
+          | regex_findall('(?s)\[misc\].*?\napi_key\s*=\s*([^\n]+)')
+          | map('regex_replace', '^"(.*)"$', '\\1')
+          | list
+          | join('')
+        )
+        | trim
+      }}
+  when:
+    - lidarr_provider_type == 'downloadclient'
+    - lidarr_provider_item.implementation == 'Sabnzbd'
+    - lidarr_setup_provider_item_fields.apiKey | default('') | length == 0
+    - lidarr_setup_sabnzbd_config_ini is defined
+
+- name: Copy SABnzbd API key into Lidarr provider fields
+  no_log: true
+  ansible.builtin.set_fact:
+    lidarr_setup_provider_item_fields: >-
+      {{
+        lidarr_setup_provider_item_fields
+        | combine({'apiKey': lidarr_setup_sabnzbd_api_key}, recursive=True)
+      }}
+  when:
+    - lidarr_provider_type == 'downloadclient'
+    - lidarr_provider_item.implementation == 'Sabnzbd'
+    - lidarr_setup_sabnzbd_api_key | default('') | length > 0
+
+- name: Normalize SABnzbd category field for Lidarr schema
+  ansible.builtin.set_fact:
+    lidarr_setup_provider_item_fields: >-
+      {{
+        (lidarr_setup_provider_item_fields
+        | dict2items
+        | rejectattr('key', 'equalto', 'category')
+        | items2dict)
+        | combine({'musicCategory': lidarr_setup_provider_item_fields.category}, recursive=True)
+      }}
+  when:
+    - lidarr_provider_type == 'downloadclient'
+    - lidarr_provider_item.implementation == 'Sabnzbd'
+    - lidarr_setup_provider_item_fields.category is defined
+    - lidarr_setup_provider_item_fields.musicCategory is not defined
+
+- name: Fail when SABnzbd API key cannot be resolved
+  ansible.builtin.fail:
+    msg: >-
+      Unable to resolve the SABnzbd API key for Lidarr download client {{
+      lidarr_provider_item.name }}. Define fields.apiKey, set
+      api_key_inventory_host, or set api_key_config_path.
+  no_log: true
+  when:
+    - lidarr_provider_type == 'downloadclient'
+    - lidarr_provider_item.implementation == 'Sabnzbd'
+    - lidarr_setup_provider_item_fields.apiKey | default('') | length == 0
+
+- name: Find Lidarr provider schema
+  ansible.builtin.set_fact:
+    lidarr_setup_provider_schema_resource: >-
+      {{
+        (lidarr_provider_schema_items
+        | selectattr('implementation', 'equalto', lidarr_provider_item.implementation)
+        | list
+        | first)
+        | default({})
+      }}
+
+- name: Select Lidarr provider base resource
+  ansible.builtin.set_fact:
+    lidarr_setup_provider_base_resource: >-
+      {{
+        lidarr_setup_provider_existing_resource
+        if (lidarr_setup_provider_existing_resource.id is defined)
+        else lidarr_setup_provider_schema_resource
+      }}
+
+- name: Fail when Lidarr provider has no schema or existing resource
+  ansible.builtin.fail:
+    msg: >-
+      Unable to find a Lidarr {{ lidarr_provider_type }} schema for
+      implementation {{ lidarr_provider_item.implementation }} while reconciling
+      {{ lidarr_provider_item.name }}.
+  when: lidarr_setup_provider_base_resource == {}
+
+- name: Validate Lidarr provider field names
+  ansible.builtin.fail:
+    msg: >-
+      Unknown fields for Lidarr {{ lidarr_provider_type }} {{
+      lidarr_provider_item.name }}: {{ lidarr_setup_provider_unknown_fields |
+      join(', ') }}
+  vars:
+    lidarr_setup_provider_unknown_fields: >-
+      {{
+        lidarr_setup_provider_item_fields.keys()
+        | difference((lidarr_setup_provider_base_resource.fields | default([])) | map(attribute='name') | list)
+      }}
+  when:
+    - lidarr_setup_provider_item_fields | length > 0
+    - lidarr_setup_provider_unknown_fields | length > 0
+
+- name: Initialize Lidarr provider fields
+  ansible.builtin.set_fact:
+    lidarr_setup_provider_fields: []
+
+- name: Build Lidarr provider fields
+  ansible.builtin.set_fact:
+    lidarr_setup_provider_fields: >-
+      {{
+        lidarr_setup_provider_fields + [
+          lidarr_provider_field
+          | combine(
+              (
+                lidarr_provider_field.name in lidarr_setup_provider_item_fields
+              )
+              | ternary({'value': lidarr_setup_provider_item_fields[lidarr_provider_field.name]}, {}),
+              recursive=True
+            )
+        ]
+      }}
+  loop: "{{ lidarr_setup_provider_base_resource.fields | default([]) }}"
+  loop_control:
+    loop_var: lidarr_provider_field
+    label: "{{ lidarr_provider_field.name }}"
+
+- name: Initialize Lidarr provider payload
+  ansible.builtin.set_fact:
+    lidarr_setup_provider_payload:
+      name: "{{ lidarr_provider_item.name }}"
+      implementation: "{{ lidarr_setup_provider_base_resource.implementation }}"
+      implementationName: "{{ lidarr_setup_provider_base_resource.implementationName }}"
+      configContract: "{{ lidarr_setup_provider_base_resource.configContract }}"
+      protocol: "{{ lidarr_provider_item.protocol |
+        default(lidarr_setup_provider_base_resource.protocol) }}"
+      tags: "{{ lidarr_provider_item.tags |
+        default(lidarr_setup_provider_base_resource.tags | default([])) }}"
+      fields: "{{ lidarr_setup_provider_fields }}"
+
+- name: Add existing Lidarr provider id to payload
+  ansible.builtin.set_fact:
+    lidarr_setup_provider_payload: >-
+      {{
+        lidarr_setup_provider_payload
+        | combine({'id': lidarr_setup_provider_existing_resource.id}, recursive=True)
+      }}
+  when: lidarr_setup_provider_existing_resource.id is defined
+
+- name: Resolve Lidarr indexer download client id
+  ansible.builtin.set_fact:
+    lidarr_setup_provider_resolved_download_client_id: >-
+      {{
+        lidarr_provider_item.download_client_id
+        | default(
+            (
+              lidarr_setup_download_clients_response.json
+              | selectattr('name', 'equalto', lidarr_provider_item.download_client_name)
+              | map(attribute='id')
+              | list
+              | first
+            )
+          )
+      }}
+  when:
+    - lidarr_provider_type == 'indexer'
+    - lidarr_provider_item.download_client_id is defined or
+      lidarr_provider_item.download_client_name is defined
+
+- name: Add download client settings to Lidarr provider payload
+  ansible.builtin.set_fact:
+    lidarr_setup_provider_payload: >-
+      {{
+        lidarr_setup_provider_payload
+        | combine(
+            {
+              'enable': lidarr_provider_item.enable | default(lidarr_setup_provider_base_resource.enable),
+              'priority': lidarr_provider_item.priority | default(lidarr_setup_provider_base_resource.priority),
+              'removeCompletedDownloads': lidarr_setup_remove_completed_downloads,
+              'removeFailedDownloads': lidarr_setup_remove_failed_downloads
+            },
+            recursive=True
+          )
+      }}
+  vars:
+    lidarr_setup_remove_completed_downloads: >-
+      {{
+        lidarr_provider_item.remove_completed_downloads
+        | default(
+            lidarr_provider_item.removeCompletedDownloads
+            | default(lidarr_setup_provider_base_resource.removeCompletedDownloads)
+          )
+      }}
+    lidarr_setup_remove_failed_downloads: >-
+      {{
+        lidarr_provider_item.remove_failed_downloads
+        | default(
+            lidarr_provider_item.removeFailedDownloads
+            | default(lidarr_setup_provider_base_resource.removeFailedDownloads)
+          )
+      }}
+  when: lidarr_provider_type == 'downloadclient'
+
+- name: Add indexer settings to Lidarr provider payload
+  ansible.builtin.set_fact:
+    lidarr_setup_provider_payload: >-
+      {{
+        lidarr_setup_provider_payload
+        | combine(
+            {
+              'enableRss': lidarr_setup_enable_rss,
+              'enableAutomaticSearch': lidarr_setup_enable_automatic_search,
+              'enableInteractiveSearch': lidarr_setup_enable_interactive_search,
+              'priority': lidarr_provider_item.priority | default(lidarr_setup_provider_base_resource.priority)
+            },
+            recursive=True
+          )
+      }}
+  vars:
+    lidarr_setup_enable_rss: >-
+      {{
+        lidarr_provider_item.enable_rss
+        | default(lidarr_provider_item.enableRss | default(lidarr_setup_provider_base_resource.enableRss))
+      }}
+    lidarr_setup_enable_automatic_search: >-
+      {{
+        lidarr_provider_item.enable_automatic_search
+        | default(
+            lidarr_provider_item.enableAutomaticSearch
+            | default(lidarr_setup_provider_base_resource.enableAutomaticSearch)
+          )
+      }}
+    lidarr_setup_enable_interactive_search: >-
+      {{
+        lidarr_provider_item.enable_interactive_search
+        | default(
+            lidarr_provider_item.enableInteractiveSearch
+            | default(lidarr_setup_provider_base_resource.enableInteractiveSearch)
+          )
+      }}
+  when: lidarr_provider_type == 'indexer'
+
+- name: Add indexer download client to Lidarr provider payload
+  ansible.builtin.set_fact:
+    lidarr_setup_provider_payload: >-
+      {{
+        lidarr_setup_provider_payload
+        | combine(
+            {'downloadClientId': lidarr_setup_provider_resolved_download_client_id},
+            recursive=True
+          )
+      }}
+  when:
+    - lidarr_provider_type == 'indexer'
+    - lidarr_setup_provider_resolved_download_client_id is defined
+
+- name: Fail when Lidarr indexer download client cannot be resolved
+  ansible.builtin.fail:
+    msg: >-
+      Unable to resolve download client for Lidarr indexer {{
+      lidarr_provider_item.name }}. Set download_client_id or a valid
+      download_client_name.
+  when:
+    - lidarr_provider_type == 'indexer'
+    - lidarr_provider_item.download_client_id is defined or
+      lidarr_provider_item.download_client_name is defined
+    - lidarr_setup_provider_resolved_download_client_id is not defined or
+      lidarr_setup_provider_resolved_download_client_id | string | length == 0
+
+- name: Build current Lidarr provider payload
+  ansible.builtin.set_fact:
+    lidarr_setup_provider_current_payload: >-
+      {{
+        lidarr_setup_provider_existing_resource.id is defined
+        | ternary(
+            {
+              'id': lidarr_setup_provider_existing_resource.id,
+              'name': lidarr_setup_provider_existing_resource.name,
+              'implementation': lidarr_setup_provider_existing_resource.implementation,
+              'implementationName': lidarr_setup_provider_existing_resource.implementationName,
+              'configContract': lidarr_setup_provider_existing_resource.configContract,
+              'protocol': lidarr_setup_provider_existing_resource.protocol,
+              'tags': lidarr_setup_provider_existing_resource.tags | default([]),
+              'fields': lidarr_setup_provider_existing_resource.fields | default([])
+            }
+            | combine(
+              (lidarr_provider_type == 'downloadclient')
+                | ternary(
+                    {
+                      'enable': lidarr_setup_provider_existing_resource.enable,
+                      'priority': lidarr_setup_provider_existing_resource.priority,
+                      'removeCompletedDownloads': lidarr_setup_provider_existing_resource.removeCompletedDownloads,
+                      'removeFailedDownloads': lidarr_setup_provider_existing_resource.removeFailedDownloads
+                    },
+                    {}
+                  ),
+                recursive=True
+              )
+            | combine(
+                (lidarr_provider_type == 'indexer')
+                | ternary(
+                    {
+                      'enableRss': lidarr_setup_provider_existing_resource.enableRss,
+                      'enableAutomaticSearch': lidarr_setup_provider_existing_resource.enableAutomaticSearch,
+                      'enableInteractiveSearch': lidarr_setup_provider_existing_resource.enableInteractiveSearch,
+                      'priority': lidarr_setup_provider_existing_resource.priority,
+                      'downloadClientId': lidarr_setup_provider_existing_resource.downloadClientId
+                    },
+                    {}
+                  ),
+                recursive=True
+              ),
+            {}
+          )
+      }}
+
+- name: Create Lidarr provider resource when missing
+  no_log: false
+  ansible.builtin.uri:
+    url: "{{ lidarr_setup_api_url }}/api/v1/{{ lidarr_provider_type }}"
+    method: POST
+    headers:
+      X-Api-Key: "{{ lidarr_setup_resolved_api_key }}"
+    validate_certs: "{{ lidarr_setup_api_validate_certs }}"
+    body_format: json
+    body: "{{ lidarr_setup_provider_payload }}"
+    status_code:
+      - 200
+      - 201
+      - 202
+  when: lidarr_setup_provider_existing_resource.id is not defined
+
+- name: Update Lidarr provider resource when changed
+  no_log: true
+  ansible.builtin.uri:
+    url: "{{ lidarr_setup_api_url }}/api/v1/{{ lidarr_provider_type }}/{{
+      lidarr_setup_provider_existing_resource.id }}"
+    method: PUT
+    headers:
+      X-Api-Key: "{{ lidarr_setup_resolved_api_key }}"
+    validate_certs: "{{ lidarr_setup_api_validate_certs }}"
+    body_format: json
+    body: "{{ lidarr_setup_provider_payload }}"
+    status_code:
+      - 200
+      - 201
+      - 202
+  when:
+    - lidarr_setup_provider_existing_resource.id is defined
+    - lidarr_setup_provider_current_payload != lidarr_setup_provider_payload

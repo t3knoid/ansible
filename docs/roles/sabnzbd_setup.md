@@ -20,7 +20,7 @@ Installs and configures a Sabnzbd Docker container. It uses a Docker image distr
 | `sabnzbd_setup_port` | `8080` |  |
 | `sabnzbd_setup_mount_point` | `/nfs/backups` |  |
 | `sabnzbd_setup_backup_prefix` | `"sabnzbd_"` |  |
-| `sabnzbd_setup_backup_filename` | `"{{ sabnzbd_setup_backup_prefix }}{{ ansible_date_time.date }}.sqlc"` |  |
+| `sabnzbd_setup_backup_filename` | `"{{ sabnzbd_setup_backup_prefix }}{{ ansible_date_time.iso8601_basic_short }}.sqlc"` |  |
 | `sabnzbd_setup_backups_dir` | `"{{ sabnzbd_setup_config_dir }}/sabnzbd"` |  |
 | `sabnzbd_setup_backup_path` | `"{{ sabnzbd_setup_backups_dir }}/{{ sabnzbd_setup_backup_filename }}"` |  |
 | `sabnzbd_setup_download_dir` | `/incomplete-downloads` | sabnzbd_setup_nzb_key: see vault |
@@ -107,10 +107,7 @@ Installs and configures a Sabnzbd Docker container. It uses a Docker image distr
 _No handlers defined._
 
 ## 🔗 Dependencies
-- `global`
-- `users`
-- `autofs`
-- `docker_setup`
+_No dependencies listed._
 
 ## 🚀 Example Usage
 ```yaml

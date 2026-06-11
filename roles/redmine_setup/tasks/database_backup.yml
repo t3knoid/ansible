@@ -1,21 +1,30 @@
 ---
+- name: Ensure backup directory exists
+  ansible.builtin.file:
+    path: "{{ redmine_setup_backup_dir }}"
+    state: directory
+    owner: postgres
+    group: postgres
+    mode: "0755"
 
 - name: Backup PostgreSQL database using pg_dump
   ansible.builtin.shell: |
     set -euo pipefail
-    pg_dump -U {{ redmine_setup_db_user }} -h {{ redmine_setup_pg_host }} -Fc \
+    pg_bin="/usr/lib/postgresql/{{ postgresql_setup_version }}/bin"
+    "$pg_bin/pg_dump" -U {{ redmine_setup_db_user }} -h {{ redmine_setup_pg_host }} -Fc \
       --file={{ redmine_setup_backup_path }} {{ redmine_setup_db_name }}
   args:
     executable: /bin/bash
   become: true
   become_user: postgres
-  register: pg_backup_result
-  failed_when: pg_backup_result.rc != 0
+  register: redmine_setup_pg_backup_result
+  failed_when: redmine_setup_pg_backup_result.rc != 0
   changed_when: false
 
 - name: Keep only the latest 3 backups
   ansible.builtin.shell: |
-    ls -1t {{ redmine_setup_mount_point }}/{{ redmine_setup_backup_prefix }}*.sqlc | tail -n +4 | xargs -r rm -f
+    set -euo pipefail
+    ls -1t {{ redmine_setup_backup_dir }}/{{ redmine_setup_backup_prefix }}*.sqlc | tail -n +4 | xargs -r rm -f
   args:
     executable: /bin/bash
   become: true

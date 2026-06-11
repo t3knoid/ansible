@@ -1,0 +1,461 @@
+- name: Find existing Radarr provider resource
+  ansible.builtin.set_fact:
+    radarr_setup_provider_existing_resource: >-
+      {{
+        (radarr_provider_existing_items
+        | selectattr('name', 'match', '(?i)^' ~ (radarr_provider_item.name | regex_escape) ~ '$')
+        | list
+        | first)
+        | default({})
+      }}
+
+- name: Initialize Radarr provider item fields
+  ansible.builtin.set_fact:
+    radarr_setup_provider_item_fields: "{{ radarr_provider_item.fields | default({}) }}"
+
+- name: Resolve SABnzbd inventory host for Radarr download client
+  ansible.builtin.set_fact:
+    radarr_setup_sabnzbd_inventory_host: >-
+      {{
+        radarr_provider_item.api_key_inventory_host
+        | default((groups.get('sabnzbd', []) | first), true)
+      }}
+  when:
+    - radarr_provider_type == 'downloadclient'
+    - radarr_provider_item.implementation == 'Sabnzbd'
+    - radarr_setup_provider_item_fields.apiKey | default('') | length == 0
+
+- name: Resolve SABnzbd config path for Radarr download client
+  ansible.builtin.set_fact:
+    radarr_setup_sabnzbd_config_path: >-
+      {{
+        radarr_provider_item.api_key_config_path
+        | default(
+            (hostvars[radarr_setup_sabnzbd_inventory_host].sabnzbd_setup_config_dir | default('/config')) ~ '/sabnzbd.ini',
+            true
+          )
+      }}
+  when:
+    - radarr_provider_type == 'downloadclient'
+    - radarr_provider_item.implementation == 'Sabnzbd'
+    - radarr_setup_provider_item_fields.apiKey | default('') | length == 0
+    - radarr_setup_sabnzbd_inventory_host | default('') | length > 0
+
+- name: Read deployed SABnzbd config file
+  no_log: true
+  ansible.builtin.slurp:
+    src: "{{ radarr_setup_sabnzbd_config_path }}"
+  register: radarr_setup_sabnzbd_config_ini
+  delegate_to: "{{ radarr_setup_sabnzbd_inventory_host }}"
+  when:
+    - radarr_provider_type == 'downloadclient'
+    - radarr_provider_item.implementation == 'Sabnzbd'
+    - radarr_setup_provider_item_fields.apiKey | default('') | length == 0
+    - radarr_setup_sabnzbd_inventory_host | default('') | length > 0
+  changed_when: false
+
+- name: Extract SABnzbd API key from misc section
+  no_log: true
+  ansible.builtin.set_fact:
+    radarr_setup_sabnzbd_api_key: >-
+      {{
+        (
+          radarr_setup_sabnzbd_config_ini.content
+          | b64decode
+          | regex_findall('(?s)\[misc\].*?\napi_key\s*=\s*([^\n]+)')
+          | map('regex_replace', '^"(.*)"$', '\\1')
+          | list
+          | join('')
+        )
+        | trim
+      }}
+  when:
+    - radarr_provider_type == 'downloadclient'
+    - radarr_provider_item.implementation == 'Sabnzbd'
+    - radarr_setup_provider_item_fields.apiKey | default('') | length == 0
+    - radarr_setup_sabnzbd_config_ini is defined
+
+- name: Copy SABnzbd API key into Radarr provider fields
+  no_log: true
+  ansible.builtin.set_fact:
+    radarr_setup_provider_item_fields: >-
+      {{
+        radarr_setup_provider_item_fields
+        | combine({'apiKey': radarr_setup_sabnzbd_api_key}, recursive=True)
+      }}
+  when:
+    - radarr_provider_type == 'downloadclient'
+    - radarr_provider_item.implementation == 'Sabnzbd'
+    - radarr_setup_sabnzbd_api_key | default('') | length > 0
+
+- name: Normalize SABnzbd category field for Radarr schema
+  ansible.builtin.set_fact:
+    radarr_setup_provider_item_fields: >-
+      {{
+        (radarr_setup_provider_item_fields
+        | dict2items
+        | rejectattr('key', 'equalto', 'category')
+        | items2dict)
+        | combine({'movieCategory': radarr_setup_provider_item_fields.category}, recursive=True)
+      }}
+  when:
+    - radarr_provider_type == 'downloadclient'
+    - radarr_provider_item.implementation == 'Sabnzbd'
+    - radarr_setup_provider_item_fields.category is defined
+    - radarr_setup_provider_item_fields.movieCategory is not defined
+
+- name: Fail when SABnzbd API key cannot be resolved
+  ansible.builtin.fail:
+    msg: >-
+      Unable to resolve the SABnzbd API key for Radarr download client {{
+      radarr_provider_item.name }}. Define fields.apiKey, set
+      api_key_inventory_host, or set api_key_config_path.
+  no_log: true
+  when:
+    - radarr_provider_type == 'downloadclient'
+    - radarr_provider_item.implementation == 'Sabnzbd'
+    - radarr_setup_provider_item_fields.apiKey | default('') | length == 0
+
+- name: Find Radarr provider schema
+  ansible.builtin.set_fact:
+    radarr_setup_provider_schema_resource: >-
+      {{
+        (radarr_provider_schema_items
+        | selectattr('implementation', 'equalto', radarr_provider_item.implementation)
+        | list
+        | first)
+        | default({})
+      }}
+
+- name: Select Radarr provider base resource
+  ansible.builtin.set_fact:
+    radarr_setup_provider_base_resource: >-
+      {{
+        radarr_setup_provider_existing_resource
+        if (radarr_setup_provider_existing_resource.id is defined)
+        else radarr_setup_provider_schema_resource
+      }}
+
+- name: Fail when Radarr provider has no schema or existing resource
+  ansible.builtin.fail:
+    msg: >-
+      Unable to find a Radarr {{ radarr_provider_type }} schema for
+      implementation {{ radarr_provider_item.implementation }} while reconciling
+      {{ radarr_provider_item.name }}.
+  when: radarr_setup_provider_base_resource == {}
+
+- name: Validate Radarr provider field names
+  ansible.builtin.fail:
+    msg: >-
+      Unknown fields for Radarr {{ radarr_provider_type }} {{
+      radarr_provider_item.name }}: {{ radarr_setup_provider_unknown_fields |
+      join(', ') }}
+  vars:
+    radarr_setup_provider_unknown_fields: >-
+      {{
+        radarr_setup_provider_item_fields.keys()
+        | difference((radarr_setup_provider_base_resource.fields | default([])) | map(attribute='name') | list)
+      }}
+  when:
+    - radarr_setup_provider_item_fields | length > 0
+    - radarr_setup_provider_unknown_fields | length > 0
+
+- name: Initialize Radarr provider fields
+  ansible.builtin.set_fact:
+    radarr_setup_provider_fields: []
+
+- name: Build Radarr provider fields
+  ansible.builtin.set_fact:
+    radarr_setup_provider_fields: >-
+      {{
+        radarr_setup_provider_fields + [
+          radarr_provider_field
+          | combine(
+              (
+                radarr_provider_field.name in radarr_setup_provider_item_fields
+              )
+              | ternary({'value': radarr_setup_provider_item_fields[radarr_provider_field.name]}, {}),
+              recursive=True
+            )
+        ]
+      }}
+  loop: "{{ radarr_setup_provider_base_resource.fields | default([]) }}"
+  loop_control:
+    loop_var: radarr_provider_field
+    label: "{{ radarr_provider_field.name }}"
+
+- name: Initialize Radarr provider payload
+  ansible.builtin.set_fact:
+    radarr_setup_provider_payload:
+      name: "{{ radarr_provider_item.name }}"
+      implementation: "{{ radarr_setup_provider_base_resource.implementation }}"
+      implementationName: "{{ radarr_setup_provider_base_resource.implementationName }}"
+      configContract: "{{ radarr_setup_provider_base_resource.configContract }}"
+      protocol: "{{ radarr_provider_item.protocol |
+        default(radarr_setup_provider_base_resource.protocol) }}"
+      tags: "{{ radarr_provider_item.tags |
+        default(radarr_setup_provider_base_resource.tags | default([])) }}"
+      fields: "{{ radarr_setup_provider_fields }}"
+
+- name: Add existing Radarr provider id to payload
+  ansible.builtin.set_fact:
+    radarr_setup_provider_payload: >-
+      {{
+        radarr_setup_provider_payload
+        | combine({'id': radarr_setup_provider_existing_resource.id}, recursive=True)
+      }}
+  when: radarr_setup_provider_existing_resource.id is defined
+
+- name: Resolve Radarr indexer download client id
+  ansible.builtin.set_fact:
+    radarr_setup_provider_resolved_download_client_id: >-
+      {{
+        radarr_provider_item.download_client_id
+        | default(
+            (
+              radarr_setup_download_clients_response.json
+              | selectattr('name', 'match', '(?i)^' ~ (radarr_provider_item.download_client_name | regex_escape) ~ '$')
+              | map(attribute='id')
+              | list
+              | first
+            )
+          )
+      }}
+  when:
+    - radarr_provider_type == 'indexer'
+    - radarr_provider_item.download_client_id is defined or
+      radarr_provider_item.download_client_name is defined
+
+- name: Add download client settings to Radarr provider payload
+  ansible.builtin.set_fact:
+    radarr_setup_provider_payload: >-
+      {{
+        radarr_setup_provider_payload
+        | combine(
+            {
+              'enable': radarr_provider_item.enable | default(radarr_setup_provider_base_resource.enable),
+              'priority': radarr_provider_item.priority | default(radarr_setup_provider_base_resource.priority),
+              'removeCompletedDownloads': radarr_setup_remove_completed_downloads,
+              'removeFailedDownloads': radarr_setup_remove_failed_downloads
+            },
+            recursive=True
+          )
+      }}
+  vars:
+    radarr_setup_remove_completed_downloads: >-
+      {{
+        radarr_provider_item.remove_completed_downloads
+        | default(
+            radarr_provider_item.removeCompletedDownloads
+            | default(radarr_setup_provider_base_resource.removeCompletedDownloads)
+          )
+      }}
+    radarr_setup_remove_failed_downloads: >-
+      {{
+        radarr_provider_item.remove_failed_downloads
+        | default(
+            radarr_provider_item.removeFailedDownloads
+            | default(radarr_setup_provider_base_resource.removeFailedDownloads)
+          )
+      }}
+  when: radarr_provider_type == 'downloadclient'
+
+- name: Add indexer settings to Radarr provider payload
+  ansible.builtin.set_fact:
+    radarr_setup_provider_payload: >-
+      {{
+        radarr_setup_provider_payload
+        | combine(
+            {
+              'enableRss': radarr_setup_enable_rss,
+              'enableAutomaticSearch': radarr_setup_enable_automatic_search,
+              'enableInteractiveSearch': radarr_setup_enable_interactive_search,
+              'priority': radarr_provider_item.priority | default(radarr_setup_provider_base_resource.priority)
+            },
+            recursive=True
+          )
+      }}
+  vars:
+    radarr_setup_enable_rss: >-
+      {{
+        radarr_provider_item.enable_rss
+        | default(radarr_provider_item.enableRss | default(radarr_setup_provider_base_resource.enableRss))
+      }}
+    radarr_setup_enable_automatic_search: >-
+      {{
+        radarr_provider_item.enable_automatic_search
+        | default(
+            radarr_provider_item.enableAutomaticSearch
+            | default(radarr_setup_provider_base_resource.enableAutomaticSearch)
+          )
+      }}
+    radarr_setup_enable_interactive_search: >-
+      {{
+        radarr_provider_item.enable_interactive_search
+        | default(
+            radarr_provider_item.enableInteractiveSearch
+            | default(radarr_setup_provider_base_resource.enableInteractiveSearch)
+          )
+      }}
+  when: radarr_provider_type == 'indexer'
+
+- name: Add indexer download client to Radarr provider payload
+  ansible.builtin.set_fact:
+    radarr_setup_provider_payload: >-
+      {{
+        radarr_setup_provider_payload
+        | combine(
+            {'downloadClientId': radarr_setup_provider_resolved_download_client_id},
+            recursive=True
+          )
+      }}
+  when:
+    - radarr_provider_type == 'indexer'
+    - radarr_setup_provider_resolved_download_client_id is defined
+
+- name: Fail when Radarr indexer download client cannot be resolved
+  ansible.builtin.fail:
+    msg: >-
+      Unable to resolve download client for Radarr indexer {{
+      radarr_provider_item.name }}. Set download_client_id or a valid
+      download_client_name.
+  when:
+    - radarr_provider_type == 'indexer'
+    - radarr_provider_item.download_client_id is defined or
+      radarr_provider_item.download_client_name is defined
+    - radarr_setup_provider_resolved_download_client_id is not defined or
+      radarr_setup_provider_resolved_download_client_id | string | length == 0
+
+- name: Build current Radarr provider payload
+  ansible.builtin.set_fact:
+    radarr_setup_provider_current_payload: >-
+      {{
+        radarr_setup_provider_existing_resource.id is defined
+        | ternary(
+            {
+              'id': radarr_setup_provider_existing_resource.id,
+              'name': radarr_setup_provider_existing_resource.name,
+              'implementation': radarr_setup_provider_existing_resource.implementation,
+              'implementationName': radarr_setup_provider_existing_resource.implementationName,
+              'configContract': radarr_setup_provider_existing_resource.configContract,
+              'protocol': radarr_setup_provider_existing_resource.protocol,
+              'tags': radarr_setup_provider_existing_resource.tags | default([]),
+              'fields': radarr_setup_provider_existing_resource.fields | default([])
+            }
+            | combine(
+              (radarr_provider_type == 'downloadclient')
+                | ternary(
+                    {
+                      'enable': radarr_setup_provider_existing_resource.enable,
+                      'priority': radarr_setup_provider_existing_resource.priority,
+                      'removeCompletedDownloads': radarr_setup_provider_existing_resource.removeCompletedDownloads,
+                      'removeFailedDownloads': radarr_setup_provider_existing_resource.removeFailedDownloads
+                    },
+                    {}
+                  ),
+                recursive=True
+              )
+            | combine(
+                (radarr_provider_type == 'indexer')
+                | ternary(
+                    {
+                      'enableRss': radarr_setup_provider_existing_resource.enableRss,
+                      'enableAutomaticSearch': radarr_setup_provider_existing_resource.enableAutomaticSearch,
+                      'enableInteractiveSearch': radarr_setup_provider_existing_resource.enableInteractiveSearch,
+                      'priority': radarr_setup_provider_existing_resource.priority,
+                      'downloadClientId': radarr_setup_provider_existing_resource.downloadClientId
+                    },
+                    {}
+                  ),
+                recursive=True
+              ),
+            {}
+          )
+      }}
+
+- name: Create Radarr provider resource when missing
+  no_log: true
+  ansible.builtin.uri:
+    url: "{{ radarr_setup_api_url }}/api/v3/{{ radarr_provider_type
+      }}?forceSave=true"
+    method: POST
+    headers:
+      X-Api-Key: "{{ radarr_setup_resolved_api_key }}"
+    validate_certs: "{{ radarr_setup_api_validate_certs }}"
+    body_format: json
+    body: "{{ radarr_setup_provider_payload }}"
+    return_content: true
+  register: radarr_setup_provider_create_response
+  failed_when: false
+  when: radarr_setup_provider_existing_resource.id is not defined
+
+- name: Fail when Radarr provider create is rejected
+  ansible.builtin.fail:
+    msg: >-
+      Radarr rejected {{ radarr_provider_type }} '{{ radarr_provider_item.name
+      }}' ({{ radarr_provider_item.implementation }}) during create with HTTP {{
+      radarr_setup_provider_create_response.status | default('unknown') }}.
+      Response: {{ radarr_setup_provider_create_error_details | default('No
+      response body returned.') }}
+  vars:
+    radarr_setup_provider_create_error_details: >-
+      {{
+        (
+          (radarr_setup_provider_create_response.json is defined)
+          | ternary(
+              radarr_setup_provider_create_response.json | to_json,
+              radarr_setup_provider_create_response.content
+                | default(radarr_setup_provider_create_response.msg | default('No response body returned.'))
+            )
+        )
+        | regex_replace('\"(apiKey|password|passkey|token|secret)\"\\s*:\\s*\"[^\"]*\"', '"\\1":"***"')
+      }}
+  when:
+    - radarr_setup_provider_existing_resource.id is not defined
+    - radarr_setup_provider_create_response.status | default(0) not in [200,
+      201, 202]
+
+- name: Update Radarr provider resource when changed
+  no_log: true
+  ansible.builtin.uri:
+    url: "{{ radarr_setup_api_url }}/api/v3/{{ radarr_provider_type }}/{{
+      radarr_setup_provider_existing_resource.id }}?forceSave=true"
+    method: PUT
+    headers:
+      X-Api-Key: "{{ radarr_setup_resolved_api_key }}"
+    validate_certs: "{{ radarr_setup_api_validate_certs }}"
+    body_format: json
+    body: "{{ radarr_setup_provider_payload }}"
+    return_content: true
+  register: radarr_setup_provider_update_response
+  failed_when: false
+  when:
+    - radarr_setup_provider_existing_resource.id is defined
+    - radarr_setup_provider_current_payload != radarr_setup_provider_payload
+
+- name: Fail when Radarr provider update is rejected
+  ansible.builtin.fail:
+    msg: >-
+      Radarr rejected {{ radarr_provider_type }} '{{ radarr_provider_item.name
+      }}' ({{ radarr_provider_item.implementation }}) during update with HTTP {{
+      radarr_setup_provider_update_response.status | default('unknown') }}.
+      Response: {{ radarr_setup_provider_update_error_details | default('No
+      response body returned.') }}
+  vars:
+    radarr_setup_provider_update_error_details: >-
+      {{
+        (
+          (radarr_setup_provider_update_response.json is defined)
+          | ternary(
+              radarr_setup_provider_update_response.json | to_json,
+              radarr_setup_provider_update_response.content
+                | default(radarr_setup_provider_update_response.msg | default('No response body returned.'))
+            )
+        )
+        | regex_replace('\"(apiKey|password|passkey|token|secret)\"\\s*:\\s*\"[^\"]*\"', '"\\1":"***"')
+      }}
+  when:
+    - radarr_setup_provider_existing_resource.id is defined
+    - radarr_setup_provider_current_payload != radarr_setup_provider_payload
+    - radarr_setup_provider_update_response.status | default(0) not in [200,
+      201, 202]

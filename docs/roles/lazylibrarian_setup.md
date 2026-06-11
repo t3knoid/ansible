@@ -20,7 +20,7 @@ Installs and configures LazyLibrarian on Debian/Ubuntu systems. It uses a Docker
 | `lazylibrarian_setup_version` | `0c862d0f` |  |
 | `lazylibrarian_setup_mount_point` | `/nfs/backups` |  |
 | `lazylibrarian_setup_backup_prefix` | `"lazy_"` |  |
-| `lazylibrarian_setup_backup_filename` | `"{{ lazylibrarian_setup_backup_prefix }}{{ ansible_date_time.date }}.sqlc"` |  |
+| `lazylibrarian_setup_backup_filename` | `"{{ lazylibrarian_setup_backup_prefix }}{{ ansible_date_time.iso8601_basic_short }}.sqlc"` |  |
 | `lazylibrarian_setup_backups_dir` | `"{{ lazylibrarian_setup_mount_point }}/lazy"` |  |
 | `lazylibrarian_setup_backup_path` | `"{{ lazylibrarian_setup_backups_dir }}/{{ lazylibrarian_setup_backup_filename }}"` |  |
 | `lazylibrarian_setup_ebook_dir` | `"/books"` |  |

@@ -1,0 +1,11 @@
+---
+
+# Purpose: Install GitHub CLI on target hosts
+
+- name: Install GitHub CLI
+  hosts: gh_cli
+  become: true
+  gather_facts: true
+  roles:
+    - global
+    - gh_cli_setup

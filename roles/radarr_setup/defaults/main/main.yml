@@ -1,5 +1,4 @@
 ---
-
 radarr_setup_version: "5.27.5.10198"
 radarr_setup_config_dir: "/config"
 radarr_setup_port: 7878
@@ -17,9 +16,78 @@ radarr_setup_pg_host: "{{ global_ip_addresses[groups['pgdb'][0]] }}"
 
 radarr_setup_mount_point: /nfs/backups
 radarr_setup_backup_prefix: "radarr_"
-radarr_setup_backup_filename: "{{ radarr_setup_backup_prefix }}{{ ansible_date_time.date }}.sqlc"
-radarr_setup_backups_dir: "{{ radarr_setup_mount_point }}/radarr"
-radarr_setup_backup_path: "{{ radarr_setup_backups_dir }}/{{ radarr_setup_backup_filename }}"
+radarr_setup_backup_filename: "{{ radarr_setup_backup_prefix }}{{ ansible_date_time.iso8601_basic_short }}.sqlc"
+radarr_setup_backup_dir: "{{ radarr_setup_mount_point }}/radarr"
+radarr_setup_backup_path: "{{ radarr_setup_backup_dir }}/{{ radarr_setup_backup_filename }}"
+radarr_setup_restore_path: ""
 
-radarr_setup_authentication_method: "External"  # Options: Basic, Forms, External
-radarr_setup_authentication_required: "DisabledForLocalAddresses"  # Options: Enabled, DisabledForLocalAddresses
+radarr_setup_api_url: "http://127.0.0.1:{{ radarr_setup_port }}"
+radarr_setup_api_validate_certs: false
+
+radarr_setup_root_folders:
+  - path: /movies
+
+radarr_setup_download_clients:
+  - name: sabnzbd.refol.us
+    implementation: Sabnzbd
+    enable: true
+    priority: 1
+    remove_completed_downloads: true
+    remove_failed_downloads: true
+    fields:
+      host: 192.168.20.153
+      port: 8080
+      useSsl: false
+      username: frank
+      movieCategory: movies
+
+radarr_setup_indexers:
+  - name: Nzb.su
+    implementation: Newznab
+    enable_rss: true
+    enable_automatic_search: true
+    enable_interactive_search: true
+    priority: 25
+    fields:
+      baseUrl: https://api.nzb.su
+      apiPath: /api
+      apiKey: "{{ nzbsu_api_key }}"
+      categories:
+        - 2000
+        - 2010
+        - 2020
+        - 2030
+        - 2040
+        - 2045
+        - 2050
+        - 2060
+
+  - name: NZBgeek
+    implementation: Newznab
+    enable_rss: true
+    enable_automatic_search: true
+    enable_interactive_search: true
+    priority: 25
+    fields:
+      baseUrl: https://api.nzbgeek.info
+      apiPath: /api
+      apiKey: "{{ nzbgeek_api_key }}"
+      categories:
+        - 2000
+        - 2010
+        - 2020
+        - 2030
+        - 2040
+        - 2045
+        - 2050
+        - 2060
+
+radarr_setup_configure_api: >-
+  {{
+    (radarr_setup_root_folders | length > 0)
+    or (radarr_setup_download_clients | length > 0)
+    or (radarr_setup_indexers | length > 0)
+  }}
+
+radarr_setup_authentication_method: "External" # Options: Basic, Forms, External
+radarr_setup_authentication_required: "DisabledForLocalAddresses" # Options: Enabled, DisabledForLocalAddresses

@@ -1,5 +1,4 @@
 ---
-
 grafana_setup_version: "12.2.0"
 grafana_setup_edition: "grafana-enterprise"
 grafana_setup_tgz_file: "{{ grafana_setup_edition }}_{{ grafana_setup_version }}_17949786146_linux_amd64.tar.gz"
@@ -31,8 +30,10 @@ grafana_setup_pg_host: "{{ global_ip_addresses[groups['pgdb'][0]] }}"
 # grafana_setup_db_password
 grafana_setup_mount_point: /nfs/backups
 grafana_setup_backup_prefix: "grafana_"
-grafana_setup_backup_filename: "{{ grafana_setup_backup_prefix }}{{ ansible_date_time.date }}.sqlc"
-grafana_setup_backup_path: "{{ grafana_setup_mount_point }}/{{ grafana_setup_backup_filename }}"
+grafana_setup_backup_filename: "{{ grafana_setup_backup_prefix }}{{ ansible_date_time.iso8601_basic_short }}.sqlc"
+grafana_setup_backup_dir: "{{ grafana_setup_mount_point }}/grafana"
+grafana_setup_backup_path: "{{ grafana_setup_backup_dir }}/{{ grafana_setup_backup_filename }}"
+grafana_setup_restore_path: ""
 
 # LDAP settings
 grafana_setup_ldap_server: "192.168.2.251"
