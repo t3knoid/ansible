@@ -3,6 +3,7 @@
 | Role | Description |
 |------|-------------|
 | [`ad`](./ad.md) | Installs the required packages in order for a node to join an active directory domain. Use the user ansible (e.g. -u ansible) when using this role |
+| [`alertmanager_setup`](./alertmanager_setup.md) | Installs AlertManager. |
 | [`ansible_node`](./ansible_node.md) | Configures a node to be used as an Ansible control node. |
 | [`ansible_setup`](./ansible_setup.md) | Provides tasks to install and configure Ansible on a control node. |
 | [`autofs`](./autofs.md) | Installs and configures autofs on Debian/Ubuntu. |
@@ -47,6 +48,8 @@
 | [`pbs`](./pbs.md) | Installs and configures Proxmox Backup Server on Ubuntu systems. |
 | [`pihole`](./pihole.md) | Installs and configures Pi-hole on Ubuntu systems (https://pi-hole.net/). Provides tasks to manage Pi-hole settings and configurations. |
 | [`playwright`](./playwright.md) | Installs playwright. |
+| [`plex_setup`](./plex_setup.md) | Installs Plex Media Server. |
+| [`postgresql_setup`](./postgresql_setup.md) | Installs PostgreSQL. |
 | [`prometheus_setup`](./prometheus_setup.md) | Installs and configures a Prometheus monitoring system on Debian/Ubuntu. |
 | [`pve`](./pve.md) | Contains tasks to manage the Proxmox Virtual Environment |
 | [`pxeserver_setup`](./pxeserver_setup.md) | The pxeserver_setup role is used to install and configure a [PXE server](https://ubuntu.com/server/docs/how-to-netboot-the-server-installer-on-amd64). For this to work under TP-Link Omada router, enable the "Legal DHCP Servers" setting and set it to the PXE server IP address. |

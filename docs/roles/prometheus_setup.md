@@ -52,7 +52,6 @@ _No constant variables found._
 - Create Prometheus console_libraries directory
 - Copy Prometheus configuration file
 - Copy Prometheus rule file
-- Validate Prometheus rules with promtool
 - Create a Prometheus backup directory on /nfs/backups/
 - Bind mount NAS share to Prometheus data directory
 - Create Prometheus systemd service file
@@ -62,6 +61,7 @@ _No constant variables found._
 - Reload systemd daemon
 - Restart Prometheus service
 - Reload Prometheus configuration
+- Validate Prometheus rules with promtool
 
 ## 🔗 Dependencies
 _No dependencies listed._
