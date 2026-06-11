@@ -1,7 +1,7 @@
 ---
 # Alertmanager configuration file
 # See https://prometheus.io/docs/alerting/latest/configuration/ for details
-C
+
 {% set alertmanager_global = alertmanager_setup_global | combine({}, recursive=True) %}
 {% set alertmanager_receivers = alertmanager_setup_receivers | default([]) %}
 
@@ -15,17 +15,22 @@ C
 {% set _ = alertmanager_global.update({'pagerduty_url': alertmanager_setup_pagerduty_url}) %}
 {% endif %}
 
+# Global Alertmanager settings, including SMTP defaults used by the default email receiver.
 global:
 {{ alertmanager_global | to_nice_yaml(indent=2, sort_keys=false) | indent(2, true) }}
 
+# Notification templates loaded by Alertmanager.
 templates:
 {{ alertmanager_setup_templates | to_nice_yaml(indent=2, sort_keys=false) | indent(2, true) }}
 
+# The root route sends alerts to the default receiver unless a child route overrides it.
 route:
 {{ alertmanager_setup_route | to_nice_yaml(indent=2, sort_keys=false) | indent(2, true) }}
 
+# Default receiver: email. Override alertmanager_setup_receivers in inventory to replace or extend it.
 receivers:
 {{ alertmanager_receivers | to_nice_yaml(indent=2, sort_keys=false) | indent(2, true) }}
 
+# Default inhibition rule: critical alerts suppress matching warning alerts.
 inhibit_rules:
 {{ alertmanager_setup_inhibit_rules | to_nice_yaml(indent=2, sort_keys=false) | indent(2, true) }}
