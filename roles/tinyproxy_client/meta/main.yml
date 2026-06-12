@@ -5,7 +5,7 @@ galaxy_info:
   description: >-
     Configures Linux clients to use a Tinyproxy forward proxy for shell and APT
     traffic and Windows clients for machine environment, WinINet, and WinHTTP
-    proxy settings.
+    proxy settings using the WinHttpProxy PowerShell module.
   license: MIT
   min_ansible_version: "2.9"
   platforms:
