@@ -1,0 +1,165 @@
+---
+- name: Stop OpenVPN client when disabled
+  ansible.builtin.systemd:
+    name: "{{ openvpn_setup_service_name }}"
+    enabled: false
+    state: stopped
+  failed_when: false
+  when: not (openvpn_setup_enabled | bool)
+
+- name: Remove fail-closed firewall rules when disabled
+  ansible.builtin.command: "{{ openvpn_setup_firewall_script_path }} remove"
+  changed_when: false
+  failed_when: false
+  when:
+    - not (openvpn_setup_enabled | bool)
+    - openvpn_setup_apply_fail_closed_firewall | bool
+
+- name: Save netfilter rules after firewall cleanup
+  ansible.builtin.command: netfilter-persistent save
+  changed_when: false
+  failed_when: false
+  when:
+    - not (openvpn_setup_enabled | bool)
+    - openvpn_setup_apply_fail_closed_firewall | bool
+
+- name: Remove OpenVPN client artifacts when disabled
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "{{ openvpn_setup_client_config_path }}"
+    - "{{ openvpn_setup_auth_file }}"
+    - "{{ openvpn_setup_ca_cert_path }}"
+  when: not (openvpn_setup_enabled | bool)
+
+- name: Validate OpenVPN settings
+  ansible.builtin.assert:
+    that:
+      - openvpn_setup_remote_server | length > 0
+      - openvpn_setup_auth_username | length > 0
+      - openvpn_setup_auth_password | length > 0
+      - openvpn_setup_ca_cert | length > 0
+    fail_msg: >-
+      Set openvpn_setup_remote_server, openvpn_setup_auth_username,
+      openvpn_setup_auth_password, and openvpn_setup_ca_cert when openvpn is
+      enabled.
+  when: openvpn_setup_enabled | bool
+
+- name: Ensure OpenVPN packages are installed
+  ansible.builtin.apt:
+    name: "{{ openvpn_setup_packages }}"
+    state: present
+    update_cache: true
+  when: openvpn_setup_enabled | bool
+
+- name: Ensure OpenVPN client directory exists
+  ansible.builtin.file:
+    path: /etc/openvpn/client
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  when: openvpn_setup_enabled | bool
+
+- name: Resolve VPN server address for fail-closed firewall
+  ansible.builtin.command: "getent ahostsv4 {{ openvpn_setup_remote_server }}"
+  register: openvpn_setup_remote_lookup
+  changed_when: false
+  when:
+    - openvpn_setup_enabled | bool
+    - openvpn_setup_apply_fail_closed_firewall | bool
+
+- name: Store VPN server address for fail-closed firewall
+  ansible.builtin.set_fact:
+    openvpn_setup_remote_address: >-
+      {{
+        (openvpn_setup_remote_lookup.stdout_lines | default([])
+        | map('split') | map('first') | list | first)
+        | default(openvpn_setup_remote_server, true)
+      }}
+  when:
+    - openvpn_setup_enabled | bool
+    - openvpn_setup_apply_fail_closed_firewall | bool
+
+- name: Deploy OpenVPN credential file
+  ansible.builtin.copy:
+    dest: "{{ openvpn_setup_auth_file }}"
+    content: |
+      {{ openvpn_setup_auth_username }}
+      {{ openvpn_setup_auth_password }}
+    owner: root
+    group: root
+    mode: "0600"
+  notify: Restart OpenVPN client
+  when: openvpn_setup_enabled | bool
+
+- name: Deploy OpenVPN CA certificate
+  ansible.builtin.copy:
+    dest: "{{ openvpn_setup_ca_cert_path }}"
+    content: "{{ openvpn_setup_ca_cert | trim }}\n"
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart OpenVPN client
+  when: openvpn_setup_enabled | bool
+
+- name: Deploy OpenVPN client configuration
+  ansible.builtin.template:
+    src: client.conf.j2
+    dest: "{{ openvpn_setup_client_config_path }}"
+    owner: root
+    group: root
+    mode: "0600"
+  notify: Restart OpenVPN client
+  when: openvpn_setup_enabled | bool
+
+- name: Deploy fail-closed firewall helper
+  ansible.builtin.template:
+    src: firewall.sh.j2
+    dest: "{{ openvpn_setup_firewall_script_path }}"
+    owner: root
+    group: root
+    mode: "0755"
+  when:
+    - openvpn_setup_enabled | bool
+    - openvpn_setup_apply_fail_closed_firewall | bool
+
+- name: Apply fail-closed firewall rules
+  ansible.builtin.command: "{{ openvpn_setup_firewall_script_path }} apply"
+  changed_when: false
+  when:
+    - openvpn_setup_enabled | bool
+    - openvpn_setup_apply_fail_closed_firewall | bool
+
+- name: Persist fail-closed firewall rules
+  ansible.builtin.command: netfilter-persistent save
+  changed_when: false
+  when:
+    - openvpn_setup_enabled | bool
+    - openvpn_setup_apply_fail_closed_firewall | bool
+
+- name: Ensure OpenVPN client service is enabled and started
+  ansible.builtin.systemd:
+    name: "{{ openvpn_setup_service_name }}"
+    enabled: true
+    state: started
+  when: openvpn_setup_enabled | bool
+
+- name: Wait for VPN interface to become available
+  ansible.builtin.command: "ip link show {{ openvpn_setup_interface }}"
+  register: openvpn_setup_link_check
+  changed_when: false
+  retries: 15
+  delay: 2
+  until: openvpn_setup_link_check.rc == 0
+  when: openvpn_setup_enabled | bool
+
+- name: Verify default route uses the VPN interface
+  ansible.builtin.command: "ip route show default dev {{ openvpn_setup_interface }}"
+  register: openvpn_setup_default_route
+  changed_when: false
+  failed_when: openvpn_setup_default_route.stdout | trim == ''
+  when:
+    - openvpn_setup_enabled | bool
+    - openvpn_setup_verify_default_route | bool

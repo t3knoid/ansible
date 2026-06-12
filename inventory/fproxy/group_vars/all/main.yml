@@ -28,3 +28,12 @@ tinyproxy_setup_allowed_clients:
 
 # Future integration switch for the OpenVPN role.
 tinyproxy_setup_use_vpn: false
+
+openvpn_enabled: false
+openvpn_setup_remote_server: ""
+openvpn_setup_remote_port: 1194
+openvpn_setup_remote_protocol: udp
+openvpn_setup_dns_servers: []
+# Store VPN credentials and the provider CA certificate in inventory vault or
+# inject them at runtime with OPENVPN_SETUP_AUTH_USERNAME,
+# OPENVPN_SETUP_AUTH_PASSWORD, and openvpn_setup_ca_cert.
