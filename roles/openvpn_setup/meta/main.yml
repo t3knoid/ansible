@@ -1,0 +1,23 @@
+---
+galaxy_info:
+  author: Frank Refol
+  role_name: openvpn_setup
+  description: >
+    Installs and configures an OpenVPN client with
+    optional fail-closed egress rules for the
+    forward proxy host; expects inventory or
+    environment-provided credentials, CA
+    certificate, and remote server, applies
+    IPv4 OUTPUT fail-closed rules, and resolves
+    the VPN endpoint at deploy time
+  license: MIT
+  min_ansible_version: "2.9"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - jammy
+        - noble
+    - name: Debian
+      versions:
+        - bullseye
+        - bookworm

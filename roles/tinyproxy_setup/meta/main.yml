@@ -1,0 +1,17 @@
+---
+galaxy_info:
+  author: Frank Refol
+  role_name: tinyproxy_setup
+  description: >
+    Installs Tinyproxy and configures it as a lightweight HTTP/HTTPS proxy server
+  license: MIT
+  min_ansible_version: "2.9"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - jammy
+        - noble
+    - name: Debian
+      versions:
+        - bullseye
+        - bookworm

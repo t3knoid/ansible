@@ -1,0 +1,13 @@
+---
+tinyproxy_setup_enabled: true
+
+# Basic proxy settings
+tinyproxy_setup_listen_address: "0.0.0.0"
+tinyproxy_setup_port: 8888
+tinyproxy_setup_allowed_clients:
+  - "127.0.0.1"
+
+tinyproxy_setup_enable_authentication: false
+# Authentication credentials (if authentication is enabled)
+tinyproxy_setup_auth_username: "proxyuser"
+tinyproxy_setup_auth_password: "{{ lookup('env', 'TINYPROXY_SETUP_AUTH_PASSWORD') | default('', true) }}"

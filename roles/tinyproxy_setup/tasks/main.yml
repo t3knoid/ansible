@@ -1,0 +1,32 @@
+---
+
+- name: Install Tinyproxy
+  ansible.builtin.apt:
+    name: tinyproxy
+    state: present
+    update_cache: true
+
+- name: Validate Tinyproxy authentication settings
+  ansible.builtin.assert:
+    that:
+      - tinyproxy_setup_auth_username | length > 0
+      - tinyproxy_setup_auth_password | length > 0
+    fail_msg: >-
+      Set tinyproxy_setup_auth_username and tinyproxy_setup_auth_password when
+      tinyproxy_setup_enable_authentication is true.
+  when: tinyproxy_setup_enable_authentication
+
+- name: Deploy Tinyproxy configuration
+  ansible.builtin.template:
+    src: tinyproxy.conf.j2
+    dest: /etc/tinyproxy/tinyproxy.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart tinyproxy
+
+- name: Enable and start Tinyproxy
+  ansible.builtin.service:
+    name: tinyproxy
+    state: "{{ 'started' if tinyproxy_setup_enabled else 'stopped' }}"
+    enabled: "{{ true if tinyproxy_setup_enabled else false }}"
