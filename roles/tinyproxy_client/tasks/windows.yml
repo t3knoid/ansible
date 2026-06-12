@@ -102,9 +102,9 @@
     - not (tinyproxy_client_enabled | bool)
     - tinyproxy_client_manage_windows_wininet | bool
 
-- name: Inspect current WinHTTP proxy settings
-  ansible.windows.win_command: netsh winhttp show proxy
-  register: tinyproxy_client_windows_winhttp_current
+- name: Inspect current WinHTTP proxy configuration
+  ansible.windows.win_command: netsh winhttp dump
+  register: tinyproxy_client_windows_winhttp_dump
   changed_when: false
   when:
     - tinyproxy_client_manage_windows_winhttp | bool
@@ -113,11 +113,16 @@
   ansible.builtin.set_fact:
     tinyproxy_client_windows_winhttp_matches_desired: >-
       {{
-        ('Proxy Server(s) : ' ~ tinyproxy_client_windows_proxy_server)
-        in tinyproxy_client_windows_winhttp_current.stdout
-        and
-        ('Bypass List     : ' ~ tinyproxy_client_windows_proxy_bypass)
-        in tinyproxy_client_windows_winhttp_current.stdout
+        (
+          tinyproxy_client_windows_winhttp_dump.stdout
+          | regex_search(
+              'set\\s+proxy\\b[^\r\n]*proxy-server="?' ~
+              (tinyproxy_client_windows_proxy_server | regex_escape) ~
+              '"?[^\r\n]*bypass-list="?' ~
+              (tinyproxy_client_windows_proxy_bypass | regex_escape) ~
+              '"?'
+            )
+        ) is not none
       }}
   when:
     - tinyproxy_client_enabled | bool
@@ -127,8 +132,10 @@
   ansible.builtin.set_fact:
     tinyproxy_client_windows_winhttp_is_direct: >-
       {{
-        'Direct access (no proxy server).'
-        in tinyproxy_client_windows_winhttp_current.stdout
+        (
+          tinyproxy_client_windows_winhttp_dump.stdout
+          | regex_search('reset\\s+proxy\\b')
+        ) is not none
       }}
   when:
     - not (tinyproxy_client_enabled | bool)
