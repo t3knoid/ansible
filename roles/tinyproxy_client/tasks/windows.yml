@@ -60,15 +60,6 @@
   when:
     - tinyproxy_client_manage_windows_wininet | bool
 
-- name: Remove machine-wide WinINet proxy policy when disabled
-  ansible.windows.win_regedit:
-    path: "{{ tinyproxy_client_windows_internet_settings_policy_path }}"
-    name: ProxySettingsPerUser
-    state: absent
-  when:
-    - not (tinyproxy_client_enabled | bool)
-    - tinyproxy_client_manage_windows_wininet | bool
-
 - name: Enable WinINet proxy
   ansible.windows.win_regedit:
     path: "{{ tinyproxy_client_windows_internet_settings_path }}"
@@ -111,48 +102,6 @@
     - not (tinyproxy_client_enabled | bool)
     - tinyproxy_client_manage_windows_wininet | bool
 
-- name: Ensure WinHTTP backup directory exists
-  ansible.windows.win_file:
-    path: "{{ tinyproxy_client_windows_winhttp_backup_path | regex_replace('\\[^\\]+$', '') }}"
-    state: directory
-  when:
-    - tinyproxy_client_manage_windows_winhttp | bool
-
-- name: Check for existing WinHTTP backup
-  ansible.windows.win_stat:
-    path: "{{ tinyproxy_client_windows_winhttp_backup_path }}"
-  register: tinyproxy_client_windows_winhttp_backup
-  when:
-    - tinyproxy_client_manage_windows_winhttp | bool
-
-- name: Inspect current WinHTTP proxy settings
-  ansible.windows.win_command: netsh winhttp show proxy
-  register: tinyproxy_client_windows_winhttp_current
-  changed_when: false
-  when:
-    - tinyproxy_client_manage_windows_winhttp | bool
-
-- name: Record whether WinHTTP already matches the managed proxy
-  ansible.builtin.set_fact:
-    tinyproxy_client_windows_winhttp_is_managed: >-
-      {{
-        ('Proxy Server(s) : ' ~ tinyproxy_client_windows_proxy_server)
-        in tinyproxy_client_windows_winhttp_current.stdout
-        and
-        ('Bypass List     : ' ~ tinyproxy_client_windows_proxy_bypass)
-        in tinyproxy_client_windows_winhttp_current.stdout
-      }}
-  when:
-    - tinyproxy_client_manage_windows_winhttp | bool
-
-- name: Backup current WinHTTP proxy settings before takeover
-  ansible.windows.win_shell: |
-    netsh winhttp dump | Out-File -FilePath '{{ tinyproxy_client_windows_winhttp_backup_path }}' -Encoding ascii
-  when:
-    - tinyproxy_client_enabled | bool
-    - tinyproxy_client_manage_windows_winhttp | bool
-    - not (tinyproxy_client_windows_winhttp_is_managed | default(false) | bool)
-
 - name: Configure WinHTTP proxy
   ansible.windows.win_command: >-
     netsh winhttp set proxy
@@ -162,26 +111,8 @@
     - tinyproxy_client_enabled | bool
     - tinyproxy_client_manage_windows_winhttp | bool
 
-- name: Restore prior WinHTTP proxy settings when disabled
-  ansible.windows.win_command: >-
-    netsh exec {{ tinyproxy_client_windows_winhttp_backup_path }}
-  when:
-    - not (tinyproxy_client_enabled | bool)
-    - tinyproxy_client_manage_windows_winhttp | bool
-    - tinyproxy_client_windows_winhttp_backup.stat.exists
-
-- name: Remove WinHTTP backup after restore
-  ansible.windows.win_file:
-    path: "{{ tinyproxy_client_windows_winhttp_backup_path }}"
-    state: absent
-  when:
-    - not (tinyproxy_client_enabled | bool)
-    - tinyproxy_client_manage_windows_winhttp | bool
-    - tinyproxy_client_windows_winhttp_backup.stat.exists
-
 - name: Reset WinHTTP proxy when disabled
   ansible.windows.win_command: netsh winhttp reset proxy
   when:
     - not (tinyproxy_client_enabled | bool)
     - tinyproxy_client_manage_windows_winhttp | bool
-    - not tinyproxy_client_windows_winhttp_backup.stat.exists
