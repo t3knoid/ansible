@@ -37,6 +37,8 @@ openvpn_setup_extra_directives: []
 
 openvpn_setup_apply_fail_closed_firewall: true
 openvpn_setup_firewall_chain: OPENVPN_FAIL_CLOSED
+openvpn_setup_firewall_chain_v6: OPENVPN_FAIL_CLOSED_V6
 openvpn_setup_firewall_script_path: /usr/local/sbin/openvpn-fail-closed.sh
 openvpn_setup_firewall_exempt_cidrs: []
+openvpn_setup_firewall_exempt_cidrs_v6: []
 openvpn_setup_verify_default_route: true

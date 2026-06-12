@@ -70,6 +70,15 @@
     - openvpn_setup_enabled | bool
     - openvpn_setup_apply_fail_closed_firewall | bool
 
+- name: Resolve VPN server IPv6 address for fail-closed firewall
+  ansible.builtin.command: "getent ahostsv6 {{ openvpn_setup_remote_server }}"
+  register: openvpn_setup_remote_lookup_v6
+  changed_when: false
+  failed_when: false
+  when:
+    - openvpn_setup_enabled | bool
+    - openvpn_setup_apply_fail_closed_firewall | bool
+
 - name: Store VPN server address for fail-closed firewall
   ansible.builtin.set_fact:
     openvpn_setup_remote_address: >-
@@ -77,6 +86,18 @@
         (openvpn_setup_remote_lookup.stdout_lines | default([])
         | map('split') | map('first') | list | first)
         | default(openvpn_setup_remote_server, true)
+      }}
+  when:
+    - openvpn_setup_enabled | bool
+    - openvpn_setup_apply_fail_closed_firewall | bool
+
+- name: Store VPN server IPv6 address for fail-closed firewall
+  ansible.builtin.set_fact:
+    openvpn_setup_remote_address_v6: >-
+      {{
+        (openvpn_setup_remote_lookup_v6.stdout_lines | default([])
+        | map('split') | map('first') | list | first)
+        | default('', true)
       }}
   when:
     - openvpn_setup_enabled | bool
