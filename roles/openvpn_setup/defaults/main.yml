@@ -1,0 +1,42 @@
+---
+openvpn_enabled: false
+openvpn_setup_enabled: "{{ openvpn_enabled }}"
+
+openvpn_setup_profile_name: privado
+openvpn_setup_interface: tun0
+openvpn_setup_remote_server: ""
+openvpn_setup_remote_port: 1194
+openvpn_setup_remote_protocol: udp
+
+openvpn_setup_packages:
+  - openvpn
+  - iptables-persistent
+  - resolvconf
+
+openvpn_setup_client_config_path: "/etc/openvpn/client/{{ openvpn_setup_profile_name }}.conf"
+openvpn_setup_auth_file: "/etc/openvpn/client/{{ openvpn_setup_profile_name }}.auth"
+openvpn_setup_ca_cert_path: "/etc/openvpn/client/{{ openvpn_setup_profile_name }}-ca.crt"
+openvpn_setup_service_name: "openvpn-client@{{ openvpn_setup_profile_name }}"
+
+openvpn_setup_auth_username: "{{ lookup('env', 'OPENVPN_SETUP_AUTH_USERNAME') | default('', true) }}"
+openvpn_setup_auth_password: "{{ lookup('env', 'OPENVPN_SETUP_AUTH_PASSWORD') | default('', true) }}"
+openvpn_setup_ca_cert: ""
+
+openvpn_setup_redirect_gateway: true
+openvpn_setup_manage_dns: true
+openvpn_setup_dns_servers: []
+openvpn_setup_dns_search_domains: []
+openvpn_setup_cipher: AES-256-CBC
+openvpn_setup_data_ciphers:
+  - AES-256-GCM
+  - AES-128-GCM
+  - AES-256-CBC
+openvpn_setup_auth_digest: SHA256
+openvpn_setup_log_verbosity: 3
+openvpn_setup_extra_directives: []
+
+openvpn_setup_apply_fail_closed_firewall: true
+openvpn_setup_firewall_chain: OPENVPN_FAIL_CLOSED
+openvpn_setup_firewall_script_path: /usr/local/sbin/openvpn-fail-closed.sh
+openvpn_setup_firewall_exempt_cidrs: []
+openvpn_setup_verify_default_route: true

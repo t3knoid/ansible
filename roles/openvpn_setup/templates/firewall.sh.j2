@@ -1,0 +1,42 @@
+#!/bin/sh
+set -eu
+
+CHAIN="{{ openvpn_setup_firewall_chain }}"
+VPN_IF="{{ openvpn_setup_interface }}"
+VPN_REMOTE="{{ openvpn_setup_remote_address | default(openvpn_setup_remote_server) }}"
+VPN_PORT="{{ openvpn_setup_remote_port }}"
+VPN_PROTO="{{ openvpn_setup_remote_protocol }}"
+ACTION="${1:-apply}"
+
+remove_rules() {
+  iptables -D OUTPUT -j "$CHAIN" 2>/dev/null || true
+  iptables -F "$CHAIN" 2>/dev/null || true
+  iptables -X "$CHAIN" 2>/dev/null || true
+}
+
+apply_rules() {
+  iptables -N "$CHAIN" 2>/dev/null || true
+  iptables -F "$CHAIN"
+  iptables -A "$CHAIN" -o lo -j ACCEPT
+  iptables -A "$CHAIN" -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+  iptables -A "$CHAIN" -o "$VPN_IF" -j ACCEPT
+  iptables -A "$CHAIN" -d "$VPN_REMOTE" -p "$VPN_PROTO" --dport "$VPN_PORT" -j ACCEPT
+{% for cidr in openvpn_setup_firewall_exempt_cidrs %}
+  iptables -A "$CHAIN" -d "{{ cidr }}" -j ACCEPT
+{% endfor %}
+  iptables -A "$CHAIN" -j REJECT
+  iptables -C OUTPUT -j "$CHAIN" 2>/dev/null || iptables -I OUTPUT 1 -j "$CHAIN"
+}
+
+case "$ACTION" in
+  apply)
+    apply_rules
+    ;;
+  remove)
+    remove_rules
+    ;;
+  *)
+    echo "Usage: $0 [apply|remove]" >&2
+    exit 2
+    ;;
+esac

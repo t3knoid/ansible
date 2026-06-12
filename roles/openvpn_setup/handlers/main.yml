@@ -1,0 +1,10 @@
+---
+- name: Restart OpenVPN client
+  ansible.builtin.systemd:
+    name: "{{ openvpn_setup_service_name }}"
+    state: restarted
+    enabled: true
+
+- name: Save netfilter rules
+  ansible.builtin.command: netfilter-persistent save
+  changed_when: false
