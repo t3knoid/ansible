@@ -102,65 +102,60 @@
     - not (tinyproxy_client_enabled | bool)
     - tinyproxy_client_manage_windows_wininet | bool
 
-- name: Inspect current WinHTTP proxy settings
-  ansible.windows.win_command: netsh winhttp show proxy
+- name: Check WinHttpProxy module availability
+  ansible.windows.win_shell: |
+    if (Get-Command Get-WinhttpProxy -ErrorAction SilentlyContinue) {
+      'present'
+    }
+    else {
+      'absent'
+    }
+  register: tinyproxy_client_windows_winhttp_module
+  changed_when: false
+  when:
+    - tinyproxy_client_manage_windows_winhttp | bool
+
+- name: Fail when WinHttpProxy module is unavailable
+  ansible.builtin.fail:
+    msg: >-
+      WinHTTP management requires the WinHttpProxy PowerShell module on the target host.
+  when:
+    - tinyproxy_client_manage_windows_winhttp | bool
+    - (tinyproxy_client_windows_winhttp_module.stdout | trim) != 'present'
+
+- name: Read current WinHTTP proxy state
+  ansible.windows.win_shell: |
+    $proxy = Get-WinhttpProxy -Default
+    $result = [ordered]@{
+      ProxyServer = [string]$proxy.ProxyServer
+      BypassList = [string]$proxy.BypassList
+    }
+    $result | ConvertTo-Json -Compress
   register: tinyproxy_client_windows_winhttp_current
   changed_when: false
   when:
     - tinyproxy_client_manage_windows_winhttp | bool
 
-- name: Record whether WinHTTP already matches the managed proxy
+- name: Parse current WinHTTP proxy state
   ansible.builtin.set_fact:
-    tinyproxy_client_windows_winhttp_matches_desired: >-
-      {{
-        (
-          tinyproxy_client_windows_winhttp_current.stdout
-          | regex_search(
-              '(?im)^\s*Proxy Server\(s\)\s*:\s*' ~
-              (tinyproxy_client_windows_proxy_server | regex_escape) ~
-              '\s*$'
-            )
-        ) is not none
-        and
-        (
-          tinyproxy_client_windows_winhttp_current.stdout
-          | regex_search(
-              '(?im)^\s*Bypass List\s*:\s*' ~
-              (tinyproxy_client_windows_proxy_bypass | regex_escape) ~
-              '\s*$'
-            )
-        ) is not none
-      }}
+    tinyproxy_client_windows_winhttp_state: "{{ tinyproxy_client_windows_winhttp_current.stdout | from_json }}"
   when:
-    - tinyproxy_client_enabled | bool
-    - tinyproxy_client_manage_windows_winhttp | bool
-
-- name: Record whether WinHTTP is already set for direct access
-  ansible.builtin.set_fact:
-    tinyproxy_client_windows_winhttp_is_direct: >-
-      {{
-        (
-          tinyproxy_client_windows_winhttp_current.stdout
-          | regex_search('(?im)^\s*Direct access \(no proxy server\)\.?\s*$')
-        ) is not none
-      }}
-  when:
-    - not (tinyproxy_client_enabled | bool)
     - tinyproxy_client_manage_windows_winhttp | bool
 
 - name: Configure WinHTTP proxy
-  ansible.windows.win_command: >-
-    netsh winhttp set proxy
-    proxy-server={{ tinyproxy_client_windows_proxy_server }}
-    bypass-list={{ tinyproxy_client_windows_proxy_bypass }}
+  ansible.windows.win_shell: >-
+    Set-WinhttpProxy -ProxyServer '{{ tinyproxy_client_windows_proxy_server | replace("'", "''") }}'
+    -BypassList '{{ tinyproxy_client_windows_proxy_bypass | replace("'", "''") }}'
   when:
     - tinyproxy_client_enabled | bool
     - tinyproxy_client_manage_windows_winhttp | bool
-    - not (tinyproxy_client_windows_winhttp_matches_desired | default(false) | bool)
+    - tinyproxy_client_windows_winhttp_state.ProxyServer | default('') != tinyproxy_client_windows_proxy_server
+      or tinyproxy_client_windows_winhttp_state.BypassList | default('') != tinyproxy_client_windows_proxy_bypass
 
 - name: Reset WinHTTP proxy when disabled
-  ansible.windows.win_command: netsh winhttp reset proxy
+  ansible.windows.win_shell: Reset-WinhttpProxy -Direct
   when:
     - not (tinyproxy_client_enabled | bool)
     - tinyproxy_client_manage_windows_winhttp | bool
-    - not (tinyproxy_client_windows_winhttp_is_direct | default(false) | bool)
+    - tinyproxy_client_windows_winhttp_state.ProxyServer | default('') | length > 0
+      or tinyproxy_client_windows_winhttp_state.BypassList | default('') | length > 0
