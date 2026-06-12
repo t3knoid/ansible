@@ -3,8 +3,9 @@ galaxy_info:
   author: Frank Refol
   role_name: tinyproxy_client
   description: >-
-    Configures client hosts to use a Tinyproxy forward proxy for shell and APT
-    traffic.
+    Configures Linux clients to use a Tinyproxy forward proxy for shell and APT
+    traffic and Windows clients for machine environment, WinINet, and WinHTTP
+    proxy settings.
   license: MIT
   min_ansible_version: "2.9"
   platforms:
@@ -18,7 +19,5 @@ galaxy_info:
         - bookworm
     - name: Windows
       versions:
-        - 2019
-        - 2022
-        - 10
-        - 11
+        - "2019"
+        - "2022"
