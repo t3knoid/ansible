@@ -184,3 +184,13 @@
   when:
     - openvpn_setup_enabled | bool
     - openvpn_setup_verify_default_route | bool
+
+- name: Verify IPv6 default route uses the VPN interface
+  ansible.builtin.command: "ip -6 route show default dev {{ openvpn_setup_interface }}"
+  register: openvpn_setup_default_route_v6
+  changed_when: false
+  failed_when: openvpn_setup_default_route_v6.stdout | trim == ''
+  when:
+    - openvpn_setup_enabled | bool
+    - openvpn_setup_route_ipv6_default | bool
+    - openvpn_setup_verify_default_route_ipv6 | bool

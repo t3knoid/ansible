@@ -23,6 +23,8 @@ openvpn_setup_auth_password: "{{ lookup('env', 'OPENVPN_SETUP_AUTH_PASSWORD') | 
 openvpn_setup_ca_cert: ""
 
 openvpn_setup_redirect_gateway: true
+openvpn_setup_route_ipv6_default: false
+openvpn_setup_ipv6_default_route: ::/0
 openvpn_setup_manage_dns: true
 openvpn_setup_dns_servers: []
 openvpn_setup_dns_search_domains: []
@@ -42,3 +44,4 @@ openvpn_setup_firewall_script_path: /usr/local/sbin/openvpn-fail-closed.sh
 openvpn_setup_firewall_exempt_cidrs: []
 openvpn_setup_firewall_exempt_cidrs_v6: []
 openvpn_setup_verify_default_route: true
+openvpn_setup_verify_default_route_ipv6: "{{ openvpn_setup_route_ipv6_default }}"

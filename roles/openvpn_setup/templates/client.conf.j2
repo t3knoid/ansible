@@ -20,6 +20,9 @@ setenv PATH /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 {% if openvpn_setup_redirect_gateway %}
 redirect-gateway def1
 {% endif %}
+{% if openvpn_setup_route_ipv6_default %}
+route-ipv6 {{ openvpn_setup_ipv6_default_route }}
+{% endif %}
 {% if openvpn_setup_manage_dns %}
 script-security 2
 up /etc/openvpn/update-resolv-conf
