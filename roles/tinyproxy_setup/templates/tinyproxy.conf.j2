@@ -12,11 +12,6 @@ Allow {{ cidr }}
 
 ViaProxyName "tinyproxy"
 
-# Optional: bind outbound traffic to VPN interface
-{% if tinyproxy_setup_use_vpn %}
-Bind {{ tinyproxy_setup_vpn_interface }}
-{% endif %}
-
 # Optional: set up basic authentication
 {% if tinyproxy_setup_enable_authentication %}
 BasicAuth {{ tinyproxy_setup_auth_username }} {{ tinyproxy_setup_auth_password }}

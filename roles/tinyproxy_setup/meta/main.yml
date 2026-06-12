@@ -2,15 +2,15 @@
 galaxy_info:
   author: Frank Refol
   role_name: tinyproxy_setup
-  description: Installs Tinyproxy and configures it as a lightweight HTTP/HTTPS proxy server
+  description: Installs Tinyproxy and configures it as a lightweight HTTP/HTTPS proxy server, with optional `tinyproxy_setup_use_vpn` integration for a future VPN role
   license: MIT
   min_ansible_version: "2.9"
   platforms:
     - name: Ubuntu
       versions:
-        - "22.04"
-        - "24.04"
+        - jammy
+        - noble
     - name: Debian
       versions:
-        - "11"
-        - "12"
+        - bullseye
+        - bookworm
