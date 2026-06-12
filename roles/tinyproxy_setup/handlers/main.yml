@@ -1,9 +1,5 @@
 ---
 - name: Restart tinyproxy
-  service:
+  ansible.builtin.service:
     name: tinyproxy
     state: restarted
-
-- name: Reload systemd
-  command: systemctl daemon-reload
-  changed_when: false

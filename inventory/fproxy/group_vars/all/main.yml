@@ -1,5 +1,4 @@
 ---
-
 vms_config:
   agent: "1"
   cores: "2"
@@ -22,5 +21,10 @@ vms_additional_packages: []
 python3_version: 3.12
 python3_venv_folder: "/opt/python_{{ python3_version }}"
 
-# Vault password default (used if environment variable is not set)
-tinyproxy_setup_auth_password: "{{ global_tinyproxy_setup_auth_password }}"
+# Explicit Tinyproxy client allow-list for the forward proxy deployment.
+tinyproxy_setup_allowed_clients:
+  - "192.168.0.0/24"
+  - "192.168.2.0/24"
+
+# Future integration switch for the OpenVPN role.
+tinyproxy_setup_use_vpn: false
