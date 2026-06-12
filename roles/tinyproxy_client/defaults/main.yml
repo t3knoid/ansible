@@ -29,4 +29,3 @@ tinyproxy_client_windows_proxy_bypass: "{{ tinyproxy_client_no_proxy | join(';')
 tinyproxy_client_windows_proxy_server: "{{ tinyproxy_client_proxy_host }}:{{ tinyproxy_client_proxy_port }}"
 tinyproxy_client_windows_internet_settings_policy_path: HKLM:\Software\Policies\Microsoft\Windows\CurrentVersion\Internet Settings
 tinyproxy_client_windows_internet_settings_path: HKLM:\Software\Microsoft\Windows\CurrentVersion\Internet Settings
-tinyproxy_client_windows_winhttp_backup_path: C:\ProgramData\tinyproxy_client\winhttp-proxy-backup.txt
