@@ -177,10 +177,19 @@
   when: openvpn_setup_enabled | bool
 
 - name: Verify default route uses the VPN interface
-  ansible.builtin.command: "ip route show default dev {{ openvpn_setup_interface }}"
+  ansible.builtin.command: "ip route show {{ item }} dev {{ openvpn_setup_interface }}"
   register: openvpn_setup_default_route
   changed_when: false
-  failed_when: openvpn_setup_default_route.stdout | trim == ''
+  failed_when: >-
+    openvpn_setup_default_route.results
+    | map(attribute='stdout')
+    | map('trim')
+    | select('equalto', '')
+    | list
+    | length > 0
+  loop:
+    - 0.0.0.0/1
+    - 128.0.0.0/1
   when:
     - openvpn_setup_enabled | bool
     - openvpn_setup_verify_default_route | bool
