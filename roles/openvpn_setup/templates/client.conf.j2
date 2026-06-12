@@ -1,0 +1,43 @@
+client
+dev {{ openvpn_setup_interface }}
+proto {{ openvpn_setup_remote_protocol }}
+remote {{ openvpn_setup_remote_server }} {{ openvpn_setup_remote_port }}
+resolv-retry infinite
+nobind
+persist-key
+persist-tun
+remote-cert-tls server
+auth-user-pass {{ openvpn_setup_auth_file }}
+auth-nocache
+auth {{ openvpn_setup_auth_digest }}
+cipher {{ openvpn_setup_cipher }}
+data-ciphers {{ openvpn_setup_data_ciphers | join(':') }}
+data-ciphers-fallback {{ openvpn_setup_cipher }}
+ca {{ openvpn_setup_ca_cert_path }}
+verb {{ openvpn_setup_log_verbosity }}
+setenv PATH /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+{% if openvpn_setup_redirect_gateway %}
+redirect-gateway def1
+{% endif %}
+{% if openvpn_setup_route_ipv6_default %}
+route-ipv6 {{ openvpn_setup_ipv6_default_route }}
+{% endif %}
+{% if openvpn_setup_manage_dns %}
+script-security 2
+up /etc/openvpn/update-resolv-conf
+down /etc/openvpn/update-resolv-conf
+down-pre
+{% endif %}
+{% for dns_server in openvpn_setup_dns_servers %}
+dhcp-option DNS {{ dns_server }}
+{% endfor %}
+{% for search_domain in openvpn_setup_dns_search_domains %}
+dhcp-option DOMAIN-SEARCH {{ search_domain }}
+{% endfor %}
+{% if openvpn_setup_remote_protocol == 'udp' %}
+explicit-exit-notify 1
+{% endif %}
+{% for directive in openvpn_setup_extra_directives %}
+{{ directive }}
+{% endfor %}

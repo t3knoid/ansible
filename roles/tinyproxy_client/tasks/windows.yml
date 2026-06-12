@@ -1,0 +1,174 @@
+---
+- name: Validate Tinyproxy client settings
+  ansible.builtin.assert:
+    that:
+      - groups['fproxy'] is defined
+      - groups['fproxy'] | length > 0
+      - tinyproxy_client_proxy_host | length > 0
+      - (tinyproxy_client_proxy_port | string) | length > 0
+    fail_msg: >-
+      Define at least one host in the fproxy group and ensure
+      tinyproxy_client_proxy_host and tinyproxy_client_proxy_port resolve to the
+      reachable Tinyproxy endpoint.
+
+- name: Configure Windows proxy environment variables
+  ansible.windows.win_environment:
+    level: machine
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    state: present
+  loop:
+    - name: http_proxy
+      value: "{{ tinyproxy_client_proxy_url }}"
+    - name: https_proxy
+      value: "{{ tinyproxy_client_proxy_url }}"
+    - name: HTTP_PROXY
+      value: "{{ tinyproxy_client_proxy_url }}"
+    - name: HTTPS_PROXY
+      value: "{{ tinyproxy_client_proxy_url }}"
+    - name: no_proxy
+      value: "{{ tinyproxy_client_no_proxy_value }}"
+    - name: NO_PROXY
+      value: "{{ tinyproxy_client_no_proxy_value }}"
+  when:
+    - tinyproxy_client_enabled | bool
+    - tinyproxy_client_manage_windows_environment | bool
+
+- name: Remove Windows proxy environment variables when disabled
+  ansible.windows.win_environment:
+    level: machine
+    name: "{{ item }}"
+    state: absent
+  loop:
+    - http_proxy
+    - https_proxy
+    - HTTP_PROXY
+    - HTTPS_PROXY
+    - no_proxy
+    - NO_PROXY
+  when:
+    - not (tinyproxy_client_enabled | bool)
+    - tinyproxy_client_manage_windows_environment | bool
+
+- name: Force machine-wide WinINet proxy settings
+  ansible.windows.win_regedit:
+    path: "{{ tinyproxy_client_windows_internet_settings_policy_path }}"
+    name: ProxySettingsPerUser
+    data: 0
+    type: dword
+    state: present
+  when:
+    - tinyproxy_client_manage_windows_wininet | bool
+
+- name: Enable WinINet proxy
+  ansible.windows.win_regedit:
+    path: "{{ tinyproxy_client_windows_internet_settings_path }}"
+    name: "{{ item.name }}"
+    data: "{{ item.data }}"
+    type: "{{ item.type }}"
+    state: present
+  loop:
+    - name: ProxyEnable
+      data: 1
+      type: dword
+    - name: ProxyServer
+      data: "{{ tinyproxy_client_windows_proxy_server }}"
+      type: string
+    - name: ProxyOverride
+      data: "{{ tinyproxy_client_windows_proxy_bypass }}"
+      type: string
+  when:
+    - tinyproxy_client_enabled | bool
+    - tinyproxy_client_manage_windows_wininet | bool
+
+- name: Disable WinINet proxy
+  ansible.windows.win_regedit:
+    path: "{{ tinyproxy_client_windows_internet_settings_path }}"
+    name: "{{ item.name }}"
+    data: "{{ item.data }}"
+    type: "{{ item.type }}"
+    state: present
+  loop:
+    - name: ProxyEnable
+      data: 0
+      type: dword
+    - name: ProxyServer
+      data: ""
+      type: string
+    - name: ProxyOverride
+      data: ""
+      type: string
+  when:
+    - not (tinyproxy_client_enabled | bool)
+    - tinyproxy_client_manage_windows_wininet | bool
+
+- name: Check WinHttpProxy module availability
+  ansible.windows.win_shell: |
+    if (Get-Command Get-WinhttpProxy -ErrorAction SilentlyContinue) {
+      'present'
+    }
+    else {
+      'absent'
+    }
+  register: tinyproxy_client_windows_winhttp_module
+  changed_when: false
+  when:
+    - tinyproxy_client_manage_windows_winhttp | bool
+
+- name: Fail when WinHttpProxy module is unavailable
+  ansible.builtin.fail:
+    msg: >-
+      WinHTTP management requires the WinHttpProxy PowerShell module on the target host.
+  when:
+    - tinyproxy_client_manage_windows_winhttp | bool
+    - (tinyproxy_client_windows_winhttp_module.stdout | trim) != 'present'
+
+- name: Read current WinHTTP proxy state
+  ansible.windows.win_shell: |
+    $proxy = Get-WinhttpProxy -Default
+    $advanced = Get-WinhttpProxy -Advanced
+    $result = [ordered]@{
+      ProxyServer = [string]$proxy.ProxyServer
+      BypassList = [string]$proxy.BypassList
+      Proxy = [string]$advanced.Proxy
+      ProxyBypass = [string]$advanced.ProxyBypass
+      AutoconfigUrl = [string]$advanced.AutoconfigUrl
+      AutoDetect = [bool]$advanced.AutoDetect
+    }
+    $result | ConvertTo-Json -Compress
+  register: tinyproxy_client_windows_winhttp_current
+  changed_when: false
+  when:
+    - tinyproxy_client_manage_windows_winhttp | bool
+
+- name: Parse current WinHTTP proxy state
+  ansible.builtin.set_fact:
+    tinyproxy_client_windows_winhttp_state: "{{ tinyproxy_client_windows_winhttp_current.stdout | from_json }}"
+  when:
+    - tinyproxy_client_manage_windows_winhttp | bool
+
+- name: Configure WinHTTP proxy
+  ansible.windows.win_shell: >-
+    Set-WinhttpProxy -ProxyServer '{{ tinyproxy_client_windows_proxy_server | replace("'", "''") }}'
+    -BypassList '{{ tinyproxy_client_windows_proxy_bypass | replace("'", "''") }}'
+  when:
+    - tinyproxy_client_enabled | bool
+    - tinyproxy_client_manage_windows_winhttp | bool
+    - tinyproxy_client_windows_winhttp_state.ProxyServer | default('') != tinyproxy_client_windows_proxy_server
+      or tinyproxy_client_windows_winhttp_state.BypassList | default('') != tinyproxy_client_windows_proxy_bypass
+      or tinyproxy_client_windows_winhttp_state.Proxy | default('') | length > 0
+      or tinyproxy_client_windows_winhttp_state.ProxyBypass | default('') | length > 0
+      or tinyproxy_client_windows_winhttp_state.AutoconfigUrl | default('') | length > 0
+      or tinyproxy_client_windows_winhttp_state.AutoDetect | default(false) | bool
+
+- name: Reset WinHTTP proxy when disabled
+  ansible.windows.win_shell: Reset-WinhttpProxy -Direct
+  when:
+    - not (tinyproxy_client_enabled | bool)
+    - tinyproxy_client_manage_windows_winhttp | bool
+    - tinyproxy_client_windows_winhttp_state.ProxyServer | default('') | length > 0
+      or tinyproxy_client_windows_winhttp_state.BypassList | default('') | length > 0
+      or tinyproxy_client_windows_winhttp_state.Proxy | default('') | length > 0
+      or tinyproxy_client_windows_winhttp_state.ProxyBypass | default('') | length > 0
+      or tinyproxy_client_windows_winhttp_state.AutoconfigUrl | default('') | length > 0
+      or tinyproxy_client_windows_winhttp_state.AutoDetect | default(false) | bool

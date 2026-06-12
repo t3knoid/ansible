@@ -1,0 +1,14 @@
+---
+# Purpose: Deploy the forward proxy stack on target hosts
+# Runtime assumptions:
+# - Inventory or environment must provide the OpenVPN manual-setup username,
+#   password, CA certificate, and remote server when `openvpn_enabled` is true.
+# - The VPN endpoint IP is resolved at deploy time; rerun the playbook if the
+#   provider changes that endpoint address.
+- name: Deploy forward proxy
+  hosts: fproxy
+  become: true
+  gather_facts: true
+  roles:
+    - role: tinyproxy_setup
+    - role: openvpn_setup

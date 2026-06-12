@@ -1,0 +1,13 @@
+---
+# Purpose: Configure Linux client hosts to use the forward proxy for shell and APT traffic.
+# Targets should be members of both the tinyproxy_client and linux inventory groups.
+# Use configure_fproxy_windows_client.yml for Windows hosts.
+# Override tinyproxy_client_proxy_host when the first host in the fproxy group is not
+# the correct reachable address for clients.
+
+- name: Configure Linux hosts to use the forward proxy
+  hosts: tinyproxy_client:&linux
+  become: true
+  gather_facts: true
+  roles:
+    - role: tinyproxy_client

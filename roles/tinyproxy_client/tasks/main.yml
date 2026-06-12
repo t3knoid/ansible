@@ -1,0 +1,8 @@
+---
+- name: Configure Tinyproxy client on Linux
+  ansible.builtin.include_tasks: linux.yml
+  when: ansible_os_family != 'Windows'
+
+- name: Configure Tinyproxy client on Windows
+  ansible.builtin.include_tasks: windows.yml
+  when: ansible_os_family == 'Windows'

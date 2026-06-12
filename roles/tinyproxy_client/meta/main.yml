@@ -1,0 +1,24 @@
+---
+galaxy_info:
+  author: Frank Refol
+  role_name: tinyproxy_client
+  description: >-
+    Configures Linux clients to use a Tinyproxy forward proxy for shell and APT
+    traffic and Windows clients for machine environment, WinINet, and WinHTTP
+    proxy settings using the WinHttpProxy PowerShell module, which must already
+    be available on Windows target hosts.
+  license: MIT
+  min_ansible_version: "2.9"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - jammy
+        - noble
+    - name: Debian
+      versions:
+        - bullseye
+        - bookworm
+    - name: Windows
+      versions:
+        - "2019"
+        - "2022"
