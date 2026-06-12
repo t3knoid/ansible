@@ -1,0 +1,11 @@
+---
+# Purpose: Configure target hosts to use the forward proxy for shell and APT traffic.
+# Override tinyproxy_client_proxy_host when the first host in the fproxy group is not
+# the correct reachable address for clients.
+
+- name: Configure hosts to use the forward proxy
+  hosts: tinyproxy_client
+  become: true
+  gather_facts: true
+  roles:
+    - role: tinyproxy_client
