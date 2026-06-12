@@ -1,0 +1,18 @@
+---
+galaxy_info:
+  author: Frank Refol
+  role_name: tinyproxy_client
+  description: >-
+    Configures client hosts to use a Tinyproxy forward proxy for shell and APT
+    traffic.
+  license: MIT
+  min_ansible_version: "2.9"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - jammy
+        - noble
+    - name: Debian
+      versions:
+        - bullseye
+        - bookworm
