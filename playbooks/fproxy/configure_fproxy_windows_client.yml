@@ -9,7 +9,7 @@
 - name: Configure Windows hosts to use the forward proxy
   hosts: tinyproxy_client:!linux
   become: true
-  become_method: runas
+  become_method: ansible.builtin.runas
   become_user: "{{ ansible_user }}"
   gather_facts: true
   pre_tasks:
