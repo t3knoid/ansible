@@ -7,11 +7,6 @@ tinyproxy_setup_port: 8888
 tinyproxy_setup_allowed_clients:
   - "127.0.0.1"
 
-# Optional integration point for a future OpenVPN role.
-# This flag is reserved for role composition and does not change Tinyproxy
-# routing behavior until the VPN layer exists.
-tinyproxy_setup_use_vpn: false
-
 tinyproxy_setup_enable_authentication: false
 # Authentication credentials (if authentication is enabled)
 tinyproxy_setup_auth_username: "proxyuser"

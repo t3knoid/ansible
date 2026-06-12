@@ -26,9 +26,6 @@ tinyproxy_setup_allowed_clients:
   - "192.168.0.0/24"
   - "192.168.2.0/24"
 
-# Future integration switch for the OpenVPN role.
-tinyproxy_setup_use_vpn: false
-
 openvpn_enabled: false
 openvpn_setup_remote_server: ""
 openvpn_setup_remote_port: 1194
