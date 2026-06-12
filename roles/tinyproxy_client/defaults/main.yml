@@ -6,6 +6,9 @@ tinyproxy_client_proxy_port: "{{ hostvars[groups['fproxy'] | first].tinyproxy_se
 
 tinyproxy_client_manage_shell_proxy: true
 tinyproxy_client_manage_apt_proxy: true
+tinyproxy_client_manage_windows_environment: true
+tinyproxy_client_manage_windows_wininet: true
+tinyproxy_client_manage_windows_winhttp: true
 
 tinyproxy_client_no_proxy:
   - localhost
@@ -22,3 +25,8 @@ tinyproxy_client_proxy_url: >-
     (tinyproxy_client_proxy_port | string)
   }}
 tinyproxy_client_no_proxy_value: "{{ tinyproxy_client_no_proxy | join(',') }}"
+tinyproxy_client_windows_proxy_bypass: "{{ tinyproxy_client_no_proxy | join(';') }}"
+tinyproxy_client_windows_proxy_server: "{{ tinyproxy_client_proxy_host }}:{{ tinyproxy_client_proxy_port }}"
+tinyproxy_client_windows_internet_settings_policy_path: HKLM:\Software\Policies\Microsoft\Windows\CurrentVersion\Internet Settings
+tinyproxy_client_windows_internet_settings_path: HKLM:\Software\Microsoft\Windows\CurrentVersion\Internet Settings
+tinyproxy_client_windows_winhttp_backup_path: C:\ProgramData\tinyproxy_client\winhttp-proxy-backup.txt

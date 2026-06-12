@@ -1,0 +1,58 @@
+---
+- name: Validate Tinyproxy client settings
+  ansible.builtin.assert:
+    that:
+      - groups['fproxy'] is defined
+      - groups['fproxy'] | length > 0
+      - tinyproxy_client_proxy_host | length > 0
+      - (tinyproxy_client_proxy_port | string) | length > 0
+    fail_msg: >-
+      Define at least one host in the fproxy group and ensure
+      tinyproxy_client_proxy_host and tinyproxy_client_proxy_port resolve to the
+      reachable Tinyproxy endpoint.
+
+- name: Configure shell proxy environment
+  ansible.builtin.copy:
+    dest: "{{ tinyproxy_client_shell_proxy_path }}"
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      export http_proxy={{ tinyproxy_client_proxy_url }}
+      export https_proxy={{ tinyproxy_client_proxy_url }}
+      export HTTP_PROXY={{ tinyproxy_client_proxy_url }}
+      export HTTPS_PROXY={{ tinyproxy_client_proxy_url }}
+      export no_proxy={{ tinyproxy_client_no_proxy_value }}
+      export NO_PROXY={{ tinyproxy_client_no_proxy_value }}
+  when:
+    - tinyproxy_client_enabled | bool
+    - tinyproxy_client_manage_shell_proxy | bool
+
+- name: Remove shell proxy environment when disabled
+  ansible.builtin.file:
+    path: "{{ tinyproxy_client_shell_proxy_path }}"
+    state: absent
+  when:
+    - not (tinyproxy_client_enabled | bool)
+    - tinyproxy_client_manage_shell_proxy | bool
+
+- name: Configure APT proxy
+  ansible.builtin.copy:
+    dest: "{{ tinyproxy_client_apt_proxy_path }}"
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      Acquire::http::Proxy "{{ tinyproxy_client_proxy_url }}/";
+      Acquire::https::Proxy "{{ tinyproxy_client_proxy_url }}/";
+  when:
+    - tinyproxy_client_enabled | bool
+    - tinyproxy_client_manage_apt_proxy | bool
+
+- name: Remove APT proxy when disabled
+  ansible.builtin.file:
+    path: "{{ tinyproxy_client_apt_proxy_path }}"
+    state: absent
+  when:
+    - not (tinyproxy_client_enabled | bool)
+    - tinyproxy_client_manage_apt_proxy | bool
