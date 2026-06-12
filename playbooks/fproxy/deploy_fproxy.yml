@@ -3,7 +3,6 @@
 # Runtime assumptions:
 # - Inventory or environment must provide the OpenVPN manual-setup username,
 #   password, CA certificate, and remote server when `openvpn_enabled` is true.
-# - Fail-closed egress rules currently cover IPv4 OUTPUT traffic only.
 # - The VPN endpoint IP is resolved at deploy time; rerun the playbook if the
 #   provider changes that endpoint address.
 - name: Deploy forward proxy
