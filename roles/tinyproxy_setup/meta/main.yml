@@ -2,7 +2,9 @@
 galaxy_info:
   author: Frank Refol
   role_name: tinyproxy_setup
-  description: Installs Tinyproxy and configures it as a lightweight HTTP/HTTPS proxy server, with optional `tinyproxy_setup_use_vpn` integration for a future VPN role
+  description: >
+    Installs Tinyproxy and configures it as a lightweight HTTP/HTTPS proxy server,
+    with optional `tinyproxy_setup_use_vpn` integration for a future VPN role
   license: MIT
   min_ansible_version: "2.9"
   platforms:
