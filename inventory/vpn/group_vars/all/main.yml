@@ -13,6 +13,11 @@ vms_config:
     backup: true
     size: 20
     storage: local
+  network:
+    nic0:
+      model: virtio
+      bridge: vmbr0
+      tag: 30
 
 vms_os: ubuntu_24_server
 vms_autoinstall: true
