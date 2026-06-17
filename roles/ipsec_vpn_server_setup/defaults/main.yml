@@ -1,7 +1,7 @@
 ---
 ipsec_vpn_server_setup_enabled: true
 ipsec_vpn_server_setup_service_name: "vpn"
-ipsec_vpn_server_setup_image: "hwdsl2/ipsec-vpn-server"
+ipsec_vpn_server_setup_image: "hwdsl2/ipsec-vpn-server:debian"
 ipsec_vpn_server_setup_container_name: "ipsec-vpn-server"
 ipsec_vpn_server_setup_hostname: "ipsec-vpn-server"
 ipsec_vpn_server_setup_config_dir: "/opt/ipsec-vpn-server"
