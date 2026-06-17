@@ -5,6 +5,7 @@ ipsec_vpn_server_setup_image: "hwdsl2/ipsec-vpn-server"
 ipsec_vpn_server_setup_container_name: "ipsec-vpn-server"
 ipsec_vpn_server_setup_hostname: "ipsec-vpn-server"
 ipsec_vpn_server_setup_config_dir: "/opt/ipsec-vpn-server"
+ipsec_vpn_server_setup_etc_dir: "{{ ipsec_vpn_server_setup_config_dir }}/etc"
 ipsec_vpn_server_setup_backups_dir: "{{ ipsec_vpn_server_setup_config_dir }}/backups"
 ipsec_vpn_server_setup_env_file: "{{ ipsec_vpn_server_setup_config_dir }}/vpn.env"
 ipsec_vpn_server_setup_restart_policy: "always"
@@ -12,8 +13,11 @@ ipsec_vpn_server_setup_privileged: true
 ipsec_vpn_server_setup_ports:
   - "500:500/udp"
   - "4500:4500/udp"
+ipsec_vpn_server_setup_kernel_modules:
+  - pppol2tp
+  - l2tp_ppp
 ipsec_vpn_server_setup_volumes:
-  - "ikev2-vpn-data:/etc/ipsec.d"
+  - "{{ ipsec_vpn_server_setup_etc_dir }}:/etc/ipsec.d"
   - "/lib/modules:/lib/modules:ro"
 
 ipsec_vpn_server_setup_vpn_ipsec_psk: ""
