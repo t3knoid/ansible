@@ -30,6 +30,7 @@
 | [`grafana_setup`](../docs/roles/grafana_setup.md) | Install and configure Grafana on Debian/Ubuntu |
 | [`graphite_setup`](../docs/roles/graphite_setup.md) | Installs and configures Graphite on Debian/Ubuntu systems. |
 | [`home_assistant_setup`](../docs/roles/home_assistant_setup.md) | Installs Home Assistant using its QCOW2 image on a Proxmox VE host. |
+| [`ipsec_vpn_server_setup`](../docs/roles/ipsec_vpn_server_setup.md) | Installs and configures the hwdsl2 IPsec VPN server Docker container, including vpn.env and docker-compose configuration. |
 | [`java_setup`](../docs/roles/java_setup.md) | Installs and configures Java on Debian/Ubuntu systems. |
 | [`jenkins_setup`](../docs/roles/jenkins_setup.md) | Installs and configures Jenkins on Debian/Ubuntu systems. |
 | [`lamp_setup`](../docs/roles/lamp_setup.md) | Install and configure LAMP on Debian/Ubuntu. |

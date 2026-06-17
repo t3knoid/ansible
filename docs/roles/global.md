@@ -42,7 +42,6 @@ Provides global defaults common to all roles. It provides the IP definition of e
 | `version` | `11` |  |
 | `global_domain_name` | `"refol.us"` |  |
 | `global_dns_servers` | `` |  |
-| `global_gateway` | `192.168.20.1` |  |
 | `global_timezone` | `"America/New_York"` |  |
 | `global_packages_list` | `` |  |
 
@@ -92,8 +91,10 @@ Provides global defaults common to all roles. It provides the IP definition of e
 | `dns-1` | `192.168.20.253` |  |
 | `pxe-0` | `192.168.20.254` |  |
 | `util-0` | `192.168.0.56` |  |
+| `vpn-0` | `192.168.30.200` |  |
 | `global_ip_address` | `"{{ global_ip_addresses[inventory_hostname] }}"` |  |
 | `global_pihole_api_host` | `"{{ global_ip_addresses['dns-1'] }}"` |  |
+| `global_gateway` | `"{{ (global_ip_address.split('.')[:3] + ['1']) | join('.') }}"` |  |
 | `global_oauth2_proxy_ports` | `` |  |
 | `code.refol.us` | `4180` |  |
 | `lidarr.refol.us` | `4181` |  |
