@@ -1,0 +1,32 @@
+---
+ipsec_vpn_server_setup_enabled: true
+ipsec_vpn_server_setup_service_name: "vpn"
+ipsec_vpn_server_setup_image: "hwdsl2/ipsec-vpn-server"
+ipsec_vpn_server_setup_container_name: "ipsec-vpn-server"
+ipsec_vpn_server_setup_hostname: "ipsec-vpn-server"
+ipsec_vpn_server_setup_config_dir: "/opt/ipsec-vpn-server"
+ipsec_vpn_server_setup_backups_dir: "{{ ipsec_vpn_server_setup_config_dir }}/backups"
+ipsec_vpn_server_setup_env_file: "{{ ipsec_vpn_server_setup_config_dir }}/vpn.env"
+ipsec_vpn_server_setup_restart_policy: "always"
+ipsec_vpn_server_setup_privileged: true
+ipsec_vpn_server_setup_ports:
+  - "500:500/udp"
+  - "4500:4500/udp"
+ipsec_vpn_server_setup_volumes:
+  - "ikev2-vpn-data:/etc/ipsec.d"
+  - "/lib/modules:/lib/modules:ro"
+
+ipsec_vpn_server_setup_vpn_ipsec_psk: ""
+ipsec_vpn_server_setup_vpn_user: ""
+ipsec_vpn_server_setup_vpn_password: ""
+ipsec_vpn_server_setup_additional_users: []
+ipsec_vpn_server_setup_additional_passwords: []
+ipsec_vpn_server_setup_public_ip: ""
+ipsec_vpn_server_setup_dns_name: ""
+ipsec_vpn_server_setup_client_name: "vpnclient"
+ipsec_vpn_server_setup_dns_servers:
+  - "1.1.1.1"
+  - "1.0.0.1"
+ipsec_vpn_server_setup_protect_config: false
+ipsec_vpn_server_setup_public_ipv6: ""
+ipsec_vpn_server_setup_ipv6_subnet: ""

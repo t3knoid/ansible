@@ -1,0 +1,26 @@
+---
+- name: Validate IPsec VPN Docker settings
+  ansible.builtin.assert:
+    that:
+      - ipsec_vpn_server_setup_dns_servers | length <= 2
+      - (ipsec_vpn_server_setup_vpn_user | length == 0) == (ipsec_vpn_server_setup_vpn_password | length == 0)
+      - ipsec_vpn_server_setup_additional_users | length == ipsec_vpn_server_setup_additional_passwords | length
+    fail_msg: >-
+      Ensure at most two DNS servers are defined, VPN_USER and VPN_PASSWORD are
+      both set or both empty, and additional VPN users/passwords have matching
+      counts.
+  when: ipsec_vpn_server_setup_enabled | bool
+
+- name: Deploy IPsec VPN server Docker service
+  ansible.builtin.include_role:
+    name: docker_service_deploy
+  vars:
+    docker_service_deploy_container_name: "{{ ipsec_vpn_server_setup_container_name }}"
+    docker_service_deploy_config_dir: "{{ ipsec_vpn_server_setup_config_dir }}"
+    docker_service_deploy_backups_dir: "{{ ipsec_vpn_server_setup_backups_dir }}"
+    docker_service_deploy_config_templates:
+      - src: "vpn.env.j2"
+        dest: "{{ ipsec_vpn_server_setup_env_file | basename }}"
+        mode: "0600"
+    docker_service_deploy_compose_template: "docker-compose.yml.j2"
+  when: ipsec_vpn_server_setup_enabled | bool

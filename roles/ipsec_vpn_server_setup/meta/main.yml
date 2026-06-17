@@ -1,0 +1,18 @@
+---
+galaxy_info:
+  role_name: ipsec_vpn_server_setup
+  author: Frank Refol
+  description: >-
+    Installs and configures the hwdsl2 IPsec VPN server Docker container,
+    including vpn.env and docker-compose configuration.
+  license: MIT
+  min_ansible_version: "2.9"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - jammy
+        - noble
+    - name: Debian
+      versions:
+        - bullseye
+        - bookworm
