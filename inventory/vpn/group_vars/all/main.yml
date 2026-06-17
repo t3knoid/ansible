@@ -3,7 +3,7 @@ vms_config:
   agent: "1"
   cores: "2"
   cpu: host
-  memory: 1024
+  memory: 2048
   ostype: l26
   scsihw: virtio-scsi-single
   sockets: 1
