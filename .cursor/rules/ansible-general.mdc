@@ -1,0 +1,14 @@
+---
+description: General standards for working in this Ansible repository
+alwaysApply: true
+---
+
+- Inspect the closest comparable inventory, role, or playbook before editing. Reuse existing repository patterns instead of inventing new layouts.
+- Keep changes minimal and aligned with current naming, file placement, and variable conventions.
+- Prefer existing abstractions such as `roles/docker_service_deploy` for Docker-backed services instead of introducing a one-off deployment pattern.
+- Keep comments short and practical.
+- Follow the repo's existing vault comment pattern instead of hardcoding secrets.
+- Do not manually create or update generated documentation for inventories, roles, or playbooks.
+- Do not manually edit `inventory/README.md`, `playbooks/README.md`, `roles/README.md`, `docs/inventory/*.md`, `docs/playbooks/*.md`, or `docs/roles/*.md` when scaffolding repo objects.
+- Documentation for inventories, roles, and playbooks is generated automatically by GitHub workflows in `.github/workflows/`, including `generate-inventory-docs.yml`, `generate-role-docs.yml`, and `generate-playbook-docs.yml`.
+- Fix syntax or diagnostics issues introduced by your changes before finishing.

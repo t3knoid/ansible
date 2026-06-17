@@ -1,0 +1,19 @@
+---
+description: Standards for creating and editing Ansible playbooks in this repo
+globs: playbooks/**
+alwaysApply: false
+---
+
+- Place playbooks in the appropriate domain folder under `playbooks/`.
+- Follow existing naming conventions such as `deploy_<service>.yml`.
+- Include a short purpose comment at the top when neighboring playbooks do.
+- Deployment playbooks should usually include roles in this order unless a nearby pattern clearly differs:
+  1. `global`
+  2. `users`
+  3. prerequisite roles such as `autofs`, `docker_setup`, `python3`, database/bootstrap roles, or other infrastructure roles
+  4. the target setup role
+- Include `global` in the playbook process and normally place it first in the role list.
+- Use `become: true` for deployment playbooks unless the local pattern shows otherwise.
+- Only set `gather_facts: false` when comparable playbooks do the same.
+- If prerequisite playbooks are needed, use `import_playbook` in the same style as neighboring files.
+- After playbook changes, run `ansible-playbook --syntax-check` against the most relevant inventory.
