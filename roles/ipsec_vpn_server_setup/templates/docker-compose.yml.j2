@@ -17,3 +17,20 @@ services:
       - "{{ volume }}"
 {% endfor %}
     restart: {{ ipsec_vpn_server_setup_restart_policy }}
+
+{% set named_volume_state = namespace(found=false) %}
+{% for volume in ipsec_vpn_server_setup_volumes %}
+{% set volume_source = volume.split(':')[0] %}
+{% if ':' in volume and not volume_source.startswith('/') and not volume_source.startswith('./') and not volume_source.startswith('../') %}
+{% set named_volume_state.found = true %}
+{% endif %}
+{% endfor %}
+{% if named_volume_state.found %}
+volumes:
+{% for volume in ipsec_vpn_server_setup_volumes %}
+{% set volume_source = volume.split(':')[0] %}
+{% if ':' in volume and not volume_source.startswith('/') and not volume_source.startswith('./') and not volume_source.startswith('../') %}
+  {{ volume_source }}:
+{% endif %}
+{% endfor %}
+{% endif %}
