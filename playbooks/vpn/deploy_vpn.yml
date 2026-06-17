@@ -1,0 +1,12 @@
+---
+# Purpose: Deploy the IPsec VPN Docker service on VPN hosts.
+
+- name: Deploy IPsec VPN server
+  hosts: vpn
+  become: true
+  gather_facts: false
+  roles:
+    - global
+    - users
+    - docker_setup
+    - ipsec_vpn_server_setup
