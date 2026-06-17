@@ -186,4 +186,5 @@
 | [`vms/stop_vm.yml`](./stop_vm.md) | Stops a virtual machine. |
 | [`vms/update_known_hosts.yml`](./update_known_hosts.md) | Updates the known_hosts file with the SSH fingerprints of all virtual machines. |
 | [`vms/upgrade_vm_os.yml`](./upgrade_vm_os.md) | Upgrades the operating system of virtual machines. |
+| [`vpn/deploy_vpn.yml`](./deploy_vpn.md) | Deploy the IPsec VPN Docker service on VPN hosts. |
 | [`wikipedia/deploy_wikipedia.yml`](./deploy_wikipedia.md) | Deploys a Wikipedia instance using various setup roles. |
