@@ -1,0 +1,13 @@
+---
+description: Standards for creating and editing Ansible roles in this repo
+globs: roles/**
+alwaysApply: false
+---
+
+- Create the smallest justified role surface based on a nearby role.
+- Common files include `tasks/main.yml`, `defaults/main.yml` or `defaults/main/main.yml`, `meta/main.yml`, `templates/*`, `handlers/main.yml`, and `vars/main.yml`, but only add what fits the neighboring pattern.
+- Name variables with a `<role_name>_*` prefix.
+- Keep `meta/main.yml` aligned with existing role metadata style.
+- For Docker-backed roles, prefer delegating container lifecycle to `roles/docker_service_deploy` and render configuration through templates such as `docker-compose.yml.j2` plus any service config templates.
+- New roles are expected to be consumed by playbooks that run `global` first. Keep `roles/global` in scope when designing role assumptions.
+- After role changes, run file diagnostics and a focused `ansible-playbook --syntax-check` using a temporary play that imports the role and supplies any minimal required variables.

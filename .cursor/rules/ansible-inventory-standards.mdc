@@ -1,0 +1,15 @@
+---
+description: Standards for creating and editing Ansible inventories in this repo
+globs: inventory/**,roles/global/vars/main.yml
+alwaysApply: false
+---
+
+- Create inventories under `inventory/<name>/`.
+- Create `inventory/<name>/inventory.ini` and only the `group_vars` files justified by neighboring inventories.
+- Reuse current host and group naming patterns such as `<service>-0`, `vms`, `linux`, `python`, `docker`, `autofs`, `cname`, `pgdb`, `pgclient`, `rproxy`, and service-specific groups when relevant.
+- For VM-backed inventories, preserve the current `vms_*` conventions used in `group_vars/all/main.yml`, including `vms_config`, `vms_os`, `vms_autoinstall`, `vms_enable_serial_terminal`, `vms_additional_packages`, and `python3_version` when appropriate.
+- For Docker-backed inventories, expose variables that match the target role's existing naming and deployment pattern.
+- When adding a new host, update `roles/global/vars/main.yml` so `global_ip_addresses` contains an entry for that host.
+- If the user does not provide an IP address, inspect the current `global_ip_addresses` map, infer the correct subnet from comparable hosts, and assign the next available non-conflicting address while preserving the existing addressing pattern.
+- Verify any new `global_ip_addresses` entry is unique and matches the intended host name.
+- After inventory changes, run `ansible-inventory -i inventory/<name>/inventory.ini --graph` when possible.
