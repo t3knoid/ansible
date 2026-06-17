@@ -45,6 +45,7 @@
 | [`oauth2_proxy_setup`](../docs/roles/oauth2_proxy_setup.md) | Install and configure OAuth2 Proxy. |
 | [`oc_setup`](../docs/roles/oc_setup.md) | Install and configure TP-Link Omada Controller on Ubuntu systems. |
 | [`ombi_setup`](../docs/roles/ombi_setup.md) | Ombi Setup installs and configures an Ombi Docker container. It uses a Docker image distributed by [linuxserver](https://hub.docker.com/r/linuxserver/ombi) |
+| [`openvpn_setup`](../docs/roles/openvpn_setup.md) | Installs and configures an OpenVPN client with optional fail-closed egress rules for the forward proxy host; expects inventory or environment-provided credentials, CA certificate, and remote server, applies IPv4 OUTPUT fail-closed rules, and resolves the VPN endpoint at deploy time |
 | [`pbs`](../docs/roles/pbs.md) | Installs and configures Proxmox Backup Server on Ubuntu systems. |
 | [`pihole`](../docs/roles/pihole.md) | Installs and configures Pi-hole on Ubuntu systems (https://pi-hole.net/). Provides tasks to manage Pi-hole settings and configurations. |
 | [`playwright`](../docs/roles/playwright.md) | Installs playwright. |
@@ -66,6 +67,8 @@
 | [`synology`](../docs/roles/synology.md) | Provides tasks to manage Synology NAS devices. |
 | [`tautulli_setup`](../docs/roles/tautulli_setup.md) | Installs and configures an Tautulli Docker container. It uses a container distributed by [linuxserver](https://hub.docker.com/r/linuxserver/tautulli). |
 | [`terraform_setup`](../docs/roles/terraform_setup.md) | Installs Terraform |
+| [`tinyproxy_client`](../docs/roles/tinyproxy_client.md) | Configures Linux clients to use a Tinyproxy forward proxy for shell and APT traffic and Windows clients for machine environment, WinINet, and WinHTTP proxy settings using the WinHttpProxy PowerShell module, which must already be available on Windows target hosts. |
+| [`tinyproxy_setup`](../docs/roles/tinyproxy_setup.md) | Installs Tinyproxy and configures it as a lightweight HTTP/HTTPS proxy server |
 | [`unbound`](../docs/roles/unbound.md) | Installs and configures Unbound DNS resolver with optional logging support. |
 | [`users`](../docs/roles/users.md) | Provides tasks to manage system users in Ubuntu and Debian. |
 | [`vault_setup`](../docs/roles/vault_setup.md) | Installs and configures Hashicorp Vault |

@@ -48,6 +48,9 @@
 | [`ecube/backup_db.yml`](./backup_db.md) | Backup ECUBE database to NFS share |
 | [`ecube/create_db.yml`](./create_db.md) | Create PostgreSQL database for ECUBE on the database server |
 | [`ecube/deploy_ecube.yml`](./deploy_ecube.md) | Deploy ECUBE on ecube hosts. |
+| [`fproxy/configure_fproxy_client.yml`](./configure_fproxy_client.md) | Configure Linux client hosts to use the forward proxy for shell and APT traffic. Targets should be members of both the tinyproxy_client and linux inventory groups. Use configure_fproxy_windows_client.yml for Windows hosts. Override tinyproxy_client_proxy_host when the first host in the fproxy group is not the correct reachable address for clients. |
+| [`fproxy/configure_fproxy_windows_client.yml`](./configure_fproxy_windows_client.md) | Configure Windows client hosts to use the forward proxy for machine environment variables plus WinINet and WinHTTP proxy settings. Targets should be members of the tinyproxy_client group and should not also be members of the linux group. Override tinyproxy_client_proxy_host when the first host in the fproxy group is not the correct reachable address for clients. |
+| [`fproxy/deploy_fproxy.yml`](./deploy_fproxy.md) | Deploy the forward proxy stack on target hosts Runtime assumptions: - Inventory or environment must provide the OpenVPN manual-setup username, password, CA certificate, and remote server when `openvpn_enabled` is true. - The VPN endpoint IP is resolved at deploy time; rerun the playbook if the provider changes that endpoint address. |
 | [`geyser/deploy_geyser.yml`](./deploy_geyser.md) | Deploy Geyser Minecraft server proxy |
 | [`gh_cli/deploy_gh_cli.yml`](./deploy_gh_cli.md) | Install GitHub CLI on target hosts |
 | [`grafana/backup_db.yml`](./backup_db.md) | Backup Grafana database to NFS share |
