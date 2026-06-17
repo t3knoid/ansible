@@ -1,0 +1,19 @@
+---
+
+services:
+  {{ ipsec_vpn_server_setup_service_name }}:
+    image: {{ ipsec_vpn_server_setup_image }}
+    container_name: {{ ipsec_vpn_server_setup_container_name }}
+    hostname: {{ ipsec_vpn_server_setup_hostname }}
+    env_file:
+      - ./{{ ipsec_vpn_server_setup_env_file | basename }}
+    ports:
+{% for port in ipsec_vpn_server_setup_ports %}
+      - "{{ port }}"
+{% endfor %}
+    privileged: {{ ipsec_vpn_server_setup_privileged | to_json }}
+    volumes:
+{% for volume in ipsec_vpn_server_setup_volumes %}
+      - "{{ volume }}"
+{% endfor %}
+    restart: {{ ipsec_vpn_server_setup_restart_policy }}
