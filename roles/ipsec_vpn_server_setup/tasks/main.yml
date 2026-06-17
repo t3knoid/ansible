@@ -19,21 +19,6 @@
     - "{{ ipsec_vpn_server_setup_etc_dir }}"
   when: ipsec_vpn_server_setup_enabled | bool
 
-- name: Persist IPsec VPN kernel modules
-  ansible.builtin.lineinfile:
-    path: /etc/modules-load.d/ipsec-vpn-server.conf
-    line: "{{ item }}"
-    create: true
-    mode: "0644"
-  loop: "{{ ipsec_vpn_server_setup_kernel_modules }}"
-  when: ipsec_vpn_server_setup_enabled | bool
-
-- name: Load IPsec VPN kernel modules
-  ansible.builtin.command: "modprobe {{ item }}"
-  changed_when: false
-  loop: "{{ ipsec_vpn_server_setup_kernel_modules }}"
-  when: ipsec_vpn_server_setup_enabled | bool
-
 - name: Deploy IPsec VPN server Docker service
   ansible.builtin.include_role:
     name: docker_service_deploy

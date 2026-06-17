@@ -13,9 +13,6 @@ ipsec_vpn_server_setup_privileged: true
 ipsec_vpn_server_setup_ports:
   - "500:500/udp"
   - "4500:4500/udp"
-ipsec_vpn_server_setup_kernel_modules:
-  - pppol2tp
-  - l2tp_ppp
 ipsec_vpn_server_setup_volumes:
   - "{{ ipsec_vpn_server_setup_etc_dir }}:/etc/ipsec.d"
   - "/lib/modules:/lib/modules:ro"
