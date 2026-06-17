@@ -1,0 +1,19 @@
+---
+description: Workflow for full-stack scaffolding of a new Ansible inventory, role, and playbook in this repo
+alwaysApply: false
+---
+
+- When the task is to scaffold a new service or host end to end, treat inventory, role, and playbook creation as one coordinated workflow instead of three unrelated edits.
+- Start by locating the closest comparable implementation across `inventory/`, `roles/`, and `playbooks/`, then mirror those patterns consistently.
+- Create or update the inventory first so host names, groups, and role-facing variables are established before designing the role or playbook.
+- When adding a new host, update `roles/global/vars/main.yml` so `global_ip_addresses` includes the host. If the user does not provide an IP address, infer the correct subnet from comparable hosts and assign the next available non-conflicting address.
+- Create the role second, using the smallest justified role surface and reusing existing patterns such as `roles/docker_service_deploy` for Docker-backed services.
+- Create the playbook last, placing it under the appropriate `playbooks/` domain folder and ordering roles so `global` comes first, then `users`, then prerequisites, then the target setup role.
+- Keep variable naming aligned across all three layers: inventory variables should match role expectations, and playbooks should call the correct setup role without ad hoc translation.
+- Include `roles/global` in the workflow reasoning and ensure the final playbook includes `global` unless a nearby proven pattern clearly differs.
+- Do not manually create or edit generated documentation for inventories, roles, or playbooks. GitHub workflows under `.github/workflows/` generate those docs automatically.
+- Validate in sequence after scaffolding:
+  1. inventory parse with `ansible-inventory -i inventory/<name>/inventory.ini --graph`
+  2. role syntax with a focused temporary `ansible-playbook --syntax-check`
+  3. playbook syntax with `ansible-playbook --syntax-check` against the relevant inventory
+- Finish by summarizing which neighboring patterns were followed and any assumptions about IP allocation, grouping, vault values, prerequisites, or deployment style.
