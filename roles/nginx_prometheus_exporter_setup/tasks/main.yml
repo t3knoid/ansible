@@ -14,10 +14,7 @@
 
 - name: Download and extract nginx-prometheus-exporter
   ansible.builtin.unarchive:
-    src: >
-      {{ nginx_prometheus_exporter_setup_download_base_url }}
-      {{ nginx_prometheus_exporter_setup_version }}
-      /nginx-prometheus-exporter_{{ nginx_prometheus_exporter_setup_version }}_linux_amd64.tar.gz
+    src: "{{ nginx_prometheus_exporter_setup_download_base_url }}{{ nginx_prometheus_exporter_setup_version }}/nginx-prometheus-exporter_{{ nginx_prometheus_exporter_setup_version }}_linux_amd64.tar.gz"
     dest: /opt/
     remote_src: true
     creates: "/opt/nginx-prometheus-exporter_{{ nginx_prometheus_exporter_setup_version }}_linux_amd64"
