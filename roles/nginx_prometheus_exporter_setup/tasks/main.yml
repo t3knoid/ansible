@@ -1,0 +1,87 @@
+---
+- name: Create nginx-prometheus-exporter group
+  ansible.builtin.group:
+    name: "{{ nginx_prometheus_exporter_setup_group }}"
+    system: true
+
+- name: Create nginx-prometheus-exporter user
+  ansible.builtin.user:
+    name: "{{ nginx_prometheus_exporter_setup_user }}"
+    group: "{{ nginx_prometheus_exporter_setup_group }}"
+    system: true
+    create_home: false
+    shell: /usr/sbin/nologin
+
+- name: Download and extract nginx-prometheus-exporter
+  ansible.builtin.unarchive:
+    src: >
+      {{ nginx_prometheus_exporter_setup_download_base_url }}
+      {{ nginx_prometheus_exporter_setup_version }}
+      /nginx-prometheus-exporter_{{ nginx_prometheus_exporter_setup_version }}_linux_amd64.tar.gz
+    dest: /opt/
+    remote_src: true
+    creates: "/opt/nginx-prometheus-exporter_{{ nginx_prometheus_exporter_setup_version }}_linux_amd64"
+    mode: "0755"
+
+- name: Create symlink for nginx-prometheus-exporter
+  ansible.builtin.file:
+    src: "/opt/nginx-prometheus-exporter_{{ nginx_prometheus_exporter_setup_version }}_linux_amd64"
+    dest: "{{ nginx_prometheus_exporter_setup_home }}"
+    state: link
+    force: true
+
+- name: Set ownership for nginx-prometheus-exporter directory
+  ansible.builtin.file:
+    path: "/opt/nginx-prometheus-exporter_{{ nginx_prometheus_exporter_setup_version }}_linux_amd64"
+    owner: "{{ nginx_prometheus_exporter_setup_user }}"
+    group: "{{ nginx_prometheus_exporter_setup_group }}"
+    recurse: true
+
+- name: Copy nginx-prometheus-exporter binary to /usr/local/bin
+  ansible.builtin.copy:
+    src: "{{ nginx_prometheus_exporter_setup_home }}/nginx-prometheus-exporter"
+    dest: "{{ nginx_prometheus_exporter_setup_binary }}"
+    owner: "{{ nginx_prometheus_exporter_setup_user }}"
+    group: "{{ nginx_prometheus_exporter_setup_group }}"
+    mode: "{{ nginx_prometheus_exporter_setup_mode }}"
+    remote_src: true
+  notify:
+    - Restart nginx-prometheus-exporter service
+
+- name: Configure local nginx status site
+  ansible.builtin.template:
+    src: nginx-prometheus-exporter-status.conf.j2
+    dest: "{{ nginx_setup_homedir }}/sites-available/{{ nginx_prometheus_exporter_setup_nginx_status_site_name }}.conf"
+    owner: root
+    group: root
+    mode: "0644"
+  notify:
+    - Restart nginx
+
+- name: Enable local nginx status site
+  ansible.builtin.file:
+    src: "{{ nginx_setup_homedir }}/sites-available/{{ nginx_prometheus_exporter_setup_nginx_status_site_name }}.conf"
+    dest: "{{ nginx_setup_homedir }}/sites-enabled/{{ nginx_prometheus_exporter_setup_nginx_status_site_name }}.conf"
+    state: link
+    force: true
+  notify:
+    - Restart nginx
+
+- name: Validate nginx configuration
+  ansible.builtin.command: nginx -t
+  changed_when: false
+
+- name: Create nginx-prometheus-exporter systemd service file
+  ansible.builtin.template:
+    src: nginx-prometheus-exporter.service.j2
+    dest: "{{ nginx_prometheus_exporter_setup_service_file }}"
+    mode: "{{ nginx_prometheus_exporter_setup_service_mode }}"
+  notify:
+    - Reload systemd daemon
+    - Restart nginx-prometheus-exporter service
+
+- name: Enable and start nginx-prometheus-exporter service
+  ansible.builtin.systemd:
+    name: "{{ nginx_prometheus_exporter_setup_service_name }}"
+    enabled: true
+    state: started
