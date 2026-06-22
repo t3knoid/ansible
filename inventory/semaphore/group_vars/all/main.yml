@@ -49,7 +49,8 @@ rproxy_setup_sites:
     oauth2_scope: "openid profile email"
     oauth2_cookie_secret: ""
     oauth2_client_id: ""
-    oauth2_callback_url: "https://semaphore.refol.us/oauth2/callback"
+    oauth2_callback_url: ""
+    app_redirect_url: "https://semaphore.refol.us/api/auth/oidc/azure/redirect"
     oauth2_client_secret: ""
     oauth2_email_domains: "*"
 

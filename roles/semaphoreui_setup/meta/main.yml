@@ -2,7 +2,7 @@
 galaxy_info:
   role_name: semaphoreui_setup
   author: Frank Refol
-  description: Installs and configures [Semaphore UI](https://docs.semaphoreui.com/).
+  description: Installs and configures [Semaphore UI](https://docs.semaphoreui.com/) with optional Entra ID OIDC integration.
   license: MIT
   min_ansible_version: "2.9"
   platforms:
