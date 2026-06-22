@@ -13,12 +13,26 @@
   register: entra_id_oauth2_existing_app
   delegate_to: localhost
 
+- name: Build redirect URI list for application registration
+  ansible.builtin.set_fact:
+    entra_id_oauth2_reply_urls: >-
+      {{
+        (
+          [item.app_redirect_url]
+          if (item.app_redirect_url is defined and (item.app_redirect_url | length > 0))
+          else [item.oauth2_callback_url | default('')]
+        )
+        | reject('equalto', '')
+        | list
+        | unique
+      }}
+
 - name: Create application if it does not exist
   no_log: false
   azure.azcollection.azure_rm_adapplication:
     display_name: "{{ item.server_name }}"
     identifier_uris: ["api://{{ item.server_name }}"]
-    reply_urls: "{{ item.oauth2_callback_url }}"
+    reply_urls: "{{ entra_id_oauth2_reply_urls }}"
     client_id: "{{ global_azure_sp_client_id }}"
     secret: "{{ global_azure_sp_secret }}"
     tenant: "{{ global_azure_tenant }}"
@@ -40,6 +54,15 @@
            entra_id_oauth2_created_app.app_id | default(''))
         ) | default('')
       }}
+
+- name: Ensure redirect URIs are updated for the application
+  ansible.builtin.command: >
+    az ad app update
+    --id {{ entra_id_oauth2_app_id }}
+    --web-redirect-uris {{ entra_id_oauth2_reply_urls | join(' ') }}
+  delegate_to: localhost
+  changed_when: false
+  when: entra_id_oauth2_reply_urls | length > 0
 
 # The application id is now in the variable entra_id_oauth2_app_id
 

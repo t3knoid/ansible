@@ -19,4 +19,6 @@
     - global
     - sshpass
     - autofs
+    - azure_cli_setup
+    - entra_id_oauth2
     - semaphoreui_setup
