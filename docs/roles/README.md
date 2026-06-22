@@ -62,7 +62,7 @@
 | [`rproxy_setup`](./rproxy_setup.md) | rproxy_setup configures reverse proxy with failover support using nginx. This role requires at least three hosts to be defined. One host is configure as the main frontend proxy, the other two acts as the primary and secondary proxy. |
 | [`ruby_setup`](./ruby_setup.md) | The ruby_setup role builds and install Ruby from it's [https://www.ruby-lang.org/en/downloads/](source code). |
 | [`sabnzbd_setup`](./sabnzbd_setup.md) | Installs and configures a Sabnzbd Docker container. It uses a Docker image distributed by [linuxserver](https://hub.docker.com/r/linuxserver/sabnzbd). |
-| [`semaphoreui_setup`](./semaphoreui_setup.md) | Installs and configures [Semaphore UI](https://docs.semaphoreui.com/). |
+| [`semaphoreui_setup`](./semaphoreui_setup.md) | Installs and configures [Semaphore UI](https://docs.semaphoreui.com/) with optional Entra ID OIDC integration. |
 | [`sonarr_setup`](./sonarr_setup.md) | Installs and configures a Sonarr Docker container. It uses a container distributed by [linuxserver](https://hub.docker.com/r/linuxserver/sonarr). |
 | [`sshpass`](./sshpass.md) | Installs sshpass from apt repositories. |
 | [`synology`](./synology.md) | Provides tasks to manage Synology NAS devices. |
