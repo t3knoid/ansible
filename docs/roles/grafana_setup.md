@@ -31,6 +31,16 @@ Install and configure Grafana on Debian/Ubuntu
 | `grafana_setup_provisioning_dir` | `"{{ grafana_setup_home_dir }}/provisioning"` |  |
 | `grafana_setup_conf_dir` | `"{{ grafana_setup_home_dir }}/conf"` |  |
 | `grafana_setup_pid_dir` | `"{{ grafana_setup_home_dir }}/run"` |  |
+| `grafana_setup_dashboards_dir` | `"{{ grafana_setup_home_dir }}/dashboards"` |  |
+| `grafana_setup_provisioning_datasources_dir` | `"{{ grafana_setup_provisioning_dir }}/datasources"` |  |
+| `grafana_setup_provisioning_dashboards_dir` | `"{{ grafana_setup_provisioning_dir }}/dashboards"` |  |
+| `grafana_setup_prometheus_datasource_name` | `"Prometheus"` |  |
+| `grafana_setup_prometheus_datasource_uid` | `"prometheus"` |  |
+| `grafana_setup_prometheus_datasource_url` | `"http://{{ global_ip_addresses[groups['prometheus'][0]] }}:9090"` |  |
+| `grafana_setup_dashboard_provider_name` | `"default-file-provider"` |  |
+| `grafana_setup_dashboard_folder` | `"Infrastructure"` |  |
+| `grafana_setup_dashboard_update_interval_seconds` | `30` |  |
+| `grafana_setup_dashboard_allow_ui_updates` | `false` |  |
 | `grafana_setup_config_file` | `"{{ grafana_setup_conf_dir }}/defaults.ini"` |  |
 | `grafana_setup_service_file` | `"/usr/lib/systemd/system/grafana-server.service"` |  |
 | `grafana_setup_environment_file` | `"{{ grafana_setup_home_dir }}/defaults"` |  |
@@ -73,6 +83,12 @@ _No constant variables found._
 - Create Grafana pid file directory
 - Create Grafana provisioning directory
 - Create Grafana provisioning/plugins directory
+- Create Grafana provisioning/datasources directory
+- Create Grafana provisioning/dashboards directory
+- Create Grafana dashboards directory
+- Provision Prometheus datasource
+- Provision dashboard provider
+- Install nginx-prometheus-exporter dashboard
 - Create Grafana configuration directory
 - Copy Grafana configuration file
 - Copy Grafana LDAP settings file
