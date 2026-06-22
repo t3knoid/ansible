@@ -18,7 +18,7 @@
     state: directory
     owner: "{{ nginx_prometheus_exporter_setup_user }}"
     group: "{{ nginx_prometheus_exporter_setup_group }}"
-    mode: "0644"
+    mode: "0755"
 
 - name: Download and extract nginx-prometheus-exporter
   ansible.builtin.unarchive:
