@@ -12,24 +12,32 @@
     create_home: false
     shell: /usr/sbin/nologin
 
+- name: Create destination directory
+  ansible.builtin.file:
+    path: "{{ nginx_prometheus_exporter_setup_installdir }}"
+    state: directory
+    owner: "{{ nginx_prometheus_exporter_setup_user }}"
+    group: "{{ nginx_prometheus_exporter_setup_group }}"
+    mode: "0644"
+
 - name: Download and extract nginx-prometheus-exporter
   ansible.builtin.unarchive:
-    src: "{{ nginx_prometheus_exporter_setup_download_base_url }}{{ nginx_prometheus_exporter_setup_version }}/nginx-prometheus-exporter_{{ nginx_prometheus_exporter_setup_version }}_linux_amd64.tar.gz"
-    dest: /opt/
+    src: "{{ nginx_prometheus_exporter_setup_download_base_url }}{{ nginx_prometheus_exporter_setup_version }}/nginx-prometheus-exporter_{{ nginx_prometheus_exporter_setup_version }}_{{ nginx_prometheus_exporter_setup_platform }}.tar.gz"
+    dest: "{{ nginx_prometheus_exporter_setup_installdir }}"
     remote_src: true
-    creates: "/opt/nginx-prometheus-exporter_{{ nginx_prometheus_exporter_setup_version }}_linux_amd64"
+    creates: "{{ nginx_prometheus_exporter_setup_installdir }}/nginx-prometheus-exporter"
     mode: "0755"
 
 - name: Create symlink for nginx-prometheus-exporter
   ansible.builtin.file:
-    src: "/opt/nginx-prometheus-exporter_{{ nginx_prometheus_exporter_setup_version }}_linux_amd64"
+    src: "{{ nginx_prometheus_exporter_setup_installdir }}"
     dest: "{{ nginx_prometheus_exporter_setup_home }}"
     state: link
     force: true
 
 - name: Set ownership for nginx-prometheus-exporter directory
   ansible.builtin.file:
-    path: "/opt/nginx-prometheus-exporter_{{ nginx_prometheus_exporter_setup_version }}_linux_amd64"
+    path: "{{ nginx_prometheus_exporter_setup_installdir }}"
     owner: "{{ nginx_prometheus_exporter_setup_user }}"
     group: "{{ nginx_prometheus_exporter_setup_group }}"
     recurse: true

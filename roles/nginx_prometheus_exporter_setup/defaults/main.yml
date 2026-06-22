@@ -1,6 +1,8 @@
 ---
 nginx_prometheus_exporter_setup_version: "1.5.1"
 nginx_prometheus_exporter_setup_download_base_url: "https://github.com/nginx/nginx-prometheus-exporter/releases/download/v"
+nginx_prometheus_exporter_setup_platform: "darwin_amd64"
+nginx_prometheus_exporter_setup_installdir: /opt/nginx-prometheus-exporter_{{ nginx_prometheus_exporter_setup_version }}_{{ nginx_prometheus_exporter_setup_platform }}
 nginx_prometheus_exporter_setup_home: "/opt/nginx-prometheus-exporter"
 nginx_prometheus_exporter_setup_binary: "/usr/local/bin/nginx-prometheus-exporter"
 nginx_prometheus_exporter_setup_mode: "0755"
