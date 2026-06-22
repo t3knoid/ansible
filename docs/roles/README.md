@@ -41,6 +41,7 @@
 | [`minecraft_setup`](./minecraft_setup.md) | Installs Minecraft Server on Ubuntu and Debian systems (https://www.minecraft.net/en-us/download/server). |
 | [`mongodb_setup`](./mongodb_setup.md) | Installs [MongoDB](https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/). |
 | [`nebulasync_setup`](./nebulasync_setup.md) | Installs nebula-sync as documented in its [GitHub page](https://github.com/lovelaze/nebula-sync?tab=readme-ov-file#installation). This role requires that pi-hole role is configured on the target host. The target host is assumed to be the first host listed in the "primary_dns" inventory group. |
+| [`nginx_prometheus_exporter_setup`](./nginx_prometheus_exporter_setup.md) | Install and configure nginx-prometheus-exporter for local NGINX status scraping. |
 | [`nginx_setup`](./nginx_setup.md) | Installs the nginx service. |
 | [`node_exporter_setup`](./node_exporter_setup.md) | Installs Prometheus Node Exporter |
 | [`oauth2_proxy_setup`](./oauth2_proxy_setup.md) | Install and configure OAuth2 Proxy. |
