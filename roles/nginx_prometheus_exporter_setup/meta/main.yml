@@ -1,0 +1,12 @@
+---
+galaxy_info:
+  role_name: nginx_prometheus_exporter_setup
+  author: Frank Refol
+  description: Install and configure nginx-prometheus-exporter for local NGINX status scraping.
+  license: MIT
+  min_ansible_version: "2.9"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - bionic
+        - focal

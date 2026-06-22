@@ -1,0 +1,10 @@
+---
+- name: Reload systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: Restart nginx-prometheus-exporter service
+  ansible.builtin.systemd:
+    name: "{{ nginx_prometheus_exporter_setup_service_name }}"
+    state: restarted
+    enabled: true
