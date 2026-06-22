@@ -5,7 +5,7 @@
 ![Platforms: EL | Ubuntu](https://img.shields.io/badge/platforms-EL%20|%20Ubuntu-orange.svg)
 
 ## 📖 Overview
-Installs and configures [Semaphore UI](https://docs.semaphoreui.com/).
+Installs and configures [Semaphore UI](https://docs.semaphoreui.com/) with optional Entra ID OIDC integration.
 
 ## 📋 Requirements
 - Minimum Ansible version: `2.9`
@@ -96,9 +96,13 @@ Installs and configures [Semaphore UI](https://docs.semaphoreui.com/).
 | `environment` | `"Empty"` |  |
 | `semaphoreui_setup_email_alert` | `false` | Email alert |
 | `semaphoreui_setup_email_port` | `"587"` |  |
-| `semaphoreui_setup_oidc_color` | `"blue"` | See vault for login |
+| `semaphoreui_setup_oidc_site` | `>-` | This assumes only server entry in rproxy_setup_sites for semaphoreui |
+| `semaphoreui_setup_oidc_color` | `"blue"` |  |
 | `semaphoreui_setup_oidc_display_name` | `"Sign in with Azure (EntraID)"` |  |
-| `semaphoreui_setup_oidc_redirect_url` | `"https://semaphore.refol.us/api/auth/oidc/azure/redirect"` |  |
+| `semaphoreui_setup_oidc_provider_url` | `"https://login.microsoftonline.com/{{ global_azure_tenant }}/v2.0"` |  |
+| `semaphoreui_setup_oidc_client_id` | `"{{ semaphoreui_setup_oidc_site.oauth2_client_id | default('') }}"` |  |
+| `semaphoreui_setup_oidc_secret` | `"{{ semaphoreui_setup_oidc_site.oauth2_client_secret | default('') }}"` |  |
+| `semaphoreui_setup_oidc_redirect_url` | `"{{ semaphoreui_setup_oidc_site.app_redirect_url | default('') }}"` |  |
 | `semaphoreui_setup_timezone` | `"America/New_York"` | timezone |
 
 ## 📦 Vars
