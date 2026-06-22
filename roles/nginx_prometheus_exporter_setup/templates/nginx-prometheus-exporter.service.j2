@@ -1,0 +1,15 @@
+[Unit]
+Description=NGINX Prometheus Exporter
+Wants=network-online.target
+After=network-online.target nginx.service
+
+[Service]
+Type=simple
+User={{ nginx_prometheus_exporter_setup_user }}
+Group={{ nginx_prometheus_exporter_setup_group }}
+ExecStart={{ nginx_prometheus_exporter_setup_binary }} --web.listen-address={{ nginx_prometheus_exporter_setup_listen_address }} --web.telemetry-path={{ nginx_prometheus_exporter_setup_telemetry_path }} --nginx.scrape-uri={{ nginx_prometheus_exporter_setup_scrape_uri }}
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,15 @@
+server {
+    listen {{ nginx_prometheus_exporter_setup_nginx_status_listen_address }};
+    server_name localhost;
+
+    location = {{ nginx_prometheus_exporter_setup_nginx_status_path }} {
+        stub_status;
+        access_log off;
+        allow 127.0.0.1;
+        deny all;
+    }
+
+    location / {
+        return 404;
+    }
+}

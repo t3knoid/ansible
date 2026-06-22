@@ -39,3 +39,19 @@ scrape_configs:
       - targets: ['localhost:8082']
         labels:
           group: 'canary'
+
+{% if prometheus_setup_nginx_exporter_targets | default([]) | length > 0 %}
+  - job_name: 'nginx_exporter'
+    scrape_interval: 5s
+
+    static_configs:
+{% for target in prometheus_setup_nginx_exporter_targets %}
+      - targets: ['{{ target.target }}']
+{% if target.labels is defined %}
+        labels:
+{% for key, value in target.labels.items() %}
+          {{ key }}: '{{ value }}'
+{% endfor %}
+{% endif %}
+{% endfor %}
+{% endif %}
