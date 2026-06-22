@@ -1,0 +1,12 @@
+apiVersion: 1
+
+providers:
+  - name: "{{ grafana_setup_dashboard_provider_name }}"
+    orgId: 1
+    folder: "{{ grafana_setup_dashboard_folder }}"
+    type: file
+    disableDeletion: false
+    editable: {{ grafana_setup_dashboard_allow_ui_updates | ternary('true', 'false') }}
+    updateIntervalSeconds: {{ grafana_setup_dashboard_update_interval_seconds }}
+    options:
+      path: "{{ grafana_setup_dashboards_dir }}"
