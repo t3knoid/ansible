@@ -17,6 +17,18 @@ grafana_setup_bin_dir: "{{ grafana_setup_home_dir }}/bin/grafana"
 grafana_setup_provisioning_dir: "{{ grafana_setup_home_dir }}/provisioning"
 grafana_setup_conf_dir: "{{ grafana_setup_home_dir }}/conf"
 grafana_setup_pid_dir: "{{ grafana_setup_home_dir }}/run"
+grafana_setup_dashboards_dir: "{{ grafana_setup_home_dir }}/dashboards"
+grafana_setup_provisioning_datasources_dir: "{{ grafana_setup_provisioning_dir }}/datasources"
+grafana_setup_provisioning_dashboards_dir: "{{ grafana_setup_provisioning_dir }}/dashboards"
+
+grafana_setup_prometheus_datasource_name: "Prometheus"
+grafana_setup_prometheus_datasource_uid: "prometheus"
+grafana_setup_prometheus_datasource_url: "http://{{ global_ip_addresses[groups['prometheus'][0]] }}:9090"
+
+grafana_setup_dashboard_provider_name: "default-file-provider"
+grafana_setup_dashboard_folder: "Infrastructure"
+grafana_setup_dashboard_update_interval_seconds: 30
+grafana_setup_dashboard_allow_ui_updates: false
 
 grafana_setup_config_file: "{{ grafana_setup_conf_dir }}/defaults.ini"
 grafana_setup_service_file: "/usr/lib/systemd/system/grafana-server.service"

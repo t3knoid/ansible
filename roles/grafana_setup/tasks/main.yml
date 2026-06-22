@@ -1,5 +1,4 @@
 ---
-
 - name: Update pg_hba.conf to allow password access using host ip address
   community.postgresql.postgresql_pg_hba:
     dest: "/etc/postgresql/{{ postgresql_setup_version }}/main/pg_hba.conf"
@@ -94,6 +93,57 @@
     owner: grafana
     group: grafana
     mode: "0750"
+
+- name: Create Grafana provisioning/datasources directory
+  ansible.builtin.file:
+    path: "{{ grafana_setup_provisioning_datasources_dir }}"
+    state: directory
+    owner: "{{ grafana_setup_user }}"
+    group: "{{ grafana_setup_group }}"
+    mode: "0750"
+
+- name: Create Grafana provisioning/dashboards directory
+  ansible.builtin.file:
+    path: "{{ grafana_setup_provisioning_dashboards_dir }}"
+    state: directory
+    owner: "{{ grafana_setup_user }}"
+    group: "{{ grafana_setup_group }}"
+    mode: "0750"
+
+- name: Create Grafana dashboards directory
+  ansible.builtin.file:
+    path: "{{ grafana_setup_dashboards_dir }}"
+    state: directory
+    owner: "{{ grafana_setup_user }}"
+    group: "{{ grafana_setup_group }}"
+    mode: "0750"
+
+- name: Provision Prometheus datasource
+  ansible.builtin.template:
+    src: provisioning-datasources.yml.j2
+    dest: "{{ grafana_setup_provisioning_datasources_dir }}/prometheus.yml"
+    owner: "{{ grafana_setup_user }}"
+    group: "{{ grafana_setup_group }}"
+    mode: "0640"
+  notify: Restart Grafana
+
+- name: Provision dashboard provider
+  ansible.builtin.template:
+    src: provisioning-dashboards.yml.j2
+    dest: "{{ grafana_setup_provisioning_dashboards_dir }}/dashboards.yml"
+    owner: "{{ grafana_setup_user }}"
+    group: "{{ grafana_setup_group }}"
+    mode: "0640"
+  notify: Restart Grafana
+
+- name: Install nginx-prometheus-exporter dashboard
+  ansible.builtin.copy:
+    src: dashboards/nginx-prometheus-exporter.dashboard.json
+    dest: "{{ grafana_setup_dashboards_dir }}/nginx-prometheus-exporter.dashboard.json"
+    owner: "{{ grafana_setup_user }}"
+    group: "{{ grafana_setup_group }}"
+    mode: "0640"
+  notify: Restart Grafana
 
 - name: Create Grafana configuration directory
   ansible.builtin.file:
