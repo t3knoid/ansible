@@ -24,6 +24,7 @@ vms_autoinstall: true
 vms_enable_serial_terminal: false
 vms_additional_packages: []
 python3_version: 3.12
+python3_venv_folder: "/opt/python_{{ python3_version }}"
 
 disks_disk_mounts:
   - {
@@ -49,6 +50,14 @@ rproxy_setup_sites:
       - 24.105.250.200
       - 70.107.117.124
     restricted: false
+    use_oauth2: true
+    oauth2_provider: "entra-id"
+    oauth2_scope: "openid profile email"
+    oauth2_cookie_secret: "yMlMp4n5heE8r2tAqUsmqX8SOtiUntCSIH7oi0qApnQ="
+    oauth2_client_id: ""
+    oauth2_callback_url: "https://prometheus.refol.us/oauth2/callback"
+    oauth2_client_secret: ""
+    oauth2_email_domains: "*"
 
 prometheus_setup_version: 3.6.0
 alertmanager_setup_version: 0.30.1
