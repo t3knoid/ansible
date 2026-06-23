@@ -17,21 +17,27 @@ Installs Prometheus Node Exporter
 |----------|---------------|-------------|
 | `node_exporter_setup_version` | `1.9.1` |  |
 | `node_exporter_setup_home` | `"/opt/node_exporter"` |  |
-| `node_exporter_setup_mode` | `'0755'` |  |
+| `node_exporter_setup_mode` | `"0755"` |  |
 | `node_exporter_setup_user` | `"prometheus"` |  |
 | `node_exporter_setup_group` | `"prometheus"` |  |
+| `node_exporter_setup_listen_address` | `"0.0.0.0:9100"` |  |
 
 ## 📦 Vars
 _No constant variables found._
 
 ## 📑 Tasks
-- Download and Extract Node xporter
+- Create Node Exporter system group
+- Create Node Exporter system user
+- Download and Extract Node Exporter
 - Create symlink for Node Exporter
 - Set ownership for Node Exporter directory
 - Copy Node Exporter binary to /usr/local/bin
+- Create Node Exporter systemd service
+- Enable Node Exporter service
+- Start Node Exporter service
 
 ## 🔔 Handlers
-_No handlers defined._
+- reload systemd and restart node_exporter
 
 ## 🔗 Dependencies
 - `global`
