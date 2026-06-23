@@ -32,7 +32,7 @@ scrape_configs:
 
     static_configs:
 {% for host in groups['node_exporter'] %}
-      - targets: ['{{ global_ip_addresses[host] }}:9100']
+      - targets: ['{{ global_ip_addresses[host] }}:{{ hostvars[host].node_exporter_port }}']
         labels:
           instance: {{ host }}
           group: {{ host | regex_replace('-[0-9]+$', '') }}
@@ -45,7 +45,7 @@ scrape_configs:
 
     static_configs:
 {% for host in groups['nginx_exporter'] %}
-      - targets: ['{{ global_ip_addresses[host] }}:9113']
+      - targets: ['{{ global_ip_addresses[host] }}:{{ hostvars[host].nginx_prometheus_exporter_port }}']
         labels:
           instance: {{ host }}
           group: {{ host | regex_replace('-[0-9]+$', '') }}
