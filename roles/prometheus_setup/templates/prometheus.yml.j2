@@ -26,32 +26,28 @@ scrape_configs:
     static_configs:
       - targets: ['{{ global_ip_addresses[ansible_host] }}:9090']
 
-  - job_name:       'node'
-    # https://prometheus.io/docs/prometheus/latest/getting_started/
-    # Override the global default and scrape targets from this job every 5 seconds.
+{% if groups['node_exporter'] | default([]) | length > 0 %}
+  - job_name: 'node'
     scrape_interval: 5s
 
     static_configs:
-      - targets: ['localhost:8080', 'localhost:8081']
+{% for host in groups['node_exporter'] %}
+      - targets: ['{{ global_ip_addresses[host] }}:9100']
         labels:
-          group: 'production'
+          instance: {{ host }}
+          group: {{ host | regex_replace('-[0-9]+$', '') }}
+{% endfor %}
+{% endif %}
 
-      - targets: ['localhost:8082']
-        labels:
-          group: 'canary'
-
-{% if prometheus_setup_nginx_exporter_targets | default([]) | length > 0 %}
+{% if groups['nginx_exporter'] | default([]) | length > 0 %}
   - job_name: 'nginx_exporter'
     scrape_interval: 5s
 
     static_configs:
-{% for target in prometheus_setup_nginx_exporter_targets %}
-      - targets: ['{{ target.target }}']
-{% if target.labels is defined %}
+{% for host in groups['nginx_exporter'] %}
+      - targets: ['{{ global_ip_addresses[host] }}:9113']
         labels:
-{% for key, value in target.labels.items() %}
-          {{ key }}: '{{ value }}'
-{% endfor %}
-{% endif %}
+          instance: {{ host }}
+          group: {{ host | regex_replace('-[0-9]+$', '') }}
 {% endfor %}
 {% endif %}

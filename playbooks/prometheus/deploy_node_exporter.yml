@@ -3,7 +3,7 @@
 # Purpose: Deploy Node Exporter on Prometheus hosts
 
 - name: Deploy Node Exporter
-  hosts: prometheus
+  hosts: node_exporter
   become: true
   gather_facts: false
   roles:
