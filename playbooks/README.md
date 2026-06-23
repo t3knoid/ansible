@@ -95,7 +95,8 @@
 | [`postgresql/deploy_postgresql.yml`](../docs/playbooks/deploy_postgresql.md) | Install and configure PostgreSQL on pgdb hosts |
 | [`prometheus/backup_db.yml`](../docs/playbooks/backup_db.md) | Create a point-in-time copy of all current data stored in Prometheus. |
 | [`prometheus/deploy_node_exporter.yml`](../docs/playbooks/deploy_node_exporter.md) | Deploy Node Exporter on Prometheus hosts |
-| [`prometheus/deploy_prometheus.yml`](../docs/playbooks/deploy_prometheus.md) | Deploy Prometheus monitoring system |
+| [`prometheus/deploy_prometheus.yml`](../docs/playbooks/deploy_prometheus.md) | Deploy Prometheus monitoring system Usage: ansible-playbook -i inventory/prometheus/inventory.ini playbooks/prometheus/deploy_prometheus.yml Use playbooks/prometheus/deploy_prometheus_exporters.yml to refresh exporter scrape targets. |
+| [`prometheus/deploy_prometheus_exporters.yml`](../docs/playbooks/deploy_prometheus_exporters.md) | Refresh Prometheus exporter scrape targets Usage: ansible-playbook -i inventory/rproxy/inventory.ini playbooks/prometheus/deploy_prometheus_exporters.yml |
 | [`proxmox/deploy_ceph.yml`](../docs/playbooks/deploy_ceph.md) | Install Ceph storage cluster on Proxmox nodes |
 | [`proxmox/deploy_pbs.yml`](../docs/playbooks/deploy_pbs.md) | Install Proxmox Backup Server on pbs hosts |
 | [`pxe/configure_pxe.yml`](../docs/playbooks/configure_pxe.md) | Configure PXE on pxe_client hosts |

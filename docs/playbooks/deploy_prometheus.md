@@ -1,7 +1,7 @@
 # 📖 Playbook: prometheus/deploy_prometheus.yml
 
 ## 🛠 Purpose
-Deploy Prometheus monitoring system
+Deploy Prometheus monitoring system Usage: ansible-playbook -i inventory/prometheus/inventory.ini playbooks/prometheus/deploy_prometheus.yml Use playbooks/prometheus/deploy_prometheus_exporters.yml to refresh exporter scrape targets.
 
 ## 🔗 Roles Applied
 - [`global`](../roles/global/README.md)
