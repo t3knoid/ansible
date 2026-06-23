@@ -89,6 +89,8 @@ _No constant variables found._
 - Provision Prometheus datasource
 - Provision dashboard provider
 - Install nginx-prometheus-exporter dashboard
+- Install node-exporter overview dashboard
+- Install node-exporter detail dashboard
 - Create Grafana configuration directory
 - Copy Grafana configuration file
 - Copy Grafana LDAP settings file

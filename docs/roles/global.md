@@ -103,6 +103,7 @@ Provides global defaults common to all roles. It provides the IP definition of e
 | `sabnzbd.refol.us` | `4184` |  |
 | `lazy.refol.us` | `4185` |  |
 | `catalog.refol.us` | `4186` |  |
+| `prometheus.refol.us` | `4187` |  |
 | `global_oauth2_proxy_metrics_ports` | `` |  |
 | `code.refol.us` | `9100` |  |
 | `lidarr.refol.us` | `9101` |  |
@@ -111,6 +112,7 @@ Provides global defaults common to all roles. It provides the IP definition of e
 | `sabnzbd.refol.us` | `9104` |  |
 | `lazy.refol.us` | `9105` |  |
 | `catalog.refol.us` | `9106` |  |
+| `prometheus.refol.us` | `9107` |  |
 
 ## 📑 Tasks
 - Global
