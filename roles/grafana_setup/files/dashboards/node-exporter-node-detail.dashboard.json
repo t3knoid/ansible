@@ -19,7 +19,18 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
   "id": null,
-  "links": [],
+  "links": [
+    {
+      "asDropdown": false,
+      "icon": "dashboard",
+      "includeVars": true,
+      "keepTime": true,
+      "targetBlank": false,
+      "title": "Back to Overview",
+      "type": "link",
+      "url": "/d/node-exporter-overview/node-exporter-overview"
+    }
+  ],
   "liveNow": false,
   "panels": [
     {
@@ -32,7 +43,21 @@
           "color": {
             "mode": "thresholds"
           },
-          "mappings": [],
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "index": 1,
+                  "text": "Down"
+                },
+                "1": {
+                  "index": 0,
+                  "text": "Up"
+                }
+              },
+              "type": "value"
+            }
+          ],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -73,14 +98,14 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "sum(up{job=\"node\"})",
+          "expr": "up{job=\"node\",instance=\"$instance\"}",
           "instant": true,
           "legendFormat": "",
           "range": false,
           "refId": "A"
         }
       ],
-      "title": "Nodes Up",
+      "title": "Node Status",
       "type": "stat"
     },
     {
@@ -102,12 +127,16 @@
                 "value": null
               },
               {
+                "color": "yellow",
+                "value": 70
+              },
+              {
                 "color": "red",
-                "value": 1
+                "value": 90
               }
             ]
           },
-          "unit": "none"
+          "unit": "percent"
         },
         "overrides": []
       },
@@ -134,14 +163,14 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "count(up{job=\"node\"} == 0)",
+          "expr": "100 - (avg(rate(node_cpu_seconds_total{mode=\"idle\",instance=\"$instance\"}[5m])) * 100)",
           "instant": true,
           "legendFormat": "",
           "range": false,
           "refId": "A"
         }
       ],
-      "title": "Nodes Down",
+      "title": "CPU Usage",
       "type": "stat"
     },
     {
@@ -199,14 +228,14 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "100 - (avg(rate(node_cpu_seconds_total{mode=\"idle\",instance=~\"$instance\"}[5m])) * 100)",
+          "expr": "(1 - (node_memory_MemAvailable_bytes{instance=\"$instance\"} / node_memory_MemTotal_bytes{instance=\"$instance\"})) * 100",
           "instant": true,
           "legendFormat": "",
           "range": false,
           "refId": "A"
         }
       ],
-      "title": "Avg CPU Usage",
+      "title": "Memory Usage",
       "type": "stat"
     },
     {
@@ -237,7 +266,7 @@
               }
             ]
           },
-          "unit": "percent"
+          "unit": "short"
         },
         "overrides": []
       },
@@ -264,14 +293,14 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "(1 - avg(node_memory_MemAvailable_bytes{instance=~\"$instance\"} / node_memory_MemTotal_bytes{instance=~\"$instance\"})) * 100",
+          "expr": "node_load1{instance=\"$instance\"}",
           "instant": true,
           "legendFormat": "",
           "range": false,
           "refId": "A"
         }
       ],
-      "title": "Avg Memory Usage",
+      "title": "Load Average (1m)",
       "type": "stat"
     },
     {
@@ -284,15 +313,8 @@
           "color": {
             "mode": "palette-classic"
           },
-          "links": [
-            {
-              "targetBlank": false,
-              "title": "Open node detail",
-              "url": "/d/node-exporter-node-detail/node-exporter-node-detail?var-instance=${__field.labels.instance}"
-            }
-          ],
           "mappings": [],
-          "unit": "short"
+          "unit": "percent"
         },
         "overrides": []
       },
@@ -319,13 +341,13 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "node_load1{instance=~\"$instance\"}",
-          "legendFormat": "{{instance}}",
+          "expr": "100 - (avg by(cpu) (rate(node_cpu_seconds_total{mode=\"idle\",instance=\"$instance\"}[5m])) * 100)",
+          "legendFormat": "cpu{{cpu}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Load Average (1m)",
+      "title": "CPU Usage by Core",
       "type": "timeseries"
     },
     {
@@ -338,15 +360,8 @@
           "color": {
             "mode": "palette-classic"
           },
-          "links": [
-            {
-              "targetBlank": false,
-              "title": "Open node detail",
-              "url": "/d/node-exporter-node-detail/node-exporter-node-detail?var-instance=${__field.labels.instance}"
-            }
-          ],
           "mappings": [],
-          "unit": "percent"
+          "unit": "bytes"
         },
         "overrides": []
       },
@@ -373,13 +388,20 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "100 - (avg by(instance) (rate(node_cpu_seconds_total{mode=\"idle\",instance=~\"$instance\"}[5m])) * 100)",
-          "legendFormat": "{{instance}}",
+          "expr": "node_memory_MemTotal_bytes{instance=\"$instance\"} - node_memory_MemAvailable_bytes{instance=\"$instance\"}",
+          "legendFormat": "used",
           "range": true,
           "refId": "A"
+        },
+        {
+          "editorMode": "code",
+          "expr": "node_memory_MemAvailable_bytes{instance=\"$instance\"}",
+          "legendFormat": "available",
+          "range": true,
+          "refId": "B"
         }
       ],
-      "title": "CPU Usage by Instance",
+      "title": "Memory Breakdown",
       "type": "timeseries"
     },
     {
@@ -392,15 +414,8 @@
           "color": {
             "mode": "palette-classic"
           },
-          "links": [
-            {
-              "targetBlank": false,
-              "title": "Open node detail",
-              "url": "/d/node-exporter-node-detail/node-exporter-node-detail?var-instance=${__field.labels.instance}"
-            }
-          ],
           "mappings": [],
-          "unit": "bytes"
+          "unit": "percent"
         },
         "overrides": []
       },
@@ -427,13 +442,13 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "node_memory_MemTotal_bytes{instance=~\"$instance\"} - node_memory_MemAvailable_bytes{instance=~\"$instance\"}",
-          "legendFormat": "{{instance}}",
+          "expr": "100 * (1 - (node_filesystem_avail_bytes{instance=\"$instance\",fstype!~\"tmpfs|overlay|squashfs\",mountpoint!~\"/run.*|/var/lib/docker.*\"} / node_filesystem_size_bytes{instance=\"$instance\",fstype!~\"tmpfs|overlay|squashfs\",mountpoint!~\"/run.*|/var/lib/docker.*\"}))",
+          "legendFormat": "{{mountpoint}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Memory Used",
+      "title": "Filesystem Usage by Mount",
       "type": "timeseries"
     },
     {
@@ -446,15 +461,8 @@
           "color": {
             "mode": "palette-classic"
           },
-          "links": [
-            {
-              "targetBlank": false,
-              "title": "Open node detail",
-              "url": "/d/node-exporter-node-detail/node-exporter-node-detail?var-instance=${__field.labels.instance}"
-            }
-          ],
           "mappings": [],
-          "unit": "percent"
+          "unit": "Bps"
         },
         "overrides": []
       },
@@ -481,143 +489,34 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "100 * (1 - (node_filesystem_avail_bytes{instance=~\"$instance\",fstype!~\"tmpfs|overlay|squashfs\",mountpoint!~\"/run.*|/var/lib/docker.*\"} / node_filesystem_size_bytes{instance=~\"$instance\",fstype!~\"tmpfs|overlay|squashfs\",mountpoint!~\"/run.*|/var/lib/docker.*\"}))",
-          "legendFormat": "{{instance}} {{mountpoint}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Filesystem Usage",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "links": [
-            {
-              "targetBlank": false,
-              "title": "Open node detail",
-              "url": "/d/node-exporter-node-detail/node-exporter-node-detail?var-instance=${__field.labels.instance}"
-            }
-          ],
-          "mappings": [],
-          "unit": "Bps"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 20
-      },
-      "id": 9,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "12.2.0",
-      "targets": [
-        {
-          "editorMode": "code",
-          "expr": "sum by(instance) (rate(node_network_receive_bytes_total{instance=~\"$instance\",device!~\"lo\"}[5m]))",
-          "legendFormat": "{{instance}} rx",
+          "expr": "rate(node_network_receive_bytes_total{instance=\"$instance\",device!~\"lo\"}[5m])",
+          "legendFormat": "{{device}} rx",
           "range": true,
           "refId": "A"
         },
         {
           "editorMode": "code",
-          "expr": "sum by(instance) (rate(node_network_transmit_bytes_total{instance=~\"$instance\",device!~\"lo\"}[5m]))",
-          "legendFormat": "{{instance}} tx",
+          "expr": "rate(node_network_transmit_bytes_total{instance=\"$instance\",device!~\"lo\"}[5m])",
+          "legendFormat": "{{device}} tx",
           "range": true,
           "refId": "B"
         }
       ],
-      "title": "Network Throughput",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "links": [
-            {
-              "targetBlank": false,
-              "title": "Open node detail",
-              "url": "/d/node-exporter-node-detail/node-exporter-node-detail?var-instance=${__field.labels.instance}"
-            }
-          ],
-          "mappings": [],
-          "unit": "bytes"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 20
-      },
-      "id": 10,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "12.2.0",
-      "targets": [
-        {
-          "editorMode": "code",
-          "expr": "sum by(instance) (node_filesystem_size_bytes{instance=~\"$instance\",fstype!~\"tmpfs|overlay|squashfs\",mountpoint!~\"/run.*|/var/lib/docker.*\"}) - sum by(instance) (node_filesystem_avail_bytes{instance=~\"$instance\",fstype!~\"tmpfs|overlay|squashfs\",mountpoint!~\"/run.*|/var/lib/docker.*\"})",
-          "legendFormat": "{{instance}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Disk Used",
+      "title": "Network Throughput by Interface",
       "type": "timeseries"
     }
   ],
   "refresh": "30s",
   "schemaVersion": 39,
   "style": "dark",
-  "tags": ["node", "exporter", "infrastructure"],
+  "tags": ["node", "exporter", "infrastructure", "detail"],
   "templating": {
     "list": [
       {
-        "allValue": ".*",
         "current": {
           "selected": true,
-          "text": "All",
-          "value": "$__all"
+          "text": "",
+          "value": ""
         },
         "datasource": {
           "type": "prometheus",
@@ -625,9 +524,9 @@
         },
         "definition": "label_values(node_uname_info, instance)",
         "hide": 0,
-        "includeAll": true,
+        "includeAll": false,
         "label": "Instance",
-        "multi": true,
+        "multi": false,
         "name": "instance",
         "options": [],
         "query": {
@@ -649,8 +548,8 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Node Exporter Overview",
-  "uid": "node-exporter-overview",
+  "title": "Node Exporter Node Detail",
+  "uid": "node-exporter-node-detail",
   "version": 1,
   "weekStart": ""
 }
