@@ -15,7 +15,7 @@ Installs Microsoft Azure CLI
 ## ⚙️ Defaults
 | Variable | Default Value | Description |
 |----------|---------------|-------------|
-| `azure_cli_setup_version` | `2.85.0` |  |
+| `azure_cli_setup_version` | `2.86.0` |  |
 | `azure_cli_setup_repo_url` | `"https://packages.microsoft.com/repos/azure-cli/"` |  |
 | `azure_cli_setup_key_url` | `"https://packages.microsoft.com/keys/microsoft.asc"` |  |
 

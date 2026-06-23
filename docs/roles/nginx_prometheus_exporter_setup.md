@@ -26,7 +26,7 @@ Install and configure nginx-prometheus-exporter for local NGINX status scraping.
 | `nginx_prometheus_exporter_setup_service_mode` | `"0644"` |  |
 | `nginx_prometheus_exporter_setup_user` | `"nginx-prometheus-exporter"` |  |
 | `nginx_prometheus_exporter_setup_group` | `"nginx-prometheus-exporter"` |  |
-| `nginx_prometheus_exporter_setup_listen_address` | `"0.0.0.0:9113"` |  |
+| `nginx_prometheus_exporter_setup_listen_address` | `"0.0.0.0:{{ nginx_prometheus_exporter_port }}"` |  |
 | `nginx_prometheus_exporter_setup_telemetry_path` | `"/metrics"` |  |
 | `nginx_prometheus_exporter_setup_scrape_uri` | `"http://127.0.0.1:9114/stub_status"` |  |
 | `nginx_prometheus_exporter_setup_nginx_status_site_name` | `"nginx-prometheus-exporter-status"` |  |

@@ -20,7 +20,7 @@ Installs Prometheus Node Exporter
 | `node_exporter_setup_mode` | `"0755"` |  |
 | `node_exporter_setup_user` | `"prometheus"` |  |
 | `node_exporter_setup_group` | `"prometheus"` |  |
-| `node_exporter_setup_listen_address` | `"0.0.0.0:9100"` |  |
+| `node_exporter_setup_listen_address` | `"0.0.0.0:{{ node_exporter_port }}"` |  |
 
 ## 📦 Vars
 _No constant variables found._
