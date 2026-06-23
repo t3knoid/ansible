@@ -1,6 +1,9 @@
 ---
 
 # Purpose: Deploy Prometheus monitoring system
+# Usage: ansible-playbook -i inventory/rproxy/inventory.ini playbooks/prometheus/deploy_prometheus.yml
+# The rproxy inventory defines both the [prometheus] host and the [node_exporter] group,
+# allowing Prometheus scrape targets to be built dynamically from the node_exporter group.
 
 - name: Deploys Prometheus and AlertManager
   hosts: prometheus

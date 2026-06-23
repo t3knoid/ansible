@@ -52,17 +52,3 @@ rproxy_setup_sites:
 
 prometheus_setup_version: 3.6.0
 alertmanager_setup_version: 0.30.1
-
-prometheus_setup_nginx_exporter_targets:
-  - target: "{{ global_ip_addresses['rproxy-0'] }}:9113"
-    labels:
-      instance: rproxy-0
-      group: rproxy
-  - target: "{{ global_ip_addresses['rproxy-1'] }}:9113"
-    labels:
-      instance: rproxy-1
-      group: rproxy
-  - target: "{{ global_ip_addresses['rproxy-2'] }}:9113"
-    labels:
-      instance: rproxy-2
-      group: rproxy

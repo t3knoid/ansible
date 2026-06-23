@@ -9,4 +9,5 @@
     - global
     - nginx_setup
     - nginx_prometheus_exporter_setup
+    - node_exporter_setup
     - rproxy_setup

@@ -1,12 +1,27 @@
 ---
-- name: Download and Extract Node xporter
+- name: Create Node Exporter system group
+  ansible.builtin.group:
+    name: "{{ node_exporter_setup_group }}"
+    state: present
+    system: true
+
+- name: Create Node Exporter system user
+  ansible.builtin.user:
+    name: "{{ node_exporter_setup_user }}"
+    group: "{{ node_exporter_setup_group }}"
+    shell: /sbin/nologin
+    state: present
+    system: true
+    createhome: false
+
+- name: Download and Extract Node Exporter
   ansible.builtin.unarchive:
     src: >
       https://github.com/prometheus/node_exporter/releases/download/v{{ node_exporter_setup_version }}/node_exporter-{{ node_exporter_setup_version }}.linux-amd64.tar.gz
     dest: /opt/
     remote_src: true
     creates: "/opt/node_exporter-{{ node_exporter_setup_version }}.linux-amd64"
-    mode: '0755'
+    mode: "0755"
 
 - name: Create symlink for Node Exporter
   ansible.builtin.file:
@@ -30,3 +45,23 @@
     group: "{{ node_exporter_setup_group }}"
     mode: "{{ node_exporter_setup_mode }}"
     remote_src: true
+
+- name: Create Node Exporter systemd service
+  ansible.builtin.template:
+    src: node_exporter.service.j2
+    dest: /etc/systemd/system/node_exporter.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify: reload systemd and restart node_exporter
+
+- name: Enable Node Exporter service
+  ansible.builtin.systemd:
+    name: node_exporter
+    enabled: true
+    daemon_reload: true
+
+- name: Start Node Exporter service
+  ansible.builtin.systemd:
+    name: node_exporter
+    state: started
