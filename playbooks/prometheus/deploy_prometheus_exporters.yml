@@ -1,0 +1,15 @@
+---
+# Purpose: Refresh Prometheus exporter scrape targets
+# Usage: ansible-playbook -i inventory/rproxy/inventory.ini playbooks/prometheus/deploy_prometheus_exporters.yml
+
+- name: Refresh Prometheus exporter scrape config
+  hosts: prometheus
+  become: true
+  gather_facts: true
+  roles:
+    - global
+  tasks:
+    - name: Import exporter scrape config tasks from prometheus_setup role
+      ansible.builtin.import_role:
+        name: prometheus_setup
+        tasks_from: exporters.yml
