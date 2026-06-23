@@ -26,5 +26,7 @@ vms_enable_serial_terminal: false
 vms_additional_packages: []
 python3_version: 3.12
 python3_venv_folder: "/opt/python_{{ python3_version }}"
+node_exporter_port: 9200
+nginx_prometheus_exporter_port: 9113
 disks_disk_mounts:
   - { mountpoint: "/data", mountpoint_owner: "ansible", mountpoint_group: "ansible" }
