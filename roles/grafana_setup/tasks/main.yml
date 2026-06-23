@@ -154,6 +154,15 @@
     mode: "0640"
   notify: Restart Grafana
 
+- name: Install node-exporter detail dashboard
+  ansible.builtin.copy:
+    src: dashboards/node-exporter-node-detail.dashboard.json
+    dest: "{{ grafana_setup_dashboards_dir }}/node-exporter-node-detail.dashboard.json"
+    owner: "{{ grafana_setup_user }}"
+    group: "{{ grafana_setup_group }}"
+    mode: "0640"
+  notify: Restart Grafana
+
 - name: Create Grafana configuration directory
   ansible.builtin.file:
     path: "{{ grafana_setup_conf_dir }}"
