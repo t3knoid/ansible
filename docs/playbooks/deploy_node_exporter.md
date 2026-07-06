@@ -1,7 +1,7 @@
 # 📖 Playbook: prometheus/deploy_node_exporter.yml
 
 ## 🛠 Purpose
-Deploy Node Exporter on Prometheus hosts
+Deploy Node Exporter on node_exporter hosts Note: This playbook only installs or updates node_exporter on the selected inventory's node_exporter hosts. It does not update Prometheus scrape targets.
 
 ## 🔗 Roles Applied
 - [`global`](../roles/global/README.md)
