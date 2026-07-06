@@ -61,3 +61,5 @@ rproxy_setup_sites:
     restricted: false
 
 nginx_setup_disable_default_site: true
+
+node_exporter_port: 9200
