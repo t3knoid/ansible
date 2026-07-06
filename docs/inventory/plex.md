@@ -47,6 +47,12 @@ _Inventory for `plex` hosts_
 ### `cname`
 - `plex-0`
 
+### `node_exporter`
+- `plex-0`
+
+### `prometheus`
+- `prometheus-0`
+
 ## ⚙️ Group Variables
 _No group variables defined._
 
