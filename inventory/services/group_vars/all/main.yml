@@ -140,3 +140,5 @@ rproxy_setup_sites:
     oauth2_callback_url: "https://catalog.refol.us/oauth2/callback"
     oauth2_client_secret: ""
     oauth2_email_domains: "*"
+
+node_exporter_port: 9200
