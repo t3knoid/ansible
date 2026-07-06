@@ -1,0 +1,12 @@
+---
+# Purpose: Deploy nginx-prometheus-exporter on nginx exporter hosts
+# Usage: ansible-playbook -i inventory/rproxy/inventory.ini playbooks/prometheus/deploy_nginx_prometheus_exporter.yml
+
+- name: Deploy nginx-prometheus-exporter
+  hosts: nginx_exporter
+  become: true
+  gather_facts: false
+  roles:
+    - global
+    - nginx_setup
+    - nginx_prometheus_exporter_setup
