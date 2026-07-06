@@ -38,6 +38,11 @@ _Inventory for `rproxy` hosts_
 ### `cname`
 - `rproxy-0`
 
+### `node_exporter`
+- `rproxy-0`
+- `rproxy-1`
+- `rproxy-2`
+
 ### `prometheus`
 - `prometheus-0`
 
@@ -60,16 +65,11 @@ _No group variables defined._
 - `vms`
 
 ### `rproxy`
+- `rproxy_main`
 - `rproxy_secondary`
 - `rproxy_primary`
-- `rproxy_main`
-
-### `node_exporter`
-- `rproxy_secondary`
-- `rproxy_primary`
-- `rproxy_main`
 
 ### `nginx_exporter`
+- `rproxy_main`
 - `rproxy_secondary`
 - `rproxy_primary`
-- `rproxy_main`

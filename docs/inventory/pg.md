@@ -26,6 +26,16 @@ _Inventory for `pg` hosts_
 - `pg-3`
 - `pg-4`
 
+### `node_exporter`
+- `pg-0`
+- `pg-1`
+- `pg-2`
+- `pg-3`
+- `pg-4`
+
+### `prometheus`
+- `prometheus-0`
+
 ## ⚙️ Group Variables
 _No group variables defined._
 
