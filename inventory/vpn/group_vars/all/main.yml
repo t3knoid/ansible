@@ -61,3 +61,5 @@ ipsec_vpn_server_setup_ipv6_subnet: ""
 ipsec_vpn_server_setup_firewall_allowed_udp_ports:
   - 500
   - 4500
+
+node_exporter_port: 9200
