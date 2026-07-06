@@ -29,6 +29,12 @@ _Inventory for `tautulli` hosts_
 ### `python`
 - `tautulli-0`
 
+### `node_exporter`
+- `tautulli-0`
+
+### `prometheus`
+- `prometheus-0`
+
 ## ⚙️ Group Variables
 _No group variables defined._
 
@@ -43,5 +49,5 @@ _No group variables defined._
 
 ### `rproxy`
 - `rproxy_main`
-- `rproxy_secondary`
 - `rproxy_primary`
+- `rproxy_secondary`
