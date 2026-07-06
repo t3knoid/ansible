@@ -26,7 +26,20 @@ scrape_configs:
     static_configs:
       - targets: ['{{ global_ip_addresses[ansible_host] }}:9090']
 
-{% if groups['node_exporter'] | default([]) | length > 0 %}
+{% if prometheus_setup_node_static_configs is defined %}
+{% if prometheus_setup_node_static_configs | length > 0 %}
+  - job_name: 'node'
+    scrape_interval: 5s
+
+    static_configs:
+{% for scrape_config in prometheus_setup_node_static_configs %}
+      - targets: {{ scrape_config.targets | to_json }}
+        labels:
+          instance: '{{ scrape_config.labels.instance }}'
+          group: '{{ scrape_config.labels.group }}'
+{% endfor %}
+{% endif %}
+{% elif groups['node_exporter'] | default([]) | length > 0 %}
   - job_name: 'node'
     scrape_interval: 5s
 
@@ -39,7 +52,20 @@ scrape_configs:
 {% endfor %}
 {% endif %}
 
-{% if groups['nginx_exporter'] | default([]) | length > 0 %}
+{% if prometheus_setup_nginx_exporter_static_configs is defined %}
+{% if prometheus_setup_nginx_exporter_static_configs | length > 0 %}
+  - job_name: 'nginx_exporter'
+    scrape_interval: 5s
+
+    static_configs:
+{% for scrape_config in prometheus_setup_nginx_exporter_static_configs %}
+      - targets: {{ scrape_config.targets | to_json }}
+        labels:
+          instance: '{{ scrape_config.labels.instance }}'
+          group: '{{ scrape_config.labels.group }}'
+{% endfor %}
+{% endif %}
+{% elif groups['nginx_exporter'] | default([]) | length > 0 %}
   - job_name: 'nginx_exporter'
     scrape_interval: 5s
 
