@@ -1,6 +1,7 @@
 ---
-
-# Purpose: Deploy Node Exporter on Prometheus hosts
+# Purpose: Deploy Node Exporter on node_exporter hosts
+# Note: This playbook only installs or updates node_exporter on the selected inventory's node_exporter hosts.
+# It does not update Prometheus scrape targets.
 
 - name: Deploy Node Exporter
   hosts: node_exporter
