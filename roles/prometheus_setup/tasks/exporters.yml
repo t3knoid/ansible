@@ -1,4 +1,63 @@
 ---
+- name: Check for existing Prometheus configuration file
+  ansible.builtin.stat:
+    path: "{{ prometheus_setup_config_file }}"
+  register: prometheus_setup_config_stat
+
+- name: Read existing Prometheus configuration file
+  ansible.builtin.slurp:
+    src: "{{ prometheus_setup_config_file }}"
+  register: prometheus_setup_existing_config
+  when: prometheus_setup_config_stat.stat.exists
+
+- name: Load existing Prometheus scrape configs
+  ansible.builtin.set_fact:
+    prometheus_setup_existing_scrape_configs: "{{ ((prometheus_setup_existing_config.content | b64decode | from_yaml).scrape_configs | default([])) if prometheus_setup_config_stat.stat.exists else [] }}"
+
+- name: Load existing node exporter scrape targets
+  ansible.builtin.set_fact:
+    prometheus_setup_node_static_configs: "{{ prometheus_setup_existing_scrape_configs | selectattr('job_name', 'equalto', 'node') | map(attribute='static_configs') | first | default([]) }}"
+
+- name: Load existing nginx exporter scrape targets
+  ansible.builtin.set_fact:
+    prometheus_setup_nginx_exporter_static_configs: "{{ prometheus_setup_existing_scrape_configs | selectattr('job_name', 'equalto', 'nginx_exporter') | map(attribute='static_configs') | first | default([]) }}"
+
+- name: Initialize node exporter target map
+  ansible.builtin.set_fact:
+    prometheus_setup_node_static_config_map: {}
+
+- name: Seed node exporter target map from existing Prometheus config
+  ansible.builtin.set_fact:
+    prometheus_setup_node_static_config_map: "{{ prometheus_setup_node_static_config_map | combine({item.labels.instance: item}) }}"
+  loop: "{{ prometheus_setup_node_static_configs }}"
+
+- name: Merge current inventory node exporter targets into target map
+  ansible.builtin.set_fact:
+    prometheus_setup_node_static_config_map: "{{ prometheus_setup_node_static_config_map | combine({item: {'targets': [global_ip_addresses[item] ~ ':' ~ (hostvars[item].node_exporter_port | string)], 'labels': {'instance': item, 'group': item | regex_replace('-[0-9]+$', '')}}}) }}"
+  loop: "{{ groups['node_exporter'] | default([]) }}"
+
+- name: Build merged node exporter scrape targets
+  ansible.builtin.set_fact:
+    prometheus_setup_node_static_configs: "{{ prometheus_setup_node_static_config_map.values() | list }}"
+
+- name: Initialize nginx exporter target map
+  ansible.builtin.set_fact:
+    prometheus_setup_nginx_exporter_static_config_map: {}
+
+- name: Seed nginx exporter target map from existing Prometheus config
+  ansible.builtin.set_fact:
+    prometheus_setup_nginx_exporter_static_config_map: "{{ prometheus_setup_nginx_exporter_static_config_map | combine({item.labels.instance: item}) }}"
+  loop: "{{ prometheus_setup_nginx_exporter_static_configs }}"
+
+- name: Merge current inventory nginx exporter targets into target map
+  ansible.builtin.set_fact:
+    prometheus_setup_nginx_exporter_static_config_map: "{{ prometheus_setup_nginx_exporter_static_config_map | combine({item: {'targets': [global_ip_addresses[item] ~ ':' ~ (hostvars[item].nginx_prometheus_exporter_port | string)], 'labels': {'instance': item, 'group': item | regex_replace('-[0-9]+$', '')}}}) }}"
+  loop: "{{ groups['nginx_exporter'] | default([]) }}"
+
+- name: Build merged nginx exporter scrape targets
+  ansible.builtin.set_fact:
+    prometheus_setup_nginx_exporter_static_configs: "{{ prometheus_setup_nginx_exporter_static_config_map.values() | list }}"
+
 - name: Copy Prometheus configuration file
   ansible.builtin.template:
     src: prometheus.yml.j2
