@@ -24,14 +24,15 @@
 - name: Refresh Linux updates availability metrics after update run
   ansible.builtin.shell: |
     set -euo pipefail
-    tmp_file="$(mktemp {{ linux_updates_metrics_path }}.XXXXXX)"
-    updates=$(apt list --upgradeable 2>/dev/null | grep -c upgradable)
-    security_updates=$(apt list --upgradeable 2>/dev/null | grep security | grep -c upgradable)
+    tmp_file="$(mktemp)"
+    updates=$(apt list --upgradeable 2>/dev/null | awk '/upgradable/ { count++ } END { print count + 0 }')
+    security_updates=$(apt list --upgradeable 2>/dev/null | awk '/security/ && /upgradable/ { count++ } END { print count + 0 }')
     cat > "$tmp_file" <<EOF
     linux_updates_available $updates
     linux_security_updates_available $security_updates
     EOF
-    mv "$tmp_file" "{{ linux_updates_metrics_path }}"
+    install -o root -g root -m 0644 "$tmp_file" "{{ linux_updates_metrics_path }}"
+    rm -f "$tmp_file"
   args:
     executable: /bin/bash
   changed_when: true

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-updates=$(apt list --upgradeable 2>/dev/null | grep -c upgradable)
-security_updates=$(apt list --upgradeable 2>/dev/null | grep security | grep -c upgradable)
+updates=$(apt list --upgradeable 2>/dev/null | awk '/upgradable/ { count++ } END { print count + 0 }')
+security_updates=$(apt list --upgradeable 2>/dev/null | awk '/security/ && /upgradable/ { count++ } END { print count + 0 }')
 
 cat <<EOF
 linux_updates_available $updates
