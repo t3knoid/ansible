@@ -61,3 +61,38 @@ rproxy_setup_sites:
 
 prometheus_setup_version: 3.6.0
 alertmanager_setup_version: 0.30.1
+
+# Inventory-driven Blackbox Exporter probe targets for web services.
+# Example:
+# prometheus_setup_blackbox_targets:
+#   - target: "https://grafana.refol.us"
+#     instance: "grafana.refol.us"
+#     group: "web"
+prometheus_setup_blackbox_targets:
+  - target: "http://192.168.20.155:3579"
+    instance: "ombi.refol.us"
+    group: "web"
+  - target: "http://192.168.20.160:8083"
+    instance: "books.refol.us"
+    group: "web"
+  - target: "http://192.168.2.186:80"
+    instance: "homelab.refol.us"
+    group: "web"
+  - target: "http://192.168.20.151:8686"
+    instance: "lidarr.refol.us"
+    group: "web"
+  - target: "http://192.168.20.152:7878"
+    instance: "radarr.refol.us"
+    group: "web"
+  - target: "http://192.168.20.151:8989"
+    instance: "sonarr.refol.us"
+    group: "web"
+  - target: "http://192.168.20.153:8080"
+    instance: "sabnzbd.refol.us"
+    group: "web"
+  - target: "http://192.168.20.110:3000"
+    instance: "semaphore.refol.us"
+    group: "web"
+  - target: " http://192.168.90.197:80"
+    instance: "ecube.refol.us"
+    group: "web"
