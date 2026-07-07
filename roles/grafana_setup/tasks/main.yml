@@ -188,6 +188,7 @@
     group: "{{ grafana_setup_group }}"
     mode: "0640"
     backup: true
+  notify: Restart Grafana
 
 - name: Copy Grafana LDAP settings file
   ansible.builtin.template:

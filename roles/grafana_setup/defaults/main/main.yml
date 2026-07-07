@@ -29,6 +29,7 @@ grafana_setup_dashboard_provider_name: "default-file-provider"
 grafana_setup_dashboard_folder: "Infrastructure"
 grafana_setup_dashboard_update_interval_seconds: 30
 grafana_setup_dashboard_allow_ui_updates: false
+grafana_setup_default_home_dashboard_path: "{{ grafana_setup_dashboards_dir }}/observability-landing.dashboard.json"
 
 grafana_setup_config_file: "{{ grafana_setup_conf_dir }}/defaults.ini"
 grafana_setup_service_file: "/usr/lib/systemd/system/grafana-server.service"
