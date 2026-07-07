@@ -448,7 +448,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "(2 * (linux_security_updates_available{job=\"node\"} > 0)) or (1 * ((linux_updates_available{job=\"node\"} > 0) unless on(instance) (linux_security_updates_available{job=\"node\"} > 0))) or (0 * (linux_updates_available{job=\"node\"} == 0))",
+          "expr": "(2 * (linux_security_updates_available{job=\"node\"} > bool 0)) or (1 * ((linux_updates_available{job=\"node\"} > bool 0) unless on(instance) (linux_security_updates_available{job=\"node\"} > 0))) or (0 * (linux_updates_available{job=\"node\"} == bool 0))",
           "instant": true,
           "legendFormat": "{{instance}}",
           "range": false,
