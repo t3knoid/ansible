@@ -1,0 +1,9 @@
+#!/bin/bash
+
+updates=$(apt list --upgradeable 2>/dev/null | grep -c upgradable)
+security_updates=$(apt list --upgradeable 2>/dev/null | grep security | grep -c upgradable)
+
+cat <<EOF
+linux_updates_available $updates
+linux_security_updates_available $security_updates
+EOF

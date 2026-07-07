@@ -7,7 +7,7 @@ After=network-online.target
 Type=simple
 User={{ node_exporter_setup_user }}
 Group={{ node_exporter_setup_group }}
-ExecStart=/usr/local/bin/node_exporter --web.listen-address={{ node_exporter_setup_listen_address }}
+ExecStart=/usr/local/bin/node_exporter --web.listen-address={{ node_exporter_setup_listen_address }} --collector.textfile.directory={{ node_exporter_setup_textfile_collector_dir }}
 Restart=on-failure
 RestartSec=5
 

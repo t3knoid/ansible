@@ -46,6 +46,31 @@
     mode: "{{ node_exporter_setup_mode }}"
     remote_src: true
 
+- name: Create Node Exporter textfile collector directory
+  ansible.builtin.file:
+    path: "{{ node_exporter_setup_textfile_collector_dir }}"
+    state: directory
+    owner: root
+    group: "{{ node_exporter_setup_group }}"
+    mode: "0775"
+
+- name: Install Linux updates metrics script for Ubuntu
+  ansible.builtin.template:
+    src: check_updates.sh.j2
+    dest: "{{ node_exporter_setup_linux_updates_script_path }}"
+    owner: root
+    group: root
+    mode: "0755"
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Schedule Linux updates metrics cron job for Ubuntu
+  ansible.builtin.cron:
+    name: node_exporter_linux_updates_metrics
+    minute: "{{ node_exporter_setup_linux_updates_cron_minute }}"
+    user: root
+    job: "{{ node_exporter_setup_linux_updates_script_path }} > {{ node_exporter_setup_linux_updates_metrics_path }}"
+  when: ansible_distribution == 'Ubuntu'
+
 - name: Create Node Exporter systemd service
   ansible.builtin.template:
     src: node_exporter.service.j2

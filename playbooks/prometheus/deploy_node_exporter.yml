@@ -6,7 +6,7 @@
 - name: Deploy Node Exporter
   hosts: node_exporter
   become: true
-  gather_facts: false
+  gather_facts: true
   roles:
     - global
     - node_exporter_setup
