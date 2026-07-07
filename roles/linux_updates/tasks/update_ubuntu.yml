@@ -21,6 +21,21 @@
     group: root
     mode: "0755"
 
+- name: Refresh Linux updates availability metrics after update run
+  ansible.builtin.shell: |
+    set -euo pipefail
+    tmp_file="$(mktemp {{ linux_updates_metrics_path }}.XXXXXX)"
+    updates=$(apt list --upgradeable 2>/dev/null | grep -c upgradable)
+    security_updates=$(apt list --upgradeable 2>/dev/null | grep security | grep -c upgradable)
+    cat > "$tmp_file" <<EOF
+    linux_updates_available $updates
+    linux_security_updates_available $security_updates
+    EOF
+    mv "$tmp_file" "{{ linux_updates_metrics_path }}"
+  args:
+    executable: /bin/bash
+  changed_when: true
+
 - name: Record Linux update run timestamp metric
   ansible.builtin.copy:
     dest: "{{ linux_updates_last_run_metric_path }}"
