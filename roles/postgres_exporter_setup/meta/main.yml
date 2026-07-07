@@ -1,0 +1,16 @@
+---
+galaxy_info:
+  role_name: postgres_exporter_setup
+  author: Frank Refol
+  description: Install and configure postgres_exporter for PostgreSQL monitoring.
+  license: MIT
+  min_ansible_version: "2.9"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - bionic
+        - focal
+        - jammy
+        - noble
+dependencies:
+  - role: global

@@ -1,0 +1,10 @@
+---
+# Purpose: Deploy postgres_exporter on a selected host group for PostgreSQL monitoring
+
+- name: Deploy postgres_exporter
+  hosts: "{{ postgres_exporter_deploy_hosts | default('postgres_exporter') }}"
+  become: true
+  gather_facts: false
+  roles:
+    - global
+    - postgres_exporter_setup

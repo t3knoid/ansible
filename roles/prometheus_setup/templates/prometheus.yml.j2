@@ -78,6 +78,32 @@ scrape_configs:
 {% endfor %}
 {% endif %}
 
+{% if prometheus_setup_postgres_exporter_static_configs is defined %}
+{% if prometheus_setup_postgres_exporter_static_configs | length > 0 %}
+  - job_name: '{{ prometheus_setup_postgres_exporter_job_name }}'
+    scrape_interval: 5s
+
+    static_configs:
+{% for scrape_config in prometheus_setup_postgres_exporter_static_configs %}
+      - targets: {{ scrape_config.targets | to_json }}
+        labels:
+          instance: '{{ scrape_config.labels.instance }}'
+          group: '{{ scrape_config.labels.group }}'
+{% endfor %}
+{% endif %}
+{% elif groups['postgres_exporter'] | default([]) | length > 0 %}
+  - job_name: '{{ prometheus_setup_postgres_exporter_job_name }}'
+    scrape_interval: 5s
+
+    static_configs:
+{% for host in groups['postgres_exporter'] %}
+      - targets: ['{{ global_ip_addresses[host] }}:{{ hostvars[host].postgres_exporter_port }}']
+        labels:
+          instance: {{ host }}
+          group: {{ host | regex_replace('-[0-9]+$', '') }}
+{% endfor %}
+{% endif %}
+
 {% if prometheus_setup_blackbox_static_configs is defined and prometheus_setup_blackbox_static_configs | length > 0 %}
   - job_name: '{{ prometheus_setup_blackbox_job_name }}'
     metrics_path: /probe
