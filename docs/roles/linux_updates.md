@@ -13,7 +13,11 @@ The linux role contains tasks related to updating Linux updates.
 - Supported on: `Ubuntu` (noble)
 
 ## ⚙️ Defaults
-_No default variables found._
+| Variable | Default Value | Description |
+|----------|---------------|-------------|
+| `linux_updates_textfile_collector_dir` | `"/var/lib/node_exporter/textfile"` |  |
+| `linux_updates_metrics_path` | `"{{ linux_updates_textfile_collector_dir }}/linux_updates.prom"` |  |
+| `linux_updates_last_run_metric_path` | `"{{ linux_updates_textfile_collector_dir }}/linux_updates_last_run.prom"` |  |
 
 ## 📦 Vars
 _No constant variables found._
