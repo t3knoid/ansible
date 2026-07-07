@@ -11,6 +11,7 @@
 | [`azure_cli_setup`](../docs/roles/azure_cli_setup.md) | Installs Microsoft Azure CLI |
 | [`azure_ps_setup`](../docs/roles/azure_ps_setup.md) | Installs Microsoft Azure PowerShell |
 | [`bedrock_setup`](../docs/roles/bedrock_setup.md) | Installs Minecraft Bedrock Server on Linux systems. |
+| [`blackbox_exporter_setup`](../docs/roles/blackbox_exporter_setup.md) | Install and configure Prometheus Blackbox Exporter for probing web services. |
 | [`calibre_setup`](../docs/roles/calibre_setup.md) | Installs and configures Calibre eBook management software. It uses a Docker image distributed by [linuxserver](https://hub.docker.com/r/linuxserver/calibre). |
 | [`calibreweb_setup`](../docs/roles/calibreweb_setup.md) | Installs and configures Calibre-Web, a web-based eBook management application. It uses a Docker image distributed by [linuxserver](https://hub.docker.com/r/linuxserver/calibre-web). |
 | [`certbot_setup`](../docs/roles/certbot_setup.md) | It deploys certbot following instructions documented in https://certbot.eff.org/instructions?ws=nginx&os=pip. Target hosts must be in a group named *[certbot]* in its inventory. Certbot is used to obtain SSL/TLS certificates from Let's Encrypt. |
