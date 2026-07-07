@@ -13,6 +13,23 @@
   ansible.builtin.apt:
     autoremove: true
 
+- name: Ensure textfile collector directory exists for Linux update metrics
+  ansible.builtin.file:
+    path: "{{ linux_updates_textfile_collector_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Record Linux update run timestamp metric
+  ansible.builtin.copy:
+    dest: "{{ linux_updates_last_run_metric_path }}"
+    content: |
+      linux_updates_last_run_timestamp_seconds {{ ansible_date_time.epoch }}
+    owner: root
+    group: root
+    mode: "0644"
+
 - name: Check if a restart is required
   ansible.builtin.stat:
     path: /var/run/reboot-required
