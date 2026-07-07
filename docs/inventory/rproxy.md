@@ -66,10 +66,10 @@ _No group variables defined._
 
 ### `rproxy`
 - `rproxy_primary`
-- `rproxy_main`
 - `rproxy_secondary`
+- `rproxy_main`
 
 ### `nginx_exporter`
 - `rproxy_primary`
-- `rproxy_main`
 - `rproxy_secondary`
+- `rproxy_main`
