@@ -22,6 +22,10 @@
   ansible.builtin.set_fact:
     prometheus_setup_nginx_exporter_static_configs: "{{ prometheus_setup_existing_scrape_configs | selectattr('job_name', 'equalto', 'nginx_exporter') | map(attribute='static_configs') | first | default([]) }}"
 
+- name: Load existing postgres exporter scrape targets
+  ansible.builtin.set_fact:
+    prometheus_setup_postgres_exporter_static_configs: "{{ prometheus_setup_existing_scrape_configs | selectattr('job_name', 'equalto', prometheus_setup_postgres_exporter_job_name) | map(attribute='static_configs') | first | default([]) }}"
+
 - name: Initialize node exporter target map
   ansible.builtin.set_fact:
     prometheus_setup_node_static_config_map: {}
@@ -57,6 +61,24 @@
 - name: Build merged nginx exporter scrape targets
   ansible.builtin.set_fact:
     prometheus_setup_nginx_exporter_static_configs: "{{ prometheus_setup_nginx_exporter_static_config_map.values() | list }}"
+
+- name: Initialize postgres exporter target map
+  ansible.builtin.set_fact:
+    prometheus_setup_postgres_exporter_static_config_map: {}
+
+- name: Seed postgres exporter target map from existing Prometheus config
+  ansible.builtin.set_fact:
+    prometheus_setup_postgres_exporter_static_config_map: "{{ prometheus_setup_postgres_exporter_static_config_map | combine({item.labels.instance: item}) }}"
+  loop: "{{ prometheus_setup_postgres_exporter_static_configs }}"
+
+- name: Merge current inventory postgres exporter targets into target map
+  ansible.builtin.set_fact:
+    prometheus_setup_postgres_exporter_static_config_map: "{{ prometheus_setup_postgres_exporter_static_config_map | combine({item: {'targets': [global_ip_addresses[item] ~ ':' ~ (hostvars[item].postgres_exporter_port | string)], 'labels': {'instance': item, 'group': item | regex_replace('-[0-9]+$', '')}}}) }}"
+  loop: "{{ groups['postgres_exporter'] | default([]) }}"
+
+- name: Build merged postgres exporter scrape targets
+  ansible.builtin.set_fact:
+    prometheus_setup_postgres_exporter_static_configs: "{{ prometheus_setup_postgres_exporter_static_config_map.values() | list }}"
 
 - name: Build blackbox scrape targets from inventory
   ansible.builtin.set_fact:

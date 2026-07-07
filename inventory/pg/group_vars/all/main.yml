@@ -31,3 +31,10 @@ disks_disk_mounts:
 
 node_exporter_port: 9200
 nginx_prometheus_exporter_port: 9113
+postgres_exporter_port: 9187
+postgres_exporter_setup_db_username: "postgres_exporter"
+postgres_exporter_setup_db_name: "postgres"
+postgres_exporter_setup_db_host: "127.0.0.1"
+postgres_exporter_setup_db_port: 5432
+postgres_exporter_setup_sslmode: "disable"
+# Set postgres_exporter_setup_db_password and postgres_exporter_setup_admin_password via vault.
