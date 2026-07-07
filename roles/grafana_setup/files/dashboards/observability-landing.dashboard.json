@@ -15,7 +15,7 @@
       }
     ]
   },
-  "description": "Unified observability landing page for node availability. Classifies nodes as Up, Exporter Down, or VM Down using up plus recent node_time_seconds presence over the last 5 minutes.",
+  "description": "Unified observability landing page for node availability and Linux update posture. Classifies nodes as Up, Exporter Down, or VM Down using up plus recent node_time_seconds presence over the last 5 minutes, and shows update urgency plus time since the last update run.",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
@@ -367,6 +367,176 @@
       ],
       "title": "Node Availability Grid",
       "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "displayName": "${__field.labels.instance}",
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "green",
+                  "index": 0,
+                  "text": "No Updates"
+                },
+                "1": {
+                  "color": "yellow",
+                  "index": 1,
+                  "text": "Updates Available"
+                },
+                "2": {
+                  "color": "red",
+                  "index": 2,
+                  "text": "Security Updates"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 2
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 0,
+        "y": 18
+      },
+      "id": 6,
+      "options": {
+        "colorMode": "background_solid",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "value_and_name",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "(2 * ((linux_updates_available{job=\"node\"} > bool 0) and on(instance) (linux_security_updates_available{job=\"node\"} > bool 0))) or (1 * ((linux_updates_available{job=\"node\"} > bool 0) and on(instance) (linux_security_updates_available{job=\"node\"} == bool 0))) or (0 * (linux_updates_available{job=\"node\"} == bool 0))",
+          "instant": true,
+          "legendFormat": "{{instance}}",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Linux Updates Status",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "displayName": "${__field.labels.instance}",
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "Never"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 7
+              },
+              {
+                "color": "red",
+                "value": 30
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 18
+      },
+      "id": 7,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "value_and_name",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "(time() - linux_updates_last_run_timestamp_seconds{job=\"node\"}) / 86400",
+          "instant": true,
+          "legendFormat": "{{instance}}",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Days Since Last Linux Update",
+      "type": "stat"
     }
   ],
   "refresh": "30s",
@@ -387,6 +557,6 @@
   "timezone": "",
   "title": "Observability Landing",
   "uid": "observability-landing",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }
