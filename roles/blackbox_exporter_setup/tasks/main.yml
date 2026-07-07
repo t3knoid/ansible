@@ -1,0 +1,81 @@
+---
+- name: Create Blackbox Exporter group
+  ansible.builtin.group:
+    name: "{{ blackbox_exporter_setup_group }}"
+    system: true
+
+- name: Create Blackbox Exporter user
+  ansible.builtin.user:
+    name: "{{ blackbox_exporter_setup_user }}"
+    group: "{{ blackbox_exporter_setup_group }}"
+    system: true
+    create_home: false
+    shell: /usr/sbin/nologin
+
+- name: Download and extract Blackbox Exporter
+  ansible.builtin.unarchive:
+    src: "{{ blackbox_exporter_setup_download_url }}"
+    dest: /opt/
+    remote_src: true
+    creates: "{{ blackbox_exporter_setup_install_dir }}"
+    mode: "0755"
+
+- name: Create symlink for Blackbox Exporter
+  ansible.builtin.file:
+    src: "{{ blackbox_exporter_setup_install_dir }}"
+    dest: "{{ blackbox_exporter_setup_home }}"
+    state: link
+    force: true
+
+- name: Set ownership for Blackbox Exporter directory
+  ansible.builtin.file:
+    path: "{{ blackbox_exporter_setup_install_dir }}"
+    owner: "{{ blackbox_exporter_setup_user }}"
+    group: "{{ blackbox_exporter_setup_group }}"
+    recurse: true
+
+- name: Copy Blackbox Exporter binary to /usr/local/bin
+  ansible.builtin.copy:
+    src: "{{ blackbox_exporter_setup_home }}/blackbox_exporter"
+    dest: "{{ blackbox_exporter_setup_binary }}"
+    owner: "{{ blackbox_exporter_setup_user }}"
+    group: "{{ blackbox_exporter_setup_group }}"
+    mode: "{{ blackbox_exporter_setup_mode }}"
+    remote_src: true
+  notify:
+    - Restart blackbox_exporter service
+
+- name: Create Blackbox Exporter configuration directory
+  ansible.builtin.file:
+    path: "{{ blackbox_exporter_setup_config_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Render Blackbox Exporter configuration
+  ansible.builtin.template:
+    src: blackbox.yml.j2
+    dest: "{{ blackbox_exporter_setup_config_file }}"
+    owner: root
+    group: root
+    mode: "0644"
+  notify:
+    - Restart blackbox_exporter service
+
+- name: Create Blackbox Exporter systemd service file
+  ansible.builtin.template:
+    src: blackbox_exporter.service.j2
+    dest: "{{ blackbox_exporter_setup_service_file }}"
+    owner: root
+    group: root
+    mode: "{{ blackbox_exporter_setup_service_mode }}"
+  notify:
+    - Reload systemd daemon
+    - Restart blackbox_exporter service
+
+- name: Enable and start Blackbox Exporter service
+  ansible.builtin.systemd:
+    name: "{{ blackbox_exporter_setup_service_name }}"
+    enabled: true
+    state: started

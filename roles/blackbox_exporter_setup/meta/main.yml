@@ -1,0 +1,16 @@
+---
+galaxy_info:
+  role_name: blackbox_exporter_setup
+  author: Frank Refol
+  description: Install and configure Prometheus Blackbox Exporter for probing web services.
+  license: MIT
+  min_ansible_version: "2.9"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - bionic
+        - focal
+        - jammy
+        - noble
+dependencies:
+  - role: global
