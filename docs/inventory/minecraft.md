@@ -20,6 +20,12 @@ _Inventory for `minecraft` hosts_
 ### `python`
 - `minecraft-1`
 
+### `node_exporter`
+- `minecraft-1`
+
+### `prometheus`
+- `prometheus-0`
+
 ## ⚙️ Group Variables
 _No group variables defined._
 

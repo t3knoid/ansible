@@ -50,6 +50,12 @@ _Inventory for `semaphore` hosts_
 ### `python`
 - `semaphore-0`
 
+### `node_exporter`
+- `semaphore-0`
+
+### `prometheus`
+- `prometheus-0`
+
 ## ⚙️ Group Variables
 _No group variables defined._
 
@@ -61,5 +67,5 @@ _No group variables defined._
 ## 🧩 Group Children
 ### `rproxy`
 - `rproxy_main`
-- `rproxy_secondary`
 - `rproxy_primary`
+- `rproxy_secondary`

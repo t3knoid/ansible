@@ -20,6 +20,12 @@ _Inventory for `vpn` hosts_
 ### `python`
 - `vpn-0`
 
+### `node_exporter`
+- `vpn-0`
+
+### `prometheus`
+- `prometheus-0`
+
 ## ⚙️ Group Variables
 _No group variables defined._
 
