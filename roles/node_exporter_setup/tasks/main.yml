@@ -63,12 +63,29 @@
     mode: "0755"
   when: ansible_distribution == 'Ubuntu'
 
+- name: Seed Linux updates metrics file for Ubuntu
+  ansible.builtin.shell: |
+    set -euo pipefail
+    tmp_file="$(mktemp)"
+    {{ node_exporter_setup_linux_updates_script_path }} > "$tmp_file"
+    install -o root -g {{ node_exporter_setup_group }} -m 0644 "$tmp_file" "{{ node_exporter_setup_linux_updates_metrics_path }}"
+    rm -f "$tmp_file"
+  args:
+    executable: /bin/bash
+  changed_when: true
+  when: ansible_distribution == 'Ubuntu'
+
 - name: Schedule Linux updates metrics cron job for Ubuntu
   ansible.builtin.cron:
     name: node_exporter_linux_updates_metrics
     minute: "{{ node_exporter_setup_linux_updates_cron_minute }}"
     user: root
-    job: "{{ node_exporter_setup_linux_updates_script_path }} > {{ node_exporter_setup_linux_updates_metrics_path }}"
+    job: >-
+      /bin/bash -c 'set -euo pipefail;
+      tmp_file="$(mktemp)";
+      {{ node_exporter_setup_linux_updates_script_path }} > "$tmp_file";
+      install -o root -g {{ node_exporter_setup_group }} -m 0644 "$tmp_file" {{ node_exporter_setup_linux_updates_metrics_path }};
+      rm -f "$tmp_file"'
   when: ansible_distribution == 'Ubuntu'
 
 - name: Create Node Exporter systemd service
