@@ -22,6 +22,10 @@ Installs Prometheus Node Exporter
 | `node_exporter_setup_group` | `"prometheus"` |  |
 | `node_exporter_port` | `9100` |  |
 | `node_exporter_setup_listen_address` | `"0.0.0.0:{{ node_exporter_port }}"` |  |
+| `node_exporter_setup_textfile_collector_dir` | `"/var/lib/node_exporter/textfile"` |  |
+| `node_exporter_setup_linux_updates_script_path` | `"/usr/local/bin/check_updates.sh"` |  |
+| `node_exporter_setup_linux_updates_metrics_path` | `"{{ node_exporter_setup_textfile_collector_dir }}/linux_updates.prom"` |  |
+| `node_exporter_setup_linux_updates_cron_minute` | `"*/30"` |  |
 
 ## 📦 Vars
 _No constant variables found._
@@ -33,6 +37,9 @@ _No constant variables found._
 - Create symlink for Node Exporter
 - Set ownership for Node Exporter directory
 - Copy Node Exporter binary to /usr/local/bin
+- Create Node Exporter textfile collector directory
+- Install Linux updates metrics script for Ubuntu
+- Schedule Linux updates metrics cron job for Ubuntu
 - Create Node Exporter systemd service
 - Enable Node Exporter service
 - Start Node Exporter service
