@@ -36,6 +36,13 @@ Installs and configures a Prometheus monitoring system on Debian/Ubuntu.
 | `prometheus_setup_extra_args` | `"--web.enable-lifecycle --web.enable-admin-api"` |  |
 | `prometheus_setup_skip_head` | `false` |  |
 | `prometheus_setup_backup_retention_count` | `3` |  |
+| `prometheus_setup_blackbox_module` | `"http_2xx"` |  |
+| `prometheus_setup_blackbox_job_name` | `"blackbox_http"` |  |
+| `prometheus_setup_blackbox_group_label` | `"web"` |  |
+| `prometheus_setup_blackbox_targets` | `[]` |  |
+| `prometheus_setup_blackbox_exporter_host` | `"{{ (groups['blackbox_exporter'] | default([]) | first) | default(groups['prometheus'][0]) }}"` |  |
+| `prometheus_setup_blackbox_exporter_port` | `"{{ hostvars[prometheus_setup_blackbox_exporter_host].blackbox_exporter_port | default(9115) }}"` |  |
+| `prometheus_setup_blackbox_exporter_address` | `"{{ global_ip_addresses[prometheus_setup_blackbox_exporter_host] }}:{{ prometheus_setup_blackbox_exporter_port }}"` |  |
 
 ## 📦 Vars
 _No constant variables found._
