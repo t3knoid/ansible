@@ -22,6 +22,10 @@
   ansible.builtin.set_fact:
     prometheus_setup_nginx_exporter_static_configs: "{{ prometheus_setup_existing_scrape_configs | selectattr('job_name', 'equalto', 'nginx_exporter') | map(attribute='static_configs') | first | default([]) }}"
 
+- name: Load existing blackbox scrape targets
+  ansible.builtin.set_fact:
+    prometheus_setup_blackbox_static_configs: "{{ prometheus_setup_existing_scrape_configs | selectattr('job_name', 'equalto', prometheus_setup_blackbox_job_name) | map(attribute='static_configs') | first | default([]) }}"
+
 - name: Initialize node exporter target map
   ansible.builtin.set_fact:
     prometheus_setup_node_static_config_map: {}
@@ -57,6 +61,37 @@
 - name: Build merged nginx exporter scrape targets
   ansible.builtin.set_fact:
     prometheus_setup_nginx_exporter_static_configs: "{{ prometheus_setup_nginx_exporter_static_config_map.values() | list }}"
+
+- name: Initialize blackbox target map
+  ansible.builtin.set_fact:
+    prometheus_setup_blackbox_static_config_map: {}
+
+- name: Seed blackbox target map from existing Prometheus config
+  ansible.builtin.set_fact:
+    prometheus_setup_blackbox_static_config_map: "{{ prometheus_setup_blackbox_static_config_map | combine({(item.targets | first): item}) }}"
+  loop: "{{ prometheus_setup_blackbox_static_configs }}"
+
+- name: Merge current inventory blackbox targets into target map
+  ansible.builtin.set_fact:
+    prometheus_setup_blackbox_static_config_map: >-
+      {{
+        prometheus_setup_blackbox_static_config_map | combine(
+          {
+            item.target: {
+              'targets': [item.target],
+              'labels': {
+                'instance': item.instance | default(item.target),
+                'group': item.group | default(prometheus_setup_blackbox_group_label)
+              }
+            }
+          }
+        )
+      }}
+  loop: "{{ prometheus_setup_blackbox_targets }}"
+
+- name: Build merged blackbox scrape targets
+  ansible.builtin.set_fact:
+    prometheus_setup_blackbox_static_configs: "{{ prometheus_setup_blackbox_static_config_map.values() | list }}"
 
 - name: Copy Prometheus configuration file
   ansible.builtin.template:

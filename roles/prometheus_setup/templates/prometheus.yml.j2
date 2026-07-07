@@ -77,3 +77,26 @@ scrape_configs:
           group: {{ host | regex_replace('-[0-9]+$', '') }}
 {% endfor %}
 {% endif %}
+
+{% if prometheus_setup_blackbox_static_configs is defined and prometheus_setup_blackbox_static_configs | length > 0 %}
+  - job_name: '{{ prometheus_setup_blackbox_job_name }}'
+    metrics_path: /probe
+    params:
+      module: ['{{ prometheus_setup_blackbox_module }}']
+
+    static_configs:
+{% for scrape_config in prometheus_setup_blackbox_static_configs %}
+      - targets: {{ scrape_config.targets | to_json }}
+        labels:
+          instance: '{{ scrape_config.labels.instance }}'
+          group: '{{ scrape_config.labels.group }}'
+{% endfor %}
+
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: '{{ prometheus_setup_blackbox_exporter_address }}'
+{% endif %}
