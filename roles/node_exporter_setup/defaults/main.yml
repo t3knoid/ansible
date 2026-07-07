@@ -6,3 +6,7 @@ node_exporter_setup_user: "prometheus"
 node_exporter_setup_group: "prometheus"
 node_exporter_port: 9100
 node_exporter_setup_listen_address: "0.0.0.0:{{ node_exporter_port }}"
+node_exporter_setup_textfile_collector_dir: "/var/lib/node_exporter/textfile"
+node_exporter_setup_linux_updates_script_path: "/usr/local/bin/check_updates.sh"
+node_exporter_setup_linux_updates_metrics_path: "{{ node_exporter_setup_textfile_collector_dir }}/linux_updates.prom"
+node_exporter_setup_linux_updates_cron_minute: "*/30"
