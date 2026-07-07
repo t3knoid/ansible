@@ -94,6 +94,7 @@
 | [`plex/restore_plex.yml`](../docs/playbooks/restore_plex.md) | Restore Plex Media Server configuration from backup archive. |
 | [`postgresql/deploy_postgresql.yml`](../docs/playbooks/deploy_postgresql.md) | Install and configure PostgreSQL on pgdb hosts |
 | [`prometheus/backup_db.yml`](../docs/playbooks/backup_db.md) | Create a point-in-time copy of all current data stored in Prometheus. |
+| [`prometheus/deploy_blackbox_exporter.yml`](../docs/playbooks/deploy_blackbox_exporter.md) | Deploy Prometheus Blackbox Exporter on a selected host group for remote service probing |
 | [`prometheus/deploy_nginx_prometheus_exporter.yml`](../docs/playbooks/deploy_nginx_prometheus_exporter.md) | Deploy nginx-prometheus-exporter on nginx exporter hosts Usage: ansible-playbook -i inventory/rproxy/inventory.ini playbooks/prometheus/deploy_nginx_prometheus_exporter.yml |
 | [`prometheus/deploy_node_exporter.yml`](../docs/playbooks/deploy_node_exporter.md) | Deploy Node Exporter on node_exporter hosts Note: This playbook only installs or updates node_exporter on the selected inventory's node_exporter hosts. It does not update Prometheus scrape targets. |
 | [`prometheus/deploy_prometheus.yml`](../docs/playbooks/deploy_prometheus.md) | Deploy Prometheus monitoring system Usage: ansible-playbook -i inventory/prometheus/inventory.ini playbooks/prometheus/deploy_prometheus.yml Use playbooks/prometheus/deploy_prometheus_exporters.yml to refresh exporter scrape targets. |
