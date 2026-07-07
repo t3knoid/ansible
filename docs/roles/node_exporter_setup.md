@@ -39,6 +39,7 @@ _No constant variables found._
 - Copy Node Exporter binary to /usr/local/bin
 - Create Node Exporter textfile collector directory
 - Install Linux updates metrics script for Ubuntu
+- Seed Linux updates metrics file for Ubuntu
 - Schedule Linux updates metrics cron job for Ubuntu
 - Create Node Exporter systemd service
 - Enable Node Exporter service
