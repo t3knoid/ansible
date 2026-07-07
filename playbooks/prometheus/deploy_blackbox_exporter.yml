@@ -1,0 +1,10 @@
+---
+# Purpose: Deploy Prometheus Blackbox Exporter on a selected host group for remote service probing
+
+- name: Deploy Prometheus Blackbox Exporter
+  hosts: "{{ blackbox_exporter_deploy_hosts | default('blackbox_exporter') }}"
+  become: true
+  gather_facts: false
+  roles:
+    - global
+    - blackbox_exporter_setup
