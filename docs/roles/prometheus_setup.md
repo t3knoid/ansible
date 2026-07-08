@@ -43,6 +43,7 @@ Installs and configures a Prometheus monitoring system on Debian/Ubuntu.
 | `prometheus_setup_blackbox_exporter_host` | `"{{ (groups['blackbox_exporter'] | default([]) | first) | default(groups['prometheus'][0]) }}"` |  |
 | `prometheus_setup_blackbox_exporter_port` | `"{{ hostvars[prometheus_setup_blackbox_exporter_host].blackbox_exporter_port | default(9115) }}"` |  |
 | `prometheus_setup_blackbox_exporter_address` | `"{{ global_ip_addresses[prometheus_setup_blackbox_exporter_host] }}:{{ prometheus_setup_blackbox_exporter_port }}"` |  |
+| `prometheus_setup_postgres_exporter_job_name` | `"postgres_exporter"` |  |
 
 ## 📦 Vars
 _No constant variables found._
