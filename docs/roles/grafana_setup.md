@@ -92,6 +92,7 @@ _No constant variables found._
 - Install nginx-prometheus-exporter dashboard
 - Install observability landing dashboard
 - Install web service status dashboard
+- Install PostgreSQL status dashboard
 - Install node-exporter overview dashboard
 - Install node-exporter detail dashboard
 - Create Grafana configuration directory
