@@ -7,7 +7,7 @@ After=network-online.target
 User={{ postgres_exporter_setup_user }}
 Group={{ postgres_exporter_setup_group }}
 EnvironmentFile={{ postgres_exporter_setup_env_file }}
-ExecStart={{ postgres_exporter_setup_binary }} --web.listen-address={{ postgres_exporter_setup_listen_address }} --web.telemetry-path={{ postgres_exporter_setup_telemetry_path }}{% if postgres_exporter_setup_extra_args | length > 0 %} {{ postgres_exporter_setup_extra_args | join(' ') }}{% endif %}
+ExecStart={{ postgres_exporter_setup_binary }} --web.listen-address={{ postgres_exporter_setup_listen_address }} --web.telemetry-path={{ postgres_exporter_setup_telemetry_path }}{{ (' ' ~ (postgres_exporter_setup_extra_args | join(' '))) if postgres_exporter_setup_extra_args | length > 0 else '' }}
 Restart=on-failure
 RestartSec=5
 
