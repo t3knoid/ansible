@@ -18,10 +18,17 @@ Do not edit rendered Prometheus configuration on the host. Do not rely on previo
 
 Blackbox targets are defined in `prometheus_setup_blackbox_targets` and are rendered into the Prometheus scrape configuration by the `prometheus_setup` role.
 
+The exporter service host and the probe target list are separate concerns:
+
+* `playbooks/prometheus/deploy_blackbox_exporter.yml` installs and runs the `blackbox_exporter` service on hosts in the `blackbox_exporter` group.
+* `playbooks/prometheus/deploy_prometheus_exporters.yml` updates Prometheus so the `blackbox_http` job appears with the probe targets defined in inventory.
+
+If the exporter service is running but `blackbox_http` is missing from Prometheus, Prometheus most likely has not been refreshed with the current inventory target list yet.
+
 Each target supports:
 
-| Field        | Required | Purpose                                                                   |
-| ------------ | -------- | ------------------------------------------------------------------------- |
+| Field      | Required | Purpose                                                                   |
+| ---------- | -------- | ------------------------------------------------------------------------- |
 | `target`   | Yes      | The URL Prometheus should probe through Blackbox Exporter                 |
 | `instance` | Yes      | The friendly service name shown in Grafana                                |
 | `group`    | No       | A logical grouping label; defaults to the configured blackbox group label |
@@ -108,6 +115,16 @@ This confirms the playbook and the rendered Prometheus configuration path still 
 
 ## 🚀 Deploy the Updated Target List
 
+If the Blackbox Exporter service has not been deployed yet, install it first:
+
+```bash
+ansible-playbook -i inventory/prometheus/inventory.ini playbooks/prometheus/deploy_blackbox_exporter.yml
+```
+
+This installs the exporter process itself. It does not make probe targets appear in Prometheus by itself.
+
+After that, refresh the Prometheus scrape configuration.
+
 Run:
 
 ```bash
@@ -125,6 +142,11 @@ This updates the Prometheus configuration so the new blackbox target list is app
 ### In Prometheus
 
 Check the blackbox job in the Prometheus UI and confirm the new target appears.
+
+Important:
+
+* the Prometheus Targets page should show job `blackbox_http`
+* you should not expect a separate `blackbox_exporter` target unless the repo adds an explicit scrape job for the exporter process itself
 
 Useful queries:
 
@@ -155,6 +177,8 @@ Open the Web Service Status dashboard and confirm:
 ## ⚠️ Common Mistakes
 
 * Editing the generated Prometheus config instead of inventory
+* Deploying `deploy_blackbox_exporter.yml` and expecting that alone to create `blackbox_http` targets in Prometheus
+* Forgetting to run `deploy_prometheus_exporters.yml` after changing `prometheus_setup_blackbox_targets`
 * Leaving a stale target in inventory after a service migration
 * Changing `instance` when only the backend URL changed
 * Introducing whitespace into the `target` value
@@ -167,8 +191,9 @@ Open the Web Service Status dashboard and confirm:
 To manage blackbox targets:
 
 1. Edit `prometheus_setup_blackbox_targets` in `inventory/prometheus/group_vars/all/main.yml`
-2. Run the Prometheus exporter syntax check
-3. Deploy `playbooks/prometheus/deploy_prometheus_exporters.yml`
-4. Verify the target in Prometheus and Grafana
+2. Deploy `playbooks/prometheus/deploy_blackbox_exporter.yml` if the exporter service is not already installed
+3. Run the Prometheus exporter syntax check
+4. Deploy `playbooks/prometheus/deploy_prometheus_exporters.yml`
+5. Verify the `blackbox_http` job in Prometheus and Grafana
 
 The inventory list is authoritative, and redeploying applies the exact target set defined there.
