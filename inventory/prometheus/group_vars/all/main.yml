@@ -104,3 +104,4 @@ prometheus_setup_blackbox_targets:
     group: "web"
 
 postgres_exporter_port: 9187
+blackbox_exporter_port: 9115
