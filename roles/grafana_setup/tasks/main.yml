@@ -163,6 +163,15 @@
     mode: "0640"
   notify: Restart Grafana
 
+- name: Install PostgreSQL status dashboard
+  ansible.builtin.copy:
+    src: dashboards/postgresql-status.dashboard.json
+    dest: "{{ grafana_setup_dashboards_dir }}/postgresql-status.dashboard.json"
+    owner: "{{ grafana_setup_user }}"
+    group: "{{ grafana_setup_group }}"
+    mode: "0640"
+  notify: Restart Grafana
+
 - name: Install node-exporter overview dashboard
   ansible.builtin.copy:
     src: dashboards/node-exporter-overview.dashboard.json
