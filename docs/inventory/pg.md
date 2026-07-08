@@ -36,6 +36,13 @@ _Inventory for `pg` hosts_
 ### `prometheus`
 - `prometheus-0`
 
+### `postgres_exporter`
+- `pg-0`
+- `pg-1`
+- `pg-2`
+- `pg-3`
+- `pg-4`
+
 ## ⚙️ Group Variables
 _No group variables defined._
 
