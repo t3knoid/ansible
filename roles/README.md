@@ -53,6 +53,7 @@
 | [`pihole`](../docs/roles/pihole.md) | Installs and configures Pi-hole on Ubuntu systems (https://pi-hole.net/). Provides tasks to manage Pi-hole settings and configurations. |
 | [`playwright`](../docs/roles/playwright.md) | Installs playwright. |
 | [`plex_setup`](../docs/roles/plex_setup.md) | Installs Plex Media Server. |
+| [`postgres_exporter_setup`](../docs/roles/postgres_exporter_setup.md) | Install and configure postgres_exporter for PostgreSQL monitoring. |
 | [`postgresql_setup`](../docs/roles/postgresql_setup.md) | Installs PostgreSQL. |
 | [`prometheus_setup`](../docs/roles/prometheus_setup.md) | Installs and configures a Prometheus monitoring system on Debian/Ubuntu. |
 | [`pve`](../docs/roles/pve.md) | Contains tasks to manage the Proxmox Virtual Environment |
