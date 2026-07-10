@@ -5,6 +5,11 @@
     state: present
     system: true
 
+- name: Install Loki archive dependencies
+  ansible.builtin.package:
+    name: unzip
+    state: present
+
 - name: Create Loki system user
   ansible.builtin.user:
     name: "{{ loki_setup_user }}"
