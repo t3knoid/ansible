@@ -1,0 +1,11 @@
+---
+# Purpose: Deploy Grafana Loki on loki hosts
+# Usage: ansible-playbook -i inventory/<inventory>/inventory.ini playbooks/loki/deploy_loki.yml
+
+- name: Deploy Loki
+  hosts: loki
+  become: true
+  gather_facts: true
+  roles:
+    - global
+    - loki_setup

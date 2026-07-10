@@ -1,0 +1,62 @@
+auth_enabled: {{ loki_setup_auth_enabled | bool | lower }}
+
+server:
+  http_listen_address: "{{ loki_setup_http_listen_address }}"
+  http_listen_port: {{ loki_setup_http_listen_port }}
+  grpc_listen_address: "{{ loki_setup_grpc_listen_address }}"
+  grpc_listen_port: {{ loki_setup_grpc_listen_port }}
+  log_level: "{{ loki_setup_log_level }}"
+  grpc_server_max_concurrent_streams: {{ loki_setup_grpc_server_max_concurrent_streams }}
+
+common:
+  instance_addr: "{{ loki_setup_instance_addr }}"
+  path_prefix: "{{ loki_setup_path_prefix }}"
+  replication_factor: {{ loki_setup_replication_factor }}
+  ring:
+    kvstore:
+      store: inmemory
+
+query_range:
+  results_cache:
+    cache:
+      embedded_cache:
+        enabled: true
+        max_size_mb: {{ loki_setup_query_cache_size_mb }}
+
+ingester:
+  chunk_idle_period: "{{ loki_setup_chunk_idle_period }}"
+  chunk_target_size: {{ loki_setup_chunk_target_size }}
+  chunk_encoding: "{{ loki_setup_chunk_encoding }}"
+  max_chunk_age: "{{ loki_setup_max_chunk_age }}"
+  wal:
+    enabled: true
+    dir: "{{ loki_setup_wal_dir }}"
+    checkpoint_duration: "{{ loki_setup_wal_checkpoint_duration }}"
+    flush_on_shutdown: {{ loki_setup_wal_flush_on_shutdown | bool | lower }}
+
+schema_config:
+  configs:
+    - from: "{{ loki_setup_schema_from }}"
+      store: tsdb
+      object_store: filesystem
+      schema: "{{ loki_setup_schema_version }}"
+      index:
+        prefix: "{{ loki_setup_index_prefix }}"
+        period: "{{ loki_setup_index_period }}"
+
+storage_config:
+  tsdb_shipper:
+    active_index_directory: "{{ loki_setup_index_dir }}"
+    cache_location: "{{ loki_setup_index_cache_dir }}"
+    cache_ttl: "{{ loki_setup_index_cache_ttl }}"
+  filesystem:
+    directory: "{{ loki_setup_storage_dir }}"
+
+limits_config:
+{{ loki_setup_limits_config | to_nice_yaml(indent=2) | indent(2, true) }}
+
+compactor:
+  working_directory: "{{ loki_setup_compactor_dir }}"
+{% if loki_setup_retention_enabled %}
+  retention_enabled: true
+{% endif %}

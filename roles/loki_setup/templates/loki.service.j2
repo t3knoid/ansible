@@ -1,0 +1,18 @@
+# Ansible generated on {{ ansible_date_time.date }} at {{ ansible_date_time.time }}
+[Unit]
+Description=Grafana Loki
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User={{ loki_setup_user }}
+Group={{ loki_setup_group }}
+WorkingDirectory={{ loki_setup_path_prefix }}
+ExecStart={{ loki_setup_binary }} -config.file={{ loki_setup_config_file }}{% if loki_setup_extra_args %} {{ loki_setup_extra_args }}{% endif %}
+Restart=on-failure
+RestartSec=5
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
