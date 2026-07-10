@@ -78,6 +78,7 @@
 | [`linux/deploy_fstab.yml`](../docs/playbooks/deploy_fstab.md) | Manages fstab on designated servers. |
 | [`linux/deploy_updates.yml`](../docs/playbooks/deploy_updates.md) | Deploy updates on Linux hosts |
 | [`linux/remove_autofs.yml`](../docs/playbooks/remove_autofs.md) | Removes autofs from designated servers. |
+| [`loki/deploy_loki.yml`](../docs/playbooks/deploy_loki.md) | Deploy Grafana Loki on loki hosts Usage: ansible-playbook -i inventory/<inventory>/inventory.ini playbooks/loki/deploy_loki.yml |
 | [`minecraft/check_bedrock_version.yml`](../docs/playbooks/check_bedrock_version.md) | Check latest Bedrock version on Bedrock hosts |
 | [`minecraft/check_minecraft_version.yml`](../docs/playbooks/check_minecraft_version.md) | Check latest Minecraft Java Edition version on Minecraft hosts |
 | [`minecraft/deploy_bedrock.yml`](../docs/playbooks/deploy_bedrock.md) | Deploy Minecraft Bedrock server |
