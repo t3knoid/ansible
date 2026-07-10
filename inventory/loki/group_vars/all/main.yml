@@ -1,0 +1,32 @@
+---
+vms_config:
+  agent: "1"
+  cores: "2"
+  cpu: host
+  memory: 2048
+  ostype: l26
+  scsihw: local
+  sockets: 1
+  storage: local
+  disk_os:
+    disk: virtio0
+    backup: true
+    size: 20
+    storage: local
+  disk2:
+    disk: virtio1
+    backup: true
+    size: 50
+    storage: local
+
+vms_os: ubuntu_24_server
+vms_autoinstall: true
+vms_enable_serial_terminal: false
+vms_additional_packages: []
+python3_version: 3.12
+
+loki_setup_user: "loki"
+loki_setup_group: "loki"
+
+disks_disk_mounts:
+  - { mountpoint: "/loki", mountpoint_owner: "{{ loki_setup_user }}", mountpoint_group: "{{ loki_setup_group }}" }
