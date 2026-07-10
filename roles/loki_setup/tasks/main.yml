@@ -1,0 +1,138 @@
+---
+- name: Create Loki system group
+  ansible.builtin.group:
+    name: "{{ loki_setup_group }}"
+    state: present
+    system: true
+
+- name: Create Loki system user
+  ansible.builtin.user:
+    name: "{{ loki_setup_user }}"
+    group: "{{ loki_setup_group }}"
+    shell: /sbin/nologin
+    state: present
+    system: true
+    createhome: false
+
+- name: Create Loki installation directory
+  ansible.builtin.file:
+    path: "{{ loki_setup_install_dir }}"
+    state: directory
+    owner: "{{ loki_setup_user }}"
+    group: "{{ loki_setup_group }}"
+    mode: "{{ loki_setup_install_mode }}"
+
+- name: Create Loki working directories
+  ansible.builtin.file:
+    path: "{{ loki_dir }}"
+    state: directory
+    owner: "{{ loki_setup_user }}"
+    group: "{{ loki_setup_group }}"
+    mode: "{{ loki_setup_install_mode }}"
+  loop: "{{ loki_setup_directories }}"
+  loop_control:
+    loop_var: loki_dir
+    label: "{{ loki_dir }}"
+
+- name: Download Loki archive
+  ansible.builtin.get_url:
+    url: "{{ loki_setup_download_url }}"
+    dest: "{{ loki_setup_archive_path }}"
+    owner: "{{ loki_setup_user }}"
+    group: "{{ loki_setup_group }}"
+    mode: "0644"
+
+- name: Check whether Loki archive has been extracted
+  ansible.builtin.stat:
+    path: "{{ loki_setup_extract_marker }}"
+  register: loki_setup_extract_marker_stat
+
+- name: Extract Loki archive
+  ansible.builtin.unarchive:
+    src: "{{ loki_setup_archive_path }}"
+    dest: "{{ loki_setup_install_dir }}"
+    remote_src: true
+    owner: "{{ loki_setup_user }}"
+    group: "{{ loki_setup_group }}"
+  when: not loki_setup_extract_marker_stat.stat.exists
+
+- name: Mark Loki archive as extracted
+  ansible.builtin.file:
+    path: "{{ loki_setup_extract_marker }}"
+    state: touch
+    owner: "{{ loki_setup_user }}"
+    group: "{{ loki_setup_group }}"
+    mode: "0644"
+  when: not loki_setup_extract_marker_stat.stat.exists
+
+- name: Set ownership for Loki installation directory
+  ansible.builtin.file:
+    path: "{{ loki_setup_install_dir }}"
+    owner: "{{ loki_setup_user }}"
+    group: "{{ loki_setup_group }}"
+    recurse: true
+
+- name: Find extracted Loki binary
+  ansible.builtin.find:
+    paths: "{{ loki_setup_install_dir }}"
+    patterns: "loki-linux-*"
+    recurse: true
+    file_type: file
+  register: loki_setup_binary_find
+
+- name: Ensure extracted Loki binary was found
+  ansible.builtin.assert:
+    that:
+      - loki_setup_binary_find.matched > 0
+    fail_msg: "Unable to locate the Loki binary after extracting {{ loki_setup_archive_name }}."
+
+- name: Set Loki extracted binary path
+  ansible.builtin.set_fact:
+    loki_setup_extracted_binary_path: "{{ (loki_setup_binary_find.files | sort(attribute='path') | first).path }}"
+
+- name: Create symlink for Loki home
+  ansible.builtin.file:
+    src: "{{ loki_setup_install_dir }}"
+    dest: "{{ loki_setup_home }}"
+    state: link
+    force: true
+
+- name: Install Loki binary
+  ansible.builtin.copy:
+    src: "{{ loki_setup_extracted_binary_path }}"
+    dest: "{{ loki_setup_binary }}"
+    owner: root
+    group: root
+    mode: "0755"
+    remote_src: true
+  notify:
+    - Restart Loki service
+
+- name: Copy Loki configuration file
+  ansible.builtin.template:
+    src: loki.yml.j2
+    dest: "{{ loki_setup_config_file }}"
+    owner: "{{ loki_setup_user }}"
+    group: "{{ loki_setup_group }}"
+    mode: "{{ loki_setup_config_mode }}"
+    backup: true
+  notify:
+    - Restart Loki service
+
+- name: Create Loki systemd service file
+  ansible.builtin.template:
+    src: loki.service.j2
+    dest: "{{ loki_setup_service_file }}"
+    owner: root
+    group: root
+    mode: "{{ loki_setup_service_mode }}"
+  notify:
+    - Reload systemd daemon
+    - Restart Loki service
+
+- name: Enable and start Loki service
+  ansible.builtin.systemd:
+    name: "{{ loki_setup_service_name }}"
+    enabled: true
+    state: started
+    daemon_reload: true

@@ -1,0 +1,18 @@
+---
+galaxy_info:
+  role_name: loki_setup
+  author: Frank Refol
+  description: Install and configure Grafana Loki using the upstream release archive.
+  license: MIT
+  min_ansible_version: "2.9"
+  platforms:
+    - name: EL
+      versions:
+        - "7"
+        - "8"
+    - name: Ubuntu
+      versions:
+        - bionic
+        - focal
+        - jammy
+        - noble
