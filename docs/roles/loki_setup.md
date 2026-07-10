@@ -1,0 +1,122 @@
+# 🛠️ Role: `loki_setup`
+
+![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)
+![Ansible >= 2.9](https://img.shields.io/badge/ansible-%3E%3D%202.9-green.svg)
+![Platforms: EL | Ubuntu](https://img.shields.io/badge/platforms-EL%20|%20Ubuntu-orange.svg)
+
+## 📖 Overview
+Install and configure Grafana Loki using the upstream release archive.
+
+## 📋 Requirements
+- Minimum Ansible version: `2.9`
+- Supported on: `EL` (7, 8)
+- Supported on: `Ubuntu` (bionic, focal, jammy, noble)
+
+## ⚙️ Defaults
+| Variable | Default Value | Description |
+|----------|---------------|-------------|
+| `loki_setup_version` | `"3.7.3"` |  |
+| `loki_setup_platform` | `"linux-amd64"` |  |
+| `loki_setup_archive_name` | `"loki-{{ loki_setup_platform }}.zip"` |  |
+| `loki_setup_download_url` | `"https://github.com/grafana/loki/releases/download/v{{ loki_setup_version }}/{{ loki_setup_archive_name }}"` |  |
+| `loki_setup_install_dir` | `"/opt/loki-{{ loki_setup_version }}-{{ loki_setup_platform }}"` |  |
+| `loki_setup_home` | `"/opt/loki"` |  |
+| `loki_setup_binary` | `"/usr/local/bin/loki"` |  |
+| `loki_setup_service_name` | `"loki"` |  |
+| `loki_setup_service_file` | `"/etc/systemd/system/loki.service"` |  |
+| `loki_setup_user` | `"loki"` |  |
+| `loki_setup_group` | `"loki"` |  |
+| `loki_setup_install_mode` | `"0755"` |  |
+| `loki_setup_config_mode` | `"0644"` |  |
+| `loki_setup_service_mode` | `"0644"` |  |
+| `loki_setup_path_prefix` | `"/loki"` |  |
+| `loki_setup_config_dir` | `"{{ loki_setup_path_prefix }}/etc"` |  |
+| `loki_setup_tmp_dir` | `"{{ loki_setup_path_prefix }}/tmp"` |  |
+| `loki_setup_storage_dir` | `"{{ loki_setup_path_prefix }}/chunks"` |  |
+| `loki_setup_index_dir` | `"{{ loki_setup_path_prefix }}/index"` |  |
+| `loki_setup_index_cache_dir` | `"{{ loki_setup_path_prefix }}/index_cache"` |  |
+| `loki_setup_wal_dir` | `"{{ loki_setup_path_prefix }}/wal"` |  |
+| `loki_setup_compactor_dir` | `"{{ loki_setup_path_prefix }}/compactor"` |  |
+| `loki_setup_rules_dir` | `"{{ loki_setup_path_prefix }}/rules"` |  |
+| `loki_setup_rules_temp_dir` | `"{{ loki_setup_path_prefix }}/rules-tmp"` |  |
+| `loki_setup_extract_marker` | `"{{ loki_setup_install_dir }}/.ansible-extracted"` |  |
+| `loki_setup_archive_path` | `"{{ loki_setup_tmp_dir }}/{{ loki_setup_archive_name }}"` |  |
+| `loki_setup_config_file` | `"{{ loki_setup_config_dir }}/loki.yml"` |  |
+| `loki_setup_http_listen_address` | `"0.0.0.0"` |  |
+| `loki_setup_http_listen_port` | `3100` |  |
+| `loki_setup_grpc_listen_address` | `"0.0.0.0"` |  |
+| `loki_setup_grpc_listen_port` | `9096` |  |
+| `loki_setup_log_level` | `"info"` |  |
+| `loki_setup_grpc_server_max_concurrent_streams` | `1000` |  |
+| `loki_setup_auth_enabled` | `false` | Loki should be placed behind an authenticating reverse proxy in real deployments. |
+| `loki_setup_instance_addr` | `"127.0.0.1"` |  |
+| `loki_setup_replication_factor` | `1` |  |
+| `loki_setup_query_cache_size_mb` | `100` |  |
+| `loki_setup_schema_from` | `"2024-01-01"` |  |
+| `loki_setup_schema_version` | `"v13"` |  |
+| `loki_setup_index_prefix` | `"index_"` |  |
+| `loki_setup_index_period` | `"24h"` |  |
+| `loki_setup_index_cache_ttl` | `"24h"` |  |
+| `loki_setup_chunk_idle_period` | `"30m"` |  |
+| `loki_setup_chunk_target_size` | `1572864` |  |
+| `loki_setup_chunk_encoding` | `"snappy"` |  |
+| `loki_setup_max_chunk_age` | `"2h"` |  |
+| `loki_setup_wal_checkpoint_duration` | `"5m"` |  |
+| `loki_setup_wal_flush_on_shutdown` | `true` |  |
+| `loki_setup_retention_enabled` | `false` |  |
+| `loki_setup_extra_args` | `"-log-config-reverse-order"` |  |
+| `loki_setup_limits_config` | `` |  |
+| `ingestion_rate_strategy` | `global` |  |
+| `ingestion_rate_mb` | `10` |  |
+| `ingestion_burst_size_mb` | `20` |  |
+| `per_stream_rate_limit` | `3MB` |  |
+| `per_stream_rate_limit_burst` | `15MB` |  |
+| `max_global_streams_per_user` | `10000` |  |
+| `max_streams_per_user` | `0` |  |
+| `max_line_size` | `256KB` |  |
+| `max_line_size_truncate` | `false` |  |
+| `max_label_name_length` | `1024` |  |
+| `max_label_value_length` | `2048` |  |
+| `max_label_names_per_series` | `15` |  |
+| `reject_old_samples` | `true` |  |
+| `reject_old_samples_max_age` | `168h` |  |
+| `creation_grace_period` | `10m` |  |
+| `unordered_writes` | `true` |  |
+| `loki_setup_directories` | `` |  |
+
+## 📦 Vars
+_No constant variables found._
+
+## 📑 Tasks
+- Create Loki system group
+- Install Loki archive dependencies
+- Create Loki system user
+- Create Loki installation directory
+- Create Loki working directories
+- Download Loki archive
+- Check whether Loki archive has been extracted
+- Extract Loki archive
+- Mark Loki archive as extracted
+- Set ownership for Loki installation directory
+- Find extracted Loki binary
+- Ensure extracted Loki binary was found
+- Set Loki extracted binary path
+- Create symlink for Loki home
+- Install Loki binary
+- Copy Loki configuration file
+- Create Loki systemd service file
+- Enable and start Loki service
+
+## 🔔 Handlers
+- Reload systemd daemon
+- Restart Loki service
+
+## 🔗 Dependencies
+_No dependencies listed._
+
+## 🚀 Example Usage
+```yaml
+- hosts: all
+  roles:
+    - role: loki_setup
+```

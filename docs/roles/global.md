@@ -72,6 +72,7 @@ Provides global defaults common to all roles. It provides the IP definition of e
 | `ha-0` | `192.168.20.182` |  |
 | `redmine-0` | `192.168.20.186` |  |
 | `prometheus-0` | `192.168.20.192` |  |
+| `loki-0` | `192.168.20.193` |  |
 | `grafana-0` | `192.168.20.195` |  |
 | `ecube-2` | `192.168.90.196` |  |
 | `ecube-1` | `192.168.90.197` |  |
