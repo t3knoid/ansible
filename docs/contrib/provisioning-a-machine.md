@@ -6,6 +6,8 @@ The provisioning workflow creates a new virtual machine, installs Python so Ansi
 
 For baremetal hosts, this playbook does not create the machine. It only runs the post-creation stages such as Python bootstrap, domain join, node preparation, user management, and disk preparation.
 
+To install an operating system onto a baremetal machine in this repository, use the PXE workflow first, then run `playbooks/provision_vm.yml` after the operating system has been installed.
+
 ## 1. Login to an Ansible Control Node
 
 Start on a control node with Ansible installed and activate the expected Python environment.
@@ -32,6 +34,23 @@ git pull origin main
 Important:
 
 - Pull first so inventory and role changes are based on the latest repository state.
+
+## 2A. Baremetal OS Provisioning Uses PXE First
+
+Baremetal operating system installation is not handled directly by `playbooks/provision_vm.yml`.
+
+The actual OS provisioning path for baremetal is:
+
+1. Deploy the PXE server with `playbooks/pxe/deploy_pxe.yml`.
+2. Configure a specific baremetal client for netboot with `playbooks/pxe/configure_pxe.yml`.
+3. Boot the physical host from the network so Ubuntu autoinstall runs.
+4. After the OS installation completes, run `playbooks/provision_vm.yml` to perform the post-install configuration steps.
+
+Repository behavior:
+
+- `playbooks/pxe/deploy_pxe.yml` installs and configures the PXE server on hosts in the `pxe` group.
+- `playbooks/pxe/configure_pxe.yml` renders client-specific DHCP, PXE, and autoinstall configuration for hosts in the `pxe_client` group.
+- `playbooks/provision_vm.yml` then handles Python bootstrap, domain join, baseline node prep, users, and disks after the OS already exists on the host.
 
 ## 3. Define the Host and Related Properties
 
@@ -70,7 +89,7 @@ test-01
 Pay special attention to these `[vms]` host variables:
 
 - `vms_proxmox_node`: controls which Proxmox node will host the VM and where the provisioning tasks will target VM operations such as creation, cloud-init updates, start, stop, and reboot.
-- `vms_clone`: controls whether the VM should be provisioned through the clone-based path instead of the normal non-clone creation path.
+- `vms_clone`: deprecated and currently ignored by the `vms` role.
 
 Why these groups matter:
 
@@ -148,6 +167,63 @@ python3_version: 3.12
 
 If you prefer to share values across all hosts in an inventory, you can place them in `group_vars/all/main.yml` instead of `host_vars/<host>.yml`. The key requirement is that the host resolves these variables at runtime.
 
+### C2. Define baremetal PXE configuration
+
+To provision an operating system onto a baremetal host, define the host in an inventory that includes these groups at minimum:
+
+- `baremetal`
+- `python`
+- `pxe_client`
+
+You also need at least one host in the `pxe` group, because `pxeserver_setup` defaults to using `groups['pxe'][0]` as the PXE server.
+
+A real example exists in `inventory/dns/inventory.ini`:
+
+```ini
+[baremetal]
+dns-1
+
+[python]
+dns-1
+
+[pxe_client]
+dns-1
+
+[pxe]
+pxe-0
+```
+
+Minimum baremetal PXE variables:
+
+- `vms_os`
+- `python3_version`
+- `pxeserver_setup_client_nic`
+- `pxeserver_setup_dhcp_range`
+- `pxeserver_setup_ip_reservations`
+- a `global_ip_addresses` entry for both the PXE server host and the baremetal client
+
+Example client-specific configuration:
+
+```yaml
+vms_os: ubuntu_24_server
+python3_version: 3.12
+pxeserver_setup_client_nic: "enp2s0"
+pxeserver_setup_dhcp_range: "192.168.2.253,192.168.2.253,255.255.255.0"
+pxeserver_setup_ip_reservations:
+  - { mac_address: '0C:C4:7A:E2:83:5A', ip_address: '192.168.2.253' }
+```
+
+What these variables control:
+
+- `vms_os`: selects the Ubuntu release artifacts used by the PXE role, including the ISO URL and autoinstall source content.
+- `pxeserver_setup_client_nic`: selects the interface name that the installed operating system should configure.
+- `pxeserver_setup_dhcp_range`: defines the DHCP lease range that dnsmasq will hand out during PXE boot. In the current repo pattern this is usually a single IP.
+- `pxeserver_setup_ip_reservations`: binds the target machine's MAC address to the intended installation IP.
+
+Operational note:
+
+- The PXE role metadata explicitly notes that under TP-Link Omada, the "Legal DHCP Servers" setting must allow the PXE server IP.
+
 ### D. `vms_config` parameter reference
 
 | Parameter                      | Description                                                                               |
@@ -215,6 +291,29 @@ Example:
 
 ```shell
 ansible-playbook -i inventory/loki/inventory.ini playbooks/provision_vm.yml --limit loki-0 -k
+```
+
+### Baremetal PXE install sequence
+
+For baremetal, the command sequence is different because the OS must be installed before `playbooks/provision_vm.yml` can do the post-install work.
+
+1. Deploy or refresh the PXE server:
+
+```shell
+ansible-playbook -i $INV playbooks/pxe/deploy_pxe.yml -k
+```
+
+1. Configure the target baremetal client for PXE boot:
+
+```shell
+ansible-playbook -i $INV playbooks/pxe/configure_pxe.yml --limit <baremetal-host> -k
+```
+
+1. Boot the physical machine from the network and let Ubuntu autoinstall complete.
+2. After the machine finishes installing and is reachable by SSH, run the post-install workflow:
+
+```shell
+ansible-playbook -i $INV playbooks/provision_vm.yml --limit <baremetal-host> -k
 ```
 
 ## 6. Verify Deployment
@@ -293,6 +392,40 @@ What it does:
 - applies the `disks` role
 - formats and mounts extra disks declared through inventory variables such as `disk2` and `disks_disk_mounts`
 
+## PXE Playbooks for Baremetal OS Installation
+
+### `playbooks/pxe/deploy_pxe.yml`
+
+This playbook deploys the PXE server on hosts in the `pxe` group.
+
+What it does:
+
+- applies the `global` role
+- applies `nginx_setup`
+- applies `pxeserver_setup`
+- installs dnsmasq, syslinux, and supporting files
+- downloads the Ubuntu netboot tarball and live server ISO into the PXE server's TFTP/HTTP root
+
+### `playbooks/pxe/configure_pxe.yml`
+
+This playbook configures a specific PXE client host in the `pxe_client` group.
+
+What it does:
+
+- imports `pxeserver_setup` tasks from `configure.yml`
+- rewrites dnsmasq configuration for the PXE server
+- adds or updates DHCP MAC reservations for the target client
+- renders `user-data` and `meta-data` for Ubuntu autoinstall
+- renders `pxelinux.cfg/default` with the PXE boot parameters
+
+The PXE boot configuration ultimately passes these important kernel parameters:
+
+- `iso-url={{ pxeserver_setup_iso_url }}`
+- `autoinstall`
+- `ds=nocloud-net;s=http://{{ pxeserver_setup_ip }}`
+
+That means the installer boots over PXE, downloads the Ubuntu ISO from the PXE server over HTTP, and pulls its autoinstall configuration from the same PXE server.
+
 ## Minimum Requirements Summary
 
 For a new VM, the minimum repository changes are:
@@ -307,9 +440,18 @@ For baremetal preparation with the same playbook, the machine must already exist
 2. Add the host IP to `roles/global/vars/main.yml` under `global_ip_addresses`.
 3. Define `python3_version` and any role-specific variables needed by `ad`, `ansible_node`, `users`, or `disks`.
 
+For baremetal OS installation via PXE, the minimum repository changes are:
+
+1. Add the target host to `inventory/<name>/inventory.ini` under `baremetal`, `python`, and `pxe_client`.
+2. Ensure a PXE server host exists in the same inventory under `pxe`.
+3. Add the host IP to `roles/global/vars/main.yml` under `global_ip_addresses`.
+4. Define `vms_os`, `python3_version`, `pxeserver_setup_client_nic`, `pxeserver_setup_dhcp_range`, and `pxeserver_setup_ip_reservations` for the baremetal client.
+5. Run `playbooks/pxe/deploy_pxe.yml`, then `playbooks/pxe/configure_pxe.yml`, then network-boot the host, and finally run `playbooks/provision_vm.yml`.
+
 ## Notes
 
 - Always double-check the hostname, IP address, storage target, VLAN tag, and requested hardware before deploying.
 - Use the same workflow for both new VM provisioning and later hardware updates.
 - Pulling first, committing the inventory change, and then deploying keeps the repository state consistent.
 - The control node must have network access to the Proxmox cluster and to the target environment.
+- For baremetal PXE installs, verify the target machine firmware is configured for PXE/network boot and that its MAC address matches the reservation configured in `pxeserver_setup_ip_reservations`.
