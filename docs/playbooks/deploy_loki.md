@@ -5,6 +5,7 @@ Deploy Grafana Loki on loki hosts Usage: ansible-playbook -i inventory/<inventor
 
 ## 🔗 Roles Applied
 - [`global`](../roles/global/README.md)
+- [`users`](../roles/users/README.md)
 - [`loki_setup`](../roles/loki_setup/README.md)
 
 ## 🚀 Usage
