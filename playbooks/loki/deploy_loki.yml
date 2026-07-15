@@ -8,4 +8,5 @@
   gather_facts: true
   roles:
     - global
+    - users
     - loki_setup
