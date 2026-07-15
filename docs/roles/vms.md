@@ -22,7 +22,7 @@ Provides tasks to manage virtual machines hosted in Proxmox VE.
 | `vms_set_to_template` | `false` |  |
 | `vms_clone_host` | `192.168.2.199` |  |
 | `vms_ip_address_configured` | `false` |  |
-| `vms_clone` | `false` |  |
+| `vms_clone` | `false` | Deprecated: this variable is currently ignored by the vms role. |
 | `vms_pve_tls_insecure` | `true` |  |
 
 ## 📦 Vars
