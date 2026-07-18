@@ -1,12 +1,12 @@
-# 📖 Playbook: ombi/backup_db.yml
+# 📖 Playbook: ecube/backup_db.yml
 
 ## 🛠 Purpose
-Backup Ombi database to NFS share
+Backup ECUBE database to NFS share
 
 ## 🔗 Roles Applied
 - [`global`](../roles/global/README.md)
 
 ## 🚀 Usage
 ```bash
-ansible-playbook playbooks/ombi/backup_db.yml
+ansible-playbook playbooks/ecube/backup_db.yml
 ```
