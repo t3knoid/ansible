@@ -1,0 +1,45 @@
+#!/bin/bash
+set -euo pipefail
+
+failed_services="$(systemctl list-units --type=service --state=failed --no-legend --no-pager | awk '{for (i = 1; i <= NF; i++) if ($i ~ /\.service$/) {print $i; break}}')"
+failed_count=0
+hostname_value="$(hostname -s)"
+
+escape_label_value() {
+  printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'
+}
+
+if [[ -n "${failed_services}" ]]; then
+  failed_count="$(printf '%s\n' "${failed_services}" | sed '/^$/d' | wc -l | tr -d ' ')"
+fi
+
+cat <<EOF
+# HELP linux_systemd_failed_services Total number of failed systemd services on the host.
+# TYPE linux_systemd_failed_services gauge
+linux_systemd_failed_services ${failed_count}
+# HELP linux_systemd_failed_services_last_collect_unixtime Unix timestamp when failed services metrics were collected.
+# TYPE linux_systemd_failed_services_last_collect_unixtime gauge
+linux_systemd_failed_services_last_collect_unixtime $(date +%s)
+EOF
+
+if [[ -n "${failed_services}" ]]; then
+  echo "# HELP linux_systemd_service_failed Failed state for systemd service (1 means failed)."
+  echo "# TYPE linux_systemd_service_failed gauge"
+  echo "# HELP linux_systemd_service_failed_info Failed service metadata labels for dashboarding."
+  echo "# TYPE linux_systemd_service_failed_info gauge"
+
+  while IFS= read -r service_name; do
+    [[ -z "${service_name}" ]] && continue
+    escaped_service_name="$(escape_label_value "${service_name}")"
+    active_state="$(systemctl show "${service_name}" --property=ActiveState --value 2>/dev/null || echo unknown)"
+    sub_state="$(systemctl show "${service_name}" --property=SubState --value 2>/dev/null || echo unknown)"
+    result_state="$(systemctl show "${service_name}" --property=Result --value 2>/dev/null || echo unknown)"
+    escaped_active_state="$(escape_label_value "${active_state}")"
+    escaped_sub_state="$(escape_label_value "${sub_state}")"
+    escaped_result_state="$(escape_label_value "${result_state}")"
+    escaped_hostname="$(escape_label_value "${hostname_value}")"
+
+    echo "linux_systemd_service_failed{service=\"${escaped_service_name}\"} 1"
+    echo "linux_systemd_service_failed_info{service=\"${escaped_service_name}\",host=\"${escaped_hostname}\",active_state=\"${escaped_active_state}\",sub_state=\"${escaped_sub_state}\",result=\"${escaped_result_state}\"} 1"
+  done <<< "${failed_services}"
+fi

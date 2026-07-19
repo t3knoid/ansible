@@ -88,6 +88,40 @@
       rm -f "$tmp_file"'
   when: ansible_distribution == 'Ubuntu'
 
+- name: Install failed services metrics script for systemd hosts
+  ansible.builtin.template:
+    src: check_failed_services.sh.j2
+    dest: "{{ node_exporter_setup_failed_services_script_path }}"
+    owner: root
+    group: root
+    mode: "0755"
+  when: ansible_service_mgr == 'systemd'
+
+- name: Seed failed services metrics file for systemd hosts
+  ansible.builtin.shell: |
+    set -euo pipefail
+    tmp_file="$(mktemp)"
+    {{ node_exporter_setup_failed_services_script_path }} > "$tmp_file"
+    install -o root -g {{ node_exporter_setup_group }} -m 0644 "$tmp_file" "{{ node_exporter_setup_failed_services_metrics_path }}"
+    rm -f "$tmp_file"
+  args:
+    executable: /bin/bash
+  changed_when: true
+  when: ansible_service_mgr == 'systemd'
+
+- name: Schedule failed services metrics cron job for systemd hosts
+  ansible.builtin.cron:
+    name: node_exporter_failed_services_metrics
+    minute: "{{ node_exporter_setup_failed_services_cron_minute }}"
+    user: root
+    job: >-
+      /bin/bash -c 'set -euo pipefail;
+      tmp_file="$(mktemp)";
+      {{ node_exporter_setup_failed_services_script_path }} > "$tmp_file";
+      install -o root -g {{ node_exporter_setup_group }} -m 0644 "$tmp_file" {{ node_exporter_setup_failed_services_metrics_path }};
+      rm -f "$tmp_file"'
+  when: ansible_service_mgr == 'systemd'
+
 - name: Create Node Exporter systemd service
   ansible.builtin.template:
     src: node_exporter.service.j2
