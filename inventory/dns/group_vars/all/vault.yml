@@ -1,0 +1,16 @@
+---
+
+users_list:
+  - username: docker_svc
+    password: docker_svc
+    uid: 2000
+    gid: 2000
+    groups:
+      - ansible
+    visudo: true
+
+ipsec_vpn_server_setup_vpn_ipsec_psk: "Domiani38!"
+ipsec_vpn_server_setup_vpn_user: "frank"
+ipsec_vpn_server_setup_vpn_password: "Domiani38!"
+ipsec_vpn_server_setup_dns_name: "astoria.refol.us"
+ipsec_vpn_server_setup_public_ip: ""
