@@ -48,6 +48,19 @@ _Inventory for `dns` hosts_
 - `dns-0`
 - `dns-1`
 
+### `node_exporter`
+- `dns-0`
+- `dns-1`
+
+### `prometheus`
+- `prometheus-0`
+
+### `vpn`
+- `dns-1`
+
+### `docker`
+- `dns-1`
+
 ## ⚙️ Group Variables
 _No group variables defined._
 

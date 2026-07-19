@@ -9,18 +9,23 @@ _Inventory for `vpn` hosts_
 - `vpn-0`
 
 ### `vpn`
+- `dns-1`
 - `vpn-0`
 
 ### `docker`
+- `dns-1`
 - `vpn-0`
 
 ### `linux`
+- `dns-1`
 - `vpn-0`
 
 ### `python`
+- `dns-1`
 - `vpn-0`
 
 ### `node_exporter`
+- `dns-1`
 - `vpn-0`
 
 ### `prometheus`
