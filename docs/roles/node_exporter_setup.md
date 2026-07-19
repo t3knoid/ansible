@@ -26,6 +26,9 @@ Installs Prometheus Node Exporter
 | `node_exporter_setup_linux_updates_script_path` | `"/usr/local/bin/check_updates.sh"` |  |
 | `node_exporter_setup_linux_updates_metrics_path` | `"{{ node_exporter_setup_textfile_collector_dir }}/linux_updates.prom"` |  |
 | `node_exporter_setup_linux_updates_cron_minute` | `"*/30"` |  |
+| `node_exporter_setup_failed_services_script_path` | `"/usr/local/bin/check_failed_services.sh"` |  |
+| `node_exporter_setup_failed_services_metrics_path` | `"{{ node_exporter_setup_textfile_collector_dir }}/failed_services.prom"` |  |
+| `node_exporter_setup_failed_services_cron_minute` | `"*/2"` |  |
 
 ## 📦 Vars
 _No constant variables found._
@@ -41,6 +44,9 @@ _No constant variables found._
 - Install Linux updates metrics script for Ubuntu
 - Seed Linux updates metrics file for Ubuntu
 - Schedule Linux updates metrics cron job for Ubuntu
+- Install failed services metrics script for systemd hosts
+- Seed failed services metrics file for systemd hosts
+- Schedule failed services metrics cron job for systemd hosts
 - Create Node Exporter systemd service
 - Enable Node Exporter service
 - Start Node Exporter service
