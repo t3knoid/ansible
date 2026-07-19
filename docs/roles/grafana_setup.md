@@ -42,6 +42,12 @@ Install and configure Grafana on Debian/Ubuntu
 | `grafana_setup_dashboard_update_interval_seconds` | `30` |  |
 | `grafana_setup_dashboard_allow_ui_updates` | `false` |  |
 | `grafana_setup_default_home_dashboard_path` | `"{{ grafana_setup_dashboards_dir }}/observability-landing.dashboard.json"` |  |
+| `grafana_setup_auth_anonymous_enabled` | `false` |  |
+| `grafana_setup_auth_anonymous_org_name` | `"Main Org."` |  |
+| `grafana_setup_auth_anonymous_org_role` | `"Viewer"` |  |
+| `grafana_setup_auth_anonymous_hide_version` | `false` |  |
+| `grafana_setup_auth_anonymous_device_limit` | `""` |  |
+| `grafana_setup_auth_disable_login_form` | `false` |  |
 | `grafana_setup_config_file` | `"{{ grafana_setup_conf_dir }}/defaults.ini"` |  |
 | `grafana_setup_service_file` | `"/usr/lib/systemd/system/grafana-server.service"` |  |
 | `grafana_setup_environment_file` | `"{{ grafana_setup_home_dir }}/defaults"` |  |
