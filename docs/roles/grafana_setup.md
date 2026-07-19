@@ -95,6 +95,7 @@ _No constant variables found._
 - Install PostgreSQL status dashboard
 - Install node-exporter overview dashboard
 - Install node-exporter detail dashboard
+- Install failed services dashboard
 - Create Grafana configuration directory
 - Copy Grafana configuration file
 - Copy Grafana LDAP settings file
