@@ -1,5 +1,4 @@
 ---
-
 vms_config:
   agent: "1"
   cores: "2"
@@ -27,7 +26,11 @@ vms_additional_packages: []
 python3_version: 3.12
 
 disks_disk_mounts:
-  - { mountpoint: "/data", mountpoint_owner: "{{ users_list[0].username }}", mountpoint_group: "{{ users_list[0].username }}" }
+  - {
+      mountpoint: "/data",
+      mountpoint_owner: "{{ users_list[0].username }}",
+      mountpoint_group: "{{ users_list[0].username }}",
+    }
 
 nginx_setup_disable_default_site: true
 
@@ -36,6 +39,11 @@ postgresql_setup_version: 17
 grafana_setup_http_port: 3000
 grafana_setup_version: "12.2.0"
 grafana_setup_edition: "grafana-enterprise"
+grafana_setup_auth_anonymous_enabled: true
+grafana_setup_auth_anonymous_org_name: "Main Org."
+grafana_setup_auth_anonymous_org_role: "Viewer"
+grafana_setup_auth_anonymous_hide_version: false
+grafana_setup_auth_disable_login_form: true
 
 rproxy_setup_sites:
   - server_name: grafana.refol.us
