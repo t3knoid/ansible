@@ -54,6 +54,6 @@ rproxy_setup_sites:
     oauth2_client_secret: ""
     oauth2_email_domains: "*"
 
-azure_cli_setup_version: 2.81.0
+azure_cli_setup_version: 2.89.1
 
 terraform_setup_version: 1.14.3
