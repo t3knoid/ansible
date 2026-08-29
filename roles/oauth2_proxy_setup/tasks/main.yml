@@ -32,9 +32,17 @@
 
 - name: Set Redis connection string
   ansible.builtin.set_fact:
-    oauth2_proxy_setup_redis_connection: "{{ (redis_setup_password is defined and (redis_setup_password | trim | length) > 0)
-      | ternary('redis://:' ~ redis_setup_password | trim ~ '@127.0.0.1:6379/0',
-                'redis://127.0.0.1:6379/0') }}"
+    oauth2_proxy_setup_redis_connection: "{{ oauth2_proxy_setup_redis_connection
+      | default(
+          (
+            (redis_setup_password is defined and (redis_setup_password | trim | length) > 0)
+            | ternary(
+                'redis://:' ~ (redis_setup_password | trim) ~ '@127.0.0.1:6379/0',
+                'redis://127.0.0.1:6379/0'
+              )
+          ),
+          true
+        ) }}"
 
 # To make sure we are oauth2-proxy service installations
 # are idempotent. Find and remove any service that is not
