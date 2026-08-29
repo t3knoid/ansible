@@ -33,6 +33,7 @@ _No constant variables found._
 - Install Redis from official package
 - Hold package versions
 - Remove Redis password block if not set
+- Disable Redis requirepass when password is not configured
 - Configure Redis with password and persistence
 - Ensure Redis service is enabled and running
 
