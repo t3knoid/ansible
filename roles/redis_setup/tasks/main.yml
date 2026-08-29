@@ -49,6 +49,14 @@
   when: redis_setup_password is not defined or redis_setup_password | trim | length == 0
   notify: Restart Redis service
 
+- name: Disable Redis requirepass when password is not configured
+  ansible.builtin.lineinfile:
+    path: /etc/redis/redis.conf
+    regexp: '^\s*requirepass\s+'
+    line: 'requirepass ""'
+  when: redis_setup_password is not defined or redis_setup_password | trim | length == 0
+  notify: Restart Redis service
+
 - name: Configure Redis with password and persistence
   ansible.builtin.blockinfile:
     path: /etc/redis/redis.conf
