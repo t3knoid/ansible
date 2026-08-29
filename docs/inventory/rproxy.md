@@ -46,6 +46,9 @@ _Inventory for `rproxy` hosts_
 ### `prometheus`
 - `prometheus-0`
 
+### `redis`
+- `rproxy-0`
+
 ## ⚙️ Group Variables
 _No group variables defined._
 
@@ -65,11 +68,11 @@ _No group variables defined._
 - `vms`
 
 ### `rproxy`
-- `rproxy_secondary`
-- `rproxy_primary`
 - `rproxy_main`
+- `rproxy_primary`
+- `rproxy_secondary`
 
 ### `nginx_exporter`
-- `rproxy_secondary`
-- `rproxy_primary`
 - `rproxy_main`
+- `rproxy_primary`
+- `rproxy_secondary`
