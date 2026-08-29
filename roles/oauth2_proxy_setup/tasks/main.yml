@@ -11,7 +11,7 @@
   ansible.builtin.unarchive:
     src: "{{ oauth2_proxy_setup_download_url }}"
     dest: "/usr/local/bin/"
-    extra_opts: ['--strip-components=1', '--show-stored-names']
+    extra_opts: ["--strip-components=1", "--show-stored-names"]
     remote_src: true
     creates: "{{ oauth2_proxy_setup_bin }}"
     mode: "0755"
@@ -19,7 +19,7 @@
 - name: Ensure oauth2-proxy binary is executable
   ansible.builtin.file:
     path: "{{ oauth2_proxy_setup_bin }}"
-    mode: '0755'
+    mode: "0755"
     state: file
   become: true
 
@@ -27,22 +27,22 @@
   ansible.builtin.file:
     path: "/etc/oauth2-proxy"
     state: directory
-    mode: '0755'
+    mode: "0755"
   become: true
 
 - name: Set Redis connection string
   ansible.builtin.set_fact:
     oauth2_proxy_setup_redis_connection: "{{ oauth2_proxy_setup_redis_connection
       | default(
-          (
-            (redis_setup_password is defined and (redis_setup_password | trim | length) > 0)
-            | ternary(
-                'redis://:' ~ (redis_setup_password | trim) ~ '@127.0.0.1:6379/0',
-                'redis://127.0.0.1:6379/0'
-              )
-          ),
-          true
-        ) }}"
+      (
+      (redis_setup_password is defined and (redis_setup_password | trim | length) > 0)
+      | ternary(
+      'redis://:' ~ (redis_setup_password | trim) ~ '@127.0.0.1:6379/0',
+      'redis://127.0.0.1:6379/0'
+      )
+      ),
+      true
+      ) }}"
 
 # To make sure we are oauth2-proxy service installations
 # are idempotent. Find and remove any service that is not
@@ -109,7 +109,7 @@
   ansible.builtin.template:
     src: "oauth2-proxy.cfg.j2"
     dest: "/etc/oauth2-proxy/oauth2-proxy_{{ site.server_name }}.cfg"
-    mode: '0644'
+    mode: "0644"
   loop: "{{ rproxy_setup_sites }}"
   loop_control:
     label: "{{ site.server_name }}"
@@ -122,7 +122,7 @@
   ansible.builtin.template:
     src: "oauth2-proxy.service.j2"
     dest: /etc/systemd/system/oauth2-proxy_{{ site.server_name }}.service
-    mode: '0644'
+    mode: "0644"
   loop: "{{ rproxy_setup_sites }}"
   loop_control:
     label: "{{ site.server_name }}"
