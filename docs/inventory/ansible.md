@@ -87,5 +87,5 @@ _No group variables defined._
 - `code_server`
 
 ### `python`
-- `wsl`
 - `ansible`
+- `wsl`
