@@ -34,6 +34,7 @@ rproxy_setup_sites:
     oauth2_callback_url: "https://lidarr.refol.us/oauth2/callback"
     oauth2_client_secret: ""
     oauth2_email_domains: "*"
+    enable: true
   - server_name: radarr.refol.us
     port: 7878
     proxy_pass: "http://{{ global_ip_addresses['radarr-0'] }}"
@@ -57,6 +58,7 @@ rproxy_setup_sites:
     oauth2_callback_url: "https://radarr.refol.us/oauth2/callback"
     oauth2_client_secret: ""
     oauth2_email_domains: "*"
+    enable: true
   - server_name: sabnzbd.refol.us
     port: 8080
     proxy_pass: "http://{{ global_ip_addresses['sabnzbd-0'] }}"
@@ -74,6 +76,7 @@ rproxy_setup_sites:
     oauth2_callback_url: "https://sabnzbd.refol.us/oauth2/callback"
     oauth2_client_secret: ""
     oauth2_email_domains: "*"
+    enable: true
   - server_name: sonarr.refol.us
     port: 8989
     proxy_pass: "http://{{ global_ip_addresses['sonarr-0'] }}"
@@ -97,6 +100,7 @@ rproxy_setup_sites:
     oauth2_callback_url: "https://sonarr.refol.us/oauth2/callback"
     oauth2_client_secret: ""
     oauth2_email_domains: "*"
+    enable: true
   - server_name: lazy.refol.us
     port: 5299
     proxy_pass: "http://{{ global_ip_addresses['books-0'] }}"
@@ -114,6 +118,7 @@ rproxy_setup_sites:
     oauth2_callback_url: "https://lazy.refol.us/oauth2/callback"
     oauth2_client_secret: ""
     oauth2_email_domains: "*"
+    enable: true
   - server_name: books.refol.us
     port: 8083
     proxy_pass: "http://{{ global_ip_addresses['books-0'] }}"
@@ -123,6 +128,7 @@ rproxy_setup_sites:
       - 24.105.250.200
       - 70.107.117.124
     restricted: false
+    enable: true
   - server_name: catalog.refol.us
     port: 8081
     proxy_pass: "http://{{ global_ip_addresses['books-0'] }}"
@@ -140,5 +146,6 @@ rproxy_setup_sites:
     oauth2_callback_url: "https://catalog.refol.us/oauth2/callback"
     oauth2_client_secret: ""
     oauth2_email_domains: "*"
+    enable: true
 
 node_exporter_port: 9200
