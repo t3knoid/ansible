@@ -71,7 +71,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "count(probe_success{job=\"blackbox_http\"})",
+          "expr": "count(probe_success{job=~\"blackbox_http|blackbox\"})",
           "instant": true,
           "legendFormat": "",
           "range": false,
@@ -133,7 +133,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "count(probe_success{job=\"blackbox_http\"} == 1)",
+          "expr": "count(probe_success{job=~\"blackbox_http|blackbox\"} == 1)",
           "instant": true,
           "legendFormat": "",
           "range": false,
@@ -195,7 +195,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "count(probe_success{job=\"blackbox_http\"} == 0)",
+          "expr": "count(probe_success{job=~\"blackbox_http|blackbox\"} == 0)",
           "instant": true,
           "legendFormat": "",
           "range": false,
@@ -262,7 +262,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "avg(probe_duration_seconds{job=\"blackbox_http\"}) * 1000",
+          "expr": "avg(probe_duration_seconds{job=~\"blackbox_http|blackbox\"}) * 1000",
           "instant": true,
           "legendFormat": "",
           "range": false,
@@ -343,7 +343,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "probe_success{job=\"blackbox_http\"}",
+          "expr": "probe_success{job=~\"blackbox_http|blackbox\"}",
           "instant": true,
           "legendFormat": "{{instance}}",
           "range": false,
@@ -390,7 +390,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "probe_duration_seconds{job=\"blackbox_http\"} * 1000",
+          "expr": "probe_duration_seconds{job=~\"blackbox_http|blackbox\"} * 1000",
           "legendFormat": "{{instance}}",
           "range": true,
           "refId": "A"

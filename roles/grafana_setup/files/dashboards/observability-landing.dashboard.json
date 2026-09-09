@@ -593,7 +593,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "count(probe_success{job=\"blackbox_http\"})",
+          "expr": "count(probe_success{job=~\"blackbox_http|blackbox\"})",
           "instant": true,
           "legendFormat": "",
           "range": false,
@@ -662,7 +662,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "count(probe_success{job=\"blackbox_http\"} == 1)",
+          "expr": "count(probe_success{job=~\"blackbox_http|blackbox\"} == 1)",
           "instant": true,
           "legendFormat": "",
           "range": false,
@@ -731,7 +731,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "count(probe_success{job=\"blackbox_http\"} == 0)",
+          "expr": "count(probe_success{job=~\"blackbox_http|blackbox\"} == 0)",
           "instant": true,
           "legendFormat": "",
           "range": false,
