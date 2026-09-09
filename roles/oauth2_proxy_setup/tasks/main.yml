@@ -86,7 +86,7 @@
     )
     or
     (
-      (
+      not (
         rproxy_setup_sites
         | selectattr('server_name','equalto', oauth2_proxy_setup_service_filename | basename | regex_replace('^oauth2-proxy_(.+)\\.service$', '\\1'))
         | map(attribute='use_oauth2')
@@ -95,6 +95,14 @@
         | bool
       )
     )
+
+- name: Remove disabled site oauth2-proxy unit and configuration files
+  ansible.builtin.include_tasks: remove_disabled_site_oauth2_files.yml
+  loop: "{{ rproxy_setup_sites }}"
+  when: (site.use_oauth2 is not defined) or (not site.use_oauth2)
+  loop_control:
+    label: "{{ site.server_name }}"
+    loop_var: site
 
 - name: Insert OAuth2 Proxy directives into nginx configuration
   when: (site.use_oauth2 is defined) and site.use_oauth2
