@@ -1,31 +1,34 @@
 ---
-
 bedrock_setup_version: 1.21.62.01
 bedrock_setup_download_url: https://www.minecraft.net/bedrockdedicatedserver/bin-linux
 bedrock_setup_download_archive: bedrock-server-{{ bedrock_setup_version }}.zip
+bedrock_setup_version_checker_path: /usr/local/bin/get_bedrock_version.py
+bedrock_setup_version_check_script_path: /usr/local/bin/check_bedrock_version.sh
+bedrock_setup_version_metrics_path: /var/lib/node_exporter/textfile/bedrock_version.prom
+bedrock_setup_version_check_minute: "*/30"
 
 bedrock_setup_server_props:
-  - { key: 'server-port', value: '19132' }
-  - { key: 'gamemode', value: 'creative' }
-  - { key: 'online-mode', value: 'true' }
-  - { key: 'server-name', value: "Dad's Minecraft Server" }
-  - { key: 'max-players', value: '10' }
-  - { key: 'difficulty', value: 'easy' }
-  - { key: 'content-log-file-enabled', value: 'false' }
-  - { key: 'allow-cheats', value: 'false' }
-  - { key: 'default-player-permission-level', value: 'visitor' }
-  - { key: 'allow-cheats', value: 'false' }
-  - { key: 'allow-list', value: 'false' }
-  - { key: 'enable-lan-visibility', value: 'true' }
-  - { key: 'view-distance', value: '32' }
-  - { key: 'tick-distance', value: '4' }
-  - { key: 'player-idle-timeout', value: '30' }
-  - { key: 'max-threads', value: '8' }
-  - { key: 'level-required', value: 'false' }
-  - { key: 'texturepack-required', value: 'false' }
-  - { key: 'level-name', value: "{{ (bedrock_setup_worlds
-      | selectattr('active', 'equalto', true)
-      | map(attribute='name')
-      | list
-      | default(['Bedrock level'], true)
-    ) | first }}" }
+  - { key: "server-port", value: "19132" }
+  - { key: "gamemode", value: "creative" }
+  - { key: "online-mode", value: "true" }
+  - { key: "server-name", value: "Dad's Minecraft Server" }
+  - { key: "max-players", value: "10" }
+  - { key: "difficulty", value: "easy" }
+  - { key: "content-log-file-enabled", value: "false" }
+  - { key: "allow-cheats", value: "false" }
+  - { key: "default-player-permission-level", value: "visitor" }
+  - { key: "allow-cheats", value: "false" }
+  - { key: "allow-list", value: "false" }
+  - { key: "enable-lan-visibility", value: "true" }
+  - { key: "view-distance", value: "32" }
+  - { key: "tick-distance", value: "4" }
+  - { key: "player-idle-timeout", value: "30" }
+  - { key: "max-threads", value: "8" }
+  - { key: "level-required", value: "false" }
+  - { key: "texturepack-required", value: "false" }
+  - { key: "level-name", value: "{{ (bedrock_setup_worlds
+        | selectattr('active', 'equalto', true)
+        | map(attribute='name')
+        | list
+        | default(['Bedrock level'], true)
+        ) | first }}" }
