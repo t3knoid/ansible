@@ -125,4 +125,25 @@ scrape_configs:
         target_label: target
       - target_label: __address__
         replacement: '{{ prometheus_setup_blackbox_exporter_address }}'
+{% elif prometheus_setup_blackbox_targets | default([]) | length > 0 %}
+  - job_name: '{{ prometheus_setup_blackbox_job_name }}'
+    metrics_path: /probe
+    params:
+      module: ['{{ prometheus_setup_blackbox_module }}']
+
+    static_configs:
+{% for item in prometheus_setup_blackbox_targets %}
+      - targets: ['{{ item.target }}']
+        labels:
+          instance: '{{ item.instance | default(item.target) }}'
+          group: '{{ item.group | default(prometheus_setup_blackbox_group_label) }}'
+{% endfor %}
+
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: target
+      - target_label: __address__
+        replacement: '{{ prometheus_setup_blackbox_exporter_address }}'
 {% endif %}
