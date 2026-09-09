@@ -55,6 +55,12 @@ _Inventory for `ansible` hosts_
 ### `gh_cli`
 - `ansible-0`
 
+### `node_exporter`
+- `ansible-0`
+
+### `prometheus`
+- `prometheus-0`
+
 ## ⚙️ Group Variables
 _No group variables defined._
 
