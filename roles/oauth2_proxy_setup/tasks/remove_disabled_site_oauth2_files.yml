@@ -1,0 +1,12 @@
+---
+- name: Remove disabled site oauth2-proxy unit file
+  ansible.builtin.file:
+    path: "/etc/systemd/system/oauth2-proxy_{{ site.server_name }}.service"
+    state: absent
+  notify: Reload systemd daemon
+
+- name: Remove disabled site oauth2-proxy configuration file
+  ansible.builtin.file:
+    path: "/etc/oauth2-proxy/oauth2-proxy_{{ site.server_name }}.cfg"
+    state: absent
+  notify: Reload systemd daemon
