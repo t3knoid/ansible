@@ -1,10 +1,9 @@
 ---
-
 - name: Create Bedrock server directory
   ansible.builtin.file:
     path: "{{ bedrock_setup_homedir }}"
     state: directory
-    mode: '0755'
+    mode: "0755"
 
 - name: Download Bedrock server archive
   ansible.builtin.unarchive:
@@ -54,13 +53,13 @@
   ansible.builtin.file:
     path: "{{ bedrock_setup_worlddir }}"
     state: directory
-    mode: '0755'
+    mode: "0755"
 
 - name: Deploy all worlds
   ansible.builtin.copy:
     src: "{{ item.src }}"
     dest: "{{ bedrock_setup_worlddir }}/{{ item.name }}/"
-    mode: '0644'
+    mode: "0644"
     remote_src: false
   loop: "{{ bedrock_setup_worlds }}"
   loop_control:
@@ -99,3 +98,38 @@
       Bedrock version mismatch! Expected {{ bedrock_setup_version }},
       but found {{ bedrock_setup_installed_version[0] | default('none') }} in journal logs.
   when: bedrock_setup_installed_version[0] != bedrock_setup_version
+
+- name: Install Playwright runtime for Bedrock version checker
+  ansible.builtin.include_role:
+    name: playwright
+
+- name: Ensure Bedrock version metrics directory exists
+  ansible.builtin.file:
+    path: "{{ bedrock_setup_version_metrics_path | dirname }}"
+    state: directory
+    owner: root
+    group: "{{ bedrock_setup_version_metrics_group | default('prometheus') }}"
+    mode: "0775"
+
+- name: Install Bedrock version checker script for Prometheus
+  ansible.builtin.copy:
+    src: get_bedrock_version.py
+    dest: "{{ bedrock_setup_version_checker_path }}"
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Install Bedrock version metrics script
+  ansible.builtin.template:
+    src: check_bedrock_version.sh.j2
+    dest: "{{ bedrock_setup_version_check_script_path }}"
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Schedule Bedrock version metrics check
+  ansible.builtin.cron:
+    name: bedrock_version_metrics
+    minute: "{{ bedrock_setup_version_check_minute }}"
+    user: root
+    job: "{{ bedrock_setup_version_check_script_path }}"

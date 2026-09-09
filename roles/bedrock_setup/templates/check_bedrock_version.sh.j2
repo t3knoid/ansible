@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+latest_version="$({{ python3_venv_folder }}/bin/python3 {{ bedrock_setup_version_checker_path }} | tr -d '[:space:]')"
+if [[ ! "$latest_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+  exit 1
+fi
+
+expected_version="{{ bedrock_setup_version }}"
+update_available=0
+if [[ "$latest_version" != "$expected_version" && "$(printf '%s\n%s\n' "$expected_version" "$latest_version" | sort -V | tail -n 1)" == "$latest_version" ]]; then
+  update_available=1
+fi
+
+tmp_file="$(mktemp "{{ bedrock_setup_version_metrics_path }}.XXXXXX")"
+trap 'rm -f "$tmp_file"' EXIT
+cat > "$tmp_file" <<EOF
+# HELP bedrock_server_expected_version_info Bedrock Server version configured for this host.
+# TYPE bedrock_server_expected_version_info gauge
+bedrock_server_expected_version_info{version="$expected_version"} 1
+# HELP bedrock_server_latest_version_info Latest Bedrock Server version published by Minecraft.
+# TYPE bedrock_server_latest_version_info gauge
+bedrock_server_latest_version_info{version="$latest_version"} 1
+# HELP bedrock_server_update_available Whether a newer Bedrock Server version is available.
+# TYPE bedrock_server_update_available gauge
+bedrock_server_update_available $update_available
+EOF
+install -o root -g {{ node_exporter_setup_group | default('prometheus') }} -m 0644 "$tmp_file" "{{ bedrock_setup_version_metrics_path }}"
