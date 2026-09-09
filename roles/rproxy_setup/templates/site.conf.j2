@@ -33,6 +33,10 @@ server {
         ssl_certificate     {{ nginx_setup_certroot }}/{{ rproxy_setup_site.server_name }}/fullchain.pem;
         ssl_certificate_key {{ nginx_setup_certroot }}/{{ rproxy_setup_site.server_name }}/privkey.pem;
 
+        # Allow LAN IPv4
+        allow 192.168.10.0/24;
+        allow 192.168.20.0/24;
+
         {% if rproxy_setup_cloudflare_only | default(false) %}
         include {{ nginx_setup_homedir }}/snippets/cloudflare-allow.conf;
         include {{ nginx_setup_homedir }}/snippets/cloudflare-allow-ipv6.conf;
