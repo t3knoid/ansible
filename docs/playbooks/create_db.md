@@ -1,7 +1,7 @@
-# 📖 Playbook: redmine/create_db.yml
+# 📖 Playbook: ombi/create_db.yml
 
 ## 🛠 Purpose
-Create PostgreSQL database for Redmine application.
+Create Ombi PostgreSQL database on pgdb hosts
 
 ## 🔗 Roles Applied
 - [`global`](../roles/global/README.md)
@@ -9,5 +9,5 @@ Create PostgreSQL database for Redmine application.
 
 ## 🚀 Usage
 ```bash
-ansible-playbook playbooks/redmine/create_db.yml
+ansible-playbook playbooks/ombi/create_db.yml
 ```
