@@ -12,6 +12,8 @@
     - role: global
     - role: nginx_setup
       nginx_setup_start: false
+    - role: rproxy_setup
+      nginx_setup_start: false
 
   tasks:
     - name: Import rproxy role
