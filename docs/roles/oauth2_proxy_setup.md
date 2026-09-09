@@ -32,6 +32,7 @@ _No constant variables found._
 - Find all oauth2-proxy services
 - Remove oauth2 directives from nginx configuration
 - Clean up oauth2-proxy services
+- Remove disabled site oauth2-proxy unit and configuration files
 - Insert OAuth2 Proxy directives into nginx configuration
 - Deploy oauth2-proxy configurations
 - Create systemd services for oauth2-proxy

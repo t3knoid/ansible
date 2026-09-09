@@ -18,7 +18,7 @@ rproxy_setup configures reverse proxy with failover support using nginx. This ro
 | `rproxy_setup_backend_servers` | `|` |  |
 | `server {{ hostvars[groups['rproxy_primary'][0]]['ansible_default_ipv4']['address'] }}` | `80 max_fails=3 fail_timeout=5s;` |  |
 | `server {{ hostvars[groups['rproxy_secondary'][0]]['ansible_default_ipv4']['address'] }}` | `80 backup;` |  |
-| `rproxy_setup_cloudflare_only` | `false` |  |
+| `rproxy_setup_cloudflare_only` | `true # There is an existing bug that deletes the cloudflare-allow.conf if this is false` |  |
 | `rproxy_setup_cloudflare_ipv4` | `` |  |
 | `rproxy_setup_cloudflare_ipv6` | `` |  |
 | `- 2400` | `cb00::/32` |  |
@@ -42,8 +42,7 @@ _No constant variables found._
 - Restart nginx
 
 ## 🔗 Dependencies
-- `global`
-- `nginx_setup`
+_No dependencies listed._
 
 ## 🚀 Example Usage
 ```yaml
