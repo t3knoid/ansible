@@ -1,5 +1,4 @@
 ---
-
 - name: Ensure azure.azcollection required Python modules are installed
   ansible.builtin.pip:
     requirements: >-
@@ -61,7 +60,7 @@
   loop_control:
     label: "{{ item.server_name }}"
   register: entra_id_oauth2_app_results
-  when: item.use_oauth2 is defined and item.use_oauth2
+  when: item.use_oauth2 | default(true) or item.use_entra_id_oidc | default(false)
 
 - name: Build updated list with secrets
   ansible.builtin.set_fact:
@@ -82,8 +81,6 @@
   loop: "{{ rproxy_setup_sites }}"
   loop_control:
     label: "{{ item.server_name }}"
-  when: item.use_oauth2 is defined and item.use_oauth2
-
 - name: Update rproxy_setup_sites with injected client IDs and secrets
   ansible.builtin.set_fact:
     rproxy_setup_sites: "{{ entra_id_oauth2_updated_sites }}"
