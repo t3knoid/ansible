@@ -34,11 +34,16 @@
       Signed-By: /etc/apt/keyrings/microsoft.gpg
     mode: '0644'
 
-- name: Unhold azure-clipackage version
+- name: Gather installed package facts
+  ansible.builtin.package_facts:
+    manager: auto
+
+- name: Unhold azure-cli package version
   ansible.builtin.dpkg_selections:
     name: "azure-cli"
     selection: install
   changed_when: false
+  when: "'azure-cli' in ansible_facts.packages"
 
 - name: Install Azure CLI
   ansible.builtin.apt:
