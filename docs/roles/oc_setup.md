@@ -14,30 +14,23 @@ Install and configure TP-Link Omada Controller on Ubuntu systems.
 ## ⚙️ Defaults
 | Variable | Default Value | Description |
 |----------|---------------|-------------|
-| `oc_setup_java_major_version` | `"{{ java_setup_version.split('.')[0] | default(11) }}"` |  |
-| `oc_setup_commons_daemon_version` | `1.4.1` |  |
-| `oc_setup_commons_daemon_package` | `commons-daemon-{{ oc_setup_commons_daemon_version }}-src.tar.gz` |  |
-| `oc_setup_commons_daemon_root_url` | `https://archive.apache.org/dist/commons/daemon/source/` |  |
-| `oc_setup_version` | `5.15.6.7` |  |
-| `oc_setup_download_url` | `"https://static.tp-link.com/upload/software/2024/202412/20241224/Omada_SDN_Controller_v{{ oc_setup_version }}_linux_x64.deb"` |  |
+| `oc_setup_version` | `6.3.0.45` | https://support.omadanetworks.com/en/download/software/omada-controller/ |
+| `oc_setup_download_url` | `"https://static.tp-link.com/upload/software/2026/202609/20260904/Omada_Network_Application_v{{ oc_setup_version }}_linux_x64_20260903171910.deb"` |  |
 
 ## 📦 Vars
 _No constant variables found._
 
 ## 📑 Tasks
-- Install dependencies for JSVC
-- Extract JSVC source code
-- Remove existing JSVC softlink
-- Build and install JSVC
-- Cleanup JSVC download
-- Download Omada Controller package
-- Install Omada Controller
+- Check if Omada Software Controller is already installed
+- Get installed Omada Software Controller version
+- Determine installed Omada Software Controller version
+- Install Omada Software Controller (deb package)
 
 ## 🔔 Handlers
 _No handlers defined._
 
 ## 🔗 Dependencies
-- `redis_setup`
+_No dependencies listed._
 
 ## 🚀 Example Usage
 ```yaml

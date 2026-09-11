@@ -34,6 +34,7 @@
 | [`ipsec_vpn_server_setup`](./ipsec_vpn_server_setup.md) | Installs and configures the hwdsl2 IPsec VPN server Docker container, including vpn.env and docker-compose configuration. |
 | [`java_setup`](./java_setup.md) | Installs and configures Java on Debian/Ubuntu systems. |
 | [`jenkins_setup`](./jenkins_setup.md) | Installs and configures Jenkins on Debian/Ubuntu systems. |
+| [`jsvc_setup`](./jsvc_setup.md) | Builds and installs Apache Commons Daemon JSVC from source. |
 | [`lamp_setup`](./lamp_setup.md) | Install and configure LAMP on Debian/Ubuntu. |
 | [`lazylibrarian_setup`](./lazylibrarian_setup.md) | Installs and configures LazyLibrarian on Debian/Ubuntu systems. It uses a Docker image distributed by [linuxserver](https://hub.docker.com/r/linuxserver/lazylibrarian). |
 | [`lidarr_setup`](./lidarr_setup.md) | Installs and configures Lidarr on Debian/Ubuntu systems. It uses a container distributed by [linuxserver](https://hub.docker.com/r/linuxserver/lidarr). |
