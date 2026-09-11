@@ -16,6 +16,7 @@ Configures entra_id settings for oAuth2-enabled sites.
 | Variable | Default Value | Description |
 |----------|---------------|-------------|
 | `entra_id_oauth2_secret_expiry_offset_days` | `90` | Number of days to add to current date for secret expiry |
+| `entra_id_oauth2_force_secret_rotation` | `false` | Delete all existing app credentials and generate a replacement when enabled. |
 
 ## 📦 Vars
 _No constant variables found._
@@ -28,14 +29,12 @@ _No constant variables found._
 - Register Entra ID application for each site
 - Build updated list with secrets
 - Append each site with injected secret
-- Update rproxy_setup_sites with injected client IDs and secrets
 
 ## 🔔 Handlers
 _No handlers defined._
 
 ## 🔗 Dependencies
 - `global`
-- `azure_cli_setup`
 
 ## 🚀 Example Usage
 ```yaml
