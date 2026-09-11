@@ -1,15 +1,57 @@
 ---
+- name: Gather installed package facts
+  ansible.builtin.package_facts:
+    manager: auto
+
+# apt refuses to remove a held package non-interactively, so clear the hold first.
+- name: Unhold Java package version
+  ansible.builtin.dpkg_selections:
+    name: "java-{{ java_setup_major_version }}-amazon-corretto-jdk"
+    selection: install
+  changed_when: false
+  when: "'java-' + java_setup_major_version + '-amazon-corretto-jdk' in ansible_facts.packages"
+
+- name: Determine expected Java package version
+  ansible.builtin.set_fact:
+    java_setup_package_name: "java-{{ java_setup_major_version }}-amazon-corretto-jdk"
+    java_setup_expected_pkg_version: "{{ java_setup_version | regex_replace('\\.(?=[^.]*$)', '-') }}"
+
+- name: Determine if the desired Java version is already installed
+  ansible.builtin.set_fact:
+    java_setup_target_installed: >-
+      {{
+        (java_setup_package_name in ansible_facts.packages) and
+        (ansible_facts.packages[java_setup_package_name][0].version == java_setup_expected_pkg_version)
+      }}
 
 - name: Remove default-jdk package
   ansible.builtin.apt:
     name: default-jdk
     state: absent
 
+# Excludes the desired package only when its exact installed version already matches.
+- name: Determine other installed JDK packages to remove
+  ansible.builtin.set_fact:
+    java_setup_other_jdk_packages: >-
+      {{
+        ansible_facts.packages
+        | dict2items
+        | selectattr('key', 'search', 'jdk')
+        | rejectattr('key', 'equalto', java_setup_package_name if java_setup_target_installed else '')
+        | map(attribute='key')
+        | list
+      }}
+
+- name: Show other Java versions to be removed
+  ansible.builtin.debug:
+    var: java_setup_other_jdk_packages
+
 - name: Remove other Java versions
   ansible.builtin.apt:
-    name: "*jdk*"
+    name: "{{ java_setup_other_jdk_packages }}"
     state: absent
     autoremove: true
+  when: java_setup_other_jdk_packages | length > 0
 
 - name: Check if Java package already exists
   ansible.builtin.stat:
@@ -20,7 +62,7 @@
   ansible.builtin.get_url:
     url: "{{ java_setup_url }}"
     dest: "/tmp/{{ java_setup_package }}"
-    mode: '0644'
+    mode: "0644"
   when: not java_setup_package_status.stat.exists
 
 - name: Install Java
@@ -53,3 +95,9 @@
     line: "export JAVA_HOME=/usr/lib/jvm/java-{{ java_setup_major_version }}-amazon-corretto"
     create: true
     mode: "0640"
+
+- name: Hold Java package version
+  ansible.builtin.dpkg_selections:
+    name: "java-{{ java_setup_major_version }}-amazon-corretto-jdk"
+    selection: hold
+  changed_when: false

@@ -1,54 +1,30 @@
 ---
+- name: Check if Omada Software Controller is already installed
+  ansible.builtin.stat:
+    path: /opt/tplink/EAPController/bin/tpeap
+  register: oc_setup_installed
 
-- name: Install dependencies for JSVC
+- name: Get installed Omada Software Controller version
+  ansible.builtin.command: tpeap version
+  register: oc_setup_installed_version_output
+  changed_when: false
+  when: oc_setup_installed.stat.exists
+
+- name: Determine installed Omada Software Controller version
+  ansible.builtin.set_fact:
+    oc_setup_installed_version: "{{ oc_setup_installed_version_output.stdout | regex_search('[0-9]+(\\.[0-9]+)+') }}"
+  when: oc_setup_installed.stat.exists
+
+# The postinst script runs `tpeap start`, which does first-time MongoDB
+# index setup and can legitimately take several minutes, not just a debconf prompt.
+- name: Install Omada Software Controller (deb package)
   ansible.builtin.apt:
-    name:
-      - autoconf
-      - make
-      - gcc
-    state: present
-
-# - name: Download JSVC source code
-#   ansible.builtin.get_url:
-#     url: "{{ oc_setup_commons_daemon_root_url }}/{{ oc_setup_commons_daemon_package }}"
-#     dest: /tmp/{{ oc_setup_commons_daemon_package }}
-#     mode: "0644"
-
-- name: Extract JSVC source code
-  ansible.builtin.unarchive:
-    src: "{{ oc_setup_commons_daemon_root_url }}/{{ oc_setup_commons_daemon_package }}"
-    dest: /opt/
-    remote_src: true
-    mode: "0644"
-
-- name: Remove existing JSVC softlink
-  ansible.builtin.file:
-    path: /usr/bin/jsvc
-    state: absent
-
-- name: Build and install JSVC
-  ansible.builtin.shell: |
-    cd /opt/commons-daemon-{{ oc_setup_commons_daemon_version }}-src/src/native/unix
-    sh support/buildconf.sh
-    ./configure --with-java=/usr/lib/jvm/java-{{ oc_setup_java_major_version }}-amazon-corretto
-    make
-    ln -s $(pwd)/jsvc /usr/bin/jsvc
-  args:
-    creates: /opt/commons-daemon-{{ oc_setup_commons_daemon_version }}-src/src/native/unix/jsvc
-  changed_when: true
-
-- name: Cleanup JSVC download
-  ansible.builtin.file:
-    path: /tmp/{{ oc_setup_commons_daemon_package }}
-    state: absent
-
-- name: Download Omada Controller package
-  ansible.builtin.get_url:
-    url: "{{ oc_setup_download_url }}"
-    dest: "/tmp/{{ oc_setup_download_url.split('/')[-1] }}"
-    mode: "0644"
-
-- name: Install Omada Controller
-  ansible.builtin.apt:
-    deb: "/tmp/{{ oc_setup_download_url.split('/')[-1] }}"
+    deb: "{{ oc_setup_download_url }}"
     dpkg_options: ignore-depends=jsvc
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+  async: 1800
+  poll: 15
+  when: >-
+    not oc_setup_installed.stat.exists
+    or oc_setup_installed_version is version(oc_setup_version, '<')
