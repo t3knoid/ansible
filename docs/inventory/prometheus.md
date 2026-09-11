@@ -38,6 +38,9 @@ _Inventory for `prometheus` hosts_
 ### `python`
 - `prometheus-0`
 
+### `entra_id`
+- `prometheus-0`
+
 ### `oauth2_proxy`
 - `rproxy-0`
 
@@ -55,6 +58,6 @@ _No group variables defined._
 
 ## 🧩 Group Children
 ### `rproxy`
+- `rproxy_primary`
 - `rproxy_secondary`
 - `rproxy_main`
-- `rproxy_primary`
