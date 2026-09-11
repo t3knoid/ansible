@@ -61,6 +61,9 @@ _Inventory for `dns` hosts_
 ### `docker`
 - `dns-1`
 
+### `omada`
+- `dns-1`
+
 ## ⚙️ Group Variables
 _No group variables defined._
 
