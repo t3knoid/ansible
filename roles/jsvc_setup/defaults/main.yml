@@ -1,0 +1,6 @@
+---
+jsvc_setup_commons_daemon_version: 1.4.1
+jsvc_setup_commons_daemon_package: "commons-daemon-{{ jsvc_setup_commons_daemon_version }}-src.tar.gz"
+jsvc_setup_commons_daemon_root_url: "https://archive.apache.org/dist/commons/daemon/source"
+jsvc_setup_extract_dir: /opt
+jsvc_setup_java_home: "/usr/lib/jvm/java-{{ java_setup_major_version | default('17') }}-amazon-corretto"

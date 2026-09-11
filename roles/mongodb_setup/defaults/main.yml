@@ -1,4 +1,3 @@
 ---
-
-mongodb_setup_repo_key_url: https://www.mongodb.org/static/pgp/server-8.0.asc
+mongodb_setup_repo_key_url: https://pgp.mongodb.com/server-8.0.asc
 mongodb_setup_repo_key_local: /usr/share/keyrings/mongodb-server-8.0.gpg

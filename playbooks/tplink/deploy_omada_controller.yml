@@ -9,5 +9,6 @@
   roles:
     - global
     - java_setup
+    - jsvc_setup
     - mongodb_setup
     - oc_setup

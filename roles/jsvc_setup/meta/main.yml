@@ -1,0 +1,16 @@
+---
+galaxy_info:
+  role_name: jsvc_setup
+  author: Frank Refol
+  description: Builds and installs Apache Commons Daemon JSVC from source.
+  license: MIT
+  min_ansible_version: "2.9"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - noble
+    - name: Debian
+      versions:
+        - bookworm
+dependencies:
+  - role: java_setup

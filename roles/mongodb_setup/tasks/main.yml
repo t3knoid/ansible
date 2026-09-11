@@ -1,5 +1,4 @@
 ---
-
 - name: Ensure gnupg is installed
   ansible.builtin.apt:
     name:
@@ -15,7 +14,7 @@
   ansible.builtin.get_url:
     url: "{{ mongodb_setup_repo_key_url }}"
     dest: "/tmp/{{ mongodb_setup_repo_key_url.split('/')[-1] }}"
-    mode: '0644'
+    mode: "0644"
     force: true
 
 - name: Convert MongoDB GPG key to keyring format
@@ -28,22 +27,30 @@
     path: "/etc/apt/sources.list.d/mongodb-org-8.0.list"
     state: absent
 
-- name: Update apt repository
-  ansible.builtin.apt_repository:
-    repo: "deb [ arch=amd64,arm64 signed-by={{ mongodb_setup_repo_key_local }}] https://repo.mongodb.org/apt/ubuntu noble/mongodb-org/8.0 multiverse"
-    update_cache: false
-    filename: mongodb-org-8.0
+- name: Create MongoDB repo list file
+  ansible.builtin.copy:
+    dest: /etc/apt/sources.list.d/mongodb-org-8.0.list
+    content: "deb [ arch=amd64,arm64 signed-by={{ mongodb_setup_repo_key_local }} ] https://repo.mongodb.org/apt/ubuntu noble/mongodb-org/8.0 multiverse\n"
     mode: "0644"
-    state: present
 
 - name: Update APT package cache
   ansible.builtin.apt:
     update_cache: true
 
+- name: Gather installed package facts
+  ansible.builtin.package_facts:
+    manager: auto
+
+- name: Unhold MongoDB package versions
+  ansible.builtin.dpkg_selections:
+    name: mongodb-org
+    selection: install
+  changed_when: false
+  when: "'mongodb-org' in ansible_facts.packages"
+
 - name: Install MongoDB
   ansible.builtin.apt:
-    name:
-      - mongodb-org
+    name: mongodb-org
     state: present
 
 - name: Enable and start the MongoDB service
@@ -51,3 +58,10 @@
     name: mongod
     enabled: true
     state: started
+
+# Holds the metapackage and its components so a bare apt upgrade cannot change them.
+- name: Hold MongoDB package versions
+  ansible.builtin.dpkg_selections:
+    name: mongodb-org
+    selection: hold
+  changed_when: false

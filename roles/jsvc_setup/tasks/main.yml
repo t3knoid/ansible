@@ -1,0 +1,42 @@
+---
+- name: Install build dependencies for JSVC
+  ansible.builtin.apt:
+    name:
+      - autoconf
+      - make
+      - gcc
+    state: present
+
+- name: Check if JSVC is already built
+  ansible.builtin.stat:
+    path: "{{ jsvc_setup_extract_dir }}/commons-daemon-{{ jsvc_setup_commons_daemon_version }}-src/src/native/unix/jsvc"
+  register: jsvc_setup_binary_status
+
+- name: Extract JSVC source code
+  ansible.builtin.unarchive:
+    src: "{{ jsvc_setup_commons_daemon_root_url }}/{{ jsvc_setup_commons_daemon_package }}"
+    dest: "{{ jsvc_setup_extract_dir }}/"
+    remote_src: true
+    mode: "0644"
+  when: not jsvc_setup_binary_status.stat.exists
+
+- name: Build JSVC
+  ansible.builtin.shell: |
+    sh support/buildconf.sh
+    ./configure --with-java={{ jsvc_setup_java_home }}
+    make
+  args:
+    chdir: "{{ jsvc_setup_extract_dir }}/commons-daemon-{{ jsvc_setup_commons_daemon_version }}-src/src/native/unix"
+    creates: "{{ jsvc_setup_extract_dir }}/commons-daemon-{{ jsvc_setup_commons_daemon_version }}-src/src/native/unix/jsvc"
+
+- name: Remove existing JSVC symlink
+  ansible.builtin.file:
+    path: /usr/bin/jsvc
+    state: absent
+  when: not jsvc_setup_binary_status.stat.exists
+
+- name: Create JSVC symlink
+  ansible.builtin.file:
+    src: "{{ jsvc_setup_extract_dir }}/commons-daemon-{{ jsvc_setup_commons_daemon_version }}-src/src/native/unix/jsvc"
+    dest: /usr/bin/jsvc
+    state: link
