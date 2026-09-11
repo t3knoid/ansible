@@ -15,7 +15,7 @@ Installs [MongoDB](https://www.mongodb.com/docs/manual/tutorial/install-mongodb-
 ## ⚙️ Defaults
 | Variable | Default Value | Description |
 |----------|---------------|-------------|
-| `mongodb_setup_repo_key_url` | `https://www.mongodb.org/static/pgp/server-8.0.asc` |  |
+| `mongodb_setup_repo_key_url` | `https://pgp.mongodb.com/server-8.0.asc` |  |
 | `mongodb_setup_repo_key_local` | `/usr/share/keyrings/mongodb-server-8.0.gpg` |  |
 
 ## 📦 Vars
@@ -27,16 +27,19 @@ _No constant variables found._
 - Download MongoDB GPG key
 - Convert MongoDB GPG key to keyring format
 - Remove existing Mongodb repo list file
-- Update apt repository
+- Create MongoDB repo list file
 - Update APT package cache
+- Gather installed package facts
+- Unhold MongoDB package versions
 - Install MongoDB
 - Enable and start the MongoDB service
+- Hold MongoDB package versions
 
 ## 🔔 Handlers
 _No handlers defined._
 
 ## 🔗 Dependencies
-- `java_setup`
+_No dependencies listed._
 
 ## 🚀 Example Usage
 ```yaml

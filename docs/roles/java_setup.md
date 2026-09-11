@@ -24,7 +24,13 @@ Installs and configures Java on Debian/Ubuntu systems.
 _No constant variables found._
 
 ## 📑 Tasks
+- Gather installed package facts
+- Unhold Java package version
+- Determine expected Java package version
+- Determine if the desired Java version is already installed
 - Remove default-jdk package
+- Determine other installed JDK packages to remove
+- Show other Java versions to be removed
 - Remove other Java versions
 - Check if Java package already exists
 - Download Java
@@ -33,6 +39,7 @@ _No constant variables found._
 - Set Java alternatives
 - Set javac alternatives
 - Ensure Java home is set
+- Hold Java package version
 
 ## 🔔 Handlers
 _No handlers defined._
