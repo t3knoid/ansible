@@ -4,6 +4,7 @@
 Deploy Minecraft Bedrock server
 
 ## 🔗 Roles Applied
+- [`playwright`](../roles/playwright/README.md)
 - [`bedrock_setup`](../roles/bedrock_setup/README.md)
 
 ## 🚀 Usage

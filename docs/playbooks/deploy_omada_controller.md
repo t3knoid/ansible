@@ -6,6 +6,7 @@ Installs and configures Tp-Link Omada Controller
 ## 🔗 Roles Applied
 - [`global`](../roles/global/README.md)
 - [`java_setup`](../roles/java_setup/README.md)
+- [`jsvc_setup`](../roles/jsvc_setup/README.md)
 - [`mongodb_setup`](../roles/mongodb_setup/README.md)
 - [`oc_setup`](../roles/oc_setup/README.md)
 
