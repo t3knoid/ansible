@@ -27,7 +27,8 @@ _No constant variables found._
 - Add Microsoft signing key
 - Ensure key file permissions
 - Add Azure CLI repository
-- Unhold azure-clipackage version
+- Gather installed package facts
+- Unhold azure-cli package version
 - Install Azure CLI
 - Hold azure-cli package version
 
