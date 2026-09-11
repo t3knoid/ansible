@@ -1,5 +1,4 @@
 ---
-
 - name: Install Vault dependencies
   ansible.builtin.apt:
     name:
@@ -11,11 +10,27 @@
     state: present
     update_cache: true
 
-- name: Add HashiCorp GPG key
-  ansible.builtin.shell: >
-    curl -fsSL https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o {{ vault_setup_hashicorp_gpg_key_path }}
+- name: Remove existing HashiCorp GPG key
+  ansible.builtin.file:
+    path: "{{ vault_setup_hashicorp_gpg_key_path }}"
+    state: absent
+
+- name: Download HashiCorp GPG key
+  ansible.builtin.get_url:
+    url: https://apt.releases.hashicorp.com/gpg
+    dest: /tmp/hashicorp.gpg
+    mode: "0644"
+    force: true
+
+- name: Convert HashiCorp GPG key to keyring format
+  ansible.builtin.command: gpg --dearmor -o {{ vault_setup_hashicorp_gpg_key_path }} /tmp/hashicorp.gpg
   args:
     creates: "{{ vault_setup_hashicorp_gpg_key_path }}"
+
+- name: Remove downloaded HashiCorp GPG key
+  ansible.builtin.file:
+    path: /tmp/hashicorp.gpg
+    state: absent
 
 - name: Add HashiCorp repository
   ansible.builtin.copy:
