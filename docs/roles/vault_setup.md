@@ -33,7 +33,10 @@ _No constant variables found._
 
 ## 📑 Tasks
 - Install Vault dependencies
-- Add HashiCorp GPG key
+- Remove existing HashiCorp GPG key
+- Download HashiCorp GPG key
+- Convert HashiCorp GPG key to keyring format
+- Remove downloaded HashiCorp GPG key
 - Add HashiCorp repository
 - Update apt cache
 - Install HashiCorp Vault
