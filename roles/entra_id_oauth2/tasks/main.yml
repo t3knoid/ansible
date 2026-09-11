@@ -81,7 +81,14 @@
   loop: "{{ rproxy_setup_sites }}"
   loop_control:
     label: "{{ item.server_name }}"
-- name: Update rproxy_setup_sites with injected client IDs and secrets
-  ansible.builtin.set_fact:
-    rproxy_setup_sites: "{{ entra_id_oauth2_updated_sites }}"
-  delegate_to: localhost
+  when:
+    - >-
+      not (item.use_oauth2 | default(true) or item.use_entra_id_oidc | default(false))
+      or
+      (
+        (
+          (entra_id_oauth2_site_client_map | default({}))
+          .get(item.server_name, {})
+          .get('client_secret', item.oauth2_client_secret | default(''))
+        ) | default('') | length > 0
+      )

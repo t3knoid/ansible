@@ -1,14 +1,48 @@
 ---
-
 # Purpose: Deploy OAuth2 Proxy with Entra ID as the identity provider
 
-- name: Deploy OAuth2 Proxy
-  hosts: oauth2_proxy
+- name: Deploy Oauth2 Proxy with Entra ID
+  hosts: entra_id
   gather_facts: true
-  become: true
-  become_user: root
   roles:
     - global
     - entra_id_oauth2
-    - redis_setup
-    - oauth2_proxy_setup
+  tasks:
+    - name: Collect generated site configuration # noqa: run-once[task]
+      ansible.builtin.set_fact:
+        entra_id_oauth2_site_batch: "{{ hostvars[entra_host].entra_id_oauth2_updated_sites | default([]) }}"
+      loop: "{{ groups['entra_id'] }}"
+      loop_control:
+        loop_var: entra_host
+      run_once: true
+      register: entra_id_oauth2_site_batches
+
+    - name: Aggregate generated site configuration # noqa: run-once[task]
+      ansible.builtin.set_fact:
+        entra_id_oauth2_aggregated_sites: >-
+          {{
+            entra_id_oauth2_site_batches.results
+            | map(attribute='ansible_facts.entra_id_oauth2_site_batch')
+            | flatten
+            | list
+          }}
+      delegate_to: localhost
+      delegate_facts: true
+      run_once: true
+
+    - name: Publish site configuration to OAuth2 host # noqa: run-once[task]
+      ansible.builtin.set_fact:
+        rproxy_setup_sites: "{{ hostvars['localhost'].entra_id_oauth2_aggregated_sites }}"
+      delegate_to: "{{ groups['oauth2_proxy'][0] }}"
+      delegate_facts: true
+      run_once: true
+
+    - name: Run oauth2_proxy_setup on oauth2 host # noqa: run-once[task]
+      ansible.builtin.include_role:
+        name: oauth2_proxy_setup
+        apply:
+          delegate_to: "{{ groups['oauth2_proxy'][0] }}"
+          become: true
+      vars:
+        oauth2_proxy_setup_sites: "{{ hostvars['localhost'].entra_id_oauth2_aggregated_sites }}"
+      run_once: true

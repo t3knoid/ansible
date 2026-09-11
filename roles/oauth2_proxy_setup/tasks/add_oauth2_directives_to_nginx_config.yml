@@ -54,7 +54,7 @@
     block: |4
 
             location /oauth2/ {
-              proxy_pass       http://127.0.0.1:{{ global_oauth2_proxy_ports[site.server_name] }};
+              proxy_pass       http://127.0.0.1:{{ site.oauth2_proxy_port }};
               proxy_set_header Host                    $host;
               proxy_set_header X-Real-IP               $remote_addr;
               proxy_set_header X-Auth-Request-Redirect $request_uri;
@@ -62,7 +62,7 @@
               # proxy_set_header X-Auth-Request-Redirect $scheme://$host$request_uri;
             }
             location = /oauth2/auth {
-              proxy_pass       http://127.0.0.1:{{ global_oauth2_proxy_ports[site.server_name] }};
+              proxy_pass       http://127.0.0.1:{{ site.oauth2_proxy_port }};
               proxy_set_header Host             $host;
               proxy_set_header X-Real-IP        $remote_addr;
               proxy_set_header X-Forwarded-Uri  $request_uri;

@@ -33,4 +33,32 @@ autofs_nfs_mounts:
     mount_options: -rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys
     container_path: /config/Backups
 
+rproxy_setup_sites:
+  - server_name: lidarr.refol.us
+    port: 8686
+    proxy_pass: "http://{{ global_ip_addresses['lidarr-0'] }}"
+    allow_list:
+      - 192.168.0.0/24
+      - 192.168.2.0/24
+      - 24.105.250.200
+      - 70.107.117.124
+    restricted: false
+    nginx_setup_api_location_block: |
+      # Allow the API External Access via NGINX
+          location ~ /lidarr/api {
+              auth_basic off;
+              proxy_pass http://{{ global_ip_addresses['lidarr-0'] }}:8686;
+          }
+    use_oauth2: true
+    oauth2_provider: "entra-id"
+    oauth2_scope: "openid profile email"
+    oauth2_cookie_secret: "f9Zrfvo3eHBDVvO6dReMduTG3aEqbckgqncXIUyHSR0="
+    oauth2_client_id: ""
+    oauth2_callback_url: "https://lidarr.refol.us/oauth2/callback"
+    oauth2_client_secret: ""
+    oauth2_email_domains: "*"
+    oauth2_proxy_port: 4181
+    oauth2_proxy_metrics_port: 9101
+    enable: true
+
 lidarr_setup_version: 3.1.0.4875
