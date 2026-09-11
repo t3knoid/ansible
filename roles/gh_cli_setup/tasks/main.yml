@@ -16,6 +16,7 @@
     url: "{{ gh_cli_setup_keyring_url }}"
     dest: "{{ gh_cli_setup_keyring_path }}"
     mode: "0644"
+    force: true
 
 - name: Add GitHub CLI apt repository
   ansible.builtin.apt_repository:
