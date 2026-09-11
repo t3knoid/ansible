@@ -1,4 +1,8 @@
 ---
+- name: Show current item server name
+  ansible.builtin.debug:
+    msg: "Processing server_name: {{ item.server_name }}"
+
 # Check if the application exists before trying to create it
 # if it already exists, store the app_id for downstream tasks
 # and skip creation.
@@ -12,6 +16,11 @@
     subscription_id: "{{ global_azure_subscription_id }}"
   register: entra_id_oauth2_existing_app
   delegate_to: localhost
+
+- name: Show message app does not exist
+  ansible.builtin.debug:
+    msg: "New application {{ item.server_name }} will be created."
+  when: entra_id_oauth2_existing_app.applications | length == 0
 
 - name: Build redirect URI list for application registration
   ansible.builtin.set_fact:
@@ -28,7 +37,7 @@
       }}
 
 - name: Create application if it does not exist
-  no_log: false
+  no_log: true
   azure.azcollection.azure_rm_adapplication:
     display_name: "{{ item.server_name }}"
     identifier_uris: ["api://{{ item.server_name }}"]
@@ -66,36 +75,82 @@
 
 # The application id is now in the variable entra_id_oauth2_app_id
 
-# Generate secret for the application just created or retrieved
-
-- name: Retrieve existing credentials
+# Azure does not return an existing client secret
+- name: Retrieve existing credential metadata
   ansible.builtin.command: >
     az ad app credential list
     --id {{ entra_id_oauth2_app_id }}
-    --query "[].keyId" -o tsv
+    --query "[].{keyId:keyId,endDateTime:endDateTime}" -o json
   register: entra_id_oauth2_existing_keys
   delegate_to: localhost
   changed_when: false
 
-- name: Delete existing credentials
+- name: Identify unexpired credentials
+  ansible.builtin.set_fact:
+    entra_id_oauth2_valid_keys: >-
+      {{
+        (entra_id_oauth2_existing_keys.stdout | from_json)
+        | selectattr('endDateTime', 'defined')
+        | selectattr('endDateTime', 'gt', lookup('pipe', 'date -u +%Y-%m-%dT%H:%M:%SZ'))
+        | list
+      }}
+
+- name: Identify expired credentials
+  ansible.builtin.set_fact:
+    entra_id_oauth2_expired_keys: >-
+      {{
+        (entra_id_oauth2_existing_keys.stdout | from_json)
+        | selectattr('endDateTime', 'defined')
+        | selectattr('endDateTime', 'lt', lookup('pipe', 'date -u +%Y-%m-%dT%H:%M:%SZ'))
+        | list
+      }}
+
+- name: Set configured client secret as the effective secret
+  ansible.builtin.set_fact:
+    entra_id_oauth2_effective_secret: "{{ item.oauth2_client_secret | default('') }}"
+
+- name: Select credentials to delete
+  ansible.builtin.set_fact:
+    entra_id_oauth2_keys_to_delete: >-
+      {{
+        (entra_id_oauth2_existing_keys.stdout | from_json)
+        if entra_id_oauth2_force_secret_rotation | default(false) | bool
+        else entra_id_oauth2_expired_keys
+      }}
+
+- name: Wait 5 seconds before deleting credentials to avoid concurrency issues
+  ansible.builtin.pause:
+    seconds: 5
+  when:
+    - entra_id_oauth2_keys_to_delete | length > 0
+
+- name: Delete selected credentials
   no_log: true
   ansible.builtin.command: >
     az ad app credential delete
     --id {{ entra_id_oauth2_app_id }}
-    --key-id {{ item_key }}
-  loop: "{{ entra_id_oauth2_existing_keys.stdout_lines }}"
+    --key-id {{ item_key.keyId }}
+  loop: "{{ entra_id_oauth2_keys_to_delete }}"
   loop_control:
     loop_var: item_key
   delegate_to: localhost
   when:
-    - entra_id_oauth2_existing_keys.stdout != ""
+    - entra_id_oauth2_keys_to_delete | length > 0
   changed_when: false
 
-- name: Wait 5 seconds to avoid concurrency issues
+- name: Wait 5 seconds after deleting credentials to avoid concurrency issues
   ansible.builtin.pause:
     seconds: 5
+  when:
+    - entra_id_oauth2_keys_to_delete | length > 0
 
-- name: Create client secret using Azure CLI and retrieve new secret
+- name: Wait 5 seconds before generating client secret to avoid concurrency issues
+  ansible.builtin.pause:
+    seconds: 5
+  when:
+    - entra_id_oauth2_force_secret_rotation | default(false) | bool or entra_id_oauth2_valid_keys | length == 0
+
+- name: Generate client secret when missing or expired
   no_log: true
   ansible.builtin.command: >
     az ad app credential reset
@@ -106,10 +161,23 @@
     --query password -o tsv
   register: entra_id_oauth2_secret
   delegate_to: localhost
-  changed_when: false
+  changed_when: true
   retries: 8
   delay: 5
   until: entra_id_oauth2_secret.rc == 0
+  when:
+    - entra_id_oauth2_force_secret_rotation | default(false) | bool or entra_id_oauth2_valid_keys | length == 0
+
+- name: Wait 5 seconds after generating client secret to avoid concurrency issues
+  ansible.builtin.pause:
+    seconds: 5
+  when:
+    - entra_id_oauth2_force_secret_rotation | default(false) | bool or entra_id_oauth2_valid_keys | length == 0
+
+- name: Use generated client secret when rotation was required
+  ansible.builtin.set_fact:
+    entra_id_oauth2_effective_secret: "{{ entra_id_oauth2_secret.stdout }}"
+  when: entra_id_oauth2_secret is defined and entra_id_oauth2_secret is changed
 
 # Create a mapping using the current server name to registered application's app_id
 # and generated client secret. This mapping will be used in downstream tasks
@@ -123,7 +191,7 @@
         | combine({
             item.server_name: {
               'client_id': (entra_id_oauth2_app_id | default('')),
-              'client_secret': (entra_id_oauth2_secret.stdout | default(''))
+              'client_secret': (entra_id_oauth2_effective_secret | default(''))
               }
           }, recursive=True)
       }}

@@ -2,3 +2,6 @@
 # defaults/main.yml
 # Number of days to add to current date for secret expiry
 entra_id_oauth2_secret_expiry_offset_days: 90
+
+# Delete all existing app credentials and generate a replacement when enabled.
+entra_id_oauth2_force_secret_rotation: false

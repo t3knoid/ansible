@@ -33,4 +33,32 @@ autofs_nfs_mounts:
     mount_options: -rw,relatime,hard,rsize=1048576,wsize=1048576,proto=tcp,timeo=600,retrans=2,sec=sys
     container_path: /config/Backups
 
+rproxy_setup_sites:
+  - server_name: radarr.refol.us
+    port: 7878
+    proxy_pass: "http://{{ global_ip_addresses['radarr-0'] }}"
+    allow_list:
+      - 192.168.0.0/24
+      - 192.168.2.0/24
+      - 24.105.250.200
+      - 70.107.117.124
+    restricted: false
+    nginx_setup_api_location_block: |
+      # Allow the API External Access via NGINX
+          location ~ /radarr/api {
+              auth_basic off;
+              proxy_pass http://{{ global_ip_addresses['radarr-0'] }}:7878;
+          }
+    use_oauth2: true
+    oauth2_provider: "entra-id"
+    oauth2_scope: "openid profile email"
+    oauth2_cookie_secret: "f9Zrfvo3eHBDVvO6dReMduTG3aEqbckgqncXIUyHSR0="
+    oauth2_client_id: ""
+    oauth2_callback_url: "https://radarr.refol.us/oauth2/callback"
+    oauth2_client_secret: ""
+    oauth2_email_domains: "*"
+    oauth2_proxy_port: 4182
+    oauth2_proxy_metrics_port: 9102
+    enable: true
+
 radarr_setup_version: "6.2.1.10461"

@@ -35,9 +35,9 @@
     oauth2_proxy_setup_redis_connection: "{{ oauth2_proxy_setup_redis_connection
       | default(
       (
-      (redis_setup_password is defined and (redis_setup_password | trim | length) > 0)
+      (oauth2_proxy_setup_redis_password is defined and (oauth2_proxy_setup_redis_password | trim | length) > 0)
       | ternary(
-      'redis://:' ~ (redis_setup_password | trim) ~ '@127.0.0.1:6379/0',
+      'redis://:' ~ (oauth2_proxy_setup_redis_password | trim) ~ '@127.0.0.1:6379/0',
       'redis://127.0.0.1:6379/0'
       )
       ),
@@ -56,6 +56,10 @@
   register: oauth2_proxy_setup_services
   changed_when: false
 
+- name: Show OAuth2 Proxy site configuration
+  ansible.builtin.debug:
+    var: oauth2_proxy_setup_sites
+
 # The following block of task executes when oauth2-proxy
 # service files matches the following criteria
 #
@@ -64,7 +68,7 @@
 - name: Remove oauth2 directives from nginx configuration
   when: (site.use_oauth2 is not defined) or (not site.use_oauth2)
   ansible.builtin.include_tasks: "remove_oauth2_directives_from_nginx_config.yml"
-  loop: "{{ rproxy_setup_sites }}"
+  loop: "{{ oauth2_proxy_setup_sites }}"
   loop_control:
     label: "{{ site.server_name }}"
     loop_var: site
@@ -74,31 +78,31 @@
 #
 # Case 1: filename is exactly oauth2-proxy.service (no suffix)
 # Case 2: filename has suffix but site.use_oauth2 is not true
-- name: Clean up oauth2-proxy services
-  ansible.builtin.include_tasks: "remove_oauth2_services.yml"
-  loop: "{{ oauth2_proxy_setup_services.stdout_lines }}"
-  loop_control:
-    label: "{{ oauth2_proxy_setup_service_filename }}"
-    loop_var: oauth2_proxy_setup_service_filename
-  when: >
-    (
-      (oauth2_proxy_setup_service_filename | basename == 'oauth2-proxy.service')
-    )
-    or
-    (
-      not (
-        rproxy_setup_sites
-        | selectattr('server_name','equalto', oauth2_proxy_setup_service_filename | basename | regex_replace('^oauth2-proxy_(.+)\\.service$', '\\1'))
-        | map(attribute='use_oauth2')
-        | first
-        | default(false)
-        | bool
-      )
-    )
+# - name: Clean up oauth2-proxy services
+#   ansible.builtin.include_tasks: "remove_oauth2_services.yml"
+#   loop: "{{ oauth2_proxy_setup_services.stdout_lines }}"
+#   loop_control:
+#     label: "{{ oauth2_proxy_setup_service_filename }}"
+#     loop_var: oauth2_proxy_setup_service_filename
+#   when: >
+#     (
+#       (oauth2_proxy_setup_service_filename | basename == 'oauth2-proxy.service')
+#     )
+#     or
+#     (
+#       not (
+#         rproxy_setup_sites
+#         | selectattr('server_name','equalto', oauth2_proxy_setup_service_filename | basename | regex_replace('^oauth2-proxy_(.+)\\.service$', '\\1'))
+#         | map(attribute='use_oauth2')
+#         | first
+#         | default(false)
+#         | bool
+#       )
+#     )
 
 - name: Remove disabled site oauth2-proxy unit and configuration files
   ansible.builtin.include_tasks: remove_disabled_site_oauth2_files.yml
-  loop: "{{ rproxy_setup_sites }}"
+  loop: "{{ oauth2_proxy_setup_sites }}"
   when: (site.use_oauth2 is not defined) or (not site.use_oauth2)
   loop_control:
     label: "{{ site.server_name }}"
@@ -107,7 +111,7 @@
 - name: Insert OAuth2 Proxy directives into nginx configuration
   when: (site.use_oauth2 is defined) and site.use_oauth2
   ansible.builtin.include_tasks: "add_oauth2_directives_to_nginx_config.yml"
-  loop: "{{ rproxy_setup_sites }}"
+  loop: "{{ oauth2_proxy_setup_sites }}"
   loop_control:
     label: "{{ site.server_name }}"
     loop_var: site
@@ -118,7 +122,7 @@
     src: "oauth2-proxy.cfg.j2"
     dest: "/etc/oauth2-proxy/oauth2-proxy_{{ site.server_name }}.cfg"
     mode: "0644"
-  loop: "{{ rproxy_setup_sites }}"
+  loop: "{{ oauth2_proxy_setup_sites }}"
   loop_control:
     label: "{{ site.server_name }}"
     loop_var: site
@@ -131,7 +135,7 @@
     src: "oauth2-proxy.service.j2"
     dest: /etc/systemd/system/oauth2-proxy_{{ site.server_name }}.service
     mode: "0644"
-  loop: "{{ rproxy_setup_sites }}"
+  loop: "{{ oauth2_proxy_setup_sites }}"
   loop_control:
     label: "{{ site.server_name }}"
     loop_var: site

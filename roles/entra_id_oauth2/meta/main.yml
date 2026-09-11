@@ -15,4 +15,3 @@ galaxy_info:
         - jammy
 dependencies:
   - role: global
-  - role: azure_cli_setup

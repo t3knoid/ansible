@@ -1,7 +1,7 @@
 # /etc/oauth2-proxy/oauth2-proxy_{{ site.server_name }}.cfg
 
 # Local bind address and port for this domain’s proxy instance
-http_address = "127.0.0.1:{{ global_oauth2_proxy_ports[site.server_name] }}"
+http_address = "127.0.0.1:{{ site.oauth2_proxy_port }}"
 
 # Identity provider: Microsoft Entra ID (Azure AD)
 # See https://oauth2-proxy.github.io/oauth2-proxy/configuration/providers/ms_entra_id
@@ -21,7 +21,7 @@ oidc_issuer_url = "https://login.microsoftonline.com/{{ global_azure_tenant }}/v
 ## Redirect URL must match what is registered in Entra ID
 redirect_url = "{{ site.oauth2_callback_url }}"
 
-## OAuth scope specification. Every provider has a default 
+## OAuth scope specification. Every provider has a default
 ## list of scopes which will be used in case no scope is configured.
 scope = "{{ site.oauth2_scope }}"
 
@@ -38,7 +38,7 @@ redis_connection_url = "{{ oauth2_proxy_setup_redis_connection }}"
 ## set secure (HTTPS only) cookie flag
 cookie_secure = true
 
-## the name of the cookie that the oauth_proxy creates. Should be changed to 
+## the name of the cookie that the oauth_proxy creates. Should be changed to
 ## use a cookie prefix (__Host- or __Secure-) if --cookie-secure is set.
 cookie_name = "__Host-{{ site.server_name | replace('.', '_') }}"
 
@@ -70,8 +70,8 @@ set_basic_auth = false
 
 # Optional logging and metrics
 request_logging = true
-metrics_address = "127.0.0.1:{{ global_oauth2_proxy_metrics_ports[site.server_name] }}"
+metrics_address = "127.0.0.1:{{ site.oauth2_proxy_metrics_port }}"
 
-## are we running behind a reverse proxy, controls whether headers like X-Real-IP are 
+## are we running behind a reverse proxy, controls whether headers like X-Real-IP are
 ## accepted and allows X-Forwarded-{Proto,Host,Uri} headers to be used on redirect selection
 reverse_proxy = true

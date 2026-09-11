@@ -5,3 +5,8 @@ oauth2_proxy_setup_download_tgz_file: "oauth2-proxy-v{{ oauth2_proxy_setup_versi
 oauth2_proxy_setup_download_url: >
   https://github.com/oauth2-proxy/oauth2-proxy/releases/download/v{{ oauth2_proxy_setup_version }}/{{ oauth2_proxy_setup_download_tgz_file }}
 oauth2_proxy_setup_bin: /usr/local/bin/oauth2-proxy
+
+# Site definitions supplied to this role. Keep rproxy_setup_sites as a
+# backward-compatible fallback for standalone role usage.
+oauth2_proxy_setup_sites: "{{ rproxy_setup_sites | default([]) }}"
+oauth2_proxy_setup_redis_password: ""

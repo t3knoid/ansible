@@ -9,6 +9,3 @@ galaxy_info:
     - name: Ubuntu
       versions:
         - noble
-dependencies:
-  - role: redis_setup
-  - role: entra_id_oauth2
