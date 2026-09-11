@@ -68,11 +68,11 @@ _No group variables defined._
 - `vms`
 
 ### `rproxy`
-- `rproxy_secondary`
 - `rproxy_primary`
 - `rproxy_main`
+- `rproxy_secondary`
 
 ### `nginx_exporter`
-- `rproxy_secondary`
 - `rproxy_primary`
 - `rproxy_main`
+- `rproxy_secondary`
