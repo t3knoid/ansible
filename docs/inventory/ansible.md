@@ -85,13 +85,13 @@ _No group variables defined._
 - `vms`
 
 ### `rproxy`
-- `rproxy_secondary`
 - `rproxy_primary`
 - `rproxy_main`
+- `rproxy_secondary`
 
 ### `cname`
 - `code_server`
 
 ### `python`
-- `wsl`
 - `ansible`
+- `wsl`
