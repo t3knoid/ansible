@@ -19,6 +19,8 @@ Install and configure OAuth2 Proxy.
 | `oauth2_proxy_setup_download_url` | `>` |  |
 | `https` | `//github.com/oauth2-proxy/oauth2-proxy/releases/download/v{{ oauth2_proxy_setup_version }}/{{ oauth2_proxy_setup_download_tgz_file }}` |  |
 | `oauth2_proxy_setup_bin` | `/usr/local/bin/oauth2-proxy` |  |
+| `oauth2_proxy_setup_sites` | `"{{ rproxy_setup_sites | default([]) }}"` | backward-compatible fallback for standalone role usage. |
+| `oauth2_proxy_setup_redis_password` | `""` |  |
 
 ## 📦 Vars
 _No constant variables found._
@@ -30,8 +32,8 @@ _No constant variables found._
 - Create oauth2-proxy configuration directory
 - Set Redis connection string
 - Find all oauth2-proxy services
+- Show OAuth2 Proxy site configuration
 - Remove oauth2 directives from nginx configuration
-- Clean up oauth2-proxy services
 - Remove disabled site oauth2-proxy unit and configuration files
 - Insert OAuth2 Proxy directives into nginx configuration
 - Deploy oauth2-proxy configurations
@@ -44,8 +46,7 @@ _No constant variables found._
 - Reload nginx
 
 ## 🔗 Dependencies
-- `redis_setup`
-- `entra_id_oauth2`
+_No dependencies listed._
 
 ## 🚀 Example Usage
 ```yaml
