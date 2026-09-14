@@ -18,6 +18,10 @@ rproxy_setup configures reverse proxy with failover support using nginx. This ro
 | `rproxy_setup_backend_servers` | `|` |  |
 | `server {{ hostvars[groups['rproxy_primary'][0]]['ansible_default_ipv4']['address'] }}` | `80 max_fails=3 fail_timeout=5s;` |  |
 | `server {{ hostvars[groups['rproxy_secondary'][0]]['ansible_default_ipv4']['address'] }}` | `80 backup;` |  |
+| `rproxy_setup_check_health` | `true` |  |
+| `rproxy_setup_health_check_script_path` | `/usr/local/bin/check_rproxy_health.sh` |  |
+| `rproxy_setup_health_metrics_path` | `"{{ node_exporter_setup_textfile_collector_dir | default('/var/lib/node_exporter/textfile') }}/rproxy_health.prom"` |  |
+| `rproxy_setup_health_check_minute` | `"*/5"` |  |
 | `rproxy_setup_cloudflare_only` | `true # There is an existing bug that deletes the cloudflare-allow.conf if this is false` |  |
 | `rproxy_setup_cloudflare_ipv4` | `` |  |
 | `rproxy_setup_cloudflare_ipv6` | `` |  |
@@ -37,6 +41,7 @@ _No constant variables found._
 - Set rproxy_setup_site to default_server
 - Configure default_server
 - Enable default_server site
+- Check reverse proxy health via Prometheus metrics
 
 ## 🔔 Handlers
 - Restart nginx
