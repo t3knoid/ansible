@@ -15,3 +15,7 @@
 - name: Configure Sonarr Through API
   ansible.builtin.import_tasks: configure_api.yml
   when: sonarr_setup_configure_api
+
+- name: Check Sonarr for available updates via Prometheus metrics
+  ansible.builtin.import_tasks: check_update.yml
+  when: sonarr_setup_check_update
