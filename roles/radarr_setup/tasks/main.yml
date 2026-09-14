@@ -15,3 +15,7 @@
 - name: Configure Radarr Through API
   ansible.builtin.import_tasks: configure_api.yml
   when: radarr_setup_configure_api
+
+- name: Check Radarr for available updates via Prometheus metrics
+  ansible.builtin.import_tasks: check_update.yml
+  when: radarr_setup_check_update

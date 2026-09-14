@@ -1,4 +1,9 @@
 ---
+- name: Ensure cron is installed
+  ansible.builtin.package:
+    name: cron
+    state: present
+
 - name: Create Node Exporter system group
   ansible.builtin.group:
     name: "{{ node_exporter_setup_group }}"

@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+installed_version="$(dpkg-query -W -f='${Version}' plexmediaserver 2>/dev/null || true)"
+
+update_available=0
+latest_version="unknown"
+
+if [[ -n "${installed_version}" ]]; then
+  api_url="https://plex.tv/api/downloads/5.json"
+{% if plex_setup_update_check_token %}
+  api_url="${api_url}?X-Plex-Token={{ plex_setup_update_check_token }}"
+{% endif %}
+  response="$(curl -fsS --max-time 10 "${api_url}")"
+  latest_version="$(echo "${response}" | jq -r '.computer.Linux.releases[] | select(.distro=="{{ plex_setup_update_check_distro }}" and .build=="{{ plex_setup_update_check_build }}") | .version' | sort -V | tail -n 1)"
+  latest_version="${latest_version:-unknown}"
+
+  if [[ "${latest_version}" != "unknown" ]] && dpkg --compare-versions "${installed_version}" lt "${latest_version}"; then
+    update_available=1
+  fi
+fi
+
+tmp_file="$(mktemp "{{ plex_setup_update_metrics_path }}.XXXXXX")"
+trap 'rm -f "$tmp_file"' EXIT
+cat > "$tmp_file" <<EOF
+# HELP plex_current_version_info Plex Media Server version currently installed.
+# TYPE plex_current_version_info gauge
+plex_current_version_info{version="${installed_version:-unknown}"} 1
+# HELP plex_update_available Whether a newer Plex Media Server version is available.
+# TYPE plex_update_available gauge
+plex_update_available $update_available
+EOF
+install -o root -g {{ node_exporter_setup_group | default('prometheus') }} -m 0644 "$tmp_file" "{{ plex_setup_update_metrics_path }}"

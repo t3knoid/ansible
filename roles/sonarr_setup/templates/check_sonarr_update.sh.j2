@@ -11,7 +11,7 @@ current_version="unknown"
 
 if [[ -n "${response}" && "${response}" != "[]" ]]; then
   current_version="$(echo "${response}" | jq -r '.[0].version // "unknown"')"
-  is_installed="$(echo "${response}" | jq -r '.[0].installed // true')"
+  is_installed="$(echo "${response}" | jq -r 'if .[0].installed == null then true else .[0].installed end')"
   if [[ "${is_installed}" == "false" ]]; then
     update_available=1
   fi

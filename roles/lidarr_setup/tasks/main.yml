@@ -1,5 +1,4 @@
 ---
-
 - name: Deploy Lidarr Docker Service
   ansible.builtin.import_role:
     name: docker_service_deploy
@@ -16,3 +15,7 @@
 - name: Configure Lidarr Through API
   ansible.builtin.import_tasks: configure_api.yml
   when: lidarr_setup_configure_api | bool
+
+- name: Check Lidarr for available updates via Prometheus metrics
+  ansible.builtin.import_tasks: check_update.yml
+  when: lidarr_setup_check_update | bool
