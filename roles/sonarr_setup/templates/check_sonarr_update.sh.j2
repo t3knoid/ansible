@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+api_url="{{ sonarr_setup_api_url }}"
+api_key="{{ sonarr_setup_resolved_update_check_api_key }}"
+
+response="$(curl -fsS --max-time 10 -H "X-Api-Key: ${api_key}" "${api_url}/api/v3/update")"
+
+update_available=0
+current_version="unknown"
+
+if [[ -n "${response}" && "${response}" != "[]" ]]; then
+  current_version="$(echo "${response}" | jq -r '.[0].version // "unknown"')"
+  is_installed="$(echo "${response}" | jq -r '.[0].installed // true')"
+  if [[ "${is_installed}" == "false" ]]; then
+    update_available=1
+  fi
+fi
+
+tmp_file="$(mktemp "{{ sonarr_setup_update_metrics_path }}.XXXXXX")"
+trap 'rm -f "$tmp_file"' EXIT
+cat > "$tmp_file" <<EOF
+# HELP sonarr_current_version_info Sonarr version currently reported by the API.
+# TYPE sonarr_current_version_info gauge
+sonarr_current_version_info{version="$current_version"} 1
+# HELP sonarr_update_available Whether a newer Sonarr version is available.
+# TYPE sonarr_update_available gauge
+sonarr_update_available $update_available
+EOF
+install -o root -g {{ node_exporter_setup_group | default('prometheus') }} -m 0644 "$tmp_file" "{{ sonarr_setup_update_metrics_path }}"
