@@ -1,0 +1,37 @@
+---
+- name: Ensure curl is installed for rproxy health checks
+  ansible.builtin.package:
+    name: curl
+    state: present
+
+- name: Ensure cron is installed for rproxy health checks
+  ansible.builtin.package:
+    name: cron
+    state: present
+
+- name: Ensure rproxy health metrics directory exists
+  ansible.builtin.file:
+    path: "{{ rproxy_setup_health_metrics_path | dirname }}"
+    state: directory
+    owner: root
+    group: "{{ node_exporter_setup_group | default('prometheus') }}"
+    mode: "0775"
+
+- name: Install rproxy health check script
+  ansible.builtin.template:
+    src: check_rproxy_health.sh.j2
+    dest: "{{ rproxy_setup_health_check_script_path }}"
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Seed rproxy health metrics file
+  ansible.builtin.command: "{{ rproxy_setup_health_check_script_path }}"
+  changed_when: true
+
+- name: Schedule rproxy health metrics check
+  ansible.builtin.cron:
+    name: rproxy_health_metrics
+    minute: "{{ rproxy_setup_health_check_minute }}"
+    user: root
+    job: "{{ rproxy_setup_health_check_script_path }}"

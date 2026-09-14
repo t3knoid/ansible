@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+metrics_file="{{ rproxy_setup_health_metrics_path }}"
+tmp_file="$(mktemp "${metrics_file}.XXXXXX")"
+trap 'rm -f "$tmp_file"' EXIT
+
+expected_port="{{ 443 if inventory_hostname in groups['rproxy_main'] else 80 }}"
+
+port_up=0
+if ss -ltn 2>/dev/null | awk -v port=":${expected_port}$" '$4 ~ port {found=1} END{exit !found}'; then
+  port_up=1
+fi
+
+{
+  echo "# HELP rproxy_nginx_expected_port_up Whether nginx is listening on the expected port for this host's role."
+  echo "# TYPE rproxy_nginx_expected_port_up gauge"
+  echo "rproxy_nginx_expected_port_up{port=\"${expected_port}\"} ${port_up}"
+} >> "$tmp_file"
+
+{% if inventory_hostname in groups['rproxy_main'] %}
+redis_up=0
+if systemctl is-active --quiet redis-server; then
+  redis_up=1
+fi
+{
+  echo "# HELP rproxy_redis_up Whether the Redis service used by oauth2-proxy is active."
+  echo "# TYPE rproxy_redis_up gauge"
+  echo "rproxy_redis_up ${redis_up}"
+} >> "$tmp_file"
+
+{
+  echo "# HELP rproxy_oauth2_proxy_port_up Whether the oauth2-proxy backend port referenced by a site's nginx config is listening."
+  echo "# TYPE rproxy_oauth2_proxy_port_up gauge"
+} >> "$tmp_file"
+for conf_file in {{ nginx_setup_homedir }}/sites-enabled/*.conf; do
+  [[ -f "${conf_file}" ]] || continue
+  site_name="$(basename "${conf_file}" .conf)"
+  oauth2_port="$(grep -oP 'proxy_pass\s+http://127\.0\.0\.1:\K[0-9]+' "${conf_file}" | head -n1)"
+  [[ -z "${oauth2_port}" ]] && continue
+  oauth2_port_up=0
+  if ss -ltn 2>/dev/null | awk -v port=":${oauth2_port}$" '$4 ~ port {found=1} END{exit !found}'; then
+    oauth2_port_up=1
+  fi
+  echo "rproxy_oauth2_proxy_port_up{site=\"${site_name}\",port=\"${oauth2_port}\"} ${oauth2_port_up}" >> "$tmp_file"
+done
+
+{
+  echo "# HELP rproxy_backend_reachable Whether the rproxy main host can reach a backend nginx host on port 80."
+  echo "# TYPE rproxy_backend_reachable gauge"
+} >> "$tmp_file"
+{% for backend_host in (groups['rproxy_primary'] | default([])) + (groups['rproxy_secondary'] | default([])) %}
+backend_reachable=0
+if curl -fsS --max-time 5 -o /dev/null "http://{{ global_ip_addresses[backend_host] }}:80/"; then
+  backend_reachable=1
+fi
+echo "rproxy_backend_reachable{backend=\"{{ backend_host }}\"} ${backend_reachable}" >> "$tmp_file"
+{% endfor %}
+{% endif %}
+
+install -o root -g {{ node_exporter_setup_group | default('prometheus') }} -m 0644 "$tmp_file" "${metrics_file}"

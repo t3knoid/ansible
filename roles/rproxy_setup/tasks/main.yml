@@ -1,5 +1,4 @@
 ---
-
 # - name: Include nginx variables
 #   ansible.builtin.include_vars:
 #     dir: ../../../roles/nginx_setup/defaults/main
@@ -7,7 +6,7 @@
 - name: Add upstream block to "{{ nginx_setup_conf }}"
   ansible.builtin.blockinfile:
     path: "{{ nginx_setup_conf }}"
-    insertafter: '^http\s*{'  # regex ensures match even with spaces/tabs
+    insertafter: '^http\s*{' # regex ensures match even with spaces/tabs
     block: |
       upstream backend {
         {{ rproxy_setup_backend_servers }}
@@ -28,7 +27,7 @@
     dest: "{{ nginx_setup_homedir }}/sites-available/default_server.conf"
     owner: root
     group: root
-    mode: '0644'
+    mode: "0644"
   notify: Restart nginx
   when: inventory_hostname in groups['rproxy_main']
 
@@ -40,3 +39,7 @@
     force: true
   notify: Restart nginx
   when: inventory_hostname in groups['rproxy_main']
+
+- name: Check reverse proxy health via Prometheus metrics
+  ansible.builtin.import_tasks: check_health.yml
+  when: rproxy_setup_check_health
