@@ -30,6 +30,10 @@ Installs and configures a Radarr Docker container. It uses an image distributed 
 | `radarr_setup_restore_path` | `""` |  |
 | `radarr_setup_api_url` | `"http://127.0.0.1:{{ radarr_setup_port }}"` |  |
 | `radarr_setup_api_validate_certs` | `false` |  |
+| `radarr_setup_check_update` | `true` |  |
+| `radarr_setup_update_check_script_path` | `/usr/local/bin/check_radarr_update.sh` |  |
+| `radarr_setup_update_metrics_path` | `"{{ node_exporter_setup_textfile_collector_dir | default('/var/lib/node_exporter/textfile') }}/radarr_update.prom"` |  |
+| `radarr_setup_update_check_minute` | `"*/30"` |  |
 | `radarr_setup_root_folders` | `` |  |
 | `- path` | `/movies` |  |
 | `radarr_setup_download_clients` | `` |  |
@@ -78,6 +82,7 @@ _No constant variables found._
 ## 📑 Tasks
 - Deploy Radarr Docker Service
 - Configure Radarr Through API
+- Check Radarr for available updates via Prometheus metrics
 
 ## 🔔 Handlers
 - Restart PostgreSQL

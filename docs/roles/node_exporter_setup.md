@@ -34,6 +34,7 @@ Installs Prometheus Node Exporter
 _No constant variables found._
 
 ## 📑 Tasks
+- Ensure cron is installed
 - Create Node Exporter system group
 - Create Node Exporter system user
 - Download and Extract Node Exporter
