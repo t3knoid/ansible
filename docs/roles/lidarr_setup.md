@@ -30,6 +30,10 @@ Installs and configures Lidarr on Debian/Ubuntu systems. It uses a container dis
 | `lidarr_setup_restore_path` | `""` |  |
 | `lidarr_setup_api_url` | `"http://127.0.0.1:{{ lidarr_setup_port }}"` |  |
 | `lidarr_setup_api_validate_certs` | `false` |  |
+| `lidarr_setup_check_update` | `true` |  |
+| `lidarr_setup_update_check_script_path` | `/usr/local/bin/check_lidarr_update.sh` |  |
+| `lidarr_setup_update_metrics_path` | `"{{ node_exporter_setup_textfile_collector_dir | default('/var/lib/node_exporter/textfile') }}/lidarr_update.prom"` |  |
+| `lidarr_setup_update_check_minute` | `"*/30"` |  |
 | `lidarr_setup_root_folders` | `` |  |
 | `- name` | `Music` |  |
 | `path` | `/music` |  |
@@ -84,6 +88,7 @@ _No constant variables found._
 ## 📑 Tasks
 - Deploy Lidarr Docker Service
 - Configure Lidarr Through API
+- Check Lidarr for available updates via Prometheus metrics
 
 ## 🔔 Handlers
 - Restart PostgreSQL
