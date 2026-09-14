@@ -23,6 +23,13 @@ Installs Plex Media Server.
 | `plex_setup_timestamp` | `"{{ lookup('pipe', 'date +%Y%m%d_%H%M%S') }}"` |  |
 | `plex_setup_backup_file` | `"{{ plex_setup_backup_dir }}/plex_backup_{{ plex_setup_timestamp }}.tar.gz"` |  |
 | `plex_setup_restore_path` | `""` |  |
+| `plex_setup_check_update` | `true` |  |
+| `plex_setup_update_check_token` | `""` |  |
+| `plex_setup_update_check_distro` | `"debian"` |  |
+| `plex_setup_update_check_build` | `"linux-x86_64"` |  |
+| `plex_setup_update_check_script_path` | `/usr/local/bin/check_plex_update.sh` |  |
+| `plex_setup_update_metrics_path` | `"{{ node_exporter_setup_textfile_collector_dir | default('/var/lib/node_exporter/textfile') }}/plex_update.prom"` |  |
+| `plex_setup_update_check_minute` | `"*/30"` |  |
 
 ## 📦 Vars
 _No constant variables found._
@@ -32,6 +39,7 @@ _No constant variables found._
 - Download Plex Media Server package
 - Install Plex Media Server
 - Ensure Plex Media Server is started
+- Check Plex Media Server for available updates via Prometheus metrics
 
 ## 🔔 Handlers
 - Restart Plex Media Server
