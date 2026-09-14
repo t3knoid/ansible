@@ -30,6 +30,10 @@ Installs and configures a Sonarr Docker container. It uses a container distribut
 | `sonarr_setup_restore_path` | `""` |  |
 | `sonarr_setup_api_url` | `"http://127.0.0.1:{{ sonarr_setup_port }}"` |  |
 | `sonarr_setup_api_validate_certs` | `false` |  |
+| `sonarr_setup_check_update` | `true` |  |
+| `sonarr_setup_update_check_script_path` | `/usr/local/bin/check_sonarr_update.sh` |  |
+| `sonarr_setup_update_metrics_path` | `"{{ node_exporter_setup_textfile_collector_dir | default('/var/lib/node_exporter/textfile') }}/sonarr_update.prom"` |  |
+| `sonarr_setup_update_check_minute` | `"*/30"` |  |
 | `sonarr_setup_root_folders` | `` |  |
 | `- path` | `/tv` |  |
 | `sonarr_setup_download_clients` | `` |  |
@@ -74,6 +78,7 @@ _No constant variables found._
 ## 📑 Tasks
 - Deploy Sonarr Docker Service
 - Configure Sonarr Through API
+- Check Sonarr for available updates via Prometheus metrics
 
 ## 🔔 Handlers
 - Restart PostgreSQL
