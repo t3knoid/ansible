@@ -32,6 +32,13 @@
           "color": {
             "mode": "thresholds"
           },
+          "links": [
+            {
+              "targetBlank": false,
+              "title": "Open node availability grid",
+              "url": "/d/node-availability-grid/node-availability-grid"
+            }
+          ],
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -73,7 +80,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "sum(up{job=\"node\"})",
+          "expr": "sum(up{job=\"node\"}) or vector(0)",
           "instant": true,
           "legendFormat": "",
           "range": false,
@@ -93,6 +100,13 @@
           "color": {
             "mode": "thresholds"
           },
+          "links": [
+            {
+              "targetBlank": false,
+              "title": "Open node availability grid",
+              "url": "/d/node-availability-grid/node-availability-grid"
+            }
+          ],
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -134,7 +148,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "count(up{job=\"node\"} == 0)",
+          "expr": "count(up{job=\"node\"} == 0) or vector(0)",
           "instant": true,
           "legendFormat": "",
           "range": false,

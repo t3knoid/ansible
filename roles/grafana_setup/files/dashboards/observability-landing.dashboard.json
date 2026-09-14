@@ -15,7 +15,7 @@
       }
     ]
   },
-  "description": "Unified observability landing page for node availability, web service status, PostgreSQL status, and Linux update posture. Classifies nodes as Up, Exporter Down, or VM Down using up plus recent node_time_seconds presence over the last 5 minutes, summarizes Blackbox Exporter web probe health and PostgreSQL exporter health, and shows update urgency plus time since the last update run.",
+  "description": "Unified observability landing page for node availability, web service status, PostgreSQL status, and Linux update posture. Shows Nodes Up and Nodes Down based on node_exporter scrape health, summarizes Blackbox Exporter web probe health and PostgreSQL exporter health, and shows counts of hosts with pending Linux updates or security updates.",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
@@ -33,63 +33,13 @@
           "color": {
             "mode": "thresholds"
           },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": null
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 0,
-        "y": 0
-      },
-      "id": 1,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "value"
-      },
-      "pluginVersion": "12.2.0",
-      "targets": [
-        {
-          "editorMode": "code",
-          "expr": "count(up{job=\"node\"})",
-          "instant": true,
-          "legendFormat": "",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "Tracked Nodes",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
+          "links": [
+            {
+              "targetBlank": false,
+              "title": "Open node exporter overview",
+              "url": "/d/node-exporter-overview/node-exporter-overview"
+            }
+          ],
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -110,8 +60,8 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 6,
-        "x": 6,
+        "w": 12,
+        "x": 0,
         "y": 0
       },
       "id": 2,
@@ -131,7 +81,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "count(up{job=\"node\"} == 1)",
+          "expr": "count(up{job=\"node\"} == 1) or vector(0)",
           "instant": true,
           "legendFormat": "",
           "range": false,
@@ -151,6 +101,13 @@
           "color": {
             "mode": "thresholds"
           },
+          "links": [
+            {
+              "targetBlank": false,
+              "title": "Open node availability grid",
+              "url": "/d/node-availability-grid/node-availability-grid"
+            }
+          ],
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -160,7 +117,7 @@
                 "value": null
               },
               {
-                "color": "yellow",
+                "color": "red",
                 "value": 1
               }
             ]
@@ -171,7 +128,7 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 6,
+        "w": 12,
         "x": 12,
         "y": 0
       },
@@ -192,14 +149,14 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "count((up{job=\"node\"} == 0) and on(instance) (sum by(instance) (present_over_time(node_time_seconds{job=\"node\"}[5m])) > 0))",
+          "expr": "count(up{job=\"node\"} == 0) or vector(0)",
           "instant": true,
           "legendFormat": "",
           "range": false,
           "refId": "A"
         }
       ],
-      "title": "Exporter Down",
+      "title": "Nodes Down",
       "type": "stat"
     },
     {
@@ -212,6 +169,81 @@
           "color": {
             "mode": "thresholds"
           },
+          "links": [
+            {
+              "targetBlank": false,
+              "title": "Open Linux update status",
+              "url": "/d/linux-update-status/linux-update-status"
+            }
+          ],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 12,
+        "x": 0,
+        "y": 4
+      },
+      "id": 6,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "value"
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "count(linux_updates_available{job=\"node\"} > 0) or vector(0)",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Linux Updates Available",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "links": [
+            {
+              "targetBlank": false,
+              "title": "Open Linux update status",
+              "url": "/d/linux-update-status/linux-update-status"
+            }
+          ],
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -232,11 +264,11 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 6,
-        "x": 18,
-        "y": 0
+        "w": 12,
+        "x": 12,
+        "y": 4
       },
-      "id": 4,
+      "id": 7,
       "options": {
         "colorMode": "value",
         "graphMode": "none",
@@ -253,275 +285,14 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "count((up{job=\"node\"} == 0) unless on(instance) (sum by(instance) (present_over_time(node_time_seconds{job=\"node\"}[5m])) > 0))",
+          "expr": "count(linux_security_updates_available{job=\"node\"} > 0) or vector(0)",
           "instant": true,
           "legendFormat": "",
           "range": false,
           "refId": "A"
         }
       ],
-      "title": "VMs Down",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "displayName": "${__field.labels.instance}",
-          "links": [
-            {
-              "targetBlank": false,
-              "title": "Open node detail",
-              "url": "/d/node-exporter-node-detail/node-exporter-node-detail?var-instance=${__field.labels.instance}"
-            }
-          ],
-          "mappings": [
-            {
-              "options": {
-                "0": {
-                  "color": "red",
-                  "index": 0,
-                  "text": "VM Down"
-                },
-                "1": {
-                  "color": "yellow",
-                  "index": 1,
-                  "text": "Exporter Down"
-                },
-                "2": {
-                  "color": "green",
-                  "index": 2,
-                  "text": "Up"
-                }
-              },
-              "type": "value"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 1
-              },
-              {
-                "color": "green",
-                "value": 2
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 14,
-        "w": 24,
-        "x": 0,
-        "y": 4
-      },
-      "id": 5,
-      "options": {
-        "colorMode": "background_solid",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "value_and_name",
-        "wideLayout": true
-      },
-      "pluginVersion": "12.2.0",
-      "targets": [
-        {
-          "editorMode": "code",
-          "expr": "(2 * (up{job=\"node\"} == 1)) or (1 * ((up{job=\"node\"} == 0) and on(instance) (sum by(instance) (present_over_time(node_time_seconds{job=\"node\"}[5m])) > 0))) or (0 * ((up{job=\"node\"} == 0) unless on(instance) (sum by(instance) (present_over_time(node_time_seconds{job=\"node\"}[5m])) > 0)))",
-          "instant": true,
-          "legendFormat": "{{instance}}",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "Node Availability Grid",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "displayName": "${__field.labels.instance}",
-          "mappings": [
-            {
-              "options": {
-                "0": {
-                  "color": "green",
-                  "index": 0,
-                  "text": "No Updates"
-                },
-                "1": {
-                  "color": "yellow",
-                  "index": 1,
-                  "text": "Updates Available"
-                },
-                "2": {
-                  "color": "red",
-                  "index": 2,
-                  "text": "Security Updates"
-                }
-              },
-              "type": "value"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 1
-              },
-              {
-                "color": "red",
-                "value": 2
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 10,
-        "w": 12,
-        "x": 0,
-        "y": 18
-      },
-      "id": 6,
-      "options": {
-        "colorMode": "background_solid",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "value_and_name",
-        "wideLayout": true
-      },
-      "pluginVersion": "12.2.0",
-      "targets": [
-        {
-          "editorMode": "code",
-          "expr": "(linux_updates_available{job=\"node\"} > bool 0) + (linux_security_updates_available{job=\"node\"} > bool 0)",
-          "instant": true,
-          "legendFormat": "{{instance}}",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "Linux Updates Status",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "decimals": 1,
-          "displayName": "${__field.labels.instance}",
-          "mappings": [
-            {
-              "options": {
-                "match": "null",
-                "result": {
-                  "text": "Never"
-                }
-              },
-              "type": "special"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 7
-              },
-              {
-                "color": "red",
-                "value": 30
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 10,
-        "w": 12,
-        "x": 12,
-        "y": 18
-      },
-      "id": 7,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "value_and_name",
-        "wideLayout": true
-      },
-      "pluginVersion": "12.2.0",
-      "targets": [
-        {
-          "editorMode": "code",
-          "expr": "(time() - linux_updates_last_run_timestamp_seconds{job=\"node\"}) / 86400",
-          "instant": true,
-          "legendFormat": "{{instance}}",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "Days Since Last Linux Update",
+      "title": "Security Updates Available",
       "type": "stat"
     },
     {
@@ -558,7 +329,7 @@
         "h": 4,
         "w": 8,
         "x": 0,
-        "y": 28
+        "y": 8
       },
       "id": 8,
       "options": {
@@ -577,7 +348,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "count(probe_success{job=~\"blackbox_http|blackbox\"})",
+          "expr": "count(probe_success{job=~\"blackbox_http|blackbox\"}) or vector(0)",
           "instant": true,
           "legendFormat": "",
           "range": false,
@@ -625,7 +396,7 @@
         "h": 4,
         "w": 8,
         "x": 8,
-        "y": 28
+        "y": 8
       },
       "id": 9,
       "options": {
@@ -644,7 +415,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "count(probe_success{job=~\"blackbox_http|blackbox\"} == 1)",
+          "expr": "count(probe_success{job=~\"blackbox_http|blackbox\"} == 1) or vector(0)",
           "instant": true,
           "legendFormat": "",
           "range": false,
@@ -692,7 +463,7 @@
         "h": 4,
         "w": 8,
         "x": 16,
-        "y": 28
+        "y": 8
       },
       "id": 10,
       "options": {
@@ -711,7 +482,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "count(probe_success{job=~\"blackbox_http|blackbox\"} == 0)",
+          "expr": "count(probe_success{job=~\"blackbox_http|blackbox\"} == 0) or vector(0)",
           "instant": true,
           "legendFormat": "",
           "range": false,
@@ -755,7 +526,7 @@
         "h": 4,
         "w": 8,
         "x": 0,
-        "y": 32
+        "y": 12
       },
       "id": 11,
       "options": {
@@ -774,7 +545,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "count(pg_up{job=\"postgres_exporter\"})",
+          "expr": "count(pg_up{job=\"postgres_exporter\"}) or vector(0)",
           "instant": true,
           "legendFormat": "",
           "range": false,
@@ -822,7 +593,7 @@
         "h": 4,
         "w": 8,
         "x": 8,
-        "y": 32
+        "y": 12
       },
       "id": 12,
       "options": {
@@ -841,7 +612,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "count(pg_up{job=\"postgres_exporter\"} == 1)",
+          "expr": "count(pg_up{job=\"postgres_exporter\"} == 1) or vector(0)",
           "instant": true,
           "legendFormat": "",
           "range": false,
@@ -889,7 +660,7 @@
         "h": 4,
         "w": 8,
         "x": 16,
-        "y": 32
+        "y": 12
       },
       "id": 13,
       "options": {
@@ -908,7 +679,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "count(pg_up{job=\"postgres_exporter\"} == 0)",
+          "expr": "count(pg_up{job=\"postgres_exporter\"} == 0) or vector(0)",
           "instant": true,
           "legendFormat": "",
           "range": false,
@@ -956,7 +727,7 @@
         "h": 4,
         "w": 8,
         "x": 0,
-        "y": 36
+        "y": 16
       },
       "id": 14,
       "options": {
@@ -975,7 +746,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "sum(bedrock_server_update_available{job=\"node\",instance=~\"minecraft-.*\"}) + sum(sonarr_update_available{job=\"node\",instance=~\"sonarr-.*\"})",
+          "expr": "(sum(bedrock_server_update_available{job=\"node\",instance=~\"minecraft-.*\"}) or vector(0)) + (sum(sonarr_update_available{job=\"node\",instance=~\"sonarr-.*\"}) or vector(0))",
           "instant": true,
           "legendFormat": "",
           "range": false,
