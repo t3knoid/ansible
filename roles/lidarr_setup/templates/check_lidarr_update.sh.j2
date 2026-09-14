@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+api_url="{{ lidarr_setup_api_url }}"
+api_key="{{ lidarr_setup_resolved_update_check_api_key }}"
+
+response="$(curl -fsS --max-time 10 -H "X-Api-Key: ${api_key}" "${api_url}/api/v1/update")"
+
+update_available=0
+current_version="unknown"
+
+if [[ -n "${response}" && "${response}" != "[]" ]]; then
+  current_version="$(echo "${response}" | jq -r '.[0].version // "unknown"')"
+  is_installed="$(echo "${response}" | jq -r 'if .[0].installed == null then true else .[0].installed end')"
+  if [[ "${is_installed}" == "false" ]]; then
+    update_available=1
+  fi
+fi
+
+tmp_file="$(mktemp "{{ lidarr_setup_update_metrics_path }}.XXXXXX")"
+trap 'rm -f "$tmp_file"' EXIT
+cat > "$tmp_file" <<EOF
+# HELP lidarr_current_version_info Lidarr version currently reported by the API.
+# TYPE lidarr_current_version_info gauge
+lidarr_current_version_info{version="$current_version"} 1
+# HELP lidarr_update_available Whether a newer Lidarr version is available.
+# TYPE lidarr_update_available gauge
+lidarr_update_available $update_available
+EOF
+install -o root -g {{ node_exporter_setup_group | default('prometheus') }} -m 0644 "$tmp_file" "{{ lidarr_setup_update_metrics_path }}"

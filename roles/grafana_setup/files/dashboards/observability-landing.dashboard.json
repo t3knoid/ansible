@@ -746,7 +746,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "(sum(bedrock_server_update_available{job=\"node\",instance=~\"minecraft-.*\"}) or vector(0)) + (sum(sonarr_update_available{job=\"node\",instance=~\"sonarr-.*\"}) or vector(0))",
+          "expr": "(sum(bedrock_server_update_available{job=\"node\",instance=~\"minecraft-.*\"}) or vector(0)) + (sum(sonarr_update_available{job=\"node\",instance=~\"sonarr-.*\"}) or vector(0)) + (sum(radarr_update_available{job=\"node\",instance=~\"radarr-.*\"}) or vector(0)) + (sum(lidarr_update_available{job=\"node\",instance=~\"lidarr-.*\"}) or vector(0)) + (sum(plex_update_available{job=\"node\",instance=~\"plex-.*\"}) or vector(0))",
           "instant": true,
           "legendFormat": "",
           "range": false,

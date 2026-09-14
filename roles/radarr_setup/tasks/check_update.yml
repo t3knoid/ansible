@@ -1,0 +1,53 @@
+---
+- name: Read deployed Radarr config file for update check
+  no_log: true
+  ansible.builtin.slurp:
+    src: "{{ radarr_setup_config_dir }}/config.xml"
+  register: radarr_setup_update_check_config_xml
+  changed_when: false
+
+- name: Extract ApiKey from radarr config file for update check
+  community.general.xml:
+    xmlstring: "{{ radarr_setup_update_check_config_xml.content | b64decode }}"
+    xpath: /Config/ApiKey
+    content: text
+  no_log: true
+  register: radarr_setup_update_check_api_key
+
+- name: Resolve Radarr API key for update check
+  ansible.builtin.set_fact:
+    radarr_setup_resolved_update_check_api_key: "{{ radarr_setup_update_check_api_key.matches[0].ApiKey | trim }}"
+  no_log: true
+
+- name: Ensure jq is installed for Radarr update metrics
+  ansible.builtin.package:
+    name: jq
+    state: present
+
+- name: Ensure Radarr update metrics directory exists
+  ansible.builtin.file:
+    path: "{{ radarr_setup_update_metrics_path | dirname }}"
+    state: directory
+    owner: root
+    group: "{{ node_exporter_setup_group | default('prometheus') }}"
+    mode: "0775"
+
+- name: Install Radarr update metrics script
+  ansible.builtin.template:
+    src: check_radarr_update.sh.j2
+    dest: "{{ radarr_setup_update_check_script_path }}"
+    owner: root
+    group: root
+    mode: "0750"
+  no_log: true
+
+- name: Seed Radarr update metrics file
+  ansible.builtin.command: "{{ radarr_setup_update_check_script_path }}"
+  changed_when: true
+
+- name: Schedule Radarr update metrics check
+  ansible.builtin.cron:
+    name: radarr_update_metrics
+    minute: "{{ radarr_setup_update_check_minute }}"
+    user: root
+    job: "{{ radarr_setup_update_check_script_path }}"

@@ -1,0 +1,38 @@
+---
+- name: Ensure jq is installed for Plex update metrics
+  ansible.builtin.package:
+    name: jq
+    state: present
+
+- name: Ensure cron is installed for Plex update metrics
+  ansible.builtin.package:
+    name: cron
+    state: present
+
+- name: Ensure Plex update metrics directory exists
+  ansible.builtin.file:
+    path: "{{ plex_setup_update_metrics_path | dirname }}"
+    state: directory
+    owner: root
+    group: "{{ node_exporter_setup_group | default('prometheus') }}"
+    mode: "0775"
+
+- name: Install Plex update metrics script
+  ansible.builtin.template:
+    src: check_plex_update.sh.j2
+    dest: "{{ plex_setup_update_check_script_path }}"
+    owner: root
+    group: root
+    mode: "0750"
+  no_log: true
+
+- name: Seed Plex update metrics file
+  ansible.builtin.command: "{{ plex_setup_update_check_script_path }}"
+  changed_when: true
+
+- name: Schedule Plex update metrics check
+  ansible.builtin.cron:
+    name: plex_update_metrics
+    minute: "{{ plex_setup_update_check_minute }}"
+    user: root
+    job: "{{ plex_setup_update_check_script_path }}"

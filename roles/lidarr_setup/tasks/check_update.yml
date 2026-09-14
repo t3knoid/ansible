@@ -1,0 +1,53 @@
+---
+- name: Read deployed Lidarr config file for update check
+  no_log: true
+  ansible.builtin.slurp:
+    src: "{{ lidarr_setup_config_dir }}/config.xml"
+  register: lidarr_setup_update_check_config_xml
+  changed_when: false
+
+- name: Extract ApiKey from lidarr config file for update check
+  community.general.xml:
+    xmlstring: "{{ lidarr_setup_update_check_config_xml.content | b64decode }}"
+    xpath: /Config/ApiKey
+    content: text
+  no_log: true
+  register: lidarr_setup_update_check_api_key
+
+- name: Resolve Lidarr API key for update check
+  ansible.builtin.set_fact:
+    lidarr_setup_resolved_update_check_api_key: "{{ lidarr_setup_update_check_api_key.matches[0].ApiKey | trim }}"
+  no_log: true
+
+- name: Ensure jq is installed for Lidarr update metrics
+  ansible.builtin.package:
+    name: jq
+    state: present
+
+- name: Ensure Lidarr update metrics directory exists
+  ansible.builtin.file:
+    path: "{{ lidarr_setup_update_metrics_path | dirname }}"
+    state: directory
+    owner: root
+    group: "{{ node_exporter_setup_group | default('prometheus') }}"
+    mode: "0775"
+
+- name: Install Lidarr update metrics script
+  ansible.builtin.template:
+    src: check_lidarr_update.sh.j2
+    dest: "{{ lidarr_setup_update_check_script_path }}"
+    owner: root
+    group: root
+    mode: "0750"
+  no_log: true
+
+- name: Seed Lidarr update metrics file
+  ansible.builtin.command: "{{ lidarr_setup_update_check_script_path }}"
+  changed_when: true
+
+- name: Schedule Lidarr update metrics check
+  ansible.builtin.cron:
+    name: lidarr_update_metrics
+    minute: "{{ lidarr_setup_update_check_minute }}"
+    user: root
+    job: "{{ lidarr_setup_update_check_script_path }}"

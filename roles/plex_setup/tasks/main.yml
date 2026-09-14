@@ -1,5 +1,4 @@
 ---
-
 - name: Wait for Plex host to come on line
   ansible.builtin.wait_for_connection:
 
@@ -7,7 +6,7 @@
   ansible.builtin.get_url:
     url: "{{ plex_setup_download_url }}"
     dest: "/tmp/{{ plex_setup_package }}"
-    mode: '0644'
+    mode: "0644"
   notify: Restart Plex Media Server
 
 - name: Install Plex Media Server
@@ -20,3 +19,7 @@
     name: plexmediaserver
     state: started
     enabled: true
+
+- name: Check Plex Media Server for available updates via Prometheus metrics
+  ansible.builtin.import_tasks: check_update.yml
+  when: plex_setup_check_update

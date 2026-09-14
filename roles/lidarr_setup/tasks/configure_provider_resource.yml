@@ -374,36 +374,88 @@
       }}
 
 - name: Create Lidarr provider resource when missing
-  no_log: false
+  no_log: true
   ansible.builtin.uri:
-    url: "{{ lidarr_setup_api_url }}/api/v1/{{ lidarr_provider_type }}"
+    url: "{{ lidarr_setup_api_url }}/api/v1/{{ lidarr_provider_type
+      }}?forceSave=true"
     method: POST
     headers:
       X-Api-Key: "{{ lidarr_setup_resolved_api_key }}"
     validate_certs: "{{ lidarr_setup_api_validate_certs }}"
     body_format: json
     body: "{{ lidarr_setup_provider_payload }}"
-    status_code:
-      - 200
-      - 201
-      - 202
+    return_content: true
+  register: lidarr_setup_provider_create_response
+  failed_when: false
   when: lidarr_setup_provider_existing_resource.id is not defined
+
+- name: Fail when Lidarr provider create is rejected
+  ansible.builtin.fail:
+    msg: >-
+      Lidarr rejected {{ lidarr_provider_type }} '{{ lidarr_provider_item.name
+      }}' ({{ lidarr_provider_item.implementation }}) during create with HTTP {{
+      lidarr_setup_provider_create_response.status | default('unknown') }}.
+      Response: {{ lidarr_setup_provider_create_error_details | default('No
+      response body returned.') }}
+  vars:
+    lidarr_setup_provider_create_error_details: >-
+      {{
+        (
+          (lidarr_setup_provider_create_response.json is defined)
+          | ternary(
+              lidarr_setup_provider_create_response.json | to_json,
+              lidarr_setup_provider_create_response.content
+                | default(lidarr_setup_provider_create_response.msg | default('No response body returned.'))
+            )
+        )
+        | regex_replace('\"(apiKey|password|passkey|token|secret)\"\\s*:\\s*\"[^\"]*\"', '"\\1":"***"')
+      }}
+  when:
+    - lidarr_setup_provider_existing_resource.id is not defined
+    - lidarr_setup_provider_create_response.status | default(0) not in [200,
+      201, 202]
 
 - name: Update Lidarr provider resource when changed
   no_log: true
   ansible.builtin.uri:
     url: "{{ lidarr_setup_api_url }}/api/v1/{{ lidarr_provider_type }}/{{
-      lidarr_setup_provider_existing_resource.id }}"
+      lidarr_setup_provider_existing_resource.id }}?forceSave=true"
     method: PUT
     headers:
       X-Api-Key: "{{ lidarr_setup_resolved_api_key }}"
     validate_certs: "{{ lidarr_setup_api_validate_certs }}"
     body_format: json
     body: "{{ lidarr_setup_provider_payload }}"
-    status_code:
-      - 200
-      - 201
-      - 202
+    return_content: true
+  register: lidarr_setup_provider_update_response
+  failed_when: false
   when:
     - lidarr_setup_provider_existing_resource.id is defined
     - lidarr_setup_provider_current_payload != lidarr_setup_provider_payload
+
+- name: Fail when Lidarr provider update is rejected
+  ansible.builtin.fail:
+    msg: >-
+      Lidarr rejected {{ lidarr_provider_type }} '{{ lidarr_provider_item.name
+      }}' ({{ lidarr_provider_item.implementation }}) during update with HTTP {{
+      lidarr_setup_provider_update_response.status | default('unknown') }}.
+      Response: {{ lidarr_setup_provider_update_error_details | default('No
+      response body returned.') }}
+  vars:
+    lidarr_setup_provider_update_error_details: >-
+      {{
+        (
+          (lidarr_setup_provider_update_response.json is defined)
+          | ternary(
+              lidarr_setup_provider_update_response.json | to_json,
+              lidarr_setup_provider_update_response.content
+                | default(lidarr_setup_provider_update_response.msg | default('No response body returned.'))
+            )
+        )
+        | regex_replace('\"(apiKey|password|passkey|token|secret)\"\\s*:\\s*\"[^\"]*\"', '"\\1":"***"')
+      }}
+  when:
+    - lidarr_setup_provider_existing_resource.id is defined
+    - lidarr_setup_provider_current_payload != lidarr_setup_provider_payload
+    - lidarr_setup_provider_update_response.status | default(0) not in [200,
+      201, 202]
