@@ -61,4 +61,4 @@ rproxy_setup_sites:
     oauth2_proxy_metrics_port: 9102
     enable: true
 
-radarr_setup_version: "6.2.1.10461"
+radarr_setup_version: "6.3.0.10514"
