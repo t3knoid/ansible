@@ -105,6 +105,7 @@ _No constant variables found._
 - Install application update status dashboard
 - Install node availability grid dashboard
 - Install Linux update status dashboard
+- Install reverse proxy and Entra ID health dashboard
 - Create Grafana configuration directory
 - Copy Grafana configuration file
 - Copy Grafana LDAP settings file
