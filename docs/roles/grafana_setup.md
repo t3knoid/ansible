@@ -102,6 +102,9 @@ _No constant variables found._
 - Install node-exporter overview dashboard
 - Install node-exporter detail dashboard
 - Install failed services dashboard
+- Install application update status dashboard
+- Install node availability grid dashboard
+- Install Linux update status dashboard
 - Create Grafana configuration directory
 - Copy Grafana configuration file
 - Copy Grafana LDAP settings file
