@@ -85,8 +85,8 @@ _No group variables defined._
 - `wsl`
 
 ### `rproxy`
-- `rproxy_secondary`
 - `rproxy_main`
+- `rproxy_secondary`
 - `rproxy_primary`
 
 ### `cname`
