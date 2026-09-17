@@ -118,6 +118,9 @@ _No constant variables found._
 - Install Linux update status dashboard
 - Install reverse proxy and Entra ID health dashboard
 - Create Grafana configuration directory
+- Check for existing Grafana configuration
+- Read existing Grafana Azure client secret
+- Preserve existing Grafana Azure client secret only if grafana_setup_auth_azuread_client_secret is not set
 - Copy Grafana configuration file
 - Copy Grafana LDAP settings file
 - Copy Grafana defaults file
