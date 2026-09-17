@@ -71,7 +71,7 @@ Installs and configures Lidarr on Debian/Ubuntu systems. It uses a container dis
 | `priority` | `1` |  |
 | `download_client_name` | `sabnzbd` |  |
 | `fields` | `` |  |
-| `baseUrl` | `https://api.nzb.life` |  |
+| `baseUrl` | `https://api.nzb.su` |  |
 | `apiKey` | `"{{ nzbsu_api_key }}"` |  |
 | `categories` | `` |  |
 | `lidarr_setup_root_folder_default_quality_profile_name` | `"Any"` |  |
