@@ -57,7 +57,7 @@ Installs and configures a Radarr Docker container. It uses an image distributed 
 | `enable_interactive_search` | `true` |  |
 | `priority` | `25` |  |
 | `fields` | `` |  |
-| `baseUrl` | `https://api.nzb.su` |  |
+| `baseUrl` | `https://api.nzb.life` |  |
 | `apiPath` | `/api` |  |
 | `apiKey` | `"{{ nzbsu_api_key }}"` |  |
 | `categories` | `` |  |
