@@ -61,4 +61,4 @@ rproxy_setup_sites:
     oauth2_proxy_metrics_port: 9103
     enable: true
 
-sonarr_setup_version: 4.0.19.2979
+sonarr_setup_version: 4.0.20.3014
