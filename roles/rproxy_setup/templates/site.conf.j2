@@ -34,6 +34,8 @@ server {
         ssl_certificate_key {{ nginx_setup_certroot }}/{{ rproxy_setup_site.server_name }}/privkey.pem;
 
         # Allow LAN IPv4
+        allow 10.0.0.0/24;
+        allow 192.168.2.0/24;
         allow 192.168.10.0/24;
         allow 192.168.20.0/24;
 
