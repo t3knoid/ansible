@@ -1,5 +1,4 @@
 ---
-
 - name: Ensure temp folder exists
   ansible.builtin.file:
     path: "{{ semaphoreui_setup_tmpdir }}"
@@ -15,6 +14,43 @@
     owner: ansible
     group: ansible
     mode: u=rwX,g=rX,o=rX
+
+- name: Check for existing Semaphore configuration
+  ansible.builtin.stat:
+    path: "{{ semaphoreui_setup_etcdir }}/config.json"
+  register: semaphoreui_setup_existing_config
+
+- name: Read existing Semaphore OIDC configuration
+  no_log: true
+  ansible.builtin.slurp:
+    src: "{{ semaphoreui_setup_etcdir }}/config.json"
+  register: semaphoreui_setup_existing_config_content
+  when: semaphoreui_setup_existing_config.stat.exists
+
+- name: Preserve existing Semaphore OIDC values when replacements are unavailable
+  no_log: true
+  ansible.builtin.set_fact:
+    semaphoreui_setup_oidc_effective_client_id: >-
+      {{
+        semaphoreui_setup_oidc_client_id
+        if semaphoreui_setup_oidc_client_id | default('') | length > 0
+        else (
+          semaphoreui_setup_existing_config_content.content
+          | b64decode
+          | from_json
+        ).oidc_providers.azure.client_id | default('')
+      }}
+    semaphoreui_setup_oidc_effective_secret: >-
+      {{
+        semaphoreui_setup_oidc_secret
+        if semaphoreui_setup_oidc_secret | default('') | length > 0
+        else (
+          semaphoreui_setup_existing_config_content.content
+          | b64decode
+          | from_json
+        ).oidc_providers.azure.client_secret | default('')
+      }}
+  when: semaphoreui_setup_existing_config.stat.exists
 
 - name: Create Python requirements.txt
   ansible.builtin.template:
@@ -76,7 +112,7 @@
   ansible.builtin.copy:
     content: "{{ semaphoreui_setup_admin_pw }}"
     dest: "{{ semaphoreui_setup_homedir }}/.{{ semaphoreui_setup_admin }}"
-    mode: '0600'
+    mode: "0600"
   when: not semaphoreui_setup_password_file.stat.exists
 
 - name: Show message on how to find admin password
