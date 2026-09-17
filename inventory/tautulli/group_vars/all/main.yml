@@ -36,6 +36,8 @@ rproxy_setup_sites:
   - server_name: tautulli.refol.us
     port: 8181
     proxy_pass: "http://{{ global_ip_addresses['tautulli-0'] }}"
+    use_oauth2: false
+    use_entra_id_oidc: false
     allow_list:
       - 192.168.0.0/24
       - 192.168.2.0/24
@@ -43,6 +45,6 @@ rproxy_setup_sites:
       - 70.107.117.124
     restricted: false
 
-tautulli_setup_version: 2.17.1
+tautulli_setup_version: 2.18.1
 
 node_exporter_port: 9200
