@@ -75,7 +75,7 @@ lidarr_setup_indexers:
     priority: 1
     download_client_name: sabnzbd
     fields:
-      baseUrl: https://api.nzb.su
+      baseUrl: https://api.nzb.life
       apiKey: "{{ nzbsu_api_key }}"
       categories:
         - 2000
