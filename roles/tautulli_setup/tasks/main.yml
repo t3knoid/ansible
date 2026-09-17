@@ -1,5 +1,4 @@
 ---
-
 # https://github.com/Tautulli/Tautulli/wiki/Installation#docker
 # https://hub.docker.com/r/linuxserver/tautulli
 
@@ -11,3 +10,7 @@
     docker_service_deploy_backups_dir: "{{ tautulli_setup_backups_dir }}"
     docker_service_deploy_compose_template: "docker-compose.yml.j2"
     docker_service_deploy_container_name: "tautulli"
+
+- name: Check Tautulli for available updates via Prometheus metrics
+  ansible.builtin.import_tasks: check_update.yml
+  when: tautulli_setup_check_update
