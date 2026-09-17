@@ -67,4 +67,4 @@ rproxy_setup_sites:
     oauth2_proxy_metrics_port: 9104
     enable: true
 
-sabnzbd_setup_version: 5.0.4
+sabnzbd_setup_version: 5.1.3
