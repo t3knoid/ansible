@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+api_url="{{ sabnzbd_setup_host }}"
+api_key="{{ sabnzbd_setup_api_key }}"
+
+installed_version="$(curl -fsS --max-time 10 "${api_url}/api?mode=version&apikey=${api_key}&output=json" | jq -r '.version // "unknown"')"
+
+latest_tag="$(curl -fsS --max-time 10 https://api.github.com/repos/sabnzbd/sabnzbd/releases/latest | jq -r '.tag_name // "unknown"')"
+latest_version="${latest_tag#v}"
+
+update_available=0
+if [[ "${installed_version}" != "unknown" && "${latest_version}" != "unknown" && "${installed_version}" != "${latest_version}" ]]; then
+  newest="$(printf '%s\n%s\n' "${installed_version}" "${latest_version}" | sort -V | tail -n1)"
+  if [[ "${newest}" == "${latest_version}" ]]; then
+    update_available=1
+  fi
+fi
+
+tmp_file="$(mktemp "{{ sabnzbd_setup_update_metrics_path }}.XXXXXX")"
+trap 'rm -f "$tmp_file"' EXIT
+cat > "$tmp_file" <<EOF
+# HELP sabnzbd_current_version_info SABnzbd version currently reported by the API.
+# TYPE sabnzbd_current_version_info gauge
+sabnzbd_current_version_info{version="$installed_version"} 1
+# HELP sabnzbd_update_available Whether a newer SABnzbd version is available.
+# TYPE sabnzbd_update_available gauge
+sabnzbd_update_available $update_available
+EOF
+install -o root -g {{ node_exporter_setup_group | default('prometheus') }} -m 0644 "$tmp_file" "{{ sabnzbd_setup_update_metrics_path }}"

@@ -1,5 +1,4 @@
 ---
-
 - name: Set SABnzbd pre-configuration directory
   ansible.builtin.set_fact:
     sabnzbd_setup_pre_config: "{{ role_path }}/tasks/pre_config.yml"
@@ -18,3 +17,7 @@
         dest: "sabnzbd.ini"
         mode: "0640"
     docker_service_deploy_compose_template: "docker-compose.yml.j2"
+
+- name: Check SABnzbd for available updates via Prometheus metrics
+  ansible.builtin.import_tasks: check_update.yml
+  when: sabnzbd_setup_check_update
