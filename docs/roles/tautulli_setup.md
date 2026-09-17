@@ -22,12 +22,17 @@ Installs and configures an Tautulli Docker container. It uses a container distri
 | `tautulli_setup_backups_dir` | `"/nfs/backups/tautulli"` |  |
 | `tautulli_setup_backup_dir_native` | `"{{ tautulli_setup_config_dir }}/backups"` |  |
 | `tautulli_setup_restore_path` | `""` |  |
+| `tautulli_setup_check_update` | `true` |  |
+| `tautulli_setup_update_check_script_path` | `/usr/local/bin/check_tautulli_update.sh` |  |
+| `tautulli_setup_update_metrics_path` | `"{{ node_exporter_setup_textfile_collector_dir | default('/var/lib/node_exporter/textfile') }}/tautulli_update.prom"` |  |
+| `tautulli_setup_update_check_minute` | `"*/30"` |  |
 
 ## 📦 Vars
 _No constant variables found._
 
 ## 📑 Tasks
 - Deploy Tautulli Docker Service
+- Check Tautulli for available updates via Prometheus metrics
 
 ## 🔔 Handlers
 _No handlers defined._
