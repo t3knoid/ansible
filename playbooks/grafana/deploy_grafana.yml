@@ -1,5 +1,4 @@
 ---
-
 # Purpose: Deploy Grafana monitoring tool on Grafana hosts
 
 - name: Deploy Grafana
@@ -8,4 +7,17 @@
   gather_facts: true
   roles:
     - global
-    - grafana_setup
+    - azure_cli_setup
+  tasks:
+    - name: Register Entra ID application and inject OIDC secrets
+      ansible.builtin.import_role:
+        name: entra_id_oauth2
+
+    - name: Apply entra_id_oauth2 injected secrets to rproxy_setup_sites
+      ansible.builtin.set_fact:
+        rproxy_setup_sites: "{{ entra_id_oauth2_updated_sites }}"
+      when: entra_id_oauth2_updated_sites is defined
+
+    - name: Deploy Grafana application
+      ansible.builtin.import_role:
+        name: grafana_setup

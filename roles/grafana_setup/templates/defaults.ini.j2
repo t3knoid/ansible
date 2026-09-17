@@ -48,14 +48,14 @@ http_addr =
 http_port = 3000
 
 # The public facing domain name used to access grafana from a browser
-domain = localhost
+domain = {{ grafana_setup_domain }}
 
 # Redirect to correct domain if host header does not match domain
 # Prevents DNS rebinding attacks
 enforce_domain = false
 
 # The full public facing url
-root_url = %(protocol)s://%(domain)s:%(http_port)s/
+root_url = {{ grafana_setup_root_url }}
 
 # Serve Grafana from subpath specified in `root_url` setting. By default it is set to `false` for compatibility reasons.
 serve_from_sub_path = false
@@ -815,20 +815,20 @@ use_refresh_token = false
 [auth.azuread]
 name = Microsoft
 icon = microsoft
-enabled = false
+enabled = {{ 'true' if grafana_setup_auth_azuread_enabled else 'false' }}
 allow_sign_up = true
 auto_login = false
 client_authentication =
-client_id = some_client_id
-client_secret =
+client_id = {{ grafana_setup_auth_azuread_client_id }}
+client_secret = {{ grafana_setup_auth_azuread_client_secret }}
 managed_identity_client_id =
 federated_credential_audience =
 workload_identity_token_file = /var/run/secrets/azure/tokens/azure-identity-token
 scopes = openid email profile
-auth_url = https://login.microsoftonline.com/<tenant-id>/oauth2/v2.0/authorize
-token_url = https://login.microsoftonline.com/<tenant-id>/oauth2/v2.0/token
-signout_redirect_url =
-allowed_domains =
+auth_url = {{ grafana_setup_auth_azuread_auth_url }}
+token_url = {{ grafana_setup_auth_azuread_token_url }}
+signout_redirect_url = {{ grafana_setup_auth_azuread_signout_redirect_url }}
+allowed_domains = {{ grafana_setup_auth_azuread_allowed_domains }}
 allowed_groups =
 allowed_organizations =
 role_attribute_strict = false
