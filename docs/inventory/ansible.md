@@ -85,9 +85,9 @@ _No group variables defined._
 - `wsl`
 
 ### `rproxy`
-- `rproxy_primary`
 - `rproxy_secondary`
 - `rproxy_main`
+- `rproxy_primary`
 
 ### `cname`
 - `code_server`
