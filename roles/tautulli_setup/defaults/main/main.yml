@@ -1,5 +1,4 @@
 ---
-
 tautulli_setup_version: 2.16.0
 tautulli_setup_config_dir: "/config"
 tautulli_setup_port: 8181
@@ -11,3 +10,8 @@ tautulli_setup_host: "http://localhost:8181"
 tautulli_setup_backups_dir: "/nfs/backups/tautulli"
 tautulli_setup_backup_dir_native: "{{ tautulli_setup_config_dir }}/backups"
 tautulli_setup_restore_path: ""
+
+tautulli_setup_check_update: true
+tautulli_setup_update_check_script_path: /usr/local/bin/check_tautulli_update.sh
+tautulli_setup_update_metrics_path: "{{ node_exporter_setup_textfile_collector_dir | default('/var/lib/node_exporter/textfile') }}/tautulli_update.prom"
+tautulli_setup_update_check_minute: "*/30"

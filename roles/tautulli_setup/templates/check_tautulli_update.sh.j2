@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+response="$(curl -fsS --max-time 10 -G "{{ tautulli_setup_host }}/api/v2" \
+  --data-urlencode "cmd=update_check" \
+  --data-urlencode "apikey={{ tautulli_setup_apikey }}")"
+
+update_available=0
+if [[ "$(echo "${response}" | jq -r '.response.data.update // false')" == "true" ]]; then
+  update_available=1
+fi
+
+tmp_file="$(mktemp "{{ tautulli_setup_update_metrics_path }}.XXXXXX")"
+trap 'rm -f "$tmp_file"' EXIT
+cat > "$tmp_file" <<EOF
+# HELP tautulli_update_available Whether a newer Tautulli version is available.
+# TYPE tautulli_update_available gauge
+tautulli_update_available $update_available
+EOF
+install -o root -g {{ node_exporter_setup_group | default('prometheus') }} -m 0644 "$tmp_file" "{{ tautulli_setup_update_metrics_path }}"

@@ -1,0 +1,38 @@
+---
+- name: Ensure jq is installed for Tautulli update metrics
+  ansible.builtin.package:
+    name: jq
+    state: present
+
+- name: Ensure cron is installed for Tautulli update metrics
+  ansible.builtin.package:
+    name: cron
+    state: present
+
+- name: Ensure Tautulli update metrics directory exists
+  ansible.builtin.file:
+    path: "{{ tautulli_setup_update_metrics_path | dirname }}"
+    state: directory
+    owner: root
+    group: "{{ node_exporter_setup_group | default('prometheus') }}"
+    mode: "0775"
+
+- name: Install Tautulli update metrics script
+  ansible.builtin.template:
+    src: check_tautulli_update.sh.j2
+    dest: "{{ tautulli_setup_update_check_script_path }}"
+    owner: root
+    group: root
+    mode: "0750"
+  no_log: true
+
+- name: Seed Tautulli update metrics file
+  ansible.builtin.command: "{{ tautulli_setup_update_check_script_path }}"
+  changed_when: true
+
+- name: Schedule Tautulli update metrics check
+  ansible.builtin.cron:
+    name: tautulli_update_metrics
+    minute: "{{ tautulli_setup_update_check_minute }}"
+    user: root
+    job: "{{ tautulli_setup_update_check_script_path }}"
