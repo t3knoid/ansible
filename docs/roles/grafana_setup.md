@@ -22,6 +22,9 @@ Install and configure Grafana on Debian/Ubuntu
 | `grafana_setup_install_dir` | `"/opt/grafana-{{ grafana_setup_version }}"` |  |
 | `grafana_setup_bin_path` | `"{{ grafana_setup_install_dir }}/bin/grafana server"` |  |
 | `grafana_setup_http_port` | `3000` |  |
+| `grafana_setup_domain` | `"localhost"` |  |
+| `grafana_setup_protocol` | `"http"` |  |
+| `grafana_setup_root_url` | `"{{ grafana_setup_protocol }}://{{ grafana_setup_domain }}/"` |  |
 | `grafana_setup_user` | `"grafana"` |  |
 | `grafana_setup_group` | `"users"` |  |
 | `grafana_setup_home_dir` | `"/data/grafana"` |  |
@@ -48,6 +51,14 @@ Install and configure Grafana on Debian/Ubuntu
 | `grafana_setup_auth_anonymous_hide_version` | `false` |  |
 | `grafana_setup_auth_anonymous_device_limit` | `""` |  |
 | `grafana_setup_auth_disable_login_form` | `false` |  |
+| `grafana_setup_auth_azuread_enabled` | `false` |  |
+| `grafana_setup_auth_azuread_allowed_domains` | `""` |  |
+| `grafana_setup_auth_azuread_site` | `"{{ (rproxy_setup_sites | default([]) | first) | default({}) }}"` |  |
+| `grafana_setup_auth_azuread_client_id` | `"{{ grafana_setup_auth_azuread_site.oauth2_client_id | default('') }}"` |  |
+| `grafana_setup_auth_azuread_client_secret` | `"{{ grafana_setup_auth_azuread_site.oauth2_client_secret | default('') }}"` |  |
+| `grafana_setup_auth_azuread_auth_url` | `"https://login.microsoftonline.com/{{ global_azure_tenant }}/oauth2/v2.0/authorize"` |  |
+| `grafana_setup_auth_azuread_token_url` | `"https://login.microsoftonline.com/{{ global_azure_tenant }}/oauth2/v2.0/token"` |  |
+| `grafana_setup_auth_azuread_signout_redirect_url` | `""` |  |
 | `grafana_setup_config_file` | `"{{ grafana_setup_conf_dir }}/defaults.ini"` |  |
 | `grafana_setup_service_file` | `"/usr/lib/systemd/system/grafana-server.service"` |  |
 | `grafana_setup_environment_file` | `"{{ grafana_setup_home_dir }}/defaults"` |  |
