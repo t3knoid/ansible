@@ -13,10 +13,21 @@
       ansible.builtin.import_role:
         name: entra_id_oauth2
 
+    - name: Use registered Grafana Entra application ID
+      ansible.builtin.set_fact:
+        grafana_setup_auth_azuread_client_id: >-
+          {{
+            (
+              (entra_id_oauth2_site_client_map | default({}))
+              .get(rproxy_setup_sites[0].server_name, {})
+              .get('client_id', '')
+            )
+          }}
+
     - name: Apply entra_id_oauth2 injected secrets to rproxy_setup_sites
       ansible.builtin.set_fact:
         rproxy_setup_sites: "{{ entra_id_oauth2_updated_sites }}"
-      when: entra_id_oauth2_updated_sites is defined
+      when: entra_id_oauth2_updated_sites | default([]) | length > 0
 
     - name: Deploy Grafana application
       ansible.builtin.import_role:
