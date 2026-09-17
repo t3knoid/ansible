@@ -78,6 +78,7 @@ Installs Minecraft Bedrock Server on Linux systems.
 - Ensure Bedrock version metrics directory exists
 - Install Bedrock version checker script for Prometheus
 - Install Bedrock version metrics script
+- Seed Bedrock update metrics file
 - Schedule Bedrock version metrics check
 
 ## 🔔 Handlers
