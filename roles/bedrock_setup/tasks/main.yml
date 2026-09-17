@@ -128,7 +128,7 @@
     mode: "0755"
 
 - name: Seed Bedrock update metrics file
-  ansible.builtin.command: "{{ bedrock_setup_update_check_script_path }}"
+  ansible.builtin.command: "{{ bedrock_setup_version_check_script_path }}"
   changed_when: true
 
 - name: Schedule Bedrock version metrics check
