@@ -18,6 +18,11 @@ Installs and configures a Sabnzbd Docker container. It uses a Docker image distr
 | `sabnzbd_setup_version` | `4.5.3` |  |
 | `sabnzbd_setup_config_dir` | `"/config"` |  |
 | `sabnzbd_setup_port` | `8080` |  |
+| `sabnzbd_setup_host` | `"http://localhost:{{ sabnzbd_setup_port }}"` |  |
+| `sabnzbd_setup_check_update` | `true` |  |
+| `sabnzbd_setup_update_check_script_path` | `/usr/local/bin/check_sabnzbd_update.sh` |  |
+| `sabnzbd_setup_update_metrics_path` | `"{{ node_exporter_setup_textfile_collector_dir | default('/var/lib/node_exporter/textfile') }}/sabnzbd_update.prom"` |  |
+| `sabnzbd_setup_update_check_minute` | `"*/30"` |  |
 | `sabnzbd_setup_mount_point` | `/nfs/backups` |  |
 | `sabnzbd_setup_backup_prefix` | `"sabnzbd_"` |  |
 | `sabnzbd_setup_backup_filename` | `"{{ sabnzbd_setup_backup_prefix }}{{ ansible_date_time.iso8601_basic_short }}.sqlc"` |  |
@@ -102,6 +107,7 @@ Installs and configures a Sabnzbd Docker container. It uses a Docker image distr
 ## 📑 Tasks
 - Set SABnzbd pre-configuration directory
 - Deploy SABnzbd Docker Service
+- Check SABnzbd for available updates via Prometheus metrics
 
 ## 🔔 Handlers
 _No handlers defined._
