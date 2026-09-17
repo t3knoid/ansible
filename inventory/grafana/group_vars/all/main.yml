@@ -46,7 +46,7 @@ grafana_setup_auth_anonymous_enabled: true
 grafana_setup_auth_anonymous_org_name: "Main Org."
 grafana_setup_auth_anonymous_org_role: "Viewer"
 grafana_setup_auth_anonymous_hide_version: false
-grafana_setup_auth_disable_login_form: true
+grafana_setup_auth_disable_login_form: false
 grafana_setup_auth_azuread_enabled: true
 grafana_setup_auth_azuread_allowed_domains: ""
 
