@@ -65,7 +65,7 @@ Installs and configures a Sonarr Docker container. It uses a container distribut
 | `priority` | `1` |  |
 | `download_client_name` | `sabnzbd` |  |
 | `fields` | `` |  |
-| `baseUrl` | `https://api.nzb.su` |  |
+| `baseUrl` | `https://api.nzb.life` |  |
 | `apiKey` | `"{{ nzbsu_api_key }}"` |  |
 | `categories` | `` |  |
 | `sonarr_setup_configure_api` | `>-` |  |
