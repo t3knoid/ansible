@@ -243,6 +243,40 @@
     group: grafana
     mode: "0750"
 
+- name: Check for existing Grafana configuration
+  ansible.builtin.stat:
+    path: "{{ grafana_setup_config_file }}"
+  register: grafana_setup_existing_config
+
+- name: Read existing Grafana Azure client secret
+  no_log: true
+  ansible.builtin.slurp:
+    src: "{{ grafana_setup_config_file }}"
+  register: grafana_setup_existing_config_content
+  when:
+    - grafana_setup_existing_config.stat.exists
+    - grafana_setup_auth_azuread_client_secret | default('') | length == 0
+
+- name: Preserve existing Grafana Azure client secret only if grafana_setup_auth_azuread_client_secret is not set
+  no_log: true
+  ansible.builtin.set_fact:
+    grafana_setup_auth_azuread_effective_client_secret: >-
+      {{
+        grafana_setup_auth_azuread_client_secret
+        if grafana_setup_auth_azuread_client_secret | default('') | length > 0
+        else (
+          grafana_setup_existing_config_content.content
+          | b64decode
+          | regex_search('(?ms)^\\[auth\\.azuread\\].*?(?=^\\[|\\Z)')
+          | default('')
+          | regex_findall('(?m)^client_secret\\s*=\\s*(\\S.*)$')
+          | first
+          | default('')
+        )
+      }}
+  when:
+    - grafana_setup_auth_azuread_client_secret | default('') | length == 0
+
 - name: Copy Grafana configuration file
   ansible.builtin.template:
     src: defaults.ini.j2
