@@ -24,6 +24,7 @@ vms_autoinstall: true
 vms_enable_serial_terminal: false
 vms_additional_packages: []
 python3_version: 3.12
+python3_venv_folder: "/opt/python_{{ python3_version }}"
 
 disks_disk_mounts:
   - {
@@ -37,6 +38,8 @@ nginx_setup_disable_default_site: true
 postgresql_setup_version: 17
 
 grafana_setup_http_port: 3000
+grafana_setup_domain: "grafana.refol.us"
+grafana_setup_protocol: "https"
 grafana_setup_version: "12.2.0"
 grafana_setup_edition: "grafana-enterprise"
 grafana_setup_auth_anonymous_enabled: true
@@ -44,6 +47,8 @@ grafana_setup_auth_anonymous_org_name: "Main Org."
 grafana_setup_auth_anonymous_org_role: "Viewer"
 grafana_setup_auth_anonymous_hide_version: false
 grafana_setup_auth_disable_login_form: true
+grafana_setup_auth_azuread_enabled: true
+grafana_setup_auth_azuread_allowed_domains: ""
 
 rproxy_setup_sites:
   - server_name: grafana.refol.us
@@ -55,3 +60,11 @@ rproxy_setup_sites:
       - 24.105.250.200
       - 70.107.117.124
     restricted: false
+    use_oauth2: false
+    use_entra_id_oidc: true
+    oauth2_provider: "entra-id"
+    oauth2_scope: "openid profile email"
+    oauth2_client_id: ""
+    oauth2_callback_url: "https://grafana.refol.us/login/azuread"
+    oauth2_client_secret: ""
+    oauth2_email_domains: "*"
