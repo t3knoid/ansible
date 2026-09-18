@@ -68,3 +68,4 @@ rproxy_setup_sites:
     oauth2_callback_url: "https://grafana.refol.us/login/azuread"
     oauth2_client_secret: ""
     oauth2_email_domains: "*"
+    enable: true
