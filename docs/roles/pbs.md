@@ -18,6 +18,8 @@ _No default variables found._
 _No constant variables found._
 
 ## 📑 Tasks
+- Disable Proxmox Backup Server enterprise apt repository (list format)
+- Disable Proxmox Backup Server enterprise apt repository (deb822 format)
 - Configure apt sources.list
 - Download the Proxmox GPG key
 - Update apt cache
