@@ -1,6 +1,9 @@
 ---
-
 python3_version: 3.12
+
+# Repointing /usr/bin/python3 breaks python3-apt (and other OS tooling tied to
+# the distro-shipped Python) on most hosts, so only opt in where truly needed.
+python3_set_as_system_default: false
 
 python3_repo_key_local: "/etc/apt/trusted.gpg.d/deadsnakes.asc"
 python3_repo_base_url: "https://ppa.launchpadcontent.net/deadsnakes/ppa/ubuntu"
