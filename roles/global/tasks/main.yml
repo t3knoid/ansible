@@ -1,5 +1,12 @@
 ---
-
 - name: Global
   ansible.builtin.debug:
     msg: Loading global variables
+
+# Cache as a fact so other hosts can read it via hostvars (role vars alone
+# aren't visible when a different host's context is templated, e.g. in
+# playbooks/rproxy/config_rproxy.yml).
+- name: Expose global_ip_addresses as a fact for cross-host lookups
+  ansible.builtin.set_fact:
+    global_ip_addresses: "{{ global_ip_addresses }}"
+    cacheable: true

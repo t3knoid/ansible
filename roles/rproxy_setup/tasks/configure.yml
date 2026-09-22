@@ -1,7 +1,7 @@
 ---
-# - name: Include nginx variables
-#   ansible.builtin.include_vars:
-#     dir: ../../../roles/nginx_setup/defaults/main
+- name: Include nginx variables
+  ansible.builtin.include_vars:
+    dir: ../../../roles/nginx_setup/defaults/main
 
 - name: Ensure nginx snippets directory exists
   ansible.builtin.file:
@@ -9,7 +9,7 @@
     state: directory
     mode: "0755"
   when:
-    - inventory_hostname in groups['rproxy_main']
+    - rproxy_setup_delegate_host in groups['rproxy_main']
     - rproxy_setup_cloudflare_only
   tags: rproxy_setup_cloudflare
 
@@ -19,7 +19,7 @@
     dest: "{{ nginx_setup_homedir }}/snippets/cloudflare-allow.conf"
     mode: "0644"
   when:
-    - inventory_hostname in groups['rproxy_main']
+    - rproxy_setup_delegate_host in groups['rproxy_main']
     - rproxy_setup_cloudflare_only
   notify: Restart nginx
   tags: rproxy_setup_cloudflare
@@ -30,7 +30,7 @@
     dest: "{{ nginx_setup_homedir }}/snippets/cloudflare-allow-ipv6.conf"
     mode: "0644"
   when:
-    - inventory_hostname in groups['rproxy_main']
+    - rproxy_setup_delegate_host in groups['rproxy_main']
     - rproxy_setup_cloudflare_only
   notify: Restart nginx
   tags: rproxy_setup_cloudflare
@@ -40,7 +40,7 @@
     path: "{{ nginx_setup_homedir }}/snippets/cloudflare-allow.conf"
     state: absent
   when:
-    - inventory_hostname in groups['rproxy_main']
+    - rproxy_setup_delegate_host in groups['rproxy_main']
     - not rproxy_setup_cloudflare_only
   notify: Restart nginx
   tags: rproxy_setup_cloudflare
@@ -50,7 +50,7 @@
     path: "{{ nginx_setup_homedir }}/snippets/cloudflare-allow-ipv6.conf"
     state: absent
   when:
-    - inventory_hostname in groups['rproxy_main']
+    - rproxy_setup_delegate_host in groups['rproxy_main']
     - not rproxy_setup_cloudflare_only
   notify: Restart nginx
   tags: rproxy_setup_cloudflare
@@ -139,3 +139,9 @@
     loop_var: rproxy_setup_cert
   notify: Restart nginx
   tags: rproxy_setup_certs
+
+# Flush here (per loop iteration in config_rproxy.yml) so the handler restarts
+# nginx on rproxy_setup_delegate_host before that var is overwritten by the
+# next proxy host in the outer loop.
+- name: Apply pending nginx changes
+  ansible.builtin.meta: flush_handlers
