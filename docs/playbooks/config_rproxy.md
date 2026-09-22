@@ -5,7 +5,6 @@ Configures Reverse Proxy for specified sites. rproxy_setup_sites variable should
 
 ## 🔗 Roles Applied
 - [`global`](../roles/global/README.md)
-- [`nginx_setup`](../roles/nginx_setup/README.md)
 
 ## 🚀 Usage
 ```bash
