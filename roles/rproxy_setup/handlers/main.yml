@@ -1,7 +1,7 @@
 ---
-
 - name: Restart nginx
   ansible.builtin.service:
     name: nginx
     state: restarted
   become: true
+  delegate_to: "{{ rproxy_setup_delegate_host }}"

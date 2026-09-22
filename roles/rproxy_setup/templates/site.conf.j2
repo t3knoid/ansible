@@ -1,4 +1,4 @@
-{% set is_main = inventory_hostname in groups['rproxy_main'] %}
+{% set is_main = rproxy_setup_delegate_host in groups['rproxy_main'] %}
 {% set is_default = rproxy_setup_site.server_name == 'default_server' %}
 {% set is_restricted = rproxy_setup_site.restricted | default(false) %}
 

@@ -1,20 +1,41 @@
 ---
-
 # Purpose: Configures Reverse Proxy for specified sites.
 # rproxy_setup_sites variable should be defined in the inventory
 # or host_vars.
 
 - name: Configure Reverse Proxy
-  hosts: rproxy
+  hosts: vms
   become: true
   gather_facts: true
   roles:
     - role: global
-    - role: nginx_setup
-      nginx_setup_start: false
 
   tasks:
-    - name: Import rproxy role
-      ansible.builtin.import_role:
+    - name: Aggregate selected service sites
+      ansible.builtin.set_fact:
+        selected_rproxy_setup_sites: >-
+          {{
+            ansible_play_hosts
+            | map('extract', hostvars)
+            | map(attribute='rproxy_setup_sites', default=[])
+            | flatten
+            | list
+          }}
+      delegate_to: localhost
+      delegate_facts: true
+      run_once: true
+
+    - name: Configure selected services on every reverse proxy
+      ansible.builtin.include_role:
         name: rproxy_setup
         tasks_from: configure.yml
+        apply:
+          delegate_to: "{{ proxy_host }}"
+          become: true
+      vars:
+        rproxy_setup_sites: "{{ hostvars['localhost'].selected_rproxy_setup_sites }}"
+        rproxy_setup_delegate_host: "{{ proxy_host }}"
+      loop: "{{ groups['rproxy'] }}"
+      loop_control:
+        loop_var: proxy_host
+      run_once: true
