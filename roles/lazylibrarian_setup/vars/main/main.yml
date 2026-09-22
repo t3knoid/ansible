@@ -35,7 +35,7 @@ lazylibrarian_setup_newznab_configs:
   Newznab_0:
     dispname: "Nzb.su"
     enabled: "True"
-    host: "https://nzb.su"
+    host: "https://nzb.life"
     api: "{{ lazylibrarian_setup_nzbsu_api }}"
     dlpriority: "25"
   Newznab_1:
