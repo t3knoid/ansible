@@ -34,6 +34,9 @@ _Inventory for `pve` hosts_
 - `pve-1`
 - `pve-2`
 
+### `prometheus`
+- `prometheus-0`
+
 ## ⚙️ Group Variables
 _No group variables defined._
 
@@ -59,3 +62,9 @@ _No group variables defined._
 - `rproxy_secondary`
 - `rproxy_main`
 - `rproxy_primary`
+
+### `node_exporter`
+- `pvenodes`
+
+### `pve_exporter`
+- `pvenodes`
