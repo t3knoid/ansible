@@ -2,12 +2,16 @@
 # Purpose: Deploy OAuth2 Proxy with Entra ID as the identity provider
 
 - name: Deploy Oauth2 Proxy with Entra ID
-  hosts: entra_id
+  hosts: vms
   gather_facts: true
   roles:
     - global
     - entra_id_oauth2
   tasks:
+    - name: Show entra_id_oauth2_updated_sites
+      ansible.builtin.debug:
+        var: entra_id_oauth2_updated_sites
+  
     - name: Collect generated site configuration # noqa: run-once[task]
       ansible.builtin.set_fact:
         entra_id_oauth2_site_batch: "{{ hostvars[entra_host].entra_id_oauth2_updated_sites | default([]) }}"
