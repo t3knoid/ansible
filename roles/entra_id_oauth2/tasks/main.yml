@@ -6,6 +6,7 @@
     state: present
     virtualenv: "{{ python3_venv_folder }}"
   delegate_to: localhost
+  become: true
 
 - name: Ensure azure-cli Python module installed
   ansible.builtin.pip:
@@ -13,6 +14,7 @@
     state: present
     virtualenv: "{{ python3_venv_folder }}"
   delegate_to: localhost
+  become: true
 
 # The number of days until the generated secret will expire.
 # This variable is used in creation of the secret.
@@ -73,22 +75,11 @@
       {{
         (entra_id_oauth2_updated_sites | default([])) +
         [ item | combine({
-            'oauth2_client_id': ((entra_id_oauth2_site_client_map | default({})).get(item.server_name, {}).get('client_id', item.oauth2_client_id)),
-            'oauth2_client_secret': ((entra_id_oauth2_site_client_map | default({})).get(item.server_name, {}).get('client_secret', item.oauth2_client_secret))
-          }, recursive=True)
+            'oauth2_client_id': ((entra_id_oauth2_site_client_map | default({})).get(item.server_name, {}).get('client_id', item.oauth2_client_id | default(''))),
+            'oauth2_client_secret': ((entra_id_oauth2_site_client_map | default({})).get(item.server_name, {}).get('client_secret', item.oauth2_client_secret | default('')))
+          })
         ]
       }}
   loop: "{{ rproxy_setup_sites }}"
   loop_control:
     label: "{{ item.server_name }}"
-  when:
-    - >-
-      not (item.use_oauth2 | default(true) or item.use_entra_id_oidc | default(false))
-      or
-      (
-        (
-          (entra_id_oauth2_site_client_map | default({}))
-          .get(item.server_name, {})
-          .get('client_secret', item.oauth2_client_secret | default(''))
-        ) | default('') | length > 0
-      )
