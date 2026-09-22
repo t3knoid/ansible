@@ -1,5 +1,4 @@
 ---
-
 # Purpose: Deploy and configure Ansible on the control node
 
 - name: Deploy ansible
@@ -17,8 +16,8 @@
 
     - name: Wait for host to become available before proceeding
       ansible.builtin.wait_for_connection:
-        timeout: 300  # seconds to wait
-        sleep: 5      # seconds between checks
+        timeout: 300 # seconds to wait
+        sleep: 5 # seconds between checks
 
     - name: Import ssh_pass role
       ansible.builtin.import_role:
@@ -28,6 +27,8 @@
       ansible.builtin.import_role:
         name: python3
         tasks_from: venv.yml
+      vars:
+        python3_set_as_system_default: true
 
     - name: Import ansible_setup role
       ansible.builtin.import_role:

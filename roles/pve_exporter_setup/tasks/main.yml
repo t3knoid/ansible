@@ -1,0 +1,74 @@
+---
+- name: Require pve_exporter API token value
+  ansible.builtin.assert:
+    that:
+      - pve_exporter_setup_api_token_value | default('') | length > 0
+    fail_msg: "Set pve_exporter_setup_api_token_value via vault before deploying pve_exporter_setup."
+
+- name: Create pve_exporter group
+  ansible.builtin.group:
+    name: "{{ pve_exporter_setup_group }}"
+    system: true
+
+- name: Create pve_exporter user
+  ansible.builtin.user:
+    name: "{{ pve_exporter_setup_user }}"
+    group: "{{ pve_exporter_setup_group }}"
+    system: true
+    create_home: false
+    shell: /usr/sbin/nologin
+
+- name: Import venv.yml from python3 role
+  ansible.builtin.import_role:
+    name: python3
+    tasks_from: venv.yml
+  vars:
+    python3_venv_folder: "{{ pve_exporter_setup_venv }}"
+
+- name: Install prometheus-pve-exporter in its virtual environment
+  ansible.builtin.pip:
+    name: "prometheus-pve-exporter=={{ pve_exporter_setup_version }}"
+    virtualenv: "{{ pve_exporter_setup_venv }}"
+    state: present
+  notify: Restart pve_exporter service
+
+- name: Set ownership for pve_exporter virtual environment
+  ansible.builtin.file:
+    path: "{{ pve_exporter_setup_venv }}"
+    owner: "{{ pve_exporter_setup_user }}"
+    group: "{{ pve_exporter_setup_group }}"
+    recurse: true
+
+- name: Create pve_exporter configuration directory
+  ansible.builtin.file:
+    path: "{{ pve_exporter_setup_config_dir }}"
+    state: directory
+    owner: root
+    group: "{{ pve_exporter_setup_group }}"
+    mode: "0750"
+
+- name: Render pve_exporter configuration file
+  ansible.builtin.template:
+    src: pve.yml.j2
+    dest: "{{ pve_exporter_setup_config_file }}"
+    owner: root
+    group: "{{ pve_exporter_setup_group }}"
+    mode: "0640"
+  notify: Restart pve_exporter service
+
+- name: Create pve_exporter systemd service file
+  ansible.builtin.template:
+    src: pve_exporter.service.j2
+    dest: "{{ pve_exporter_setup_service_file }}"
+    owner: root
+    group: root
+    mode: "{{ pve_exporter_setup_service_mode }}"
+  notify:
+    - Reload systemd daemon
+    - Restart pve_exporter service
+
+- name: Enable and start pve_exporter service
+  ansible.builtin.systemd:
+    name: "{{ pve_exporter_setup_service_name }}"
+    enabled: true
+    state: started

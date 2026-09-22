@@ -87,6 +87,28 @@
   ansible.builtin.set_fact:
     prometheus_setup_postgres_exporter_static_configs: "{{ prometheus_setup_postgres_exporter_static_config_map.values() | list }}"
 
+- name: Load existing pve exporter scrape targets
+  ansible.builtin.set_fact:
+    prometheus_setup_pve_exporter_static_configs: "{{ prometheus_setup_existing_scrape_configs | selectattr('job_name', 'equalto', prometheus_setup_pve_exporter_job_name) | map(attribute='static_configs') | first | default([]) }}"
+
+- name: Initialize pve exporter target map
+  ansible.builtin.set_fact:
+    prometheus_setup_pve_exporter_static_config_map: {}
+
+- name: Seed pve exporter target map from existing Prometheus config
+  ansible.builtin.set_fact:
+    prometheus_setup_pve_exporter_static_config_map: "{{ prometheus_setup_pve_exporter_static_config_map | combine({item.labels.instance: item}) }}"
+  loop: "{{ prometheus_setup_pve_exporter_static_configs }}"
+
+- name: Merge current inventory pve exporter targets into target map
+  ansible.builtin.set_fact:
+    prometheus_setup_pve_exporter_static_config_map: "{{ prometheus_setup_pve_exporter_static_config_map | combine({item: {'targets': [global_ip_addresses[item] ~ ':' ~ (hostvars[item].pve_exporter_setup_port | string)], 'labels': {'instance': item, 'group': item | regex_replace('-[0-9]+$', '')}}}) }}"
+  loop: "{{ groups['pve_exporter'] | default([]) }}"
+
+- name: Build merged pve exporter scrape targets
+  ansible.builtin.set_fact:
+    prometheus_setup_pve_exporter_static_configs: "{{ prometheus_setup_pve_exporter_static_config_map.values() | list }}"
+
 - name: Initialize blackbox target map
   ansible.builtin.set_fact:
     prometheus_setup_blackbox_static_config_map: {}

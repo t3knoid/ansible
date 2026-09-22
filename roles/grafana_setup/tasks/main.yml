@@ -172,6 +172,15 @@
     mode: "0640"
   notify: Restart Grafana
 
+- name: Install Proxmox VE status dashboard
+  ansible.builtin.copy:
+    src: dashboards/proxmox-ve-status.dashboard.json
+    dest: "{{ grafana_setup_dashboards_dir }}/proxmox-ve-status.dashboard.json"
+    owner: "{{ grafana_setup_user }}"
+    group: "{{ grafana_setup_group }}"
+    mode: "0640"
+  notify: Restart Grafana
+
 - name: Install node-exporter overview dashboard
   ansible.builtin.copy:
     src: dashboards/node-exporter-overview.dashboard.json
