@@ -16,6 +16,7 @@ Installs Python 3 from the Python Software Foundation (PSF) repository. There is
 | Variable | Default Value | Description |
 |----------|---------------|-------------|
 | `python3_version` | `3.12` |  |
+| `python3_set_as_system_default` | `false` | the distro-shipped Python) on most hosts, so only opt in where truly needed. |
 | `python3_repo_key_local` | `"/etc/apt/trusted.gpg.d/deadsnakes.asc"` |  |
 | `python3_repo_base_url` | `"https://ppa.launchpadcontent.net/deadsnakes/ppa/ubuntu"` |  |
 | `python3_repo_key_url` | `"https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xBA6932366A755776"` |  |

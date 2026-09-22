@@ -110,6 +110,7 @@ _No constant variables found._
 - Install observability landing dashboard
 - Install web service status dashboard
 - Install PostgreSQL status dashboard
+- Install Proxmox VE status dashboard
 - Install node-exporter overview dashboard
 - Install node-exporter detail dashboard
 - Install failed services dashboard
