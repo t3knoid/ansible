@@ -56,6 +56,7 @@ rproxy_setup_sites:
       - 70.107.117.124
     restricted: false
     use_oauth2: true
+    use_entra_id_oidc: true
     oauth2_provider: "entra-id"
     oauth2_scope: "openid profile email"
     oauth2_cookie_secret: "Qddlic5Zx8ce83TGlEue5H1SFRXAIbOsWlL1XcvDShE="

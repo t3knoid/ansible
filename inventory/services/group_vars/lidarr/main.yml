@@ -50,6 +50,7 @@ rproxy_setup_sites:
               proxy_pass http://{{ global_ip_addresses['lidarr-0'] }}:8686;
           }
     use_oauth2: true
+    use_entra_id_oidc: true
     oauth2_provider: "entra-id"
     oauth2_scope: "openid profile email"
     oauth2_cookie_secret: "f9Zrfvo3eHBDVvO6dReMduTG3aEqbckgqncXIUyHSR0="
