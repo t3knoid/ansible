@@ -73,6 +73,8 @@ _Inventory for `services` hosts_
 - `rproxy-0`
 
 ### `entra_id`
+- `books-0`
+- `lazylibrarian-0`
 - `lidarr-0`
 - `radarr-0`
 - `sabnzbd-0`
@@ -110,44 +112,44 @@ _No group variables defined._
 
 ## 🧩 Group Children
 ### `multimedia`
-- `lidarr`
 - `sabnzbd`
-- `sonarr`
 - `radarr`
+- `lidarr`
+- `sonarr`
 
 ### `books`
 - `lazylibrarian`
-- `calibre`
 - `calibreweb`
+- `calibre`
 
 ### `docker`
-- `calibreweb`
-- `sonarr`
 - `radarr`
-- `calibre`
 - `sabnzbd`
+- `calibreweb`
 - `; lidarr, radarr, sonarr use postgresql for their backend database`
+- `calibre`
+- `sonarr`
 - `lazylibrarian`
 
 ### `rproxy`
+- `rproxy_secondary`
 - `rproxy_main`
 - `rproxy_primary`
-- `rproxy_secondary`
 
 ### `python`
-- `calibreweb`
-- `sonarr`
 - `radarr`
+- `sabnzbd`
+- `calibreweb`
 - `lidarr`
 - `calibre`
-- `sabnzbd`
+- `sonarr`
 - `lazylibrarian`
 
 ### `node_exporter`
-- `calibreweb`
-- `sonarr`
 - `radarr`
+- `sabnzbd`
+- `calibreweb`
 - `lidarr`
 - `calibre`
-- `sabnzbd`
+- `sonarr`
 - `lazylibrarian`
