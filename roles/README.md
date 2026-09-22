@@ -59,6 +59,7 @@
 | [`postgresql_setup`](../docs/roles/postgresql_setup.md) | Installs PostgreSQL. |
 | [`prometheus_setup`](../docs/roles/prometheus_setup.md) | Installs and configures a Prometheus monitoring system on Debian/Ubuntu. |
 | [`pve`](../docs/roles/pve.md) | Contains tasks to manage the Proxmox Virtual Environment |
+| [`pve_exporter_setup`](../docs/roles/pve_exporter_setup.md) | Install and configure prometheus-pve-exporter for Proxmox VE monitoring. |
 | [`pxeserver_setup`](../docs/roles/pxeserver_setup.md) | The pxeserver_setup role is used to install and configure a [PXE server](https://ubuntu.com/server/docs/how-to-netboot-the-server-installer-on-amd64). For this to work under TP-Link Omada router, enable the "Legal DHCP Servers" setting and set it to the PXE server IP address. |
 | [`python3`](../docs/roles/python3.md) | Installs Python 3 from the Python Software Foundation (PSF) repository. There is also an alternate option is to compile Python 3 from source. |
 | [`radarr_setup`](../docs/roles/radarr_setup.md) | Installs and configures a Radarr Docker container. It uses an image distributed by [linuxserver](https://hub.docker.com/r/linuxserver/radarr). |

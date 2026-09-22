@@ -34,6 +34,9 @@ Installs Prometheus Node Exporter
 _No constant variables found._
 
 ## 📑 Tasks
+- Detect the real system Python interpreter
+- Remove any python3 alternatives group that may have hijacked /usr/bin/python3
+- Restore /usr/bin/python3 symlink to the real system interpreter
 - Ensure cron is installed
 - Create Node Exporter system group
 - Create Node Exporter system user
