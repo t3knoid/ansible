@@ -1,0 +1,5 @@
+{{ pve_exporter_setup_cluster_name }}:
+  user: {{ pve_exporter_setup_api_user }}
+  token_name: {{ pve_exporter_setup_api_token_name }}
+  token_value: {{ pve_exporter_setup_api_token_value | to_json }}
+  verify_ssl: {{ pve_exporter_setup_api_verify_ssl | ternary('true', 'false') }}

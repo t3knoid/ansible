@@ -1,0 +1,21 @@
+---
+pve_exporter_setup_version: "3.10.0"
+pve_exporter_setup_venv: "/opt/pve_exporter"
+pve_exporter_setup_user: "pve-exporter"
+pve_exporter_setup_group: "pve-exporter"
+pve_exporter_setup_config_dir: "/etc/pve_exporter"
+pve_exporter_setup_config_file: "{{ pve_exporter_setup_config_dir }}/pve.yml"
+pve_exporter_setup_service_name: "pve_exporter"
+pve_exporter_setup_service_file: "/etc/systemd/system/pve_exporter.service"
+pve_exporter_setup_service_mode: "0644"
+pve_exporter_setup_port: 9221
+pve_exporter_setup_listen_address: "0.0.0.0:{{ pve_exporter_setup_port }}"
+
+# Proxmox API connection. The exporter runs on each Proxmox node and scrapes
+# that node's own local API (via the Prometheus job's ?target=localhost param),
+# so the same cluster-wide API token works everywhere.
+pve_exporter_setup_cluster_name: "local"
+pve_exporter_setup_api_user: "prometheus@pve"
+pve_exporter_setup_api_token_name: "monitoring"
+pve_exporter_setup_api_verify_ssl: false
+# Set pve_exporter_setup_api_token_value via vault.
