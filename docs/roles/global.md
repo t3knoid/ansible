@@ -99,6 +99,7 @@ Provides global defaults common to all roles. It provides the IP definition of e
 
 ## 📑 Tasks
 - Global
+- Expose global_ip_addresses as a fact for cross-host lookups
 
 ## 🔔 Handlers
 _No handlers defined._
