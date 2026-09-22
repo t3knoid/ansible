@@ -1,10 +1,9 @@
 ---
-
 # Purpose: Install Proxmox Backup Server on pbs hosts
 
 - name: Deploy Proxmox Backup Server
   hosts: pbs
   become: true
-  gather_facts: false
+  gather_facts: true
   roles:
     - pbs

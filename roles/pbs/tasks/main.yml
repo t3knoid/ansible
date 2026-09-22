@@ -1,4 +1,17 @@
 ---
+# The default install ships a pbs-enterprise repo that 401s without a paid
+# subscription; disable it so the no-subscription repo below can be used.
+- name: Disable Proxmox Backup Server enterprise apt repository (list format)
+  ansible.builtin.command: mv /etc/apt/sources.list.d/pbs-enterprise.list /etc/apt/sources.list.d/pbs-enterprise.list.disabled
+  args:
+    removes: /etc/apt/sources.list.d/pbs-enterprise.list
+    creates: /etc/apt/sources.list.d/pbs-enterprise.list.disabled
+
+- name: Disable Proxmox Backup Server enterprise apt repository (deb822 format)
+  ansible.builtin.command: mv /etc/apt/sources.list.d/pbs-enterprise.sources /etc/apt/sources.list.d/pbs-enterprise.sources.disabled
+  args:
+    removes: /etc/apt/sources.list.d/pbs-enterprise.sources
+    creates: /etc/apt/sources.list.d/pbs-enterprise.sources.disabled
 
 - name: Configure apt sources.list
   ansible.builtin.lineinfile:
@@ -6,14 +19,14 @@
     line: |
       # Proxmox Backup Server pbs-no-subscription repository provided by proxmox.com,
       # NOT recommended for production use
-      deb http://download.proxmox.com/debian/pbs bookworm pbs-no-subscription
+      deb http://download.proxmox.com/debian/pbs {{ ansible_distribution_release }} pbs-no-subscription
     state: present
 
 - name: Download the Proxmox GPG key
   ansible.builtin.get_url:
-    url: https://enterprise.proxmox.com/debian/proxmox-release-bookworm.gpg
-    dest: /etc/apt/trusted.gpg.d/proxmox-release-bookworm.gpg
-    mode: '0644'
+    url: "https://enterprise.proxmox.com/debian/proxmox-release-{{ ansible_distribution_release }}.gpg"
+    dest: "/etc/apt/trusted.gpg.d/proxmox-release-{{ ansible_distribution_release }}.gpg"
+    mode: "0644"
 
 - name: Update apt cache
   ansible.builtin.apt:
