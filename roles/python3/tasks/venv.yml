@@ -1,18 +1,26 @@
 ---
+- name: Locate the installed Python {{ python3_version }} interpreter
+  ansible.builtin.command: "which python{{ python3_version }}"
+  register: python3_interpreter_path
+  changed_when: false
 
 - name: Set Python {{ python3_version }} as system default
   community.general.alternatives:
     name: python3
-    path: "/usr/bin/python{{ python3_version }}"
+    path: "{{ python3_interpreter_path.stdout }}"
     link: /usr/bin/python3
     priority: 100
     state: selected
+  when: python3_set_as_system_default | bool
 
 - name: Install Python packages
   ansible.builtin.apt:
     name: "{{ item }}"
     state: present
   loop: "{{ python3_packages_to_install }}"
+  # The versioned interpreter package only exists via the deadsnakes PPA on
+  # Ubuntu; on Debian it's already built from source by compile.yml.
+  when: not (item == 'python' ~ python3_version and ansible_distribution != 'Ubuntu')
 
 - name: Create virtual environment folder
   ansible.builtin.file:
@@ -23,7 +31,7 @@
   become: true
 
 - name: Create Python virtual environment
-  ansible.builtin.command: "/usr/bin/python{{ python3_version }} -m venv {{ python3_venv_folder }} --without-pip"
+  ansible.builtin.command: "{{ python3_interpreter_path.stdout }} -m venv {{ python3_venv_folder }} --without-pip"
   args:
     creates: "{{ python3_venv_folder }}/bin/activate"
   register: python3_command_return
@@ -33,7 +41,7 @@
   ansible.builtin.get_url:
     url: https://bootstrap.pypa.io/get-pip.py
     dest: "{{ python3_venv_folder }}/get-pip.py"
-    mode: '0644'
+    mode: "0644"
     force: true
 
 - name: Install pip inside the virtual environment
