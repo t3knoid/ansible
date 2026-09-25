@@ -1,0 +1,7 @@
+---
+galaxy_info:
+  author: your_name
+  description: Role to deploy a bastion that proxies sftp users to an SFTP server via forced SSH command
+  license: MIT
+  min_ansible_version: 2.9
+dependencies: []
