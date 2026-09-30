@@ -47,6 +47,9 @@ _Inventory for `prometheus` hosts_
 ### `blackbox_exporter`
 - `prometheus-0`
 
+### `node_exporter`
+- `prometheus-0`
+
 ## ⚙️ Group Variables
 _No group variables defined._
 
@@ -58,6 +61,6 @@ _No group variables defined._
 
 ## 🧩 Group Children
 ### `rproxy`
-- `rproxy_primary`
 - `rproxy_secondary`
+- `rproxy_primary`
 - `rproxy_main`
