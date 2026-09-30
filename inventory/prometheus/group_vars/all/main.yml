@@ -106,5 +106,6 @@ prometheus_setup_blackbox_targets:
     instance: "tautulli.refol.us"
     group: "web"
 
+node_exporter_port: 9200
 postgres_exporter_port: 9187
 blackbox_exporter_port: 9115
