@@ -9,9 +9,6 @@ _Inventory for `ansible` hosts_
 - `ansible-0`
 - `ansible-1`
 
-### `wsl`
-- `dev-0`
-
 ### `pgclient`
 - `ansible-1`
 
@@ -75,23 +72,20 @@ _No group variables defined._
 ## 🧩 Group Children
 ### `linux`
 - `vms`
-- `wsl`
 
 ### `terraform`
 - `ansible`
 
 ### `ansible`
 - `vms`
-- `wsl`
 
 ### `rproxy`
 - `rproxy_secondary`
-- `rproxy_main`
 - `rproxy_primary`
+- `rproxy_main`
 
 ### `cname`
 - `code_server`
 
 ### `python`
-- `wsl`
 - `ansible`
