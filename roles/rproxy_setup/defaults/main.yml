@@ -9,6 +9,11 @@ rproxy_setup_check_health: true
 rproxy_setup_health_check_script_path: /usr/local/bin/check_rproxy_health.sh
 rproxy_setup_health_metrics_path: "{{ node_exporter_setup_textfile_collector_dir | default('/var/lib/node_exporter/textfile') }}/rproxy_health.prom"
 rproxy_setup_health_check_minute: "*/5"
+rproxy_setup_backend_endpoint_check_script_path: /usr/local/bin/check_rproxy_backend_endpoints.sh
+rproxy_setup_backend_endpoint_metrics_path: >-
+  {{ node_exporter_setup_textfile_collector_dir | default('/var/lib/node_exporter/textfile') }}/rproxy_backend_endpoints.prom
+rproxy_setup_backend_endpoint_check_minute: "*/5"
+rproxy_setup_backend_sites_enabled_dir: "{{ nginx_setup_homedir | default('/data/nginx') }}/sites-enabled"
 
 rproxy_setup_cloudflare_only: true # There is an existing bug that deletes the cloudflare-allow.conf if this is false
 rproxy_setup_cloudflare_ipv4:

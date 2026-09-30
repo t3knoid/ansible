@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+metrics_file="{{ rproxy_setup_backend_endpoint_metrics_path }}"
+tmp_file="$(mktemp "${metrics_file}.XXXXXX")"
+trap 'rm -f "$tmp_file"' EXIT
+
+declare -A seen_endpoints=()
+declare -A site_ips=()
+declare -A site_ports=()
+declare -A site_up=()
+
+{
+  echo "# HELP rproxy_backend_endpoint_up Whether a configured backend endpoint accepts TCP connections from this proxy."
+  echo "# TYPE rproxy_backend_endpoint_up gauge"
+} > "$tmp_file"
+
+for conf_file in {{ rproxy_setup_backend_sites_enabled_dir }}/*.conf; do
+  [[ -f "${conf_file}" ]] || continue
+  site_name="$(basename "${conf_file}" .conf)"
+
+  while IFS= read -r proxy_pass; do
+    endpoint="$(sed -E 's/^[[:space:]]*proxy_pass[[:space:]]+https?:\/\/([^;]+).*/\1/' <<< "$proxy_pass")"
+    ip="${endpoint%:*}"
+    port="${endpoint##*:}"
+    [[ -n "$ip" && "$port" =~ ^[0-9]+$ ]] || continue
+
+    key="${site_name}|${ip}|${port}"
+    [[ -n "${seen_endpoints[$key]+x}" ]] && continue
+    seen_endpoints[$key]=1
+
+    endpoint_up=0
+    if timeout 3 bash -c 'exec 3<>/dev/tcp/$1/$2' _ "$ip" "$port" 2>/dev/null; then
+      endpoint_up=1
+    fi
+
+    if [[ -n "${site_ips[$site_name]+x}" ]]; then
+      site_ips[$site_name]+=",${ip}"
+      site_ports[$site_name]+=",${port}"
+    else
+      site_ips[$site_name]="$ip"
+      site_ports[$site_name]="$port"
+      site_up[$site_name]=1
+    fi
+    if (( endpoint_up == 0 )); then
+      site_up[$site_name]=0
+    fi
+  done < <(grep -Eo '^[[:space:]]*proxy_pass[[:space:]]+https?://([0-9]{1,3}\.){3}[0-9]{1,3}:[0-9]+' "$conf_file")
+done
+
+for site_name in "${!site_ips[@]}"; do
+  printf 'rproxy_backend_endpoint_up{site="%s",endpoint="%s",port="%s"} %s\n' \
+    "$site_name" "${site_ips[$site_name]}" "${site_ports[$site_name]}" "${site_up[$site_name]}" >> "$tmp_file"
+done
+
+install -o root -g {{ node_exporter_setup_group | default('prometheus') }} -m 0644 "$tmp_file" "$metrics_file"

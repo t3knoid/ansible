@@ -15,7 +15,7 @@
       }
     ]
   },
-  "description": "Unified observability landing page for node availability, web service status, PostgreSQL status, and Linux update posture. Shows Nodes Up and Nodes Down based on node_exporter scrape health, summarizes Blackbox Exporter web probe health and PostgreSQL exporter health, and shows counts of hosts with pending Linux updates or security updates.",
+  "description": "Unified observability landing page for node availability, web service status, PostgreSQL status, Linux updates, and reverse proxy/Entra ID health.",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
@@ -755,6 +755,196 @@
       ],
       "title": "Application Updates Available",
       "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "links": [
+            {
+              "targetBlank": false,
+              "title": "Open Reverse Proxy & Entra ID Health",
+              "url": "/d/rproxy-entra-id-health/rproxy-entra-id-health"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Backend Servers"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "-1": {
+                        "color": "gray",
+                        "index": 0,
+                        "text": "No Data"
+                      },
+                      "0": {
+                        "color": "red",
+                        "index": 1,
+                        "text": "Unreachable"
+                      },
+                      "1": {
+                        "color": "green",
+                        "index": 2,
+                        "text": "Connected"
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Redis"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "-1": {
+                        "color": "gray",
+                        "index": 0,
+                        "text": "No Data"
+                      },
+                      "0": {
+                        "color": "red",
+                        "index": 1,
+                        "text": "Down"
+                      },
+                      "1": {
+                        "color": "green",
+                        "index": 2,
+                        "text": "Up"
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Failed OAuth2 Services"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "0": {
+                        "color": "green",
+                        "index": 0,
+                        "text": "None"
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "red",
+                      "value": 1
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 20
+      },
+      "id": 15,
+      "options": {
+        "colorMode": "background_solid",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "value_and_name",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "max(rproxy_backend_reachable{job=\"node\",instance=\"rproxy-0\"}) or vector(-1)",
+          "instant": true,
+          "legendFormat": "Backend Servers",
+          "range": false,
+          "refId": "A"
+        },
+        {
+          "editorMode": "code",
+          "expr": "max(rproxy_redis_up{job=\"node\",instance=\"rproxy-0\"}) or vector(-1)",
+          "instant": true,
+          "legendFormat": "Redis",
+          "range": false,
+          "refId": "B"
+        },
+        {
+          "editorMode": "code",
+          "expr": "sum(linux_systemd_service_failed_info{job=\"node\",instance=\"rproxy-0\",service=~\"oauth2-proxy.*\"}) or vector(0)",
+          "instant": true,
+          "legendFormat": "Failed OAuth2 Services",
+          "range": false,
+          "refId": "C"
+        }
+      ],
+      "title": "Reverse Proxy & Entra ID Health",
+      "type": "stat"
     }
   ],
   "refresh": "30s",
@@ -777,6 +967,6 @@
   "timezone": "",
   "title": "Observability Landing",
   "uid": "observability-landing",
-  "version": 4,
+  "version": 5,
   "weekStart": ""
 }
