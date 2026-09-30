@@ -34,7 +34,6 @@ Installs Prometheus Node Exporter
 _No constant variables found._
 
 ## 📑 Tasks
-- Detect the Python interpreter compatible with python3-apt
 - Ensure cron is installed
 - Create Node Exporter system group
 - Create Node Exporter system user
