@@ -54,6 +54,7 @@ _Inventory for `ansible` hosts_
 
 ### `node_exporter`
 - `ansible-0`
+- `ansible-1`
 
 ### `prometheus`
 - `prometheus-0`
@@ -63,6 +64,7 @@ _No group variables defined._
 
 ## 🖥 Host Variables
 ### `ansible-0`
+- `ansible_connection`: `local`
 - `vms_proxmox_node`: `pve-0`
 - `pihole_cname_entries`: `[{"domain": "code.refol.us", "target": "rproxy-0.refol.us"}]`
 
@@ -80,9 +82,9 @@ _No group variables defined._
 - `vms`
 
 ### `rproxy`
-- `rproxy_secondary`
 - `rproxy_primary`
 - `rproxy_main`
+- `rproxy_secondary`
 
 ### `cname`
 - `code_server`
