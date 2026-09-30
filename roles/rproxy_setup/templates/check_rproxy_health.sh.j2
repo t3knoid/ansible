@@ -30,13 +30,13 @@ fi
 } >> "$tmp_file"
 
 {
-  echo "# HELP rproxy_oauth2_proxy_port_up Whether the oauth2-proxy backend port referenced by a site's nginx config is listening."
+  echo "# HELP rproxy_oauth2_proxy_port_up Whether the oauth2-proxy port configured for a site is listening."
   echo "# TYPE rproxy_oauth2_proxy_port_up gauge"
 } >> "$tmp_file"
-for conf_file in {{ nginx_setup_homedir }}/sites-enabled/*.conf; do
+for conf_file in /etc/oauth2-proxy/oauth2-proxy_*.cfg; do
   [[ -f "${conf_file}" ]] || continue
-  site_name="$(basename "${conf_file}" .conf)"
-  oauth2_port="$(grep -oP 'proxy_pass\s+http://127\.0\.0\.1:\K[0-9]+' "${conf_file}" | head -n1)"
+  site_name="$(basename "${conf_file}" .cfg | sed 's/^oauth2-proxy_//')"
+  oauth2_port="$(sed -nE 's/^[[:space:]]*http_address[[:space:]]*=[[:space:]]*"127\.0\.0\.1:([0-9]+)".*/\1/p' "${conf_file}" | head -n1)"
   [[ -z "${oauth2_port}" ]] && continue
   oauth2_port_up=0
   if ss -ltn 2>/dev/null | awk -v port=":${oauth2_port}$" '$4 ~ port {found=1} END{exit !found}'; then
