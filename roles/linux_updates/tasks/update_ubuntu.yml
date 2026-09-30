@@ -1,5 +1,4 @@
 ---
-
 - name: Update the Ubuntu apt package index
   ansible.builtin.apt:
     update_cache: true
@@ -51,15 +50,27 @@
     path: /var/run/reboot-required
   register: linux_updates_reboot_required
 
-- name: Notify about reboot
-  ansible.builtin.debug:
-    msg: "Rebooting the target host in 60 seconds."
-
-- name: Schedule reboot via cron
+- name: Remove legacy recurring cron reboot trigger
   ansible.builtin.cron:
     name: "temporary reboot trigger"
     user: root
-    job: "shutdown -r now"
-    minute: "{{ (ansible_date_time.minute | int + 1) % 60 }}"
-    hour: "{{ (ansible_date_time.hour | int + ((ansible_date_time.minute | int == 59) | ternary(1,0))) % 24 }}"
-  when: linux_updates_reboot_required is defined and linux_updates_reboot_required.stat.exists
+    state: absent
+
+- name: Notify about reboot
+  ansible.builtin.debug:
+    msg: "Rebooting the target host in {{ linux_updates_reboot_delay_seconds }} seconds."
+  when: linux_updates_reboot_required.stat.exists
+
+# Transient timer so the reboot is detached from the Ansible connection and
+# leaves nothing behind afterwards.
+- name: Schedule deferred reboot via transient systemd timer
+  ansible.builtin.command:
+    argv:
+      - systemd-run
+      - "--on-active={{ linux_updates_reboot_delay_seconds }}"
+      - "--unit=linux-updates-reboot"
+      - "--timer-property=AccuracySec=1s"
+      - /usr/bin/systemctl
+      - reboot
+  changed_when: true
+  when: linux_updates_reboot_required.stat.exists
