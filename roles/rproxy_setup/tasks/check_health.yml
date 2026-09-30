@@ -35,3 +35,34 @@
     minute: "{{ rproxy_setup_health_check_minute }}"
     user: root
     job: "{{ rproxy_setup_health_check_script_path }}"
+
+- name: Ensure backend endpoint metrics directory exists
+  ansible.builtin.file:
+    path: "{{ rproxy_setup_backend_endpoint_metrics_path | dirname }}"
+    state: directory
+    owner: root
+    group: "{{ node_exporter_setup_group | default('prometheus') }}"
+    mode: "0775"
+  when: inventory_hostname in (groups['rproxy_primary'] | default([])) + (groups['rproxy_secondary'] | default([]))
+
+- name: Install backend endpoint health check script
+  ansible.builtin.template:
+    src: check_rproxy_backend_endpoints.sh.j2
+    dest: "{{ rproxy_setup_backend_endpoint_check_script_path }}"
+    owner: root
+    group: root
+    mode: "0755"
+  when: inventory_hostname in (groups['rproxy_primary'] | default([])) + (groups['rproxy_secondary'] | default([]))
+
+- name: Seed backend endpoint metrics
+  ansible.builtin.command: "{{ rproxy_setup_backend_endpoint_check_script_path }}"
+  changed_when: true
+  when: inventory_hostname in (groups['rproxy_primary'] | default([])) + (groups['rproxy_secondary'] | default([]))
+
+- name: Schedule backend endpoint health check
+  ansible.builtin.cron:
+    name: rproxy_backend_endpoint_health
+    minute: "{{ rproxy_setup_backend_endpoint_check_minute }}"
+    user: root
+    job: "{{ rproxy_setup_backend_endpoint_check_script_path }}"
+  when: inventory_hostname in (groups['rproxy_primary'] | default([])) + (groups['rproxy_secondary'] | default([]))
