@@ -1,4 +1,32 @@
 ---
+- name: Detect Python interpreter compatible with Ubuntu apt bindings
+  ansible.builtin.shell: |
+    set -euo pipefail
+    for apt_pkg in /usr/lib/python3/dist-packages/apt_pkg*.so; do
+      [[ -e "$apt_pkg" ]] || continue
+      if [[ "$apt_pkg" =~ cpython-([0-9]+)- ]]; then
+        abi_version="${BASH_REMATCH[1]}"
+        candidate="/usr/bin/python${abi_version:0:1}.${abi_version:1}"
+        if [[ -x "$candidate" ]] && "$candidate" -c 'import apt_pkg' >/dev/null 2>&1; then
+          printf '%s\n' "$candidate"
+          exit 0
+        fi
+      fi
+    done
+    echo "No installed Python interpreter can import Ubuntu's apt_pkg module" >&2
+    exit 1
+  args:
+    executable: /bin/bash
+  register: linux_updates_apt_python
+  changed_when: false
+
+- name: Restore system Python link for Ubuntu apt hooks
+  ansible.builtin.file:
+    src: "{{ linux_updates_apt_python.stdout }}"
+    dest: /usr/bin/python3
+    state: link
+    force: true
+
 - name: Update the Ubuntu apt package index
   ansible.builtin.apt:
     update_cache: true

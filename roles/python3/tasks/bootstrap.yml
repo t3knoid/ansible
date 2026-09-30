@@ -35,6 +35,7 @@
   ansible.builtin.raw: |
     update-alternatives --install /usr/bin/python3 python3 /usr/bin/python{{ python3_version }} 100
   changed_when: false
+  when: python3_set_as_system_default | bool
 
 - name: Set Python interpreter for subsequent tasks
   ansible.builtin.set_fact:

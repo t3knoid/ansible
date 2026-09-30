@@ -13,6 +13,7 @@ python3_repo_deadsnakes_ppa: "deb https://ppa.launchpadcontent.net/deadsnakes/pp
 
 python3_packages_to_install:
   - python{{ python3_version }}
+  - python3-apt
   - python3-pip
   - python3-requests
   - python3-pexpect
