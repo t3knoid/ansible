@@ -35,6 +35,7 @@ dynamic_template_sets:
         - semaphore
         - prometheus
         - grafana
+        - tautulli
       view: "Security Updates"
       credentials:
         - "Ansible vault password"
