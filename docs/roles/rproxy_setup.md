@@ -15,6 +15,7 @@ rproxy_setup configures reverse proxy with failover support using nginx. This ro
 ## ⚙️ Defaults
 | Variable | Default Value | Description |
 |----------|---------------|-------------|
+| `rproxy_setup_delegate_host` | `"{{ inventory_hostname }}"` |  |
 | `rproxy_setup_backend_servers` | `|` |  |
 | `server {{ hostvars[groups['rproxy_primary'][0]]['ansible_default_ipv4']['address'] }}` | `80 max_fails=3 fail_timeout=5s;` |  |
 | `server {{ hostvars[groups['rproxy_secondary'][0]]['ansible_default_ipv4']['address'] }}` | `80 backup;` |  |
@@ -22,6 +23,10 @@ rproxy_setup configures reverse proxy with failover support using nginx. This ro
 | `rproxy_setup_health_check_script_path` | `/usr/local/bin/check_rproxy_health.sh` |  |
 | `rproxy_setup_health_metrics_path` | `"{{ node_exporter_setup_textfile_collector_dir | default('/var/lib/node_exporter/textfile') }}/rproxy_health.prom"` |  |
 | `rproxy_setup_health_check_minute` | `"*/5"` |  |
+| `rproxy_setup_backend_endpoint_check_script_path` | `/usr/local/bin/check_rproxy_backend_endpoints.sh` |  |
+| `rproxy_setup_backend_endpoint_metrics_path` | `>-` |  |
+| `rproxy_setup_backend_endpoint_check_minute` | `"*/5"` |  |
+| `rproxy_setup_backend_sites_enabled_dir` | `"{{ nginx_setup_homedir | default('/data/nginx') }}/sites-enabled"` |  |
 | `rproxy_setup_cloudflare_only` | `true # There is an existing bug that deletes the cloudflare-allow.conf if this is false` |  |
 | `rproxy_setup_cloudflare_ipv4` | `` |  |
 | `rproxy_setup_cloudflare_ipv6` | `` |  |
