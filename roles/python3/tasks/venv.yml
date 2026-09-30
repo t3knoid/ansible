@@ -1,4 +1,10 @@
 ---
+- name: Enable system site packages in the configured Python virtual environment
+  ansible.builtin.lineinfile:
+    path: "{{ python3_venv_folder }}/pyvenv.cfg"
+    regexp: '^include-system-site-packages\s*='
+    line: "include-system-site-packages = true"
+
 - name: Locate the installed Python {{ python3_version }} interpreter
   ansible.builtin.command: "which python{{ python3_version }}"
   register: python3_interpreter_path
@@ -31,11 +37,17 @@
   become: true
 
 - name: Create Python virtual environment
-  ansible.builtin.command: "{{ python3_interpreter_path.stdout }} -m venv {{ python3_venv_folder }} --without-pip"
+  ansible.builtin.command: "{{ python3_interpreter_path.stdout }} -m venv {{ python3_venv_folder }} --without-pip --system-site-packages"
   args:
     creates: "{{ python3_venv_folder }}/bin/activate"
   register: python3_command_return
   changed_when: python3_command_return.rc !=0
+
+- name: Enable system site packages in Python virtual environment
+  ansible.builtin.lineinfile:
+    path: "{{ python3_venv_folder }}/pyvenv.cfg"
+    regexp: '^include-system-site-packages\s*='
+    line: "include-system-site-packages = true"
 
 - name: Download get-pip.py
   ansible.builtin.get_url:

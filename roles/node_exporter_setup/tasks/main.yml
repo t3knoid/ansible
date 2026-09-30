@@ -1,30 +1,8 @@
 ---
-- name: Detect the Python interpreter compatible with python3-apt
-  ansible.builtin.shell: |
-    set -euo pipefail
-    apt_pkg=$(find /usr/lib/python3/dist-packages -maxdepth 1 -type f -name 'apt_pkg*.so' -print -quit 2>/dev/null || true)
-    if [[ "$apt_pkg" =~ cpython-([0-9]+)- ]]; then
-      abi_version="${BASH_REMATCH[1]}"
-      candidate="/usr/bin/python${abi_version:0:1}.${abi_version:1}"
-      if [[ -x "$candidate" ]]; then
-        printf '%s\n' "$candidate"
-        exit 0
-      fi
-    fi
-    readlink -f /usr/bin/python3
-  args:
-    executable: /bin/bash
-  register: node_exporter_setup_system_python
-  changed_when: false
-
-# python3-apt (required by the package module) isn't available in per-role venvs,
-# so this task must use the interpreter matching the installed apt binding.
 - name: Ensure cron is installed
   ansible.builtin.package:
     name: cron
     state: present
-  vars:
-    ansible_python_interpreter: "{{ node_exporter_setup_system_python.stdout }}"
 
 - name: Create Node Exporter system group
   ansible.builtin.group:
