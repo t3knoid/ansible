@@ -850,6 +850,54 @@
       ],
       "title": "Network Throughput by Interface",
       "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "mappings": [],
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 12,
+        "x": 0,
+        "y": 24
+      },
+      "id": 13,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "node_filesystem_avail_bytes{instance=\"$instance\",mountpoint=~\"^/$|^/boot$\"}",
+          "instant": true,
+          "legendFormat": "{{mountpoint}}",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Available Disk Space (/ and /boot)",
+      "type": "stat"
     }
   ],
   "refresh": "30s",
