@@ -56,10 +56,6 @@
   register: oauth2_proxy_setup_services
   changed_when: false
 
-- name: Show OAuth2 Proxy site configuration
-  ansible.builtin.debug:
-    var: oauth2_proxy_setup_sites
-
 # The following block of task executes when oauth2-proxy
 # service files matches the following criteria
 #
@@ -72,33 +68,6 @@
   loop_control:
     label: "{{ site.server_name }}"
     loop_var: site
-
-# The following block of task executes when oauth2-proxy
-# service files matches the following criteria
-#
-# Case 1: filename is exactly oauth2-proxy.service (no suffix)
-# Case 2: filename has suffix but site.use_oauth2 is not true
-# - name: Clean up oauth2-proxy services
-#   ansible.builtin.include_tasks: "remove_oauth2_services.yml"
-#   loop: "{{ oauth2_proxy_setup_services.stdout_lines }}"
-#   loop_control:
-#     label: "{{ oauth2_proxy_setup_service_filename }}"
-#     loop_var: oauth2_proxy_setup_service_filename
-#   when: >
-#     (
-#       (oauth2_proxy_setup_service_filename | basename == 'oauth2-proxy.service')
-#     )
-#     or
-#     (
-#       not (
-#         rproxy_setup_sites
-#         | selectattr('server_name','equalto', oauth2_proxy_setup_service_filename | basename | regex_replace('^oauth2-proxy_(.+)\\.service$', '\\1'))
-#         | map(attribute='use_oauth2')
-#         | first
-#         | default(false)
-#         | bool
-#       )
-#     )
 
 - name: Remove disabled site oauth2-proxy unit and configuration files
   ansible.builtin.include_tasks: remove_disabled_site_oauth2_files.yml
@@ -153,7 +122,7 @@
     name: "oauth2-proxy_{{ site.server_name }}.service"
     enabled: true
     state: restarted
-  loop: "{{ rproxy_setup_sites }}"
+  loop: "{{ oauth2_proxy_setup_sites }}"
   loop_control:
     label: "oauth2-proxy_{{ site.server_name }}.service"
     loop_var: site

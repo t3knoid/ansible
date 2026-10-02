@@ -32,4 +32,6 @@ rproxy_setup_sites:
     oauth2_callback_url: "https://code.refol.us/oauth2/callback"
     oauth2_client_secret: ""
     oauth2_email_domains: "*"
+    oauth2_proxy_port: 4180
+    oauth2_proxy_metrics_port: 9100
     enable: true
