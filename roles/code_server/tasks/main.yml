@@ -1,34 +1,42 @@
 ---
-
 # see https://coder.com/docs/code-server/install#debian-ubuntu
-
 
 - name: Gather service facts
   ansible.builtin.service_facts:
 
+- name: Check installed code-server version
+  ansible.builtin.command: code-server -v
+  register: code_server_installed_version_output
+  changed_when: false
+  failed_when: false
+
 - name: Stop the code-server package
   ansible.builtin.systemd:
-    name: "code-server@{{ code_server_user }}"
+    name: "{{ code_server_service_name }}"
     state: stopped
-  when: "'code-server@code_server_user' in services and services['code-server@code_server_user']['status'] != 'not-found'"
+  when: ("code-server@" ~ code_server_user ~ ".service") in services
 
 # Removing current installed version allows for downgrade
 - name: Remove current version of code-server
   ansible.builtin.apt:
     name: code-server
     state: absent
+  when:
+    - code_server_installed_version_output.rc == 0
+    - code_server_installed_version_output.stdout_lines | length > 0
+    - code_server_installed_version_output.stdout_lines[0].split()[0] is version(code_server_version, '>')
 
 - name: Download code-server package
   ansible.builtin.get_url:
-    url: "https://github.com/coder/code-server/releases/download/v{{ code_server_version }}/code-server_{{ code_server_version }}_amd64.deb"
-    dest: "/tmp/code-server_{{ code_server_version }}_amd64.deb"
+    url: "{{ code_server_download_url }}"
+    dest: "/tmp/{{ code_server_download_file }}"
     mode: "0644"
   register: code_server_get_url_retval
   changed_when: code_server_get_url_retval.state is defined
 
 - name: Install code-server package
   ansible.builtin.apt:
-    deb: "/tmp/code-server_{{ code_server_version }}_amd64.deb"
+    deb: "/tmp/{{ code_server_download_file }}"
     state: present
 
 - name: Create code-server config folder
@@ -42,7 +50,8 @@
   ansible.builtin.template:
     src: config.yaml.j2
     dest: "/home/{{ code_server_user }}/.config/code-server/config.yaml"
-    mode: "600"
+    mode: "0600"
+    owner: "{{ code_server_user }}"
   notify: Restart code server
 
 - name: Disable code-server service
@@ -51,7 +60,7 @@
 
 - name: Cleanup downloaded file
   ansible.builtin.file:
-    path: "/tmp/code-server_{{ code_server_version }}_amd64.deb"
+    path: "/tmp/{{ code_server_download_file }}"
     state: absent
 
 - name: Create or update Nginx site configuration
