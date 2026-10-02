@@ -5,18 +5,71 @@
   ansible.builtin.apt:
     update_cache: true
 
+- name: Gather installed package facts
+  ansible.builtin.package_facts:
+    manager: apt
+
 - name: Unhold package versions
   ansible.builtin.dpkg_selections:
     name: "nginx"
     selection: install
   changed_when: false
+  when: "'nginx' in ansible_facts.packages"
+
+- name: Get nginx apt candidate version
+  ansible.builtin.command:
+    argv:
+      - apt-cache
+      - policy
+      - nginx
+  register: nginx_setup_apt_policy
+  changed_when: false
+
+- name: Determine nginx apt candidate version
+  ansible.builtin.set_fact:
+    nginx_setup_candidate_version: >-
+      {{
+        nginx_setup_apt_policy.stdout_lines
+        | select('search', 'Candidate:')
+        | map('regex_replace', '^.*Candidate: ', '')
+        | first
+        | default('none', true)
+        | trim
+      }}
+
+- name: Show nginx apt candidate version
+  ansible.builtin.debug:
+    msg: "nginx apt candidate version: {{ nginx_setup_candidate_version }}"
+
+- name: Validate nginx apt candidate version family
+  ansible.builtin.assert:
+    that:
+      - nginx_setup_candidate_version is match('^' ~ (nginx_setup_version | regex_escape) ~ '(\\.[0-9]+)?$')
+    fail_msg: >-
+      nginx apt candidate {{ nginx_setup_candidate_version }} is unavailable or
+      outside the approved version family {{ nginx_setup_version }}. Check the
+      enabled apt repositories and nginx_setup_version.
+
+- name: Compare candidate and installed nginx versions
+  ansible.builtin.command:
+    argv:
+      - dpkg
+      - --compare-versions
+      - "{{ nginx_setup_candidate_version }}"
+      - gt
+      - "{{ ansible_facts.packages['nginx'][0].version }}"
+  register: nginx_setup_version_comparison
+  changed_when: false
+  failed_when: nginx_setup_version_comparison.rc not in [0, 1]
+  when: "'nginx' in ansible_facts.packages"
 
 - name: Install nginx
   ansible.builtin.apt:
-    name:
-      - nginx={{ nginx_setup_version }}
+    name: "nginx={{ nginx_setup_candidate_version }}"
     state: present
-    update_cache: true
+  when: >-
+    'nginx' not in ansible_facts.packages
+    or nginx_setup_version_comparison.rc == 0
 
 - name: Hold package versions
   ansible.builtin.dpkg_selections:
