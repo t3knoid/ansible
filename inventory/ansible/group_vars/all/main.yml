@@ -27,33 +27,6 @@ nginx_setup_disable_default_site: true
 
 redis_setup_version: "6:8.4.0-1rl1" # Redis is required by oauth2_proxy
 
-## See vault.yml for the following
-# users_list
-# code_server_user
-# code_server_password
-# ansible_setup_vault_password
-# rproxy_setup_sites
-# redis_setup_password
-rproxy_setup_sites:
-  - server_name: code.refol.us
-    port: 8000
-    proxy_pass: "http://{{ global_ip_addresses[groups['code_server'][0]] }}"
-    allow_list:
-      - 192.168.0.0/24
-      - 192.168.2.0/24
-      - 24.105.250.200
-      - 70.107.117.124
-    restricted: false
-    # OAuth2 integration
-    use_oauth2: true
-    oauth2_provider: "entra-id"
-    oauth2_scope: "openid profile email"
-    oauth2_cookie_secret: "hQDLHZpUL-StGNmuHt4wJRNmvwUSQB-1BexUiODJO10="
-    oauth2_client_id: "cfb2627b-3529-4675-ab03-d44a58483af4"
-    oauth2_callback_url: "https://code.refol.us/oauth2/callback"
-    oauth2_client_secret: ""
-    oauth2_email_domains: "*"
-
 azure_cli_setup_version: 2.89.1
 
 terraform_setup_version: 1.14.3
