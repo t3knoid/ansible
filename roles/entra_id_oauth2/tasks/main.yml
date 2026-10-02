@@ -7,14 +7,7 @@
     virtualenv: "{{ python3_venv_folder }}"
   delegate_to: localhost
   become: true
-
-- name: Ensure azure-cli Python module installed
-  ansible.builtin.pip:
-    name: azure-cli
-    state: present
-    virtualenv: "{{ python3_venv_folder }}"
-  delegate_to: localhost
-  become: true
+  run_once: true
 
 # The number of days until the generated secret will expire.
 # This variable is used in creation of the secret.
@@ -42,6 +35,7 @@
     --tenant {{ global_azure_tenant }}
   delegate_to: localhost
   changed_when: false
+  run_once: true
 
 # The register_app.yml task file creates or retrieves
 # Entra ID applications for each site in the
@@ -62,7 +56,7 @@
   loop_control:
     label: "{{ item.server_name }}"
   register: entra_id_oauth2_app_results
-  when: item.use_oauth2 | default(true) or item.use_entra_id_oidc | default(false)
+  when: rproxy_setup_sites is defined and (item.use_oauth2 | default(true) or item.use_entra_id_oidc | default(false))
 
 - name: Build updated list with secrets
   ansible.builtin.set_fact:
@@ -83,3 +77,4 @@
   loop: "{{ rproxy_setup_sites }}"
   loop_control:
     label: "{{ item.server_name }}"
+  when: rproxy_setup_sites is defined
