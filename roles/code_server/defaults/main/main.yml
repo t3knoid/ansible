@@ -6,3 +6,5 @@ code_server_proxy_port: 8000
 code_server_bind_address: 127.0.0.1
 code_server_auth_mode: "password"
 code_server_service_name: "code-server@{{ code_server_user }}"
+code_server_download_file: "{{ code_server_version }}_amd64.deb"
+code_server_download_url: "https://github.com/coder/code-server/releases/download/v{{ code_server_version }}/code-server_{{ code_server_download_file }}"
