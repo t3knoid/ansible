@@ -3,6 +3,10 @@ server {
     listen [::]:{{ code_server_proxy_port }};
     server_name {{ inventory_hostname }};
 
+    allow {{ global_ip_addresses[groups['rproxy_primary'][0]] }};
+    allow {{ global_ip_addresses[groups['rproxy_secondary'][0]] }};
+    deny all;
+
     location / {
       proxy_pass http://localhost:{{ code_server_port }}/;
       proxy_set_header Host $http_host;
