@@ -15,7 +15,7 @@ Installs the nginx service.
 ## ⚙️ Defaults
 | Variable | Default Value | Description |
 |----------|---------------|-------------|
-| `nginx_setup_version` | `"1.24.0-2ubuntu7.7"` |  |
+| `nginx_setup_version` | `"1.24.0-2ubuntu7"` | The role installs the matching apt candidate only when it is newer than installed. |
 | `nginx_setup_site_name` | `"{{ inventory_hostname }}"` |  |
 | `nginx_setup_worker_connections` | `768` |  |
 | `nginx_setup_homedir` | `/data/nginx` |  |
@@ -30,7 +30,13 @@ _No constant variables found._
 
 ## 📑 Tasks
 - Update apt cache
+- Gather installed package facts
 - Unhold package versions
+- Get nginx apt candidate version
+- Determine nginx apt candidate version
+- Show nginx apt candidate version
+- Validate nginx apt candidate version family
+- Compare candidate and installed nginx versions
 - Install nginx
 - Hold package versions
 - Include config.yml tasks
