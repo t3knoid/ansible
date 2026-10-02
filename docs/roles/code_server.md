@@ -15,17 +15,21 @@ Installs and configures code server.
 ## ⚙️ Defaults
 | Variable | Default Value | Description |
 |----------|---------------|-------------|
-| `code_server_version` | `"4.99.3"` |  |
+| `code_server_version` | `4.140.3` |  |
 | `code_server_port` | `8080` |  |
 | `code_server_proxy_port` | `8000` |  |
 | `code_server_bind_address` | `127.0.0.1` |  |
 | `code_server_auth_mode` | `"password"` |  |
+| `code_server_service_name` | `"code-server@{{ code_server_user }}"` |  |
+| `code_server_download_file` | `"{{ code_server_version }}_amd64.deb"` |  |
+| `code_server_download_url` | `"https://github.com/coder/code-server/releases/download/v{{ code_server_version }}/code-server_{{ code_server_download_file }}"` |  |
 
 ## 📦 Vars
 _No constant variables found._
 
 ## 📑 Tasks
 - Gather service facts
+- Check installed code-server version
 - Stop the code-server package
 - Remove current version of code-server
 - Download code-server package
