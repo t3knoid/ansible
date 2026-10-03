@@ -15,7 +15,7 @@ Install and configure prometheus-pve-exporter for Proxmox VE monitoring.
 | Variable | Default Value | Description |
 |----------|---------------|-------------|
 | `pve_exporter_setup_version` | `"3.10.0"` |  |
-| `pve_exporter_setup_venv` | `"/opt/pve_exporter"` |  |
+| `pve_exporter_setup_venv` | `"/opt/python_{{ python3_version }}"` |  |
 | `pve_exporter_setup_user` | `"pve-exporter"` |  |
 | `pve_exporter_setup_group` | `"pve-exporter"` |  |
 | `pve_exporter_setup_config_dir` | `"/etc/pve_exporter"` |  |
@@ -37,7 +37,6 @@ _No constant variables found._
 - Require pve_exporter API token value
 - Create pve_exporter group
 - Create pve_exporter user
-- Import venv.yml from python3 role
 - Install prometheus-pve-exporter in its virtual environment
 - Set ownership for pve_exporter virtual environment
 - Create pve_exporter configuration directory
