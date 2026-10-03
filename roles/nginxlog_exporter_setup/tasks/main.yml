@@ -1,0 +1,85 @@
+---
+- name: Create nginxlog exporter user
+  ansible.builtin.user:
+    name: "{{ nginxlog_exporter_setup_user }}"
+    groups: www-data
+    append: true
+    system: true
+    create_home: false
+    shell: /usr/sbin/nologin
+
+- name: Create nginxlog exporter install directory
+  ansible.builtin.file:
+    path: "{{ nginxlog_exporter_setup_install_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Download and extract nginxlog exporter
+  ansible.builtin.unarchive:
+    src: "{{ nginxlog_exporter_setup_download_base_url }}/v{{ nginxlog_exporter_setup_version }}/{{ nginxlog_exporter_setup_archive }}"
+    dest: "{{ nginxlog_exporter_setup_install_dir }}"
+    remote_src: true
+    creates: "{{ nginxlog_exporter_setup_binary }}"
+    owner: root
+    group: root
+    mode: "0755"
+  notify: Restart nginxlog exporter
+
+- name: Ensure traffic log exists with collector read access
+  ansible.builtin.file:
+    path: "{{ nginxlog_exporter_setup_log_file }}"
+    state: touch
+    access_time: preserve
+    modification_time: preserve
+    owner: www-data
+    group: www-data
+    mode: "0640"
+
+- name: Configure nginxlog exporter
+  ansible.builtin.template:
+    src: exporter.hcl.j2
+    dest: "{{ nginxlog_exporter_setup_config_file }}"
+    owner: root
+    group: root
+    mode: "0644"
+    validate: "{{ nginxlog_exporter_setup_binary }} -config-file %s -verify-config"
+  notify: Restart nginxlog exporter
+
+- name: Configure privacy-preserving nginx traffic logging
+  ansible.builtin.template:
+    src: nginx-traffic.conf.j2
+    dest: "{{ nginxlog_exporter_setup_nginx_config }}"
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload nginx for traffic logging
+
+- name: Validate nginx traffic logging configuration
+  ansible.builtin.command: nginx -t
+  changed_when: false
+
+- name: Configure traffic log rotation
+  ansible.builtin.template:
+    src: logrotate.j2
+    dest: /etc/logrotate.d/nginxlog-exporter
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Configure nginxlog exporter service
+  ansible.builtin.template:
+    src: nginxlog-exporter.service.j2
+    dest: /etc/systemd/system/nginxlog-exporter.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart nginxlog exporter
+
+- name: Enable and start nginxlog exporter
+  ansible.builtin.systemd:
+    name: nginxlog-exporter
+    enabled: true
+    state: started
+    daemon_reload: true

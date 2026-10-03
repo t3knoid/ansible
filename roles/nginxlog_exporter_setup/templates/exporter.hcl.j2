@@ -1,0 +1,15 @@
+listen {
+  port = {{ nginxlog_exporter_setup_port }}
+  address = {{ nginxlog_exporter_setup_listen_address | to_json }}
+}
+
+namespace "nginxlog" {
+  format = {{ nginxlog_exporter_setup_log_format | to_json }}
+  source {
+    files = [{{ nginxlog_exporter_setup_log_file | to_json }}]
+  }
+  relabel "domain" {
+    from = "server_name"
+  }
+  histogram_buckets = {{ nginxlog_exporter_setup_histogram_buckets | to_json }}
+}

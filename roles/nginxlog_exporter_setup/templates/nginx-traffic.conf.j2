@@ -1,0 +1,2 @@
+log_format rproxy_metrics '$server_name "$request_method / $server_protocol" $status $body_bytes_sent $request_time';
+access_log {{ nginxlog_exporter_setup_log_file }} rproxy_metrics;

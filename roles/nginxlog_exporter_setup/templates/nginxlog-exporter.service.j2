@@ -1,0 +1,19 @@
+[Unit]
+Description=NGINX per-domain traffic exporter
+Wants=network-online.target
+After=network-online.target nginx.service
+
+[Service]
+Type=simple
+User={{ nginxlog_exporter_setup_user }}
+SupplementaryGroups=www-data
+ExecStart={{ nginxlog_exporter_setup_binary }} -config-file {{ nginxlog_exporter_setup_config_file }}
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

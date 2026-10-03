@@ -1,0 +1,13 @@
+{{ nginxlog_exporter_setup_log_file }} {
+    daily
+    rotate 7
+    missingok
+    notifempty
+    compress
+    delaycompress
+    create 0640 www-data www-data
+    sharedscripts
+    postrotate
+        /usr/sbin/nginx -s reopen
+    endscript
+}
