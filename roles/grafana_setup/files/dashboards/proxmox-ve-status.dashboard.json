@@ -64,7 +64,9 @@
         "justifyMode": "auto",
         "orientation": "horizontal",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
@@ -121,7 +123,9 @@
         "justifyMode": "auto",
         "orientation": "horizontal",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
@@ -178,7 +182,9 @@
         "justifyMode": "auto",
         "orientation": "horizontal",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
@@ -239,7 +245,9 @@
         "justifyMode": "auto",
         "orientation": "horizontal",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
@@ -294,7 +302,10 @@
       "id": 5,
       "options": {
         "legend": {
-          "calcs": ["lastNotNull", "max"],
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -352,7 +363,10 @@
       "id": 6,
       "options": {
         "legend": {
-          "calcs": ["lastNotNull", "max"],
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -410,7 +424,10 @@
       "id": 7,
       "options": {
         "legend": {
-          "calcs": ["lastNotNull", "max"],
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -468,7 +485,10 @@
       "id": 8,
       "options": {
         "legend": {
-          "calcs": ["lastNotNull", "max"],
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -508,23 +528,8 @@
             },
             "inspect": false
           },
-          "mappings": [
-            {
-              "options": {
-                "0": {
-                  "color": "red",
-                  "text": "stopped",
-                  "index": 1
-                },
-                "1": {
-                  "color": "green",
-                  "text": "running",
-                  "index": 0
-                }
-              },
-              "type": "value"
-            }
-          ],
+          "mappings": [],
+          "noValue": "N/A",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -535,10 +540,107 @@
             ]
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Status"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "color": "red",
+                        "text": "stopped"
+                      },
+                      "1": {
+                        "color": "green",
+                        "text": "running"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ID"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "Guest details",
+                    "url": "/d/proxmox-ve-guest-detail?var-guest=${__data.fields.ID:percentencode}&${__url_time_range}",
+                    "targetBlank": false
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "auto"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "CPU Usage"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "^(Memory|Disk) (Used|Allocated|Capacity)$"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Uptime"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
-        "h": 8,
+        "h": 10,
         "w": 24,
         "x": 0,
         "y": 20
@@ -549,7 +651,9 @@
         "footer": {
           "countRows": false,
           "fields": "",
-          "reducer": ["sum"],
+          "reducer": [
+            "sum"
+          ],
           "show": false
         },
         "showHeader": true
@@ -564,28 +668,109 @@
           "legendFormat": "__auto",
           "range": false,
           "refId": "A"
+        },
+        {
+          "expr": "max by (id) (pve_cpu_usage_ratio{id=~\"(qemu|lxc)/.+\"}) * 100",
+          "format": "table",
+          "instant": true,
+          "range": false,
+          "refId": "B"
+        },
+        {
+          "expr": "max by (id) (pve_cpu_usage_limit{id=~\"(qemu|lxc)/.+\"})",
+          "format": "table",
+          "instant": true,
+          "range": false,
+          "refId": "C"
+        },
+        {
+          "expr": "max by (id) (pve_memory_usage_bytes{id=~\"(qemu|lxc)/.+\"})",
+          "format": "table",
+          "instant": true,
+          "range": false,
+          "refId": "D"
+        },
+        {
+          "expr": "max by (id) (pve_memory_size_bytes{id=~\"(qemu|lxc)/.+\"})",
+          "format": "table",
+          "instant": true,
+          "range": false,
+          "refId": "E"
+        },
+        {
+          "expr": "max by (id) (pve_disk_size_bytes{id=~\"(qemu|lxc)/.+\"})",
+          "format": "table",
+          "instant": true,
+          "range": false,
+          "refId": "F"
+        },
+        {
+          "expr": "max by (id) (pve_disk_usage_bytes{id=~\"(qemu|lxc)/.+\"})",
+          "format": "table",
+          "instant": true,
+          "range": false,
+          "refId": "G"
+        },
+        {
+          "expr": "max by (id) (pve_uptime_seconds{id=~\"(qemu|lxc)/.+\"})",
+          "format": "table",
+          "instant": true,
+          "range": false,
+          "refId": "H"
         }
       ],
-      "title": "Guest Status",
+      "title": "Guest Status and Resources",
+      "description": "Disk capacity and usage are Proxmox-reported, not necessarily filesystem usage inside a VM.",
       "transformations": [
+        {
+          "id": "joinByField",
+          "options": {
+            "byField": "id",
+            "mode": "outer"
+          }
+        },
+        {
+          "id": "filterFieldsByName",
+          "options": {
+            "include": {
+              "pattern": "^(id|name|node|type|Value #[A-H])$"
+            }
+          }
+        },
         {
           "id": "organize",
           "options": {
             "excludeByName": {
-              "Time": true,
-              "__name__": true,
-              "instance": true,
-              "job": true,
-              "template": true,
-              "tags": true
+              "type": true,
+              "Value #G": true
             },
-            "indexByName": {},
+            "indexByName": {
+              "id": 0,
+              "name": 1,
+              "node": 2,
+              "type": 3,
+              "Value #A": 4,
+              "Value #B": 5,
+              "Value #C": 6,
+              "Value #D": 7,
+              "Value #E": 8,
+              "Value #F": 9,
+              "Value #G": 10,
+              "Value #H": 11
+            },
             "renameByName": {
               "id": "ID",
               "name": "Name",
               "node": "Node",
               "type": "Type",
-              "Value": "Status"
+              "Value #A": "Status",
+              "Value #B": "CPU Usage",
+              "Value #C": "vCPUs / CPU Limit",
+              "Value #D": "Memory Used",
+              "Value #E": "Memory Allocated",
+              "Value #F": "Disk Capacity",
+              "Value #G": "Disk Used",
+              "Value #H": "Uptime"
             }
           }
         }
@@ -595,7 +780,10 @@
   ],
   "refresh": "30s",
   "schemaVersion": 39,
-  "tags": ["proxmox", "pve"],
+  "tags": [
+    "proxmox",
+    "pve"
+  ],
   "templating": {
     "list": []
   },
@@ -607,6 +795,6 @@
   "timezone": "",
   "title": "Proxmox VE Status",
   "uid": "proxmox-ve-status",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }
