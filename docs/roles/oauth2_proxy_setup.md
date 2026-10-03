@@ -32,7 +32,6 @@ _No constant variables found._
 - Create oauth2-proxy configuration directory
 - Set Redis connection string
 - Find all oauth2-proxy services
-- Show OAuth2 Proxy site configuration
 - Remove oauth2 directives from nginx configuration
 - Remove disabled site oauth2-proxy unit and configuration files
 - Insert OAuth2 Proxy directives into nginx configuration

@@ -23,7 +23,6 @@ _No constant variables found._
 
 ## 📑 Tasks
 - Ensure azure.azcollection required Python modules are installed
-- Ensure azure-cli Python module installed
 - Calculate secret expiry offset from today
 - Login with service principal
 - Register Entra ID application for each site
