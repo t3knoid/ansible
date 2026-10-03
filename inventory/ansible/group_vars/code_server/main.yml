@@ -1,10 +1,8 @@
 ---
-
 nginx_setup_worker_connections: 768
 nginx_setup_homedir: "/opt/nginx"
 nginx_setup_certroot: "/opt/certs"
 
-code_server_version: "4.107.0"
 code_server_auth_mode: "none"
 
 ## See vault.yml for the following
