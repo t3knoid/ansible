@@ -1,0 +1,16 @@
+---
+nginxlog_exporter_setup_version: "1.11.0"
+nginxlog_exporter_setup_platform: linux_amd64
+nginxlog_exporter_setup_download_base_url: https://github.com/martin-helmich/prometheus-nginxlog-exporter/releases/download
+nginxlog_exporter_setup_archive: "prometheus-nginxlog-exporter_{{ nginxlog_exporter_setup_version }}_{{ nginxlog_exporter_setup_platform }}.tar.gz"
+nginxlog_exporter_setup_port: 4040
+nginxlog_exporter_setup_listen_address: "{{ global_ip_addresses[inventory_hostname] }}"
+nginxlog_exporter_setup_install_dir: "/opt/prometheus-nginxlog-exporter_{{ nginxlog_exporter_setup_version }}"
+nginxlog_exporter_setup_binary: "{{ nginxlog_exporter_setup_install_dir }}/prometheus-nginxlog-exporter"
+nginxlog_exporter_setup_user: nginxlog-exporter
+nginxlog_exporter_setup_config_file: /etc/prometheus-nginxlog-exporter.hcl
+nginxlog_exporter_setup_log_file: "{{ nginx_setup_homedir }}/log/traffic.log"
+nginxlog_exporter_setup_nginx_config: /etc/nginx/conf.d/nginxlog-exporter.conf
+nginxlog_exporter_setup_log_format: '$server_name "$request" $status $body_bytes_sent $request_time'
+nginxlog_exporter_setup_histogram_buckets:
+  [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10]

@@ -1,0 +1,11 @@
+---
+galaxy_info:
+  role_name: nginxlog_exporter_setup
+  author: Frank Refol
+  description: Export per-domain reverse proxy request metrics from privacy-preserving nginx access logs.
+  license: MIT
+  min_ansible_version: "2.9"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - focal

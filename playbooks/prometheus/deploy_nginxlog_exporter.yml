@@ -1,0 +1,11 @@
+---
+# Purpose: Collect per-domain HTTP traffic on the main reverse proxy.
+
+- name: Deploy per-domain nginx traffic exporter
+  hosts: nginxlog_exporter
+  become: true
+  gather_facts: true
+  roles:
+    - global
+    - nginx_setup
+    - nginxlog_exporter_setup
