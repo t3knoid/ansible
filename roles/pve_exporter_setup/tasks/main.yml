@@ -18,13 +18,6 @@
     create_home: false
     shell: /usr/sbin/nologin
 
-- name: Import venv.yml from python3 role
-  ansible.builtin.import_role:
-    name: python3
-    tasks_from: venv.yml
-  vars:
-    python3_venv_folder: "{{ pve_exporter_setup_venv }}"
-
 - name: Install prometheus-pve-exporter in its virtual environment
   ansible.builtin.pip:
     name: "prometheus-pve-exporter=={{ pve_exporter_setup_version }}"

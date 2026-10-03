@@ -1,6 +1,6 @@
 ---
 pve_exporter_setup_version: "3.10.0"
-pve_exporter_setup_venv: "/opt/pve_exporter"
+pve_exporter_setup_venv: "/opt/python_{{ python3_version }}"
 pve_exporter_setup_user: "pve-exporter"
 pve_exporter_setup_group: "pve-exporter"
 pve_exporter_setup_config_dir: "/etc/pve_exporter"
