@@ -1,0 +1,11 @@
+---
+# Purpose: Deploy Node Exporter and the Proxmox VE Exporter on Proxmox hosts for monitoring
+# Usage: ansible-playbook -i inventory/pve/inventory.ini playbooks/prometheus/deploy_pve_exporter.yml
+
+- name: Deploy PVE Exporter
+  hosts: pve_exporter
+  become: true
+  gather_facts: true
+  roles:
+    - global
+    - pve_exporter_setup
