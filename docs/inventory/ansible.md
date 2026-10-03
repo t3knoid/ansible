@@ -40,6 +40,9 @@ _Inventory for `ansible` hosts_
 ### `oauth2_proxy`
 - `rproxy-0`
 
+### `entra_id`
+- `ansible-0`
+
 ### `redis`
 - `rproxy-0`
 
@@ -83,8 +86,8 @@ _No group variables defined._
 
 ### `rproxy`
 - `rproxy_primary`
-- `rproxy_main`
 - `rproxy_secondary`
+- `rproxy_main`
 
 ### `cname`
 - `code_server`
