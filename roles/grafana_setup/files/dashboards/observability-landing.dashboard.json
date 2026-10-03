@@ -1,972 +1,1402 @@
 {
-  "annotations": {
-    "list": [
-      {
-        "builtIn": 1,
-        "datasource": {
-          "type": "grafana",
-          "uid": "-- Grafana --"
-        },
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations & Alerts",
-        "type": "dashboard"
-      }
-    ]
-  },
-  "description": "Unified observability landing page for node availability, web service status, PostgreSQL status, Linux updates, and reverse proxy/Entra ID health.",
-  "editable": true,
-  "fiscalYearStartMonth": 0,
-  "graphTooltip": 0,
-  "id": null,
-  "links": [],
-  "liveNow": false,
-  "panels": [
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "links": [
+    "annotations": {
+        "list": [
             {
-              "targetBlank": false,
-              "title": "Open node exporter overview",
-              "url": "/d/node-exporter-overview/node-exporter-overview"
+                "builtIn": 1,
+                "datasource": {
+                    "type": "grafana",
+                    "uid": "-- Grafana --"
+                },
+                "enable": true,
+                "hide": true,
+                "iconColor": "rgba(0, 211, 255, 1)",
+                "name": "Annotations & Alerts",
+                "type": "dashboard"
             }
-          ],
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              },
-              {
-                "color": "green",
-                "value": 1
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 12,
-        "x": 0,
-        "y": 0
-      },
-      "id": 2,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "value"
-      },
-      "pluginVersion": "12.2.0",
-      "targets": [
-        {
-          "editorMode": "code",
-          "expr": "count(up{job=\"node\"} == 1) or vector(0)",
-          "instant": true,
-          "legendFormat": "",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "Nodes Up",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "links": [
-            {
-              "targetBlank": false,
-              "title": "Open node availability grid",
-              "url": "/d/node-availability-grid/node-availability-grid"
-            }
-          ],
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 1
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 12,
-        "x": 12,
-        "y": 0
-      },
-      "id": 3,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "value"
-      },
-      "pluginVersion": "12.2.0",
-      "targets": [
-        {
-          "editorMode": "code",
-          "expr": "count(up{job=\"node\"} == 0) or vector(0)",
-          "instant": true,
-          "legendFormat": "",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "Nodes Down",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "links": [
-            {
-              "targetBlank": false,
-              "title": "Open Linux update status",
-              "url": "/d/linux-update-status/linux-update-status"
-            }
-          ],
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 1
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 12,
-        "x": 0,
-        "y": 4
-      },
-      "id": 6,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "value"
-      },
-      "pluginVersion": "12.2.0",
-      "targets": [
-        {
-          "editorMode": "code",
-          "expr": "count(linux_updates_available{job=\"node\"} > 0) or vector(0)",
-          "instant": true,
-          "legendFormat": "",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "Linux Updates Available",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "links": [
-            {
-              "targetBlank": false,
-              "title": "Open Linux update status",
-              "url": "/d/linux-update-status/linux-update-status"
-            }
-          ],
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 1
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 12,
-        "x": 12,
-        "y": 4
-      },
-      "id": 7,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "value"
-      },
-      "pluginVersion": "12.2.0",
-      "targets": [
-        {
-          "editorMode": "code",
-          "expr": "count(linux_security_updates_available{job=\"node\"} > 0) or vector(0)",
-          "instant": true,
-          "legendFormat": "",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "Security Updates Available",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "links": [
-            {
-              "targetBlank": false,
-              "title": "Open web service status",
-              "url": "/d/web-service-status/web-service-status"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": null
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 8,
-        "x": 0,
-        "y": 8
-      },
-      "id": 8,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "value"
-      },
-      "pluginVersion": "12.2.0",
-      "targets": [
-        {
-          "editorMode": "code",
-          "expr": "count(probe_success{job=~\"blackbox_http|blackbox\"}) or vector(0)",
-          "instant": true,
-          "legendFormat": "",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "Tracked Web Services",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "links": [
-            {
-              "targetBlank": false,
-              "title": "Open web service status",
-              "url": "/d/web-service-status/web-service-status"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              },
-              {
-                "color": "green",
-                "value": 1
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 8,
-        "x": 8,
-        "y": 8
-      },
-      "id": 9,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "value"
-      },
-      "pluginVersion": "12.2.0",
-      "targets": [
-        {
-          "editorMode": "code",
-          "expr": "count(probe_success{job=~\"blackbox_http|blackbox\"} == 1) or vector(0)",
-          "instant": true,
-          "legendFormat": "",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "Web Services Up",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "links": [
-            {
-              "targetBlank": false,
-              "title": "Open web service status",
-              "url": "/d/web-service-status/web-service-status"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 1
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 8,
-        "x": 16,
-        "y": 8
-      },
-      "id": 10,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "value"
-      },
-      "pluginVersion": "12.2.0",
-      "targets": [
-        {
-          "editorMode": "code",
-          "expr": "count(probe_success{job=~\"blackbox_http|blackbox\"} == 0) or vector(0)",
-          "instant": true,
-          "legendFormat": "",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "Web Services Down",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "links": [
-            {
-              "targetBlank": false,
-              "title": "Open PostgreSQL status",
-              "url": "/d/postgresql-status/postgresql-status"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": null
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 8,
-        "x": 0,
-        "y": 12
-      },
-      "id": 11,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "value"
-      },
-      "pluginVersion": "12.2.0",
-      "targets": [
-        {
-          "editorMode": "code",
-          "expr": "count(pg_up{job=\"postgres_exporter\"}) or vector(0)",
-          "instant": true,
-          "legendFormat": "",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "Tracked PostgreSQL Hosts",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "links": [
-            {
-              "targetBlank": false,
-              "title": "Open PostgreSQL status",
-              "url": "/d/postgresql-status/postgresql-status"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              },
-              {
-                "color": "green",
-                "value": 1
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 8,
-        "x": 8,
-        "y": 12
-      },
-      "id": 12,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "value"
-      },
-      "pluginVersion": "12.2.0",
-      "targets": [
-        {
-          "editorMode": "code",
-          "expr": "count(pg_up{job=\"postgres_exporter\"} == 1) or vector(0)",
-          "instant": true,
-          "legendFormat": "",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "PostgreSQL Up",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "links": [
-            {
-              "targetBlank": false,
-              "title": "Open PostgreSQL status",
-              "url": "/d/postgresql-status/postgresql-status"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 1
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 8,
-        "x": 16,
-        "y": 12
-      },
-      "id": 13,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "value"
-      },
-      "pluginVersion": "12.2.0",
-      "targets": [
-        {
-          "editorMode": "code",
-          "expr": "count(pg_up{job=\"postgres_exporter\"} == 0) or vector(0)",
-          "instant": true,
-          "legendFormat": "",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "PostgreSQL Down",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "links": [
-            {
-              "targetBlank": false,
-              "title": "Open application update status",
-              "url": "/d/application-update-status/application-update-status"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 1
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 8,
-        "x": 0,
-        "y": 16
-      },
-      "id": 14,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "value"
-      },
-      "pluginVersion": "12.2.0",
-      "targets": [
-        {
-          "editorMode": "code",
-          "expr": "(sum(bedrock_server_update_available{job=\"node\",instance=~\"minecraft-.*\"}) or vector(0)) + (sum(sonarr_update_available{job=\"node\",instance=~\"sonarr-.*\"}) or vector(0)) + (sum(radarr_update_available{job=\"node\",instance=~\"radarr-.*\"}) or vector(0)) + (sum(lidarr_update_available{job=\"node\",instance=~\"lidarr-.*\"}) or vector(0)) + (sum(plex_update_available{job=\"node\",instance=~\"plex-.*\"}) or vector(0)) + (sum(tautulli_update_available{job=\"node\",instance=~\"tautulli-.*\"}) or vector(0))",
-          "instant": true,
-          "legendFormat": "",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "Application Updates Available",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "links": [
-            {
-              "targetBlank": false,
-              "title": "Open Reverse Proxy & Entra ID Health",
-              "url": "/d/rproxy-entra-id-health/rproxy-entra-id-health"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 1
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Backend Servers"
-            },
-            "properties": [
-              {
-                "id": "mappings",
-                "value": [
-                  {
-                    "options": {
-                      "-1": {
-                        "color": "gray",
-                        "index": 0,
-                        "text": "No Data"
-                      },
-                      "0": {
-                        "color": "red",
-                        "index": 1,
-                        "text": "Unreachable"
-                      },
-                      "1": {
-                        "color": "green",
-                        "index": 2,
-                        "text": "Connected"
-                      }
-                    },
-                    "type": "value"
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Redis"
-            },
-            "properties": [
-              {
-                "id": "mappings",
-                "value": [
-                  {
-                    "options": {
-                      "-1": {
-                        "color": "gray",
-                        "index": 0,
-                        "text": "No Data"
-                      },
-                      "0": {
-                        "color": "red",
-                        "index": 1,
-                        "text": "Down"
-                      },
-                      "1": {
-                        "color": "green",
-                        "index": 2,
-                        "text": "Up"
-                      }
-                    },
-                    "type": "value"
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Failed OAuth2 Services"
-            },
-            "properties": [
-              {
-                "id": "mappings",
-                "value": [
-                  {
-                    "options": {
-                      "0": {
-                        "color": "green",
-                        "index": 0,
-                        "text": "None"
-                      }
-                    },
-                    "type": "value"
-                  }
-                ]
-              },
-              {
-                "id": "thresholds",
-                "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "green",
-                      "value": null
-                    },
-                    {
-                      "color": "red",
-                      "value": 1
-                    }
-                  ]
-                }
-              }
-            ]
-          }
         ]
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 24,
-        "x": 0,
-        "y": 20
-      },
-      "id": 15,
-      "options": {
-        "colorMode": "background_solid",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "value_and_name",
-        "wideLayout": true
-      },
-      "pluginVersion": "12.2.0",
-      "targets": [
+    },
+    "description": "Fleet health and main-proxy traffic, with per-domain rankings, request latency, Proxmox resource trends, and web service availability.",
+    "editable": true,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 1,
+    "id": null,
+    "links": [
         {
-          "editorMode": "code",
-          "expr": "max(rproxy_backend_reachable{job=\"node\",instance=\"rproxy-0\"}) or vector(-1)",
-          "instant": true,
-          "legendFormat": "Backend Servers",
-          "range": false,
-          "refId": "A"
+            "title": "Nodes",
+            "type": "link",
+            "icon": "dashboard",
+            "url": "/d/node-exporter-overview",
+            "keepTime": true,
+            "targetBlank": false
         },
         {
-          "editorMode": "code",
-          "expr": "max(rproxy_redis_up{job=\"node\",instance=\"rproxy-0\"}) or vector(-1)",
-          "instant": true,
-          "legendFormat": "Redis",
-          "range": false,
-          "refId": "B"
+            "title": "Proxmox VE",
+            "type": "link",
+            "icon": "dashboard",
+            "url": "/d/proxmox-ve-status",
+            "keepTime": true,
+            "targetBlank": false
         },
         {
-          "editorMode": "code",
-          "expr": "sum(linux_systemd_service_failed_info{job=\"node\",instance=\"rproxy-0\",service=~\"oauth2-proxy.*\"}) or vector(0)",
-          "instant": true,
-          "legendFormat": "Failed OAuth2 Services",
-          "range": false,
-          "refId": "C"
+            "title": "Web Services",
+            "type": "link",
+            "icon": "dashboard",
+            "url": "/d/web-service-status",
+            "keepTime": true,
+            "targetBlank": false
+        },
+        {
+            "title": "Reverse Proxy",
+            "type": "link",
+            "icon": "dashboard",
+            "url": "/d/rproxy-entra-id-health",
+            "keepTime": true,
+            "targetBlank": false
         }
-      ],
-      "title": "Reverse Proxy & Entra ID Health",
-      "type": "stat"
-    }
-  ],
-  "refresh": "30s",
-  "schemaVersion": 41,
-  "tags": [
-    "blackbox",
-    "infrastructure",
-    "observability",
-    "node-exporter",
-    "postgresql"
-  ],
-  "templating": {
-    "list": []
-  },
-  "time": {
-    "from": "now-30m",
-    "to": "now"
-  },
-  "timepicker": {},
-  "timezone": "",
-  "title": "Observability Landing",
-  "uid": "observability-landing",
-  "version": 5,
-  "weekStart": ""
+    ],
+    "panels": [
+        {
+            "id": 1,
+            "title": "Node Fleet",
+            "type": "stat",
+            "pluginVersion": "12.2.0",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 6,
+                "x": 0,
+                "y": 0
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "none",
+                    "decimals": 0,
+                    "color": {
+                        "mode": "fixed",
+                        "fixedColor": "green"
+                    },
+                    "links": [
+                        {
+                            "title": "Node overview",
+                            "url": "/d/node-exporter-overview",
+                            "targetBlank": false
+                        }
+                    ]
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Offline"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "mode": "thresholds"
+                                }
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "green",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "red",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "orientation": "horizontal",
+                "textMode": "value_and_name",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                }
+            },
+            "targets": [
+                {
+                    "expr": "count(up{job=\"node\"} == 1) or (0 * count(up{job=\"node\"}))",
+                    "instant": true,
+                    "range": false,
+                    "legendFormat": "Online",
+                    "refId": "A"
+                },
+                {
+                    "expr": "count(up{job=\"node\"} == 0) or (0 * count(up{job=\"node\"}))",
+                    "instant": true,
+                    "range": false,
+                    "legendFormat": "Offline",
+                    "refId": "B"
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "title": "Proxmox VE",
+            "type": "stat",
+            "pluginVersion": "12.2.0",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 6,
+                "x": 6,
+                "y": 0
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "none",
+                    "decimals": 0,
+                    "color": {
+                        "mode": "fixed",
+                        "fixedColor": "cyan"
+                    },
+                    "links": [
+                        {
+                            "title": "Proxmox status",
+                            "url": "/d/proxmox-ve-status",
+                            "targetBlank": false
+                        }
+                    ]
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Nodes down"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "mode": "thresholds"
+                                }
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "green",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "red",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "orientation": "horizontal",
+                "textMode": "value_and_name",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                }
+            },
+            "targets": [
+                {
+                    "expr": "count(max by (id) (pve_up{id=~\"node/.+\"}) == 1) or (0 * count(max by (id) (pve_up{id=~\"node/.+\"})))",
+                    "instant": true,
+                    "range": false,
+                    "legendFormat": "Nodes up",
+                    "refId": "A"
+                },
+                {
+                    "expr": "count(max by (id) (pve_up{id=~\"node/.+\"}) == 0) or (0 * count(max by (id) (pve_up{id=~\"node/.+\"})))",
+                    "instant": true,
+                    "range": false,
+                    "legendFormat": "Nodes down",
+                    "refId": "B"
+                },
+                {
+                    "expr": "count(max by (id) (pve_up{id=~\"(qemu|lxc)/.+\"}) == 1) or (0 * count(max by (id) (pve_up{id=~\"(qemu|lxc)/.+\"})))",
+                    "instant": true,
+                    "range": false,
+                    "legendFormat": "Guests running",
+                    "refId": "C"
+                }
+            ]
+        },
+        {
+            "id": 3,
+            "title": "Web Services",
+            "type": "stat",
+            "pluginVersion": "12.2.0",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 6,
+                "x": 12,
+                "y": 0
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "none",
+                    "decimals": 0,
+                    "color": {
+                        "mode": "fixed",
+                        "fixedColor": "green"
+                    },
+                    "links": [
+                        {
+                            "title": "Web service status",
+                            "url": "/d/web-service-status",
+                            "targetBlank": false
+                        }
+                    ]
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Failing"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "mode": "thresholds"
+                                }
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "green",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "red",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "orientation": "horizontal",
+                "textMode": "value_and_name",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                }
+            },
+            "targets": [
+                {
+                    "expr": "count(probe_success{job=~\"blackbox_http|blackbox\"} == 1) or (0 * count(probe_success{job=~\"blackbox_http|blackbox\"}))",
+                    "instant": true,
+                    "range": false,
+                    "legendFormat": "Healthy",
+                    "refId": "A"
+                },
+                {
+                    "expr": "count(probe_success{job=~\"blackbox_http|blackbox\"} == 0) or (0 * count(probe_success{job=~\"blackbox_http|blackbox\"}))",
+                    "instant": true,
+                    "range": false,
+                    "legendFormat": "Failing",
+                    "refId": "B"
+                }
+            ]
+        },
+        {
+            "id": 4,
+            "title": "Main Reverse Proxy",
+            "type": "stat",
+            "pluginVersion": "12.2.0",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 6,
+                "x": 18,
+                "y": 0
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "none",
+                    "decimals": 0,
+                    "color": {
+                        "mode": "fixed",
+                        "fixedColor": "cyan"
+                    },
+                    "links": [
+                        {
+                            "title": "Reverse proxy health",
+                            "url": "/d/rproxy-entra-id-health",
+                            "targetBlank": false
+                        }
+                    ]
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "NGINX"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "type": "value",
+                                        "options": {
+                                            "0": {
+                                                "text": "Down",
+                                                "color": "red"
+                                            },
+                                            "1": {
+                                                "text": "Up",
+                                                "color": "green"
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "orientation": "horizontal",
+                "textMode": "value_and_name",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                }
+            },
+            "targets": [
+                {
+                    "expr": "max(nginx_up{instance=\"rproxy-0\"}) * max(up{job=\"nginx_exporter\",instance=\"rproxy-0\"})",
+                    "instant": true,
+                    "range": false,
+                    "legendFormat": "NGINX",
+                    "refId": "A"
+                },
+                {
+                    "expr": "sum(nginx_connections_active{instance=\"rproxy-0\"})",
+                    "instant": true,
+                    "range": false,
+                    "legendFormat": "Connections",
+                    "refId": "B"
+                }
+            ]
+        },
+        {
+            "id": 5,
+            "title": "HTTP Traffic / All Sites",
+            "type": "timeseries",
+            "pluginVersion": "12.2.0",
+            "description": "Requests per second across the main proxy, including monitoring probes. The nginx stub-status counter remains available independently of the domain log collector.",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+            },
+            "gridPos": {
+                "h": 9,
+                "w": 16,
+                "x": 0,
+                "y": 4
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "reqps",
+                    "min": 0,
+                    "color": {
+                        "mode": "fixed",
+                        "fixedColor": "cyan"
+                    },
+                    "custom": {
+                        "drawStyle": "bars",
+                        "fillOpacity": 80,
+                        "lineWidth": 0,
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "axisBorderShow": false
+                    }
+                },
+                "overrides": []
+            },
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "lastNotNull",
+                        "mean",
+                        "max"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "mode": "single",
+                    "sort": "none"
+                }
+            },
+            "targets": [
+                {
+                    "expr": "sum(rate(nginx_http_requests_total{job=\"nginx_exporter\",instance=\"rproxy-0\"}[$__rate_interval]))",
+                    "range": true,
+                    "legendFormat": "Requests",
+                    "refId": "A"
+                }
+            ]
+        },
+        {
+            "id": 6,
+            "title": "Most Requested Domain",
+            "type": "stat",
+            "pluginVersion": "12.2.0",
+            "description": "Highest completed-request count over the selected dashboard time range. Only requests observed after log collection starts are counted.",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+            },
+            "gridPos": {
+                "h": 5,
+                "w": 8,
+                "x": 16,
+                "y": 4
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "short",
+                    "decimals": 0,
+                    "noValue": "No requests",
+                    "color": {
+                        "mode": "fixed",
+                        "fixedColor": "cyan"
+                    }
+                },
+                "overrides": []
+            },
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "orientation": "horizontal",
+                "textMode": "value_and_name",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {
+                    "titleSize": 18,
+                    "valueSize": 36
+                }
+            },
+            "targets": [
+                {
+                    "expr": "topk(1, sum by (domain) (increase(nginxlog_http_response_count_total{job=\"nginxlog_exporter\",instance=\"rproxy-0\"}[$__range])) > 0)",
+                    "instant": true,
+                    "range": false,
+                    "legendFormat": "{{ domain }}",
+                    "refId": "A"
+                }
+            ]
+        },
+        {
+            "id": 7,
+            "title": "Requests / Selected Window",
+            "type": "stat",
+            "pluginVersion": "12.2.0",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 8,
+                "x": 16,
+                "y": 9
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "short",
+                    "decimals": 0,
+                    "color": {
+                        "mode": "fixed",
+                        "fixedColor": "cyan"
+                    }
+                },
+                "overrides": []
+            },
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "orientation": "horizontal",
+                "textMode": "value",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                }
+            },
+            "targets": [
+                {
+                    "expr": "sum(increase(nginx_http_requests_total{job=\"nginx_exporter\",instance=\"rproxy-0\"}[$__range]))",
+                    "instant": true,
+                    "range": false,
+                    "refId": "A"
+                }
+            ]
+        },
+        {
+            "id": 8,
+            "title": "Top Domains / Request Volume",
+            "type": "bargauge",
+            "pluginVersion": "12.2.0",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 13
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "short",
+                    "decimals": 0,
+                    "min": 0,
+                    "color": {
+                        "mode": "fixed",
+                        "fixedColor": "cyan"
+                    }
+                },
+                "overrides": []
+            },
+            "options": {
+                "displayMode": "gradient",
+                "orientation": "horizontal",
+                "showUnfilled": true,
+                "minVizHeight": 20,
+                "minVizWidth": 0,
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                }
+            },
+            "targets": [
+                {
+                    "expr": "sort_desc(topk(8, sum by (domain) (increase(nginxlog_http_response_count_total{job=\"nginxlog_exporter\",instance=\"rproxy-0\"}[$__range])) > 0))",
+                    "instant": true,
+                    "range": false,
+                    "legendFormat": "{{ domain }}",
+                    "refId": "A"
+                }
+            ]
+        },
+        {
+            "id": 9,
+            "title": "HTTP Request Duration / Histogram",
+            "type": "heatmap",
+            "pluginVersion": "12.2.0",
+            "description": "Distribution of completed request duration across all sites. Includes upstream waiting and response transmission; long-lived streams appear when they complete.",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 13
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "s"
+                },
+                "overrides": []
+            },
+            "options": {
+                "calculate": false,
+                "cellGap": 1,
+                "color": {
+                    "mode": "scheme",
+                    "scheme": "Oranges",
+                    "steps": 64,
+                    "exponent": 0.5
+                },
+                "legend": {
+                    "show": true
+                },
+                "tooltip": {
+                    "mode": "single",
+                    "showColorScale": true
+                },
+                "yAxis": {
+                    "unit": "s",
+                    "axisPlacement": "left",
+                    "reverse": false
+                }
+            },
+            "targets": [
+                {
+                    "expr": "sum by (le) (increase(nginxlog_http_response_time_seconds_hist_bucket{job=\"nginxlog_exporter\",instance=\"rproxy-0\"}[$__interval]))",
+                    "format": "heatmap",
+                    "interval": "1m",
+                    "range": true,
+                    "legendFormat": "{{ le }}",
+                    "refId": "A"
+                }
+            ]
+        },
+        {
+            "id": 10,
+            "title": "HTTP Responses",
+            "type": "timeseries",
+            "pluginVersion": "12.2.0",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 8,
+                "x": 0,
+                "y": 21
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "reqps",
+                    "min": 0,
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "drawStyle": "bars",
+                        "fillOpacity": 70,
+                        "lineWidth": 0,
+                        "showPoints": "never",
+                        "stacking": {
+                            "mode": "normal",
+                            "group": "A"
+                        },
+                        "spanNulls": false
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "5xx"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "mode": "fixed",
+                                    "fixedColor": "red"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "options": {
+                "legend": {
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "expr": "sum by (class) (label_replace(rate(nginxlog_http_response_count_total{job=\"nginxlog_exporter\",instance=\"rproxy-0\"}[$__rate_interval]), \"class\", \"$1\", \"status\", \"([1-5])[0-9][0-9]\"))",
+                    "range": true,
+                    "legendFormat": "{{ class }}xx",
+                    "refId": "A"
+                }
+            ]
+        },
+        {
+            "id": 11,
+            "title": "Node CPU / Busiest Five",
+            "type": "timeseries",
+            "pluginVersion": "12.2.0",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 8,
+                "x": 8,
+                "y": 21
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "percent",
+                    "min": 0,
+                    "max": 100,
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "drawStyle": "line",
+                        "fillOpacity": 12,
+                        "lineWidth": 2,
+                        "showPoints": "never",
+                        "spanNulls": false
+                    }
+                },
+                "overrides": []
+            },
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "expr": "topk(5, 100 * (1 - avg by (instance) (rate(node_cpu_seconds_total{job=\"node\",mode=\"idle\"}[$__rate_interval]))))",
+                    "range": true,
+                    "legendFormat": "{{ instance }}",
+                    "refId": "A"
+                }
+            ]
+        },
+        {
+            "id": 12,
+            "title": "Proxmox Resource Pressure",
+            "type": "timeseries",
+            "pluginVersion": "12.2.0",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 8,
+                "x": 16,
+                "y": 21
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "percent",
+                    "min": 0,
+                    "max": 100,
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "drawStyle": "line",
+                        "fillOpacity": 5,
+                        "lineWidth": 2,
+                        "showPoints": "never",
+                        "spanNulls": false
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "^Memory.*"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.lineStyle",
+                                "value": {
+                                    "fill": "dash",
+                                    "dash": [
+                                        5,
+                                        5
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "expr": "100 * max by (id) (pve_cpu_usage_ratio{id=~\"node/.+\"})",
+                    "range": true,
+                    "legendFormat": "CPU {{ id }}",
+                    "refId": "A"
+                },
+                {
+                    "expr": "100 * max by (id) (pve_memory_usage_bytes{id=~\"node/.+\"}) / max by (id) (pve_memory_size_bytes{id=~\"node/.+\"})",
+                    "range": true,
+                    "legendFormat": "Memory {{ id }}",
+                    "refId": "B"
+                }
+            ]
+        },
+        {
+            "id": 13,
+            "title": "Node Availability",
+            "type": "status-history",
+            "description": "Each cell summarizes a query interval. Down means at least one failed exporter scrape in that interval.",
+            "maxDataPoints": 100,
+            "pluginVersion": "12.2.0",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+            },
+            "gridPos": {
+                "h": 9,
+                "w": 12,
+                "x": 0,
+                "y": 28
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "mappings": [
+                        {
+                            "type": "value",
+                            "options": {
+                                "0": {
+                                    "text": "Down",
+                                    "color": "red"
+                                },
+                                "1": {
+                                    "text": "Up",
+                                    "color": "green"
+                                }
+                            }
+                        }
+                    ],
+                    "custom": {
+                        "fillOpacity": 85,
+                        "lineWidth": 0
+                    }
+                },
+                "overrides": []
+            },
+            "options": {
+                "colWidth": 0.9,
+                "rowHeight": 0.8,
+                "showValue": "never",
+                "legend": {
+                    "showLegend": false
+                },
+                "tooltip": {
+                    "mode": "single",
+                    "sort": "none"
+                }
+            },
+            "targets": [
+                {
+                    "expr": "min_over_time(up{job=\"node\"}[$__interval])",
+                    "range": true,
+                    "legendFormat": "{{ instance }}",
+                    "refId": "A"
+                }
+            ]
+        },
+        {
+            "id": 14,
+            "title": "Web Services / Current State",
+            "type": "table",
+            "pluginVersion": "12.2.0",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+            },
+            "gridPos": {
+                "h": 9,
+                "w": 12,
+                "x": 12,
+                "y": 28
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "noValue": "N/A",
+                    "custom": {
+                        "cellOptions": {
+                            "type": "auto"
+                        }
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "State"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "type": "value",
+                                        "options": {
+                                            "0": {
+                                                "text": "Down",
+                                                "color": "red"
+                                            },
+                                            "1": {
+                                                "text": "Up",
+                                                "color": "green"
+                                            }
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-text"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Probe Duration"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "s"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "options": {
+                "showHeader": true,
+                "cellHeight": "sm",
+                "sortBy": [
+                    {
+                        "displayName": "State",
+                        "desc": false
+                    }
+                ]
+            },
+            "targets": [
+                {
+                    "expr": "max by (instance) (probe_success{job=~\"blackbox_http|blackbox\"})",
+                    "format": "table",
+                    "instant": true,
+                    "range": false,
+                    "refId": "A"
+                },
+                {
+                    "expr": "max by (instance) (probe_duration_seconds{job=~\"blackbox_http|blackbox\"})",
+                    "format": "table",
+                    "instant": true,
+                    "range": false,
+                    "refId": "B"
+                }
+            ],
+            "transformations": [
+                {
+                    "id": "joinByField",
+                    "options": {
+                        "byField": "instance",
+                        "mode": "outerTabular"
+                    }
+                },
+                {
+                    "id": "filterFieldsByName",
+                    "options": {
+                        "include": {
+                            "pattern": "^(instance|Value #[AB])$"
+                        }
+                    }
+                },
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {},
+                        "indexByName": {
+                            "instance": 0,
+                            "Value #A": 1,
+                            "Value #B": 2
+                        },
+                        "renameByName": {
+                            "instance": "Service",
+                            "Value #A": "State",
+                            "Value #B": "Probe Duration"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "id": 20,
+            "title": "Maintenance and Databases",
+            "type": "row",
+            "collapsed": true,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 37
+            },
+            "panels": [
+                {
+                    "id": 21,
+                    "title": "PostgreSQL",
+                    "type": "stat",
+                    "pluginVersion": "12.2.0",
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "prometheus"
+                    },
+                    "gridPos": {
+                        "h": 4,
+                        "w": 6,
+                        "x": 0,
+                        "y": 38
+                    },
+                    "fieldConfig": {
+                        "defaults": {
+                            "unit": "none",
+                            "decimals": 0,
+                            "links": [
+                                {
+                                    "title": "PostgreSQL status",
+                                    "url": "/d/postgresql-status",
+                                    "targetBlank": false
+                                }
+                            ]
+                        },
+                        "overrides": []
+                    },
+                    "options": {
+                        "colorMode": "value",
+                        "graphMode": "none",
+                        "orientation": "horizontal",
+                        "textMode": "value_and_name",
+                        "reduceOptions": {
+                            "calcs": [
+                                "lastNotNull"
+                            ],
+                            "fields": "",
+                            "values": false
+                        }
+                    },
+                    "targets": [
+                        {
+                            "expr": "count(pg_up{job=\"postgres_exporter\"} == 1) or vector(0)",
+                            "instant": true,
+                            "range": false,
+                            "legendFormat": "Up",
+                            "refId": "A"
+                        },
+                        {
+                            "expr": "count(pg_up{job=\"postgres_exporter\"} == 0) or vector(0)",
+                            "instant": true,
+                            "range": false,
+                            "legendFormat": "Down",
+                            "refId": "B"
+                        }
+                    ]
+                },
+                {
+                    "id": 22,
+                    "title": "Linux Updates",
+                    "type": "stat",
+                    "pluginVersion": "12.2.0",
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "prometheus"
+                    },
+                    "gridPos": {
+                        "h": 4,
+                        "w": 6,
+                        "x": 6,
+                        "y": 38
+                    },
+                    "fieldConfig": {
+                        "defaults": {
+                            "unit": "none",
+                            "decimals": 0,
+                            "color": {
+                                "mode": "thresholds"
+                            },
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green",
+                                        "value": null
+                                    },
+                                    {
+                                        "color": "yellow",
+                                        "value": 1
+                                    }
+                                ]
+                            },
+                            "links": [
+                                {
+                                    "title": "Linux update status",
+                                    "url": "/d/linux-update-status",
+                                    "targetBlank": false
+                                }
+                            ]
+                        },
+                        "overrides": []
+                    },
+                    "options": {
+                        "colorMode": "value",
+                        "graphMode": "none",
+                        "textMode": "value",
+                        "reduceOptions": {
+                            "calcs": [
+                                "lastNotNull"
+                            ],
+                            "fields": "",
+                            "values": false
+                        }
+                    },
+                    "targets": [
+                        {
+                            "expr": "count(linux_updates_available{job=\"node\"} > 0) or vector(0)",
+                            "instant": true,
+                            "range": false,
+                            "refId": "A"
+                        }
+                    ]
+                },
+                {
+                    "id": 23,
+                    "title": "Security Updates",
+                    "type": "stat",
+                    "pluginVersion": "12.2.0",
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "prometheus"
+                    },
+                    "gridPos": {
+                        "h": 4,
+                        "w": 6,
+                        "x": 12,
+                        "y": 38
+                    },
+                    "fieldConfig": {
+                        "defaults": {
+                            "unit": "none",
+                            "decimals": 0,
+                            "color": {
+                                "mode": "thresholds"
+                            },
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green",
+                                        "value": null
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 1
+                                    }
+                                ]
+                            },
+                            "links": [
+                                {
+                                    "title": "Linux update status",
+                                    "url": "/d/linux-update-status",
+                                    "targetBlank": false
+                                }
+                            ]
+                        },
+                        "overrides": []
+                    },
+                    "options": {
+                        "colorMode": "value",
+                        "graphMode": "none",
+                        "textMode": "value",
+                        "reduceOptions": {
+                            "calcs": [
+                                "lastNotNull"
+                            ],
+                            "fields": "",
+                            "values": false
+                        }
+                    },
+                    "targets": [
+                        {
+                            "expr": "count(linux_security_updates_available{job=\"node\"} > 0) or vector(0)",
+                            "instant": true,
+                            "range": false,
+                            "refId": "A"
+                        }
+                    ]
+                },
+                {
+                    "id": 24,
+                    "title": "Application Updates",
+                    "type": "stat",
+                    "pluginVersion": "12.2.0",
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "prometheus"
+                    },
+                    "gridPos": {
+                        "h": 4,
+                        "w": 6,
+                        "x": 18,
+                        "y": 38
+                    },
+                    "fieldConfig": {
+                        "defaults": {
+                            "unit": "none",
+                            "decimals": 0,
+                            "color": {
+                                "mode": "thresholds"
+                            },
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green",
+                                        "value": null
+                                    },
+                                    {
+                                        "color": "yellow",
+                                        "value": 1
+                                    }
+                                ]
+                            },
+                            "links": [
+                                {
+                                    "title": "Application update status",
+                                    "url": "/d/application-update-status",
+                                    "targetBlank": false
+                                }
+                            ]
+                        },
+                        "overrides": []
+                    },
+                    "options": {
+                        "colorMode": "value",
+                        "graphMode": "none",
+                        "textMode": "value",
+                        "reduceOptions": {
+                            "calcs": [
+                                "lastNotNull"
+                            ],
+                            "fields": "",
+                            "values": false
+                        }
+                    },
+                    "targets": [
+                        {
+                            "expr": "(sum(bedrock_server_update_available{job=\"node\",instance=~\"minecraft-.*\"}) or vector(0)) + (sum(sonarr_update_available{job=\"node\",instance=~\"sonarr-.*\"}) or vector(0)) + (sum(radarr_update_available{job=\"node\",instance=~\"radarr-.*\"}) or vector(0)) + (sum(lidarr_update_available{job=\"node\",instance=~\"lidarr-.*\"}) or vector(0)) + (sum(plex_update_available{job=\"node\",instance=~\"plex-.*\"}) or vector(0)) + (sum(tautulli_update_available{job=\"node\",instance=~\"tautulli-.*\"}) or vector(0))",
+                            "instant": true,
+                            "range": false,
+                            "refId": "A"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "refresh": "30s",
+    "schemaVersion": 41,
+    "tags": [
+        "infrastructure",
+        "observability",
+        "proxmox",
+        "nginx",
+        "traffic"
+    ],
+    "templating": {
+        "list": []
+    },
+    "time": {
+        "from": "now-6h",
+        "to": "now"
+    },
+    "timepicker": {},
+    "timezone": "",
+    "title": "Observability Landing",
+    "uid": "observability-landing",
+    "version": 6,
+    "weekStart": ""
 }
