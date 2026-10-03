@@ -31,13 +31,12 @@
     url: "{{ code_server_download_url }}"
     dest: "/tmp/{{ code_server_download_file }}"
     mode: "0644"
-  register: code_server_get_url_retval
-  changed_when: code_server_get_url_retval.state is defined
 
 - name: Install code-server package
   ansible.builtin.apt:
     deb: "/tmp/{{ code_server_download_file }}"
     state: present
+  notify: Restart code server
 
 - name: Create code-server config folder
   ansible.builtin.file:
