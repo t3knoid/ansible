@@ -24,7 +24,7 @@ The linux role contains tasks related to updating Linux updates.
 _No constant variables found._
 
 ## 📑 Tasks
-- Include specific operating system update task file
+- Run Linux updates through the linux role
 
 ## 🔔 Handlers
 _No handlers defined._
