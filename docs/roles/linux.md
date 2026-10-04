@@ -1,11 +1,11 @@
-# 🛠️ Role: `linux_updates`
+# 🛠️ Role: `linux`
 
 ![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Ansible >= 2.9](https://img.shields.io/badge/ansible-%3E%3D%202.9-green.svg)
 ![Platforms: Debian | Ubuntu](https://img.shields.io/badge/platforms-Debian%20|%20Ubuntu-orange.svg)
 
 ## 📖 Overview
-The linux role contains tasks related to updating Linux updates.
+Provides common Linux host management tasks.
 
 ## 📋 Requirements
 - Minimum Ansible version: `2.9`
@@ -24,7 +24,7 @@ The linux role contains tasks related to updating Linux updates.
 _No constant variables found._
 
 ## 📑 Tasks
-- Run Linux updates through the linux role
+_No tasks defined._
 
 ## 🔔 Handlers
 _No handlers defined._
@@ -36,5 +36,5 @@ _No dependencies listed._
 ```yaml
 - hosts: all
   roles:
-    - role: linux_updates
+    - role: linux
 ```
