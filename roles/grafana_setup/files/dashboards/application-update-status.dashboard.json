@@ -78,19 +78,21 @@
         "justifyMode": "auto",
         "orientation": "horizontal",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
-        "textMode": "value"
+        "textMode": "value_and_name"
       },
       "pluginVersion": "12.2.0",
       "targets": [
         {
           "editorMode": "code",
-          "expr": "max(bedrock_server_update_available{job=\"node\",instance=~\"minecraft-.*\"})",
+          "expr": "max by (version) (bedrock_server_update_available{job=\"node\",instance=~\"minecraft-.*\"} * on (job, instance) group_left (version) bedrock_server_latest_version_info{job=\"node\"}) or on () label_replace(max(bedrock_server_update_available{job=\"node\",instance=~\"minecraft-.*\"}), \"version\", \"unknown\", \"\", \"\")",
           "instant": true,
-          "legendFormat": "",
+          "legendFormat": "Available version: {{version}}",
           "range": false,
           "refId": "A"
         }
@@ -153,19 +155,21 @@
         "justifyMode": "auto",
         "orientation": "horizontal",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
-        "textMode": "value"
+        "textMode": "value_and_name"
       },
       "pluginVersion": "12.2.0",
       "targets": [
         {
           "editorMode": "code",
-          "expr": "max(sonarr_update_available{job=\"node\",instance=~\"sonarr-.*\"})",
+          "expr": "max by (version) (sonarr_update_available{job=\"node\",instance=~\"sonarr-.*\"} * on (job, instance) group_left (version) sonarr_current_version_info{job=\"node\"}) or on () label_replace(max(sonarr_update_available{job=\"node\",instance=~\"sonarr-.*\"}), \"version\", \"unknown\", \"\", \"\")",
           "instant": true,
-          "legendFormat": "",
+          "legendFormat": "Available version: {{version}}",
           "range": false,
           "refId": "A"
         }
@@ -228,19 +232,21 @@
         "justifyMode": "auto",
         "orientation": "horizontal",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
-        "textMode": "value"
+        "textMode": "value_and_name"
       },
       "pluginVersion": "12.2.0",
       "targets": [
         {
           "editorMode": "code",
-          "expr": "max(radarr_update_available{job=\"node\",instance=~\"radarr-.*\"})",
+          "expr": "max by (version) (radarr_update_available{job=\"node\",instance=~\"radarr-.*\"} * on (job, instance) group_left (version) radarr_current_version_info{job=\"node\"}) or on () label_replace(max(radarr_update_available{job=\"node\",instance=~\"radarr-.*\"}), \"version\", \"unknown\", \"\", \"\")",
           "instant": true,
-          "legendFormat": "",
+          "legendFormat": "Available version: {{version}}",
           "range": false,
           "refId": "A"
         }
@@ -303,19 +309,21 @@
         "justifyMode": "auto",
         "orientation": "horizontal",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
-        "textMode": "value"
+        "textMode": "value_and_name"
       },
       "pluginVersion": "12.2.0",
       "targets": [
         {
           "editorMode": "code",
-          "expr": "max(lidarr_update_available{job=\"node\",instance=~\"lidarr-.*\"})",
+          "expr": "max by (version) (lidarr_update_available{job=\"node\",instance=~\"lidarr-.*\"} * on (job, instance) group_left (version) lidarr_current_version_info{job=\"node\"}) or on () label_replace(max(lidarr_update_available{job=\"node\",instance=~\"lidarr-.*\"}), \"version\", \"unknown\", \"\", \"\")",
           "instant": true,
-          "legendFormat": "",
+          "legendFormat": "Available version: {{version}}",
           "range": false,
           "refId": "A"
         }
@@ -378,19 +386,21 @@
         "justifyMode": "auto",
         "orientation": "horizontal",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
-        "textMode": "value"
+        "textMode": "value_and_name"
       },
       "pluginVersion": "12.2.0",
       "targets": [
         {
           "editorMode": "code",
-          "expr": "max(plex_update_available{job=\"node\",instance=~\"plex-.*\"})",
+          "expr": "max by (version) (plex_update_available{job=\"node\",instance=~\"plex-.*\"} * on (job, instance) group_left (version) plex_latest_version_info{job=\"node\"}) or on () label_replace(max(plex_update_available{job=\"node\",instance=~\"plex-.*\"}), \"version\", \"unknown\", \"\", \"\")",
           "instant": true,
-          "legendFormat": "",
+          "legendFormat": "Available version: {{version}}",
           "range": false,
           "refId": "A"
         }
@@ -453,19 +463,21 @@
         "justifyMode": "auto",
         "orientation": "horizontal",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
-        "textMode": "value"
+        "textMode": "value_and_name"
       },
       "pluginVersion": "12.2.0",
       "targets": [
         {
           "editorMode": "code",
-          "expr": "max(tautulli_update_available{job=\"node\",instance=~\"tautulli-.*\"})",
+          "expr": "max by (version) (tautulli_update_available{job=\"node\",instance=~\"tautulli-.*\"} * on (job, instance) group_left (version) tautulli_latest_version_info{job=\"node\"}) or on () label_replace(max(tautulli_update_available{job=\"node\",instance=~\"tautulli-.*\"}), \"version\", \"unknown\", \"\", \"\")",
           "instant": true,
-          "legendFormat": "",
+          "legendFormat": "Available version: {{version}}",
           "range": false,
           "refId": "A"
         }
@@ -476,7 +488,12 @@
   ],
   "refresh": "30s",
   "schemaVersion": 41,
-  "tags": ["prometheus", "node-exporter", "updates", "applications"],
+  "tags": [
+    "prometheus",
+    "node-exporter",
+    "updates",
+    "applications"
+  ],
   "templating": {
     "list": []
   },
@@ -488,6 +505,6 @@
   "timezone": "",
   "title": "Application Update Status",
   "uid": "application-update-status",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }

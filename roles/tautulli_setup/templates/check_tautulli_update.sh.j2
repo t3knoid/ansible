@@ -9,10 +9,14 @@ update_available=0
 if [[ "$(echo "${response}" | jq -r '.response.data.update // false')" == "true" ]]; then
   update_available=1
 fi
+latest_version="$(echo "${response}" | jq -r '.response.data.latest_release // .response.data.latest_version // "unknown"')"
 
 tmp_file="$(mktemp "{{ tautulli_setup_update_metrics_path }}.XXXXXX")"
 trap 'rm -f "$tmp_file"' EXIT
 cat > "$tmp_file" <<EOF
+# HELP tautulli_latest_version_info Latest Tautulli release or commit available.
+# TYPE tautulli_latest_version_info gauge
+tautulli_latest_version_info{version="$latest_version"} 1
 # HELP tautulli_update_available Whether a newer Tautulli version is available.
 # TYPE tautulli_update_available gauge
 tautulli_update_available $update_available
