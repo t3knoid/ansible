@@ -4,7 +4,7 @@
 Deploy updates on Linux hosts
 
 ## 🔗 Roles Applied
-- [`linux_updates`](../roles/linux_updates/README.md)
+_No roles detected._
 
 ## 🚀 Usage
 ```bash
