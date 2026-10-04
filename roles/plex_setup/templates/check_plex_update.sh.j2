@@ -26,6 +26,9 @@ cat > "$tmp_file" <<EOF
 # HELP plex_current_version_info Plex Media Server version currently installed.
 # TYPE plex_current_version_info gauge
 plex_current_version_info{version="${installed_version:-unknown}"} 1
+# HELP plex_latest_version_info Latest Plex Media Server version available for this host.
+# TYPE plex_latest_version_info gauge
+plex_latest_version_info{version="$latest_version"} 1
 # HELP plex_update_available Whether a newer Plex Media Server version is available.
 # TYPE plex_update_available gauge
 plex_update_available $update_available
