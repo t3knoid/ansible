@@ -1,0 +1,8 @@
+---
+linux_updates_textfile_collector_dir: "/var/lib/node_exporter/textfile"
+linux_updates_metrics_path: "{{ linux_updates_textfile_collector_dir }}/linux_updates.prom"
+linux_updates_last_run_metric_path: "{{ linux_updates_textfile_collector_dir }}/linux_updates_last_run.prom"
+
+# Delay before the deferred reboot fires, so the Ansible run (including a
+# self-targeted Semaphore job) finishes before the host goes down.
+linux_updates_reboot_delay_seconds: 180

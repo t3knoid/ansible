@@ -1,4 +1,5 @@
 ---
-
-- name: Include specific operating system update task file
-  ansible.builtin.include_tasks: "update_{{ ansible_distribution | lower }}.yml"
+- name: Run Linux updates through the linux role
+  ansible.builtin.import_role:
+    name: linux
+    tasks_from: updates

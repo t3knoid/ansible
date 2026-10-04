@@ -1,0 +1,104 @@
+---
+- name: Detect Python interpreter compatible with Ubuntu apt bindings
+  ansible.builtin.shell: |
+    set -euo pipefail
+    for apt_pkg in /usr/lib/python3/dist-packages/apt_pkg*.so; do
+      [[ -e "$apt_pkg" ]] || continue
+      if [[ "$apt_pkg" =~ cpython-([0-9]+)- ]]; then
+        abi_version="${BASH_REMATCH[1]}"
+        candidate="/usr/bin/python${abi_version:0:1}.${abi_version:1}"
+        if [[ -x "$candidate" ]] && "$candidate" -c 'import apt_pkg' >/dev/null 2>&1; then
+          printf '%s\n' "$candidate"
+          exit 0
+        fi
+      fi
+    done
+    echo "No installed Python interpreter can import Ubuntu's apt_pkg module" >&2
+    exit 1
+  args:
+    executable: /bin/bash
+  register: linux_updates_apt_python
+  changed_when: false
+
+- name: Restore system Python link for Ubuntu apt hooks
+  ansible.builtin.file:
+    src: "{{ linux_updates_apt_python.stdout }}"
+    dest: /usr/bin/python3
+    state: link
+    force: true
+
+- name: Update the Ubuntu apt package index
+  ansible.builtin.apt:
+    update_cache: true
+  changed_when: false
+
+- name: Upgrade all Ubuntu packages to the latest version
+  ansible.builtin.apt:
+    upgrade: dist
+
+- name: Remove unused Ubuntu packages
+  ansible.builtin.apt:
+    autoremove: true
+
+- name: Ensure textfile collector directory exists for Linux update metrics
+  ansible.builtin.file:
+    path: "{{ linux_updates_textfile_collector_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Refresh Linux updates availability metrics after update run
+  ansible.builtin.shell: |
+    set -euo pipefail
+    tmp_file="$(mktemp)"
+    updates=$(apt list --upgradeable 2>/dev/null | awk '/upgradable/ { count++ } END { print count + 0 }')
+    security_updates=$(apt list --upgradeable 2>/dev/null | awk '/security/ && /upgradable/ { count++ } END { print count + 0 }')
+    cat > "$tmp_file" <<EOF
+    linux_updates_available $updates
+    linux_security_updates_available $security_updates
+    EOF
+    install -o root -g root -m 0644 "$tmp_file" "{{ linux_updates_metrics_path }}"
+    rm -f "$tmp_file"
+  args:
+    executable: /bin/bash
+  changed_when: true
+
+- name: Record Linux update run timestamp metric
+  ansible.builtin.copy:
+    dest: "{{ linux_updates_last_run_metric_path }}"
+    content: |
+      linux_updates_last_run_timestamp_seconds {{ ansible_date_time.epoch }}
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Check if a restart is required
+  ansible.builtin.stat:
+    path: /var/run/reboot-required
+  register: linux_updates_reboot_required
+
+- name: Remove legacy recurring cron reboot trigger
+  ansible.builtin.cron:
+    name: "temporary reboot trigger"
+    user: root
+    state: absent
+
+- name: Notify about reboot
+  ansible.builtin.debug:
+    msg: "Rebooting the target host in {{ linux_updates_reboot_delay_seconds }} seconds."
+  when: linux_updates_reboot_required.stat.exists
+
+# Transient timer so the reboot is detached from the Ansible connection and
+# leaves nothing behind afterwards.
+- name: Schedule deferred reboot via transient systemd timer
+  ansible.builtin.command:
+    argv:
+      - systemd-run
+      - "--on-active={{ linux_updates_reboot_delay_seconds }}"
+      - "--unit=linux-updates-reboot"
+      - "--timer-property=AccuracySec=1s"
+      - /usr/bin/systemctl
+      - reboot
+  changed_when: true
+  when: linux_updates_reboot_required.stat.exists
