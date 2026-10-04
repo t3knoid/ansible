@@ -105,6 +105,12 @@ prometheus_setup_blackbox_targets:
   - target: "http://192.168.20.157:8181"
     instance: "tautulli.refol.us"
     group: "web"
+  - target: "http://192.168.20.101:8000"
+    instance: "code.refol.us"
+    group: "web"
+  - target: "http://192.168.20.160:8083"
+    instance: "catalog.refol.us"
+    group: "web"
 
 node_exporter_port: 9200
 postgres_exporter_port: 9187
