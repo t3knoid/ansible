@@ -38,6 +38,7 @@
 | [`lamp_setup`](../docs/roles/lamp_setup.md) | Install and configure LAMP on Debian/Ubuntu. |
 | [`lazylibrarian_setup`](../docs/roles/lazylibrarian_setup.md) | Installs and configures LazyLibrarian on Debian/Ubuntu systems. It uses a Docker image distributed by [linuxserver](https://hub.docker.com/r/linuxserver/lazylibrarian). |
 | [`lidarr_setup`](../docs/roles/lidarr_setup.md) | Installs and configures Lidarr on Debian/Ubuntu systems. It uses a container distributed by [linuxserver](https://hub.docker.com/r/linuxserver/lidarr). |
+| [`linux`](../docs/roles/linux.md) | Provides common Linux host management tasks. |
 | [`linux_updates`](../docs/roles/linux_updates.md) | The linux role contains tasks related to updating Linux updates. |
 | [`loki_setup`](../docs/roles/loki_setup.md) | Install and configure Grafana Loki using the upstream release archive. |
 | [`mediawiki_setup`](../docs/roles/mediawiki_setup.md) | Installs and configures MediaWiki on Ubuntu systems. |
