@@ -84,15 +84,15 @@
           "fields": "",
           "values": false
         },
-        "textMode": "value_and_name"
+        "textMode": "name"
       },
       "pluginVersion": "12.2.0",
       "targets": [
         {
           "editorMode": "code",
-          "expr": "max by (version) (bedrock_server_update_available{job=\"node\",instance=~\"minecraft-.*\"} * on (job, instance) group_left (version) bedrock_server_latest_version_info{job=\"node\"}) or on () label_replace(max(bedrock_server_update_available{job=\"node\",instance=~\"minecraft-.*\"}), \"version\", \"unknown\", \"\", \"\")",
+          "expr": "label_replace(max by (version) ((bedrock_server_update_available{job=\"node\",instance=~\"minecraft-.*\"} * on (job, instance) group_left (version) bedrock_server_latest_version_info{job=\"node\"}) == 1) or on () label_replace(max(bedrock_server_update_available{job=\"node\",instance=~\"minecraft-.*\"} == 1), \"version\", \"unknown\", \"\", \"\"), \"display\", \"Update available: $1\", \"version\", \"(.*)\") or on () label_replace(max(bedrock_server_update_available{job=\"node\",instance=~\"minecraft-.*\"} == 0), \"display\", \"Up to date\", \"\", \"\")",
           "instant": true,
-          "legendFormat": "Available version: {{version}}",
+          "legendFormat": "{{display}}",
           "range": false,
           "refId": "A"
         }
@@ -161,15 +161,15 @@
           "fields": "",
           "values": false
         },
-        "textMode": "value_and_name"
+        "textMode": "name"
       },
       "pluginVersion": "12.2.0",
       "targets": [
         {
           "editorMode": "code",
-          "expr": "max by (version) (sonarr_update_available{job=\"node\",instance=~\"sonarr-.*\"} * on (job, instance) group_left (version) sonarr_current_version_info{job=\"node\"}) or on () label_replace(max(sonarr_update_available{job=\"node\",instance=~\"sonarr-.*\"}), \"version\", \"unknown\", \"\", \"\")",
+          "expr": "label_replace(max by (version) ((sonarr_update_available{job=\"node\",instance=~\"sonarr-.*\"} * on (job, instance) group_left (version) sonarr_current_version_info{job=\"node\"}) == 1) or on () label_replace(max(sonarr_update_available{job=\"node\",instance=~\"sonarr-.*\"} == 1), \"version\", \"unknown\", \"\", \"\"), \"display\", \"Update available: $1\", \"version\", \"(.*)\") or on () label_replace(max(sonarr_update_available{job=\"node\",instance=~\"sonarr-.*\"} == 0), \"display\", \"Up to date\", \"\", \"\")",
           "instant": true,
-          "legendFormat": "Available version: {{version}}",
+          "legendFormat": "{{display}}",
           "range": false,
           "refId": "A"
         }
@@ -238,15 +238,15 @@
           "fields": "",
           "values": false
         },
-        "textMode": "value_and_name"
+        "textMode": "name"
       },
       "pluginVersion": "12.2.0",
       "targets": [
         {
           "editorMode": "code",
-          "expr": "max by (version) (radarr_update_available{job=\"node\",instance=~\"radarr-.*\"} * on (job, instance) group_left (version) radarr_current_version_info{job=\"node\"}) or on () label_replace(max(radarr_update_available{job=\"node\",instance=~\"radarr-.*\"}), \"version\", \"unknown\", \"\", \"\")",
+          "expr": "label_replace(max by (version) ((radarr_update_available{job=\"node\",instance=~\"radarr-.*\"} * on (job, instance) group_left (version) radarr_current_version_info{job=\"node\"}) == 1) or on () label_replace(max(radarr_update_available{job=\"node\",instance=~\"radarr-.*\"} == 1), \"version\", \"unknown\", \"\", \"\"), \"display\", \"Update available: $1\", \"version\", \"(.*)\") or on () label_replace(max(radarr_update_available{job=\"node\",instance=~\"radarr-.*\"} == 0), \"display\", \"Up to date\", \"\", \"\")",
           "instant": true,
-          "legendFormat": "Available version: {{version}}",
+          "legendFormat": "{{display}}",
           "range": false,
           "refId": "A"
         }
@@ -315,15 +315,15 @@
           "fields": "",
           "values": false
         },
-        "textMode": "value_and_name"
+        "textMode": "name"
       },
       "pluginVersion": "12.2.0",
       "targets": [
         {
           "editorMode": "code",
-          "expr": "max by (version) (lidarr_update_available{job=\"node\",instance=~\"lidarr-.*\"} * on (job, instance) group_left (version) lidarr_current_version_info{job=\"node\"}) or on () label_replace(max(lidarr_update_available{job=\"node\",instance=~\"lidarr-.*\"}), \"version\", \"unknown\", \"\", \"\")",
+          "expr": "label_replace(max by (version) ((lidarr_update_available{job=\"node\",instance=~\"lidarr-.*\"} * on (job, instance) group_left (version) lidarr_current_version_info{job=\"node\"}) == 1) or on () label_replace(max(lidarr_update_available{job=\"node\",instance=~\"lidarr-.*\"} == 1), \"version\", \"unknown\", \"\", \"\"), \"display\", \"Update available: $1\", \"version\", \"(.*)\") or on () label_replace(max(lidarr_update_available{job=\"node\",instance=~\"lidarr-.*\"} == 0), \"display\", \"Up to date\", \"\", \"\")",
           "instant": true,
-          "legendFormat": "Available version: {{version}}",
+          "legendFormat": "{{display}}",
           "range": false,
           "refId": "A"
         }
@@ -392,15 +392,15 @@
           "fields": "",
           "values": false
         },
-        "textMode": "value_and_name"
+        "textMode": "name"
       },
       "pluginVersion": "12.2.0",
       "targets": [
         {
           "editorMode": "code",
-          "expr": "max by (version) (plex_update_available{job=\"node\",instance=~\"plex-.*\"} * on (job, instance) group_left (version) plex_latest_version_info{job=\"node\"}) or on () label_replace(max(plex_update_available{job=\"node\",instance=~\"plex-.*\"}), \"version\", \"unknown\", \"\", \"\")",
+          "expr": "label_replace(max by (version) ((plex_update_available{job=\"node\",instance=~\"plex-.*\"} * on (job, instance) group_left (version) plex_latest_version_info{job=\"node\"}) == 1) or on () label_replace(max(plex_update_available{job=\"node\",instance=~\"plex-.*\"} == 1), \"version\", \"unknown\", \"\", \"\"), \"display\", \"Update available: $1\", \"version\", \"(.*)\") or on () label_replace(max(plex_update_available{job=\"node\",instance=~\"plex-.*\"} == 0), \"display\", \"Up to date\", \"\", \"\")",
           "instant": true,
-          "legendFormat": "Available version: {{version}}",
+          "legendFormat": "{{display}}",
           "range": false,
           "refId": "A"
         }
@@ -469,15 +469,15 @@
           "fields": "",
           "values": false
         },
-        "textMode": "value_and_name"
+        "textMode": "name"
       },
       "pluginVersion": "12.2.0",
       "targets": [
         {
           "editorMode": "code",
-          "expr": "max by (version) (tautulli_update_available{job=\"node\",instance=~\"tautulli-.*\"} * on (job, instance) group_left (version) tautulli_latest_version_info{job=\"node\"}) or on () label_replace(max(tautulli_update_available{job=\"node\",instance=~\"tautulli-.*\"}), \"version\", \"unknown\", \"\", \"\")",
+          "expr": "label_replace(max by (version) ((tautulli_update_available{job=\"node\",instance=~\"tautulli-.*\"} * on (job, instance) group_left (version) tautulli_latest_version_info{job=\"node\"}) == 1) or on () label_replace(max(tautulli_update_available{job=\"node\",instance=~\"tautulli-.*\"} == 1), \"version\", \"unknown\", \"\", \"\"), \"display\", \"Update available: $1\", \"version\", \"(.*)\") or on () label_replace(max(tautulli_update_available{job=\"node\",instance=~\"tautulli-.*\"} == 0), \"display\", \"Up to date\", \"\", \"\")",
           "instant": true,
-          "legendFormat": "Available version: {{version}}",
+          "legendFormat": "{{display}}",
           "range": false,
           "refId": "A"
         }
