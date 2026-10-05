@@ -1,23 +1,9 @@
 ---
-- name: Create Loki system group
-  ansible.builtin.group:
-    name: "{{ loki_setup_group }}"
-    state: present
-    system: true
 
 - name: Install Loki archive dependencies
   ansible.builtin.package:
     name: unzip
     state: present
-
-- name: Create Loki system user
-  ansible.builtin.user:
-    name: "{{ loki_setup_user }}"
-    group: "{{ loki_setup_group }}"
-    shell: /sbin/nologin
-    state: present
-    system: true
-    createhome: false
 
 - name: Create Loki installation directory
   ansible.builtin.file:
