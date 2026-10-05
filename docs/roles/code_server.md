@@ -43,6 +43,7 @@ _No constant variables found._
 
 ## 🔔 Handlers
 - Restart nginx
+- Enable code server
 - Restart code server
 
 ## 🔗 Dependencies
