@@ -5,7 +5,7 @@ server {
 
     allow {{ global_ip_addresses[groups['rproxy_primary'][0]] }};
     allow {{ global_ip_addresses[groups['rproxy_secondary'][0]] }};
-    allow {{ global_ip_addresses[groups['prometheus-0'][0]] }};
+    allow {{ global_ip_addresses['prometheus-0'] }};
     deny all;
 
     location / {
