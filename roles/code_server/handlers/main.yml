@@ -6,6 +6,12 @@
     state: restarted
   become: true
 
+- name: Enable code server
+  ansible.builtin.service:
+    name: "code-server@{{ code_server_user }}"
+    state: enabled
+  become: true
+
 - name: Restart code server
   ansible.builtin.service:
     name: "code-server@{{ code_server_user }}"
