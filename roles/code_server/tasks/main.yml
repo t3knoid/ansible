@@ -36,7 +36,8 @@
   ansible.builtin.apt:
     deb: "/tmp/{{ code_server_download_file }}"
     state: present
-  notify: Restart code server
+  notify:
+    - Restart code server
 
 - name: Create code-server config folder
   ansible.builtin.file:
@@ -51,11 +52,12 @@
     dest: "/home/{{ code_server_user }}/.config/code-server/config.yaml"
     mode: "0600"
     owner: "{{ code_server_user }}"
-  notify: Restart code server
+  notify:
+    - Restart code server
 
-- name: Disable code-server service
+- name: Enable code-server service
   ansible.builtin.include_tasks:
-    file: disable.yml
+    file: enable.yml
 
 - name: Cleanup downloaded file
   ansible.builtin.file:
