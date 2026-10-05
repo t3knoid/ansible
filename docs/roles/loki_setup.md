@@ -22,9 +22,10 @@ Install and configure Grafana Loki using the upstream release archive.
 | `loki_setup_install_dir` | `"/opt/loki-{{ loki_setup_version }}-{{ loki_setup_platform }}"` |  |
 | `loki_setup_home` | `"/opt/loki"` |  |
 | `loki_setup_binary` | `"/usr/local/bin/loki"` |  |
-| `loki_setup_service_name` | `"loki"` |  |
-| `loki_setup_user` | `"loki"` |  |
-| `loki_setup_group` | `"loki"` |  |
+| `loki_setup_user_entry` | `"{{ users_list | selectattr('username', 'equalto', 'loki') | first }}"` |  |
+| `loki_setup_user` | `"{{ loki_setup_user_entry.username }}"` |  |
+| `loki_setup_group` | `"{{ loki_setup_user_entry.group | default(loki_setup_user_entry.username) }}"` |  |
+| `loki_setup_service_name` | `"{{ loki_setup_user }}"` |  |
 | `loki_setup_service_file` | `"/etc/systemd/system/loki.service"` |  |
 | `loki_setup_install_mode` | `"0755"` |  |
 | `loki_setup_config_mode` | `"0644"` |  |
@@ -88,9 +89,7 @@ Install and configure Grafana Loki using the upstream release archive.
 _No constant variables found._
 
 ## 📑 Tasks
-- Create Loki system group
 - Install Loki archive dependencies
-- Create Loki system user
 - Create Loki installation directory
 - Create Loki working directories
 - Download Loki archive

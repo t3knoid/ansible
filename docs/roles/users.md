@@ -19,10 +19,10 @@ _No default variables found._
 _No constant variables found._
 
 ## 📑 Tasks
+- Create user primary groups
 - Add a new user
 - Join groups
 - Set a user-defined home folder
-- Set a user-defined user GID
 - Add user to sudoers
 
 ## 🔔 Handlers
