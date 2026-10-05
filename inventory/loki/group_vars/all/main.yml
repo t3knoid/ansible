@@ -30,13 +30,9 @@ vms_enable_serial_terminal: false
 vms_additional_packages: []
 python3_version: 3.12
 
-# users_list is expected to be defined in the vault with
-# the first user in the list is expected to define the
-# Loki user and groups attributes.
-loki_user_entry: "{{ users_list | selectattr('username', 'equalto', 'loki') | first }}"
-loki_setup_user: "{{ loki_user_entry.username }}"
-loki_setup_group: "{{ loki_user_entry.username }}"
-loki_setup_groups: "{{ loki_user_entry.groups | default([loki_user_entry.username]) }}"
+# users_list is expected to contain the Loki account in the vault.
 
 disks_disk_mounts:
-  - { mountpoint: "/loki", mountpoint_owner: "{{ loki_setup_user }}", mountpoint_group: "{{ loki_setup_groups[0] }}" }
+  - mountpoint: "/loki"
+    mountpoint_owner: "{{ (users_list | selectattr('username', 'equalto', 'loki') | first).username }}"
+    mountpoint_group: "{{ (users_list | selectattr('username', 'equalto', 'loki') | first).group | default('loki') }}"
