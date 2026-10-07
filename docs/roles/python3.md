@@ -32,7 +32,6 @@ Installs Python 3 from the Python Software Foundation (PSF) repository. There is
 _No constant variables found._
 
 ## 📑 Tasks
-- Enable system site packages in the configured Python virtual environment
 - Find existing deadsnakes apt source files
 - Remove existing deadsnakes apt source files
 - Add deadsnakes apt repository key.
