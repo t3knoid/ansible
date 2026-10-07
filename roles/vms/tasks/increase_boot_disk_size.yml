@@ -11,10 +11,6 @@
   ansible.builtin.set_fact:
     vms_boot_disk_size: "{{ vms_proxmox_template.maxdisk | human_readable(unit='G') | split() | first }}"
 
-- name: Store additional boot disk size
-  ansible.builtin.set_fact:
-    vms_disk_size_increase: "{{ vms_config.disk_os.size | int - vms_boot_disk_size | int }}"
-
 - name: Increase boot disk size
   community.proxmox.proxmox_disk:
     api_host: "{{ global_proxmox_api_host }}"
@@ -24,12 +20,6 @@
     api_token_secret: "{{ global_proxmox_api_token }}"
     vmid: "{{ vms_vmid | int }}"
     disk: "{{ vms_config.disk_os.disk }}"
-    size: "+{{ vms_disk_size_increase}}G" # 3.584G is the original disk size
+    size: "{{ vms_config.disk_os.size }}G" # 3.584G is the original disk size
     state: resized
-  when: vms_disk_size_increase | int > 0
   delegate_to: localhost
-  register: vms_increase_disk_size
-
-- name: Show vms_increase_disk_size
-  ansible.builtin.debug:
-    var: vms_increase_disk_size
