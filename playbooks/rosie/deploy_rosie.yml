@@ -1,0 +1,13 @@
+---
+
+# Purpose: Installs ROSIE application.
+
+- name: Deploy ROSIE
+  hosts: rosie
+  become: true
+  roles:
+    - global
+    - users
+    - autofs
+    - docker_setup
+    # - rosie_setup
