@@ -1,10 +1,4 @@
 ---
-- name: Enable system site packages in the configured Python virtual environment
-  ansible.builtin.lineinfile:
-    path: "{{ python3_venv_folder }}/pyvenv.cfg"
-    regexp: '^include-system-site-packages\s*='
-    line: "include-system-site-packages = true"
-
 - name: Find existing deadsnakes apt source files
   ansible.builtin.shell: |
     find /etc/apt/sources.list.d -maxdepth 1 -type f \( -name '*.list' -o -name '*.sources' \) \
