@@ -1,0 +1,12 @@
+# 📖 Playbook: vms/release_upgrade_ubuntu.yml
+
+## 🛠 Purpose
+Upgrades one Ubuntu 24.04 VM to Ubuntu 26.04 LTS.
+
+## 🔗 Roles Applied
+- [`global`](../roles/global/README.md)
+
+## 🚀 Usage
+```bash
+ansible-playbook playbooks/vms/release_upgrade_ubuntu.yml
+```
