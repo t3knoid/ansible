@@ -118,6 +118,7 @@
 | [`redmine/deploy_redmine.yml`](../docs/playbooks/deploy_redmine.md) | Deploy Redmine application on redmine hosts. |
 | [`redmine/mirror_wiki.yml`](../docs/playbooks/mirror_wiki.md) | Mirror Redmine wiki to GitHub |
 | [`redmine/restore_db.yml`](../docs/playbooks/restore_db.md) | Restore Redmine PostgreSQL database from backup. |
+| [`rosie/deploy_rosie.yml`](../docs/playbooks/deploy_rosie.md) | Installs ROSIE application. |
 | [`rproxy/config_rproxy.yml`](../docs/playbooks/config_rproxy.md) | Configures Reverse Proxy for specified sites. rproxy_setup_sites variable should be defined in the inventory or host_vars. |
 | [`rproxy/deploy_rproxy.yml`](../docs/playbooks/deploy_rproxy.md) | Sets up Reverse Proxy on rproxy hosts. |
 | [`ruby/deploy_ruby.yml`](../docs/playbooks/deploy_ruby.md) | Installs Ruby on ruby hosts. |
