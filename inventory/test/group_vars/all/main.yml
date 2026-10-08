@@ -15,9 +15,11 @@ vms_config:
     size: 20
     storage: local
     format: qcow2
-  nic0:
-    model: virtio
-    bridge: vmbr0
+  network:
+    nic0:
+      model: virtio
+      bridge: vmbr0
+      tag: 20
   boot_order: "order=virtio0"
 
 vms_os: ubuntu_24_server
@@ -25,4 +27,4 @@ vms_autoinstall: true
 vms_enable_serial_terminal: false
 vms_additional_packages: []
 
-vms_use_terraform: false
+vms_use_terraform: true
