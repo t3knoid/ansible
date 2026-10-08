@@ -1,31 +1,33 @@
 ---
+- name: Check whether VM provisioning is required
+  ansible.builtin.include_tasks: provision_check.yml
 
-- name: Create cloud-init snippets
-  ansible.builtin.include_tasks: "cloud_init_create_snippets.yml"
+- name: Provision a new or unfinished VM using Terraform
+  when: vms_provision_required | bool
+  block:
+    - name: Create cloud-init snippets
+      ansible.builtin.include_tasks: "cloud_init_create_snippets.yml"
 
-- name: Clone VM from a template if VM does not exist
-  ansible.builtin.include_tasks: "clone_vm_from_template_terraform.yml"
+    - name: Clone VM from a template if VM does not exist
+      ansible.builtin.include_tasks: "clone_vm_from_template_terraform.yml"
 
-- name: Migrate virtual machine
-  ansible.builtin.include_tasks: "migrate.yml"
+    - name: Migrate virtual machine
+      ansible.builtin.include_tasks: "migrate.yml"
+      when: >-
+        (vms_provision_matches[0].node if vms_provision_matches | length == 1
+         else vms_proxmox_template.node) != vms_proxmox_node
 
-# Update virtual machine for cloud-init
-# Is done during terraform provisioning --- IGNORE ---
+    - name: Start virtual machine and start the cloud-init process
+      ansible.builtin.include_tasks: "start.yml"
 
-# Add additional disk if defined
-# Is done during terraform provisioning --- IGNORE ---
+    - name: Wait for cloud-init to finish
+      ansible.builtin.include_tasks: "cloud_init_wait.yml"
 
-- name: Start virtual machine and start the cloud-init process
-  ansible.builtin.include_tasks: "start.yml"
+    - name: Update known_hosts file
+      ansible.builtin.include_tasks: "known_hosts.yml"
 
-- name: Wait for cloud-init to finish
-  ansible.builtin.include_tasks: "cloud_init_wait.yml"
+    - name: Remove cloud-init disk
+      ansible.builtin.include_tasks: cloud_init_remove_disk.yml
 
-- name: Remove cloud-init disk
-  ansible.builtin.include_tasks: cloud_init_remove_disk.yml
-
-- name: Update known_hosts file
-  ansible.builtin.include_tasks: "known_hosts.yml"
-
-- name: Reboot to apply pending cloud-init disk removal
-  ansible.builtin.include_tasks: "reboot.yml"
+    - name: Reboot to apply pending cloud-init disk removal
+      ansible.builtin.include_tasks: "reboot.yml"

@@ -1,0 +1,98 @@
+---
+- name: A new VM needs provisioning without an existing configuration
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    vms_provision_matches: []
+    vms_test_expected_provision_required: true
+  tasks: &vms_state_tests
+    - name: Evaluate the real provisioning-state tasks twice
+      ansible.builtin.include_role:
+        name: vms
+        tasks_from: provision_state
+      loop:
+        - first
+        - repeated
+
+    - name: Verify the provisioning decision
+      ansible.builtin.assert:
+        that:
+          - (vms_provision_required | bool) == vms_test_expected_provision_required
+
+- name: A completed VM does not need provisioning
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    vms_provision_matches:
+      - vmid: 100
+    vms_provision_config:
+      json:
+        data:
+          virtio0: "local:100/vm-100-disk-0.qcow2,size=20G"
+    vms_test_expected_provision_required: false
+  tasks: *vms_state_tests
+
+- name: Both provisioning branches guard every initialization task
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    vms_test_native_tasks: "{{ lookup('file', '../tasks/provision.yml') | from_yaml }}"
+    vms_test_terraform_tasks: "{{ lookup('file', '../tasks/provision_with_terraform.yml') | from_yaml }}"
+  tasks:
+    - name: Verify provisioning is entirely gated by the state decision
+      ansible.builtin.assert:
+        that:
+          - vms_test_native_tasks | length == 2
+          - vms_test_terraform_tasks | length == 2
+          - vms_test_native_tasks[0]['ansible.builtin.include_tasks'] == 'provision_check.yml'
+          - vms_test_terraform_tasks[0]['ansible.builtin.include_tasks'] == 'provision_check.yml'
+          - vms_test_native_tasks[1].when == 'vms_provision_required | bool'
+          - vms_test_terraform_tasks[1].when == 'vms_provision_required | bool'
+          - vms_test_native_tasks[1].block | length > 0
+          - vms_test_terraform_tasks[1].block | length > 0
+
+- name: An unfinished VM with an IDE cloud-init drive resumes provisioning
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    vms_provision_matches:
+      - vmid: 100
+    vms_provision_config:
+      json:
+        data:
+          ide2: "local:100/vm-100-cloudinit.qcow2,media=cdrom"
+    vms_test_expected_provision_required: true
+  tasks: *vms_state_tests
+
+- name: An unfinished VM with a SCSI cloud-init drive resumes provisioning
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    vms_provision_matches:
+      - vmid: 100
+    vms_provision_config:
+      json:
+        data:
+          scsi2: "local-lvm:vm-100-cloudinit,media=cdrom"
+    vms_test_expected_provision_required: true
+  tasks: *vms_state_tests
+
+- name: A cloud-init snippet reference does not imply an attached drive
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    vms_provision_matches:
+      - vmid: 100
+    vms_provision_config:
+      json:
+        data:
+          cicustom: "user=local:snippets/cloudinit-user.yml"
+          virtio0: "local:100/vm-100-disk-0.qcow2,size=20G"
+    vms_test_expected_provision_required: false
+  tasks: *vms_state_tests

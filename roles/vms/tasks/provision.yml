@@ -1,37 +1,46 @@
 ---
-- name: Create cloud-init snippets
-  ansible.builtin.include_tasks: "cloud_init_create_snippets.yml"
+- name: Check whether VM provisioning is required
+  ansible.builtin.include_tasks: provision_check.yml
 
-- name: Clone VM from a template
-  ansible.builtin.include_tasks: "clone_vm_from_template.yml"
+- name: Provision a new or unfinished VM
+  when: vms_provision_required | bool
+  block:
+    - name: Create cloud-init snippets
+      ansible.builtin.include_tasks: "cloud_init_create_snippets.yml"
 
-- name: Migrate virtual machine
-  ansible.builtin.include_tasks: "migrate.yml"
+    - name: Clone VM from a template
+      ansible.builtin.include_tasks: "clone_vm_from_template.yml"
 
-- name: Increase boot disk size when requested
-  ansible.builtin.include_tasks: "increase_boot_disk_size.yml"
-  when:
-    - vms_config.disk_os is defined
-    - vms_config.disk_os.size is defined
+    - name: Migrate virtual machine
+      ansible.builtin.include_tasks: "migrate.yml"
+      when: >-
+        (vms_provision_matches[0].node if vms_provision_matches | length == 1
+         else vms_proxmox_template.node) != vms_proxmox_node
 
-- name: Update virtual machine for cloud-init
-  ansible.builtin.include_tasks: "cloud_init_prep.yml"
+    - name: Increase boot disk size when requested
+      ansible.builtin.include_tasks: "increase_boot_disk_size.yml"
+      when:
+        - vms_config.disk_os is defined
+        - vms_config.disk_os.size is defined
 
-- name: Add additional disk if defined
-  ansible.builtin.include_tasks: "add_disk.yml"
-  when: vms_config.disk2 is defined and vms_config.disk2.storage is defined
+    - name: Update virtual machine for cloud-init
+      ansible.builtin.include_tasks: "cloud_init_prep.yml"
 
-- name: Start virtual machine and start the cloud-init process
-  ansible.builtin.include_tasks: "start.yml"
+    - name: Add additional disk if defined
+      ansible.builtin.include_tasks: "add_disk.yml"
+      when: vms_config.disk2 is defined and vms_config.disk2.storage is defined
 
-- name: Wait for cloud-init to finish
-  ansible.builtin.include_tasks: "cloud_init_wait.yml"
+    - name: Start virtual machine and start the cloud-init process
+      ansible.builtin.include_tasks: "start.yml"
 
-- name: Remove cloud-init disk
-  ansible.builtin.include_tasks: cloud_init_remove_disk.yml
+    - name: Wait for cloud-init to finish
+      ansible.builtin.include_tasks: "cloud_init_wait.yml"
 
-- name: Update known_hosts file
-  ansible.builtin.include_tasks: "known_hosts.yml"
+    - name: Update known_hosts file
+      ansible.builtin.include_tasks: "known_hosts.yml"
 
-- name: Reboot to apply pending cloud-init disk removal
-  ansible.builtin.include_tasks: "reboot.yml"
+    - name: Remove cloud-init disk
+      ansible.builtin.include_tasks: cloud_init_remove_disk.yml
+
+    - name: Reboot to apply pending cloud-init disk removal
+      ansible.builtin.include_tasks: "reboot.yml"
