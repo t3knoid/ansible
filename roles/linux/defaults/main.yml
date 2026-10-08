@@ -6,3 +6,5 @@ linux_updates_last_run_metric_path: "{{ linux_updates_textfile_collector_dir }}/
 # Delay before the deferred reboot fires, so the Ansible run (including a
 # self-targeted Semaphore job) finishes before the host goes down.
 linux_updates_reboot_delay_seconds: 180
+
+linux_release_upgrade_target_version: "26.04"
