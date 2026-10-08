@@ -6,3 +6,6 @@
     boot_time_command: cat /proc/sys/kernel/random/boot_id
     test_command: whoami
   become: true
+  vars:
+    # The ansible.cfg venv interpreter does not exist until the python3 role runs.
+    ansible_python_interpreter: /usr/bin/python3
