@@ -24,11 +24,21 @@ Provides tasks to manage virtual machines hosted in Proxmox VE.
 | `vms_ip_address_configured` | `false` |  |
 | `vms_clone` | `false` | Deprecated: this variable is currently ignored by the vms role. |
 | `vms_pve_tls_insecure` | `true` |  |
+| `vms_terraform_allow_replacement` | `false` |  |
+| `vms_terraform_destroy_confirm` | `false` |  |
+| `vms_cloud_init_poll_retries` | `120` |  |
+| `vms_cloud_init_poll_delay` | `15` |  |
+| `vms_cloud_init_command_timeout` | `30` |  |
+| `vms_terraform_lock_root` | `"{{ global_terraform_root_dir }}/.workflow-locks"` |  |
+| `vms_finalization_state_dir` | `"{{ global_terraform_root_dir }}/.finalization"` |  |
 
 ## 📦 Vars
 | Variable | Default Value | Description |
 |----------|---------------|-------------|
 | `vms_terraform_module_dir` | `"{{ global_terraform_root_dir }}/{{ inventory_hostname }}"` |  |
+| `vms_operation_key` | `"{{ ((global_proxmox_api_host | string) ~ ':' ~ vms_name) | hash('sha256') }}"` |  |
+| `vms_terraform_lock_dir` | `"{{ vms_terraform_lock_root }}/{{ vms_operation_key }}"` |  |
+| `vms_finalization_checkpoint` | `"{{ vms_finalization_state_dir }}/{{ vms_operation_key }}.json"` |  |
 
 ## 📑 Tasks
 - Create new ubuntu virtual machine
