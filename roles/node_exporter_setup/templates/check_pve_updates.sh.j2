@@ -1,0 +1,22 @@
+#!/bin/bash
+
+installed=$(dpkg-query -W -f='${Version}' pve-manager 2>/dev/null)
+candidate=$(apt-cache policy pve-manager 2>/dev/null | awk '/Candidate:/ { print $2 }')
+
+if [[ -z "$installed" ]]; then
+  exit 0
+fi
+
+if [[ -z "$candidate" || "$candidate" == "(none)" ]]; then
+  candidate="$installed"
+fi
+
+if dpkg --compare-versions "$candidate" gt "$installed"; then
+  available=1
+else
+  available=0
+fi
+
+cat <<EOF
+pve_manager_update_available{installed_version="$installed",candidate_version="$candidate"} $available
+EOF
