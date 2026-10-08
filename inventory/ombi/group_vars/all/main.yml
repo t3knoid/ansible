@@ -14,6 +14,11 @@ vms_config:
     backup: true
     size: 20
     storage: local
+  network:
+    nic0:
+      model: virtio
+      bridge: vmbr0
+      tag: 20
 
 postgresql_setup_version: 17
 
