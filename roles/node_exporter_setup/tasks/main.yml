@@ -59,16 +59,16 @@
     group: "{{ node_exporter_setup_group }}"
     mode: "0775"
 
-- name: Install Linux updates metrics script for Ubuntu
+- name: Install Linux updates metrics script for apt-based hosts
   ansible.builtin.template:
     src: check_updates.sh.j2
     dest: "{{ node_exporter_setup_linux_updates_script_path }}"
     owner: root
     group: root
     mode: "0755"
-  when: ansible_distribution == 'Ubuntu'
+  when: ansible_distribution in ['Ubuntu', 'Debian']
 
-- name: Seed Linux updates metrics file for Ubuntu
+- name: Seed Linux updates metrics file for apt-based hosts
   ansible.builtin.shell: |
     set -euo pipefail
     tmp_file="$(mktemp)"
@@ -78,9 +78,9 @@
   args:
     executable: /bin/bash
   changed_when: true
-  when: ansible_distribution == 'Ubuntu'
+  when: ansible_distribution in ['Ubuntu', 'Debian']
 
-- name: Schedule Linux updates metrics cron job for Ubuntu
+- name: Schedule Linux updates metrics cron job for apt-based hosts
   ansible.builtin.cron:
     name: node_exporter_linux_updates_metrics
     minute: "{{ node_exporter_setup_linux_updates_cron_minute }}"
@@ -91,7 +91,7 @@
       {{ node_exporter_setup_linux_updates_script_path }} > "$tmp_file";
       install -o root -g {{ node_exporter_setup_group }} -m 0644 "$tmp_file" {{ node_exporter_setup_linux_updates_metrics_path }};
       rm -f "$tmp_file"'
-  when: ansible_distribution == 'Ubuntu'
+  when: ansible_distribution in ['Ubuntu', 'Debian']
 
 - name: Install failed services metrics script for systemd hosts
   ansible.builtin.template:
