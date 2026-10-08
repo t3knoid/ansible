@@ -55,8 +55,8 @@ _No group variables defined._
 - `pvenodes`
 
 ### `pbs`
-- `pbsnodes`
 - `pvenodes`
+- `pbsnodes`
 
 ### `rproxy`
 - `rproxy_main`
