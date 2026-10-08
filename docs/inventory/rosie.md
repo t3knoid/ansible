@@ -17,6 +17,9 @@ _Inventory for `rosie` hosts_
 ### `python`
 - `rosie-0`
 
+### `rosie`
+- `rosie-0`
+
 ## ⚙️ Group Variables
 _No group variables defined._
 
