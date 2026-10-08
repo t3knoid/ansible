@@ -1,3 +1,0 @@
----
-- name: Include distribution-specific upgrade tasks
-  ansible.builtin.include_tasks: "upgrade_{{ ansible_facts['distribution'] | lower }}.yml"

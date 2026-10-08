@@ -7,22 +7,22 @@
   become: true
   serial: 1
   vars:
-    vms_ubuntu_release_upgrade_target_version: "26.04"
-    vms_ubuntu_release_upgrade_confirm: false
-    vms_snapshot_name: "pre-ubuntu-26.04-{{ ansible_date_time.epoch }}"
+    linux_release_upgrade_confirm: false
+    # Proxmox snapshot names only allow letters, digits, '-' and '_'.
+    vms_snapshot_name: "pre-ubuntu-{{ linux_release_upgrade_target_version | replace('.', '') }}-{{ ansible_date_time.epoch }}"
 
   pre_tasks:
     - name: Require explicit confirmation and a single-host limit
       ansible.builtin.assert:
         that:
-          - vms_ubuntu_release_upgrade_confirm | bool
+          - linux_release_upgrade_confirm | bool
           - ansible_limit is defined
           - ansible_limit | length > 0
           - ansible_play_hosts_all | length == 1
           - ansible_distribution == "Ubuntu"
           - ansible_distribution_version == "24.04"
         fail_msg: >-
-          Set ubuntu_release_upgrade_confirm=true and use --limit to select
+          Set linux_release_upgrade_confirm=true and use --limit to select
           exactly one VM.
 
   roles:
@@ -36,5 +36,5 @@
 
     - name: Upgrade Ubuntu to the next LTS release
       ansible.builtin.import_role:
-        name: vms
+        name: linux
         tasks_from: release_upgrade_ubuntu
