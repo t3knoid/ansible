@@ -1,0 +1,33 @@
+---
+- name: Find the Terraform-managed VM resource
+  ansible.builtin.set_fact:
+    vms_terraform_managed_vms: >-
+      {{ vms_terraform_state.get('values', {}).get('root_module', {}).get('resources', [])
+         | selectattr('address', 'equalto', 'proxmox_vm_qemu.vm')
+         | selectattr('mode', 'equalto', 'managed') | list }}
+  no_log: true
+
+- name: Require matching Terraform ownership before planning
+  ansible.builtin.assert:
+    that:
+      - vms_provision_matches | length == vms_terraform_managed_vms | length
+      - >-
+        vms_provision_matches | length == 0
+        or (vms_terraform_managed_vms[0].get('values', {}).get('id', '')
+            is match('^.+/qemu/' ~ (vms_provision_matches[0].vmid | string) ~ '$'))
+      - >-
+        vms_provision_matches | length == 0
+        or vms_terraform_managed_vms[0].get('values', {}).get('name', '')
+           == (vms_name | default(inventory_hostname))
+    fail_msg: >-
+      Proxmox and Terraform state do not identify the same VM.
+      Requested name: {{ vms_name | default(inventory_hostname) }}.
+      Proxmox VMIDs matching that name:
+      {{ vms_provision_matches | map(attribute='vmid', default='unknown') | list }}.
+      Terraform VM IDs:
+      {{ vms_terraform_managed_vms | map(attribute='values.id', default='unknown') | list }}.
+      No plan or apply was performed. Check whether the guest was deleted,
+      renamed, or is hidden from the Proxmox API token by its permissions.
+      Restore the matching Terraform state or manually review and import an
+      existing unmanaged VM before retrying. Do not delete state to force cloning
+      or import a guest without verifying its node, VMID, name, and configuration.

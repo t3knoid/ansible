@@ -9,31 +9,49 @@
   serial: 1
 
   tasks:
-    - name: Provision a virtual machine using Terraform
-      ansible.builtin.import_role:
-        name: vms
-        tasks_from: provision_with_terraform
-      when: vms_use_terraform | default(false)
+    - name: Run the VM provisioning workflow under its control-node lock
+      block:
+        - name: Acquire the VM workflow lock
+          ansible.builtin.import_role:
+            name: vms
+            tasks_from: terraform_lock_acquire
 
-    - name: Provision a virtual machine using Ansible
-      ansible.builtin.import_role:
-        name: vms
-        tasks_from: provision
-      when: not (vms_use_terraform | default(false))
+        - name: Check whether VM provisioning is required
+          ansible.builtin.import_role:
+            name: vms
+            tasks_from: provision_check
 
-  pre_tasks:
-    - name: Check whether VM provisioning is required
-      ansible.builtin.import_role:
-        name: vms
-        tasks_from: provision_check
+        - name: Validate Terraform ownership before DNS changes
+          ansible.builtin.import_role:
+            name: vms
+            tasks_from: terraform_ownership_preflight
+          when: vms_use_terraform | default(false) | bool
 
-    - name: Import delete_from_local_dns.yml from pihole role
-      ansible.builtin.import_role:
-        name: pihole
-        tasks_from: delete_from_local_dns.yml
-      when: vms_provision_required | bool
-    - name: Import add_to_local_dns.yml from pihole role
-      ansible.builtin.import_role:
-        name: pihole
-        tasks_from: add_to_local_dns.yml
-      when: vms_provision_required | bool
+        - name: Import delete_from_local_dns.yml from pihole role
+          ansible.builtin.import_role:
+            name: pihole
+            tasks_from: delete_from_local_dns.yml
+          when: vms_provision_required | bool
+
+        - name: Import add_to_local_dns.yml from pihole role
+          ansible.builtin.import_role:
+            name: pihole
+            tasks_from: add_to_local_dns.yml
+          when: vms_provision_required | bool
+
+        - name: Provision a virtual machine using Terraform
+          ansible.builtin.import_role:
+            name: vms
+            tasks_from: provision_with_terraform
+          when: vms_use_terraform | default(false) | bool
+
+        - name: Provision a virtual machine using Ansible
+          ansible.builtin.import_role:
+            name: vms
+            tasks_from: provision
+          when: not (vms_use_terraform | default(false) | bool)
+      always:
+        - name: Release the VM workflow lock
+          ansible.builtin.import_role:
+            name: vms
+            tasks_from: terraform_lock_release

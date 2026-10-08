@@ -6,3 +6,9 @@
          or (vms_provision_config.json.data | dict2items
              | selectattr('key', 'match', '^(ide|sata|scsi|virtio)[0-9]+$')
              | selectattr('value', 'search', 'cloudinit') | list | length > 0) }}
+
+- name: Recover finalization separately from VM creation
+  ansible.builtin.set_fact:
+    vms_finalization_required: >-
+      {{ vms_finalization_pending | default(false) | bool
+         and not (vms_provision_required | bool) }}

@@ -8,6 +8,24 @@ For baremetal hosts, this playbook does not create the machine. It only runs the
 
 To install an operating system onto a baremetal machine in this repository, use the PXE workflow first, then run `playbooks/provision_vm.yml` after the operating system has been installed.
 
+## Terraform Provisioning Safety and Ownership
+
+The Terraform-backed VM creation stage is **creation-only**, not an ongoing hardware reconciliation workflow. Terraform creates the guest and its initial disks; Ansible owns subsequent migration, startup, cloud-init-drive removal, and finalization. The Terraform lifecycle ignores changes to placement, power state, disks, and custom cloud-init references so it does not reverse that finalization. Existing VMs without a cloud-init drive skip creation, but pending finalization checkpoints are recovered separately. Use a separately reviewed maintenance workflow for hardware updates; the top-level playbook's later domain, user, and disk stages still run on a rerun.
+
+Before removing the cloud-init drive, the workflow writes an owner-only checkpoint identifying the VM by its canonical `vms_name` and VMID. It clears that checkpoint only after the guest reboot action verifies a changed boot ID and restored connection, without requiring guest Python. If final reboot fails, rerunning starts the existing guest and completes finalization without cloning or applying Terraform again. A checkpoint for another VMID fails closed. Legacy VMs that predate checkpoints are treated as complete when no cloud-init drive remains; inspect any previously interrupted legacy VM manually before relying on that skip.
+
+Provisioning and removal are serialized using atomic per-VM lock directories under `vms_terraform_lock_root` (default: the control node's Terraform root plus `.workflow-locks`). The lock covers discovery, DNS, Terraform operations, and finalization, and is released in `always` cleanup. Nested role calls reuse the owning invocation's lock. Competing jobs fail rather than overwrite configuration or state. If a control-node process is killed, remove a stale lock only after confirming no workflow is running. These are control-node filesystem locks, not distributed locks: use one control node or a shared filesystem with reliable atomic directory creation for concurrent automation.
+
+Saved Terraform plans are unique, owner-only temporary files per attempt. The exact validated file is applied and cleanup removes only that attempt's file. Keep the Terraform state and checkpoint directories intact for recovery. Set `vms_name` when the Proxmox VM name differs from the inventory hostname; discovery, Terraform, and snippet filenames consistently use it while guest connectivity continues to use inventory connection settings.
+
+Terraform ownership is validated before DNS changes and before deciding to skip a completed VM. An existing guest must match the Terraform-managed VM name and VMID, even if it has no cloud-init drive. Missing, unreadable, or mismatched state stops the workflow before later configuration stages. A genuinely new guest without an existing module or state is still allowed. Provisioning checks ownership again immediately before planning.
+
+Provisioning inspects the saved Terraform plan before applying it. Deletion alone and unrelated managed resources are rejected. A replacement is rejected by default and requires explicit `vms_terraform_allow_replacement=true` only after reviewing the affected VM and accepting destruction of its existing data. Matching Terraform ownership is still required; this flag does not bypass the ownership check.
+
+Cloud-init is polled using JSON status without requiring guest Python. Defaults are `vms_cloud_init_poll_retries: 120`, `vms_cloud_init_poll_delay: 15`, and `vms_cloud_init_command_timeout: 30` seconds per command. Completion requires a successful return code and `done` status without reported errors or degraded status. Failed or incomplete initialization stops provisioning, preserves the cloud-init drive, and does not trigger an automatic reboot. Inspect the guest console and cloud-init logs before retrying.
+
+The VM removal playbook requires confirmation. For Terraform-backed guests it validates ownership and a destroy-only saved plan before applying it; it does not stop the guest or remove DNS before those checks. DNS cleanup occurs only after successful removal. Failures retain private diagnostics, saved plans are removed, and state artifacts are restricted to owner-only access. Missing configuration or mismatched state fails closed rather than silently skipping removal.
+
 ## 1. Login to an Ansible Control Node
 
 Start on a control node with Ansible installed and activate the expected Python environment.
@@ -210,7 +228,7 @@ python3_version: 3.12
 pxeserver_setup_client_nic: "enp2s0"
 pxeserver_setup_dhcp_range: "192.168.2.253,192.168.2.253,255.255.255.0"
 pxeserver_setup_ip_reservations:
-  - { mac_address: '0C:C4:7A:E2:83:5A', ip_address: '192.168.2.253' }
+  - { mac_address: "0C:C4:7A:E2:83:5A", ip_address: "192.168.2.253" }
 ```
 
 What these variables control:
@@ -226,31 +244,31 @@ Operational note:
 
 ### D. `vms_config` parameter reference
 
-| Parameter                      | Description                                                                               |
-| ------------------------------ | ----------------------------------------------------------------------------------------- |
-| `agent`                      | Enables the QEMU guest agent.                                                             |
-| `cores`                      | Number of CPU cores.                                                                      |
-| `sockets`                    | Number of CPU sockets.                                                                    |
+| Parameter                    | Description                                                                             |
+| ---------------------------- | --------------------------------------------------------------------------------------- |
+| `agent`                      | Enables the QEMU guest agent.                                                           |
+| `cores`                      | Number of CPU cores.                                                                    |
+| `sockets`                    | Number of CPU sockets.                                                                  |
 | `cpu`                        | CPU type passed to Proxmox, such as`host`.                                              |
-| `memory`                     | RAM in MB.                                                                                |
+| `memory`                     | RAM in MB.                                                                              |
 | `ostype`                     | Proxmox OS type identifier. This should match the operating system selected by`vms_os`. |
-| `scsihw`                     | SCSI controller type.                                                                     |
-| `storage`                    | Default Proxmox storage pool used by the VM definition.                                   |
+| `scsihw`                     | SCSI controller type.                                                                   |
+| `storage`                    | Default Proxmox storage pool used by the VM definition.                                 |
 | `disk_os.disk`               | Device name for the OS disk, such as`virtio0`.                                          |
-| `disk_os.size`               | OS disk size in GB.                                                                       |
-| `disk_os.storage`            | Physical Proxmox storage target for the OS disk.                                          |
-| `disk_os.backup`             | Whether the OS disk is included in backups.                                               |
-| `disk_os.format`             | Disk format such as`qcow2` or `raw`.                                                  |
+| `disk_os.size`               | OS disk size in GB.                                                                     |
+| `disk_os.storage`            | Physical Proxmox storage target for the OS disk.                                        |
+| `disk_os.backup`             | Whether the OS disk is included in backups.                                             |
+| `disk_os.format`             | Disk format such as`qcow2` or `raw`.                                                    |
 | `nic0.model`                 | NIC model, usually`virtio`.                                                             |
 | `nic0.bridge`                | Proxmox bridge, such as`vmbr0`.                                                         |
-| `network.nic0.tag`           | VLAN tag for the primary interface. This determines network placement.                    |
-| `boot_order`                 | Boot device order.                                                                        |
-| `disk2.*`                    | Optional second disk configuration.                                                       |
-| `vms_os`                     | OS template or installer identifier.                                                      |
-| `vms_autoinstall`            | Enables unattended installation.                                                          |
-| `vms_enable_serial_terminal` | Enables serial console configuration.                                                     |
-| `vms_additional_packages`    | Extra packages installed during autoinstall.                                              |
-| `python3_version`            | Python version used by the bootstrap stage.                                               |
+| `network.nic0.tag`           | VLAN tag for the primary interface. This determines network placement.                  |
+| `boot_order`                 | Boot device order.                                                                      |
+| `disk2.*`                    | Optional second disk configuration.                                                     |
+| `vms_os`                     | OS template or installer identifier.                                                    |
+| `vms_autoinstall`            | Enables unattended installation.                                                        |
+| `vms_enable_serial_terminal` | Enables serial console configuration.                                                   |
+| `vms_additional_packages`    | Extra packages installed during autoinstall.                                            |
+| `python3_version`            | Python version used by the bootstrap stage.                                             |
 
 Pay special attention to these settings:
 

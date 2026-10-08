@@ -1,0 +1,29 @@
+---
+- name: Remove the saved Terraform plan
+  ansible.builtin.file:
+    path: "{{ vms_terraform_plan_file.path }}"
+    state: absent
+  when: vms_terraform_plan_file.path is defined
+  delegate_to: localhost
+
+- name: Clear the current saved-plan reference
+  ansible.builtin.set_fact:
+    vms_terraform_plan_file: {}
+
+- name: Find Terraform state artifacts
+  ansible.builtin.find:
+    paths: "{{ vms_terraform_module_dir }}"
+    patterns:
+      - "*.tfstate*"
+    file_type: file
+  register: vms_terraform_state_files
+  delegate_to: localhost
+
+- name: Restrict Terraform state artifact permissions
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    mode: "0600"
+  loop: "{{ vms_terraform_state_files.files }}"
+  loop_control:
+    label: "{{ item.path }}"
+  delegate_to: localhost

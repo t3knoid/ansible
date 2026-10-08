@@ -1,5 +1,4 @@
 ---
-
 # defaults file for vm
 
 vms_proxmox_node: pve-0
@@ -13,3 +12,10 @@ vms_ip_address_configured: false
 vms_clone: false
 
 vms_pve_tls_insecure: true
+vms_terraform_allow_replacement: false
+vms_terraform_destroy_confirm: false
+vms_cloud_init_poll_retries: 120
+vms_cloud_init_poll_delay: 15
+vms_cloud_init_command_timeout: 30
+vms_terraform_lock_root: "{{ global_terraform_root_dir }}/.workflow-locks"
+vms_finalization_state_dir: "{{ global_terraform_root_dir }}/.finalization"

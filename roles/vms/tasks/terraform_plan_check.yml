@@ -1,0 +1,45 @@
+---
+- name: Find managed changes in the saved Terraform plan
+  ansible.builtin.set_fact:
+    vms_terraform_managed_changes: >-
+      {{ vms_terraform_plan_json.get('resource_changes', [])
+         | selectattr('mode', 'equalto', 'managed') | list }}
+  no_log: true
+
+- name: Restrict the plan to the expected VM resource
+  ansible.builtin.assert:
+    that:
+      - vms_terraform_plan_operation in ['provision', 'destroy']
+      - vms_terraform_plan_operation != 'destroy' or vms_terraform_destroy_confirm | bool
+      - vms_terraform_managed_changes | length <= 1
+      - >-
+        vms_terraform_managed_changes | length == 0
+        or vms_terraform_managed_changes[0].address == 'proxmox_vm_qemu.vm'
+    fail_msg: "The saved plan contains an unexpected managed resource; no apply was performed."
+
+- name: Require explicit approval for destructive plan actions
+  ansible.builtin.assert:
+    that:
+      - >-
+        (vms_terraform_plan_operation == 'destroy'
+         and vms_terraform_destroy_confirm | bool
+         and item.change.actions in [['delete'], ['no-op']])
+        or (vms_terraform_plan_operation == 'provision'
+            and (item.change.actions in [['create'], ['update'], ['no-op']]
+                 or (vms_terraform_allow_replacement | bool
+                     and item.change.actions in [['delete', 'create'], ['create', 'delete']])))
+    fail_msg: >-
+      Destructive or unexpected Terraform actions were rejected. Provisioning
+      never permits deletion alone; replacement requires an explicit
+      vms_terraform_allow_replacement=true after reviewing the VM and plan.
+      Destroy requires confirmed removal and a destroy-only plan.
+  loop: "{{ vms_terraform_managed_changes }}"
+  loop_control:
+    label: "{{ item.address }}: {{ item.change.actions | join(', ') }}"
+  no_log: true
+
+- name: Record whether the saved plan changes the VM
+  ansible.builtin.set_fact:
+    vms_terraform_plan_has_changes: >-
+      {{ vms_terraform_managed_changes
+         | rejectattr('change.actions', 'equalto', ['no-op']) | list | length > 0 }}

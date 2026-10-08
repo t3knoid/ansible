@@ -1,0 +1,44 @@
+---
+- name: Reset Terraform ownership state for this host
+  ansible.builtin.set_fact:
+    vms_terraform_state: {}
+  no_log: true
+
+- name: Locate the host's Terraform module
+  ansible.builtin.stat:
+    path: "{{ vms_terraform_module_dir }}"
+  register: vms_terraform_ownership_directory
+  delegate_to: localhost
+
+- name: Inspect existing Terraform ownership before skipping or provisioning
+  when: vms_terraform_ownership_directory.stat.exists
+  block:
+    - name: Require a valid Terraform module directory
+      ansible.builtin.assert:
+        that:
+          - vms_terraform_ownership_directory.stat.isdir | default(false)
+        fail_msg: "The Terraform module path is not a directory; refusing provisioning."
+
+    - name: Read existing Terraform state privately
+      ansible.builtin.command:
+        cmd: terraform show -json
+        chdir: "{{ vms_terraform_module_dir }}"
+      register: vms_terraform_ownership_output
+      changed_when: false
+      delegate_to: localhost
+      no_log: true
+
+    - name: Decode existing Terraform ownership privately
+      ansible.builtin.set_fact:
+        vms_terraform_state: "{{ vms_terraform_ownership_output.stdout | from_json }}"
+      no_log: true
+  rescue:
+    - name: Refuse provisioning when Terraform ownership cannot be read
+      ansible.builtin.fail:
+        msg: >-
+          Unable to read Terraform ownership for {{ inventory_hostname }} from
+          {{ vms_terraform_module_dir }}. Restore or initialize the matching module
+          and state before retrying. No provisioning or DNS changes were performed.
+
+- name: Validate ownership even when VM initialization will be skipped
+  ansible.builtin.include_tasks: terraform_state_check.yml

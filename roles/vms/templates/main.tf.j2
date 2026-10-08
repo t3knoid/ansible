@@ -76,15 +76,18 @@ resource "proxmox_vm_qemu" "vm" {
     id     = 0
     bridge = var.vm_config.nic0.bridge
     model  = var.vm_config.nic0.model
+    tag    = var.vm_config.nic0.tag
   }
 
   # Do not start on Proxmox host boot
   start_at_node_boot = false
 
-  # Ignore changes to 'node' to avoid recreation of VM on node migration
   lifecycle {
     ignore_changes = [
-      target_node
+      target_node,
+      vm_state,
+      disk,
+      cicustom
     ]
   }
 }

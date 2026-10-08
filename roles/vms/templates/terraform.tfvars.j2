@@ -1,12 +1,13 @@
 # Hardware definition
-vm_config = {{ vms_config | to_nice_json }}
+{% set vms_terraform_nic0 = (vms_config.network | default({})).get('nic0', vms_config.nic0 | default({})) %}
+vm_config = {{ vms_config | combine({'nic0': vms_terraform_nic0}) | to_nice_json }}
 
 extra_disks = [
 {% if vms_config.disk2 is defined %}
   {
     id      = 1
-    slot    = "{{ vms_config.disk2.disk }}"      # e.g., "virtio1"
-    backup  = {{ vms_config.disk2.backup | default(true) }}
+    disk    = {{ vms_config.disk2.disk | default('virtio1') | to_json }}
+    backup  = {{ vms_config.disk2.backup | default(true) | bool | to_json }}
     storage = "{{ vms_config.disk2.storage }}"
     size    = "{{ vms_config.disk2.size }}G"
     format  = "{{ vms_config.disk2.format | default("qcow2") }}"
@@ -21,12 +22,12 @@ enable_serial_terminal = {{ vms_enable_serial_terminal | lower }}
 # Proxmox API
 pve_api_url = "https://{{ global_proxmox_api_host }}:8006/api2/json"
 pve_user = "{{ global_proxmox_api_user }}"
-pve_password = "{{ global_proxmox_api_password }}"
+pve_password = {{ global_proxmox_api_password | to_json }}
 pve_tls_insecure = {{ vms_pve_tls_insecure | lower }}
 
 # VM placement
 pve_node = "{{ vms_proxmox_template.node }}"
-vm_name = "{{ inventory_hostname }}"
+vm_name = {{ vms_name | default(inventory_hostname) | to_json }}
 
 # Template info discovered by Ansible
 template_name = "{{ vms_proxmox_template.name }}"

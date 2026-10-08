@@ -1,0 +1,340 @@
+---
+- name: Validate Terraform inputs and secure execution order offline
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    vms_test_tasks: "{{ lookup('file', '../tasks/clone_vm_from_template_terraform.yml') | from_yaml }}"
+    vms_test_task_names: "{{ vms_test_tasks | map(attribute='name', default='flush_handlers') | list }}"
+    vms_test_render_task: "{{ vms_test_tasks | selectattr('name', 'defined') | selectattr('name', 'equalto', 'Render Terraform module files') | first }}"
+    vms_test_hardware:
+      agent: "1"
+      cores: "2"
+      sockets: 1
+      cpu: host
+      memory: 1024
+      ostype: l26
+      scsihw: virtio-scsi-single
+      storage: local
+      boot_order: order=virtio0
+      disk_os:
+        disk: virtio0
+        backup: true
+        size: 20
+        storage: local
+        format: qcow2
+      nic0:
+        model: virtio
+        bridge: vmbr0
+    vms_test_disk:
+      disk: virtio1
+      size: 20
+      storage: local
+    vms_test_network_cases:
+      - name: flat-untagged
+        config:
+          nic0:
+            model: virtio
+            bridge: vmbr0
+        expected: { model: virtio, bridge: vmbr0, tag: 0 }
+      - name: flat-tagged
+        config:
+          nic0:
+            model: virtio
+            bridge: vmbr0
+            tag: 20
+        expected: { model: virtio, bridge: vmbr0, tag: 20 }
+      - name: nested-tagged
+        config:
+          network:
+            nic0:
+              model: virtio
+              bridge: vmbr0
+              tag: 20
+        expected: { model: virtio, bridge: vmbr0, tag: 20 }
+      - name: nested-precedence
+        config:
+          nic0:
+            model: e1000
+            bridge: vmbr1
+            tag: 30
+          network:
+            nic0:
+              model: virtio
+              bridge: vmbr0
+              tag: 20
+        expected: { model: virtio, bridge: vmbr0, tag: 20 }
+    vms_autoinstall: false
+    vms_name: custom-test-vm
+    vms_enable_serial_terminal: false
+    vms_pve_tls_insecure: true
+    global_proxmox_api_host: example.invalid
+    global_proxmox_api_user: test-user
+    global_proxmox_api_password: 'dummy-"quoted"-password'
+    vms_proxmox_template:
+      node: test-node
+      name: test-template
+  tasks:
+    - name: Verify secure rendering and initialization before validation
+      ansible.builtin.assert:
+        that:
+          - vms_test_render_task['ansible.builtin.template'].mode == '0600'
+          - vms_test_render_task.no_log | bool
+          - not (vms_test_render_task.diff | bool)
+          - vms_test_tasks[1]['ansible.builtin.file'].mode == '0700'
+          - vms_test_task_names.index('Run terraform init') < vms_test_task_names.index('Validate initialized Terraform configuration')
+          - >-
+            vms_test_task_names.index('Validate Terraform ownership of the requested VM')
+            < vms_test_task_names.index('Plan and apply the validated Terraform module')
+
+    - name: Create a temporary provider-free Terraform module
+      ansible.builtin.tempfile:
+        state: directory
+        prefix: ansible-terraform-test-
+      register: vms_test_directory
+
+    - name: Test the actual input templates without accessing Proxmox
+      block:
+        - name: Render the actual Terraform variable definitions
+          ansible.builtin.template:
+            src: "{{ playbook_dir | dirname }}/templates/variables.tf.j2"
+            dest: "{{ vms_test_directory.path }}/variables.tf"
+            mode: "0600"
+
+        - name: Render extra-disk inputs for both boolean values
+          ansible.builtin.template:
+            src: "{{ playbook_dir | dirname }}/templates/terraform.tfvars.j2"
+            dest: "{{ vms_test_directory.path }}/inputs-{{ item | lower }}.tfvars"
+            mode: "0600"
+          vars:
+            vms_config: "{{ vms_test_hardware | combine({'disk2': vms_test_disk | combine({'backup': item})}) }}"
+          loop:
+            - true
+            - false
+          no_log: true
+          diff: false
+
+        - name: Initialize the provider-free test module
+          ansible.builtin.command:
+            argv:
+              - terraform
+              - init
+              - -backend=false
+              - -input=false
+            chdir: "{{ vms_test_directory.path }}"
+          changed_when: false
+
+        - name: Verify typed extra-disk inputs and escaped dummy credentials
+          ansible.builtin.command:
+            argv:
+              - terraform
+              - plan
+              - -input=false
+              - "-var-file=inputs-{{ item | lower }}.tfvars"
+            chdir: "{{ vms_test_directory.path }}"
+          loop:
+            - true
+            - false
+          changed_when: false
+
+        - name: Expose the typed NIC as a provider-free test output
+          ansible.builtin.copy:
+            dest: "{{ vms_test_directory.path }}/outputs.tf"
+            mode: "0600"
+            content: |
+              output "nic0" {
+                value = var.vm_config.nic0
+              }
+              output "vm_name" {
+                value = var.vm_name
+              }
+
+        - name: Render flat and nested network test inputs
+          ansible.builtin.template:
+            src: "{{ playbook_dir | dirname }}/templates/terraform.tfvars.j2"
+            dest: "{{ vms_test_directory.path }}/network-{{ item.name }}.tfvars"
+            mode: "0600"
+          vars:
+            vms_config: >-
+              {{ vms_test_hardware | dict2items
+                 | rejectattr('key', 'equalto', 'nic0') | items2dict
+                 | combine(item.config) }}
+          loop: "{{ vms_test_network_cases }}"
+          no_log: true
+          diff: false
+
+        - name: Plan the typed network inputs without a provider
+          ansible.builtin.command:
+            argv:
+              - terraform
+              - plan
+              - -input=false
+              - "-var-file=network-{{ item.name }}.tfvars"
+              - "-out=network-{{ item.name }}.tfplan"
+            chdir: "{{ vms_test_directory.path }}"
+          loop: "{{ vms_test_network_cases }}"
+          changed_when: false
+
+        - name: Read the planned network outputs privately
+          ansible.builtin.command:
+            argv:
+              - terraform
+              - show
+              - -json
+              - "network-{{ item.name }}.tfplan"
+            chdir: "{{ vms_test_directory.path }}"
+          loop: "{{ vms_test_network_cases }}"
+          register: vms_test_network_plans
+          changed_when: false
+          no_log: true
+
+        - name: Verify NIC selection and VLAN preservation
+          ansible.builtin.assert:
+            that:
+              - (item.stdout | from_json).planned_values.outputs.nic0.value == item.item.expected
+              - (item.stdout | from_json).planned_values.outputs.vm_name.value == 'custom-test-vm'
+          loop: "{{ vms_test_network_plans.results }}"
+          no_log: true
+
+        - name: Verify private Terraform failure diagnostics
+          block:
+            - name: Exercise a failing Terraform command with the real rescue handler
+              block:
+                - name: Simulate a Terraform command failure without accessing Proxmox
+                  ansible.builtin.command:
+                    argv:
+                      - terraform
+                      - "-chdir={{ vms_test_directory.path }}/nonexistent"
+                      - validate
+                  changed_when: false
+                  no_log: true
+              rescue:
+                - name: Run the actual private failure handler
+                  ansible.builtin.include_role:
+                    name: vms
+                    tasks_from: terraform_failure
+                  vars:
+                    vms_terraform_module_dir: "{{ vms_test_directory.path }}"
+
+            - name: Reject a failure handler that silently succeeds
+              ansible.builtin.fail:
+                msg: "Terraform command failures must still fail the play."
+          rescue:
+            - name: Verify the handler reports failure rather than hiding it
+              ansible.builtin.assert:
+                that:
+                  - ansible_failed_task.name == 'Report Terraform failure without exposing credentials'
+
+            - name: Inspect diagnostic log permissions
+              ansible.builtin.stat:
+                path: "{{ vms_test_directory.path }}/terraform-failure.log"
+              register: vms_test_failure_log_stat
+
+            - name: Read test diagnostics without logging their content
+              ansible.builtin.slurp:
+                src: "{{ vms_test_directory.path }}/terraform-failure.log"
+              register: vms_test_failure_log
+              no_log: true
+
+            - name: Verify private diagnostics preserve the actual command error
+              ansible.builtin.assert:
+                that:
+                  - vms_test_failure_log_stat.stat.mode == '0600'
+                  - "'Return code: 1' in (vms_test_failure_log.content | b64decode)"
+                  - "'Error handling -chdir option' in (vms_test_failure_log.content | b64decode)"
+              no_log: true
+      always:
+        - name: Remove the temporary Terraform module
+          ansible.builtin.file:
+            path: "{{ vms_test_directory.path }}"
+            state: absent
+
+- name: A new VM with empty Terraform state is permitted
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    vms_provision_matches: []
+    vms_terraform_state: {}
+    vms_test_rejection_expected: false
+  tasks: &vms_state_checks
+    - name: Verify Terraform state ownership policy
+      block:
+        - name: Run the actual Terraform state guard
+          ansible.builtin.include_role:
+            name: vms
+            tasks_from: terraform_state_check
+
+        - name: Confirm only acceptable state passed
+          ansible.builtin.assert:
+            that:
+              - not vms_test_rejection_expected
+      rescue:
+        - name: Confirm the expected ownership rejection
+          ansible.builtin.assert:
+            that:
+              - vms_test_rejection_expected
+              - ansible_failed_task.name == 'Require matching Terraform ownership before planning'
+
+- name: An existing VM with matching Terraform state is permitted
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    vms_provision_matches: &vms_existing_guest
+      - vmid: 100
+    vms_name: test-vm
+    vms_terraform_state: &vms_matching_state
+      values:
+        root_module:
+          resources:
+            - address: proxmox_vm_qemu.vm
+              mode: managed
+              values:
+                id: test-node/qemu/100
+                name: test-vm
+    vms_test_rejection_expected: false
+  tasks: *vms_state_checks
+
+- name: An existing VM without Terraform state is rejected
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    vms_provision_matches: *vms_existing_guest
+    vms_terraform_state: {}
+    vms_test_rejection_expected: true
+  tasks: *vms_state_checks
+
+- name: A state resource pointing to another VMID is rejected
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    vms_provision_matches:
+      - vmid: 200
+    vms_name: test-vm
+    vms_terraform_state: *vms_matching_state
+    vms_test_rejection_expected: true
+  tasks: *vms_state_checks
+
+- name: A state resource pointing to another VM name is rejected
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    vms_provision_matches: *vms_existing_guest
+    vms_name: another-vm
+    vms_terraform_state: *vms_matching_state
+    vms_test_rejection_expected: true
+  tasks: *vms_state_checks
+
+- name: Terraform state without a matching cluster VM is rejected
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    vms_provision_matches: []
+    vms_terraform_state: *vms_matching_state
+    vms_test_rejection_expected: true
+  tasks: *vms_state_checks

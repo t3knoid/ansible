@@ -1,2 +1,5 @@
 ---
 vms_terraform_module_dir: "{{ global_terraform_root_dir }}/{{ inventory_hostname }}"
+vms_operation_key: "{{ ((global_proxmox_api_host | string) ~ ':' ~ vms_name) | hash('sha256') }}"
+vms_terraform_lock_dir: "{{ vms_terraform_lock_root }}/{{ vms_operation_key }}"
+vms_finalization_checkpoint: "{{ vms_finalization_state_dir }}/{{ vms_operation_key }}.json"
