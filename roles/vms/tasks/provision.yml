@@ -39,8 +39,14 @@
     - name: Update known_hosts file
       ansible.builtin.include_tasks: "known_hosts.yml"
 
-    - name: Remove cloud-init disk
-      ansible.builtin.include_tasks: cloud_init_remove_disk.yml
+    - name: Finalize provisioning with a recoverable checkpoint
+      ansible.builtin.include_tasks: provision_finalize.yml
 
-    - name: Reboot to apply pending cloud-init disk removal
-      ansible.builtin.include_tasks: "reboot.yml"
+- name: Recover interrupted finalization without repeating native VM creation
+  when: vms_finalization_required | bool
+  block:
+    - name: Start the existing guest for finalization recovery
+      ansible.builtin.include_tasks: start.yml
+
+    - name: Complete pending finalization
+      ansible.builtin.include_tasks: provision_finalize.yml

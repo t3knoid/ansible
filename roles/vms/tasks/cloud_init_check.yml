@@ -1,0 +1,20 @@
+---
+- name: Require a successful cloud-init command
+  ansible.builtin.assert:
+    that:
+      - vms_cloudinit_status.rc == 0
+    fail_msg: "Cloud-init status returned a failure or degraded-status exit code."
+
+- name: Decode final cloud-init status
+  ansible.builtin.set_fact:
+    vms_cloud_init_result: "{{ vms_cloudinit_status.stdout | trim | from_json }}"
+  no_log: true
+
+- name: Require cloud-init to be done without errors
+  ansible.builtin.assert:
+    that:
+      - vms_cloud_init_result.get('status', '') == 'done'
+      - vms_cloud_init_result.get('errors', []) | length == 0
+      - vms_cloud_init_result.get('recoverable_errors', {}) | length == 0
+      - vms_cloud_init_result.get('extended_status', 'done') == 'done'
+    fail_msg: "Cloud-init is incomplete or reports errors; inspect the guest logs before retrying."

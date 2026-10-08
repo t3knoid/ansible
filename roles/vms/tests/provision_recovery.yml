@@ -1,0 +1,257 @@
+---
+- name: Test VM recovery and concurrency without infrastructure operations
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    global_proxmox_api_host: example.invalid
+    vms_name: custom-test-vm
+    vms_test_start: "{{ lookup('file', '../tasks/start.yml') | from_yaml }}"
+    vms_test_reboot: "{{ lookup('file', '../tasks/reboot.yml') | from_yaml }}"
+    vms_test_finalize: "{{ lookup('file', '../tasks/provision_finalize.yml') | from_yaml }}"
+    vms_test_finalize_names: "{{ vms_test_finalize | map(attribute='name') | list }}"
+  tasks:
+    - name: Verify reboot and finalization cannot claim completion early
+      ansible.builtin.assert:
+        that:
+          - vms_test_reboot | length == 1
+          - vms_test_reboot[0]['ansible.builtin.reboot'].boot_time_command == 'cat /proc/sys/kernel/random/boot_id'
+          - vms_test_reboot[0].delegate_to is not defined
+          - vms_test_reboot[0].become | bool
+          - vms_test_start[-1].delegate_to is not defined
+          - vms_test_start[-1]['ansible.builtin.wait_for_connection'].timeout == 600
+          - vms_test_start[2].delegate_to == 'localhost'
+          - >-
+            vms_test_finalize_names.index('Record pending finalization before removing the cloud-init drive')
+            < vms_test_finalize_names.index('Remove the cloud-init drive if it is still present')
+          - >-
+            vms_test_finalize_names.index('Reboot the guest and verify finalization')
+            < vms_test_finalize_names.index('Mark finalization complete only after verified reboot')
+
+    - name: Create a private recovery test directory
+      ansible.builtin.tempfile:
+        state: directory
+        prefix: ansible-vms-recovery-
+      register: vms_test_directory
+
+    - name: Exercise recovery helpers with temporary artifacts
+      vars:
+        global_terraform_root_dir: "{{ vms_test_directory.path }}"
+      block:
+        - name: Acquire the real atomic workflow lock
+          ansible.builtin.include_role:
+            name: vms
+            tasks_from: terraform_lock_acquire
+            public: true
+
+        - name: Acquire the same lock reentrantly
+          ansible.builtin.include_role:
+            name: vms
+            tasks_from: terraform_lock_acquire
+
+        - name: Verify nested lock ownership
+          ansible.builtin.assert:
+            that:
+              - vms_terraform_lock_depth | int == 2
+
+        - name: Simulate another process without ownership facts
+          ansible.builtin.set_fact:
+            vms_terraform_lock_depth: 0
+
+        - name: Reject a competing process and preserve the owner's lock
+          block:
+            - name: Attempt competing lock acquisition
+              ansible.builtin.include_role:
+                name: vms
+                tasks_from: terraform_lock_acquire
+
+            - name: Fail if the competing process acquired the lock
+              ansible.builtin.fail:
+                msg: "Concurrent workflows must not acquire an existing lock."
+          rescue:
+            - name: Verify atomic contention rejection
+              ansible.builtin.assert:
+                that:
+                  - ansible_failed_task.name == 'Refuse overlapping VM workflows'
+                  - vms_terraform_lock_depth | int == 0
+
+        - name: Verify an unsuccessful contender cannot release the lock
+          ansible.builtin.include_role:
+            name: vms
+            tasks_from: terraform_lock_release
+
+        - name: Inspect the retained lock
+          ansible.builtin.stat:
+            path: "{{ vms_terraform_lock_dir }}"
+          register: vms_test_retained_lock
+
+        - name: Verify the owner still has its lock
+          ansible.builtin.assert:
+            that:
+              - vms_test_retained_lock.stat.isdir
+
+        - name: Restore the original process's ownership facts
+          ansible.builtin.set_fact:
+            vms_terraform_lock_depth: 2
+
+        - name: Release nested ownership
+          ansible.builtin.include_role:
+            name: vms
+            tasks_from: terraform_lock_release
+
+        - name: Verify the outer workflow still owns the lock
+          ansible.builtin.assert:
+            that:
+              - vms_terraform_lock_depth | int == 1
+
+        - name: Release the outermost workflow
+          ansible.builtin.include_role:
+            name: vms
+            tasks_from: terraform_lock_release
+
+        - name: Inspect the released lock
+          ansible.builtin.stat:
+            path: "{{ vms_terraform_lock_dir }}"
+          register: vms_test_released_lock
+
+        - name: Verify the lock was removed
+          ansible.builtin.assert:
+            that:
+              - not vms_test_released_lock.stat.exists
+              - vms_terraform_lock_depth | int == 0
+
+        - name: Allocate separate owner-only plans for two attempts
+          ansible.builtin.tempfile:
+            path: "{{ vms_test_directory.path }}"
+            state: file
+            prefix: .ansible-plan-
+            suffix: .tfplan
+          loop:
+            - first
+            - second
+          register: vms_test_unique_plans
+
+        - name: Verify the attempts have distinct saved-plan paths
+          ansible.builtin.assert:
+            that:
+              - vms_test_unique_plans.results[0].path != vms_test_unique_plans.results[1].path
+
+        - name: Clean only the first attempt's plan
+          ansible.builtin.include_role:
+            name: vms
+            tasks_from: terraform_cleanup
+          vars:
+            vms_terraform_module_dir: "{{ vms_test_directory.path }}"
+            vms_terraform_plan_file:
+              path: "{{ vms_test_unique_plans.results[0].path }}"
+
+        - name: Inspect both attempts' plans after cleanup
+          ansible.builtin.stat:
+            path: "{{ item.path }}"
+          loop: "{{ vms_test_unique_plans.results }}"
+          register: vms_test_plan_files
+
+        - name: Verify another attempt's plan remains private and intact
+          ansible.builtin.assert:
+            that:
+              - not vms_test_plan_files.results[0].stat.exists
+              - vms_test_plan_files.results[1].stat.exists
+              - vms_test_plan_files.results[1].stat.mode == '0600'
+
+        - name: Supply a config containing misleading cloud-init fields
+          ansible.builtin.set_fact:
+            vms_vm_config:
+              json:
+                data:
+                  name: cloudinit-test
+                  cicustom: user=local:snippets/cloudinit-user.yml
+                  ide2: local:100/vm-100-cloudinit.qcow2,media=cdrom
+                  virtio0: local:100/vm-100-disk-0.qcow2
+
+        - name: Select the real cloud-init drive
+          ansible.builtin.include_role:
+            name: vms
+            tasks_from: cloud_init_disk_check
+
+        - name: Verify only a device key was selected
+          ansible.builtin.assert:
+            that:
+              - vms_cloud_init_disk == 'ide2'
+
+        - name: Simulate removal of the drive while keeping misleading fields
+          ansible.builtin.set_fact:
+            vms_vm_config:
+              json:
+                data:
+                  cicustom: user=local:snippets/cloudinit-user.yml
+                  virtio0: local:100/vm-100-disk-0.qcow2
+
+        - name: Recompute drive detection without stale facts
+          ansible.builtin.include_role:
+            name: vms
+            tasks_from: cloud_init_disk_check
+
+        - name: Verify the previously selected device was cleared
+          ansible.builtin.assert:
+            that:
+              - vms_cloud_init_disk == ''
+
+        - name: Create the checkpoint directory
+          ansible.builtin.file:
+            path: "{{ vms_finalization_state_dir }}"
+            state: directory
+            mode: "0700"
+
+        - name: Simulate a checkpoint left by a failed final reboot
+          ansible.builtin.copy:
+            dest: "{{ vms_finalization_checkpoint }}"
+            content: "{{ {'vmid': 100, 'name': vms_name} | to_json }}"
+            mode: "0600"
+
+        - name: Supply an existing guest without a cloud-init drive
+          ansible.builtin.set_fact:
+            vms_provision_matches:
+              - vmid: 100
+            vms_provision_config: "{{ vms_vm_config }}"
+
+        - name: Inspect the actual pending checkpoint
+          ansible.builtin.include_role:
+            name: vms
+            tasks_from: provision_checkpoint_check
+
+        - name: Compute creation and recovery independently
+          ansible.builtin.include_role:
+            name: vms
+            tasks_from: provision_state
+
+        - name: Verify recovery does not enter cloning or Terraform apply
+          ansible.builtin.assert:
+            that:
+              - not vms_provision_required
+              - vms_finalization_required
+
+        - name: Simulate successful finalization checkpoint clearance
+          ansible.builtin.file:
+            path: "{{ vms_finalization_checkpoint }}"
+            state: absent
+
+        - name: Recheck checkpoint and completed state
+          ansible.builtin.include_role:
+            name: vms
+            tasks_from: provision_checkpoint_check
+
+        - name: Recompute the completed provisioning decision
+          ansible.builtin.include_role:
+            name: vms
+            tasks_from: provision_state
+
+        - name: Verify successful finalization is idempotent
+          ansible.builtin.assert:
+            that:
+              - not vms_provision_required
+              - not vms_finalization_required
+      always:
+        - name: Remove temporary recovery artifacts
+          ansible.builtin.file:
+            path: "{{ vms_test_directory.path }}"
+            state: absent

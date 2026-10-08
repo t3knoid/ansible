@@ -1,0 +1,24 @@
+---
+- name: Save Terraform failure diagnostics privately
+  ansible.builtin.copy:
+    dest: "{{ vms_terraform_module_dir }}/terraform-failure.log"
+    mode: "0600"
+    content: |
+      Task: {{ ansible_failed_task.name }}
+      Return code: {{ ansible_failed_result.rc | default('unknown') }}
+      Message: {{ ansible_failed_result.msg | default('') }}
+      Standard output:
+      {{ ansible_failed_result.stdout | default('') }}
+      Standard error:
+      {{ ansible_failed_result.stderr | default('') }}
+  delegate_to: localhost
+  no_log: true
+  diff: false
+
+- name: Report Terraform failure without exposing credentials
+  ansible.builtin.fail:
+    msg: >-
+      Terraform failed. Inspect {{ vms_terraform_module_dir }}/terraform-failure.log
+      locally on the control node for the underlying error. The log is owner-only
+      and may contain secrets; do not publish it. Inspect Proxmox and Terraform
+      state before retrying because Terraform may have partially changed the VM.

@@ -1,0 +1,37 @@
+---
+- name: Reset finalization recovery state
+  ansible.builtin.set_fact:
+    vms_finalization_pending: false
+
+- name: Inspect a checkpoint for the existing VM
+  when: vms_provision_matches | length == 1
+  block:
+    - name: Locate the finalization checkpoint
+      ansible.builtin.stat:
+        path: "{{ vms_finalization_checkpoint }}"
+      register: vms_finalization_checkpoint_stat
+      delegate_to: localhost
+
+    - name: Validate the existing checkpoint
+      when: vms_finalization_checkpoint_stat.stat.exists
+      block:
+        - name: Read the checkpoint
+          ansible.builtin.slurp:
+            src: "{{ vms_finalization_checkpoint }}"
+          register: vms_finalization_checkpoint_data
+          delegate_to: localhost
+
+        - name: Decode checkpoint identity
+          ansible.builtin.set_fact:
+            vms_finalization_identity: "{{ vms_finalization_checkpoint_data.content | b64decode | from_json }}"
+
+        - name: Require the checkpoint to identify the current VM
+          ansible.builtin.assert:
+            that:
+              - vms_finalization_identity.vmid | int == vms_provision_matches[0].vmid | int
+              - vms_finalization_identity.name == vms_name
+            fail_msg: "A stale finalization checkpoint identifies another VM; review it before proceeding."
+
+        - name: Resume pending finalization
+          ansible.builtin.set_fact:
+            vms_finalization_pending: true

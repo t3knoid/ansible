@@ -1,0 +1,223 @@
+---
+- name: Test VM provisioning safety without touching Proxmox
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    vms_test_clone_tasks: "{{ lookup('file', '../tasks/clone_vm_from_template_terraform.yml') | from_yaml }}"
+    vms_test_execution: >-
+      {{ vms_test_clone_tasks | selectattr('name', 'defined')
+         | selectattr('name', 'equalto', 'Plan and apply the validated Terraform module') | first }}
+    vms_test_execution_names: "{{ vms_test_execution.block | map(attribute='name') | list }}"
+    vms_test_remove_tasks: "{{ lookup('file', '../tasks/remove_with_terraform.yml') | from_yaml }}"
+    vms_test_removal: >-
+      {{ vms_test_remove_tasks
+         | selectattr('name', 'equalto', 'Verify and remove the Terraform-owned VM') | first }}
+    vms_test_removal_names: "{{ vms_test_removal.block | map(attribute='name') | list }}"
+    vms_test_remove_play: >-
+      {{ lookup('file', (playbook_dir | dirname | dirname | dirname)
+         ~ '/playbooks/vms/remove_vm.yml') | from_yaml }}
+    vms_test_remove_names: "{{ vms_test_remove_play[0].tasks[-1].block | map(attribute='name') | list }}"
+    vms_test_cloud_tasks: "{{ lookup('file', '../tasks/cloud_init_wait.yml') | from_yaml }}"
+    vms_test_cloud_poll: "{{ vms_test_cloud_tasks[1].block[0] }}"
+    vms_test_main_template: "{{ lookup('file', '../templates/main.tf.j2') }}"
+    vms_test_lifecycle: "{{ (vms_test_main_template | regex_search('(?s)ignore_changes\\s*=\\s*\\[(.*?)\\]', '\\1'))[0] }}"
+    vms_test_cases:
+      - name: create
+        kind: plan
+        actions: [create]
+        reject: false
+        changes: true
+      - name: update
+        kind: plan
+        actions: [update]
+        reject: false
+        changes: true
+      - name: no-op
+        kind: plan
+        actions: [no-op]
+        reject: false
+        changes: false
+      - name: empty-plan
+        kind: plan
+        reject: false
+        changes: false
+      - name: replacement-blocked
+        kind: plan
+        actions: [delete, create]
+        reject: true
+      - name: replacement-approved
+        kind: plan
+        actions: [delete, create]
+        replacement: true
+        reject: false
+        changes: true
+      - name: reverse-replacement-blocked
+        kind: plan
+        actions: [create, delete]
+        reject: true
+      - name: standalone-delete-blocked
+        kind: plan
+        actions: [delete]
+        replacement: true
+        reject: true
+      - name: wrong-resource
+        kind: plan
+        actions: [create]
+        address: proxmox_vm_qemu.other
+        reject: true
+      - name: unconfirmed-destroy
+        kind: plan
+        operation: destroy
+        actions: [delete]
+        reject: true
+      - name: confirmed-destroy
+        kind: plan
+        operation: destroy
+        actions: [delete]
+        confirm: true
+        reject: false
+        changes: true
+      - name: destroy-cannot-create
+        kind: plan
+        operation: destroy
+        actions: [create]
+        confirm: true
+        reject: true
+      - name: empty-destroy-unconfirmed
+        kind: plan
+        operation: destroy
+        reject: true
+      - name: cloud-init-done
+        kind: cloud
+        status_doc:
+          status: done
+          extended_status: done
+          errors: []
+          recoverable_errors: {}
+        reject: false
+      - name: cloud-init-running
+        kind: cloud
+        status_doc: { status: running }
+        reject: true
+      - name: cloud-init-not-started
+        kind: cloud
+        status_doc: { status: not started }
+        reject: true
+      - name: cloud-init-disabled
+        kind: cloud
+        status_doc: { status: disabled }
+        reject: true
+      - name: cloud-init-command-failed
+        kind: cloud
+        rc: 1
+        status_doc: { status: done }
+        reject: true
+      - name: cloud-init-timeout
+        kind: cloud
+        rc: 124
+        reject: true
+      - name: cloud-init-degraded-exit
+        kind: cloud
+        rc: 2
+        status_doc: { status: done }
+        reject: true
+      - name: cloud-init-errors
+        kind: cloud
+        status_doc: { status: done, errors: [failure] }
+        reject: true
+      - name: cloud-init-recoverable-errors
+        kind: cloud
+        status_doc: { status: done, recoverable_errors: { WARNING: [failure] } }
+        reject: true
+      - name: cloud-init-degraded-status
+        kind: cloud
+        status_doc: { status: done, extended_status: done - degraded }
+        reject: true
+      - name: cloud-init-invalid-json
+        kind: cloud
+        stdout: invalid-json
+        reject: true
+  tasks:
+    - name: Verify safety gates and lifecycle ownership wiring
+      ansible.builtin.assert:
+        that:
+          - "'vm_state' in vms_test_lifecycle"
+          - "'disk' in vms_test_lifecycle"
+          - "'target_node' in vms_test_lifecycle"
+          - "'cicustom' in vms_test_lifecycle"
+          - vms_test_execution_names.index('Validate provisioning actions before apply') < vms_test_execution_names.index('Run terraform apply')
+          - >-
+            vms_test_removal_names.index('Validate ownership before any destructive operation')
+            < vms_test_removal_names.index('Plan Terraform destruction privately')
+          - >-
+            vms_test_removal_names.index('Validate confirmed destroy-only actions')
+            < vms_test_removal_names.index('Apply the confirmed destroy plan')
+          - >-
+            vms_test_remove_names.index('Remove DNS only after successful VM removal')
+            > vms_test_remove_names.index('Remove a virtual machine using Terraform')
+          - >-
+            vms_test_remove_names.index('Remove DNS only after successful VM removal')
+            > vms_test_remove_names.index('Remove a virtual machine using Ansible')
+          - vms_test_execution.always[0]['ansible.builtin.include_tasks'] == 'terraform_cleanup.yml'
+          - vms_test_removal.always[0]['ansible.builtin.include_tasks'] == 'terraform_cleanup.yml'
+          - "'--wait' not in vms_test_cloud_poll['ansible.builtin.raw']"
+          - vms_test_cloud_poll['ansible.builtin.raw'].startswith('timeout ')
+          - vms_test_cloud_poll.retries is defined
+          - vms_test_cloud_poll.delay is defined
+          - vms_test_cloud_poll.until is defined
+
+    - name: Run plan and cloud-init safety scenarios
+      ansible.builtin.include_tasks: provision_safety_case.yml
+      loop: "{{ vms_test_cases }}"
+      loop_control:
+        loop_var: vms_test_case
+        label: "{{ vms_test_case.name }}"
+
+    - name: Create a temporary private artifact directory
+      ansible.builtin.tempfile:
+        state: directory
+        prefix: ansible-vms-safety-
+      register: vms_test_artifact_directory
+
+    - name: Verify cleanup protects state and removes plans
+      block:
+        - name: Create dummy plan and state artifacts
+          ansible.builtin.copy:
+            dest: "{{ vms_test_artifact_directory.path }}/{{ item }}"
+            content: "dummy test data\n"
+            mode: "0644"
+          loop:
+            - tfplan
+            - terraform.tfstate
+            - terraform.tfstate.backup
+
+        - name: Run the actual cleanup task
+          ansible.builtin.include_role:
+            name: vms
+            tasks_from: terraform_cleanup
+          vars:
+            vms_terraform_module_dir: "{{ vms_test_artifact_directory.path }}"
+            vms_terraform_plan_file:
+              path: "{{ vms_test_artifact_directory.path }}/tfplan"
+
+        - name: Inspect dummy artifact permissions
+          ansible.builtin.stat:
+            path: "{{ vms_test_artifact_directory.path }}/{{ item }}"
+          loop:
+            - tfplan
+            - terraform.tfstate
+            - terraform.tfstate.backup
+          register: vms_test_artifacts
+
+        - name: Verify plan removal and owner-only state files
+          ansible.builtin.assert:
+            that:
+              - not vms_test_artifacts.results[0].stat.exists
+              - vms_test_artifacts.results[1].stat.mode == '0600'
+              - vms_test_artifacts.results[2].stat.mode == '0600'
+      always:
+        - name: Remove the temporary test artifacts
+          ansible.builtin.file:
+            path: "{{ vms_test_artifact_directory.path }}"
+            state: absent

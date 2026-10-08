@@ -41,18 +41,25 @@
   vars:
     vms_test_native_tasks: "{{ lookup('file', '../tasks/provision.yml') | from_yaml }}"
     vms_test_terraform_tasks: "{{ lookup('file', '../tasks/provision_with_terraform.yml') | from_yaml }}"
+    vms_test_terraform_workflow: "{{ vms_test_terraform_tasks[0].block }}"
   tasks:
     - name: Verify provisioning is entirely gated by the state decision
       ansible.builtin.assert:
         that:
-          - vms_test_native_tasks | length == 2
-          - vms_test_terraform_tasks | length == 2
+          - vms_test_native_tasks | length == 3
+          - vms_test_terraform_tasks | length == 1
+          - vms_test_terraform_workflow | length == 5
           - vms_test_native_tasks[0]['ansible.builtin.include_tasks'] == 'provision_check.yml'
-          - vms_test_terraform_tasks[0]['ansible.builtin.include_tasks'] == 'provision_check.yml'
+          - vms_test_terraform_workflow[0]['ansible.builtin.include_tasks'] == 'terraform_lock_acquire.yml'
+          - vms_test_terraform_workflow[1]['ansible.builtin.include_tasks'] == 'provision_check.yml'
           - vms_test_native_tasks[1].when == 'vms_provision_required | bool'
-          - vms_test_terraform_tasks[1].when == 'vms_provision_required | bool'
+          - vms_test_terraform_workflow[2]['ansible.builtin.include_tasks'] == 'terraform_ownership_preflight.yml'
+          - vms_test_terraform_workflow[2].when is not defined
+          - vms_test_terraform_workflow[3].when == 'vms_provision_required | bool'
           - vms_test_native_tasks[1].block | length > 0
-          - vms_test_terraform_tasks[1].block | length > 0
+          - vms_test_terraform_workflow[3].block | length > 0
+          - vms_test_terraform_workflow[4].when == 'vms_finalization_required | bool'
+          - vms_test_terraform_tasks[0].always[0]['ansible.builtin.include_tasks'] == 'terraform_lock_release.yml'
 
 - name: An unfinished VM with an IDE cloud-init drive resumes provisioning
   hosts: localhost
@@ -96,3 +103,132 @@
           virtio0: "local:100/vm-100-disk-0.qcow2,size=20G"
     vms_test_expected_provision_required: false
   tasks: *vms_state_tests
+
+- name: Completed Terraform guests must prove ownership before skipping
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    vms_name: test-vm
+    vms_test_owned_state:
+      values:
+        root_module:
+          resources:
+            - address: proxmox_vm_qemu.vm
+              mode: managed
+              values:
+                id: test-node/qemu/100
+                name: test-vm
+    vms_test_provision_play: >-
+      {{ lookup('file', (playbook_dir | dirname | dirname | dirname)
+         ~ '/playbooks/vms/provision_vm.yml') | from_yaml }}
+    vms_test_pre_task_names: "{{ vms_test_provision_play[0].tasks[0].block | map(attribute='name') | list }}"
+  tasks:
+    - name: Verify ownership precedes DNS side effects
+      ansible.builtin.assert:
+        that:
+          - >-
+            vms_test_pre_task_names.index('Validate Terraform ownership before DNS changes')
+            < vms_test_pre_task_names.index('Import delete_from_local_dns.yml from pihole role')
+          - >-
+            vms_test_pre_task_names.index('Validate Terraform ownership before DNS changes')
+            < vms_test_pre_task_names.index('Import add_to_local_dns.yml from pihole role')
+
+    - name: Create a private ownership test directory
+      ansible.builtin.tempfile:
+        state: directory
+        prefix: ansible-vms-ownership-test-
+      register: vms_test_ownership_directory
+
+    - name: Test ownership without any infrastructure commands
+      block:
+        - name: Simulate a completed guest and stale ownership facts
+          ansible.builtin.set_fact:
+            vms_provision_matches:
+              - vmid: 100
+            vms_provision_required: false
+            vms_terraform_state: "{{ vms_test_owned_state }}"
+
+        - name: Reject a completed unmanaged guest without a module
+          block:
+            - name: Run preflight for an existing guest without state
+              ansible.builtin.include_role:
+                name: vms
+                tasks_from: terraform_ownership_preflight
+              vars:
+                vms_terraform_module_dir: "{{ vms_test_ownership_directory.path }}/missing-module"
+
+            - name: Fail if a completed unmanaged guest was accepted
+              ansible.builtin.fail:
+                msg: "A completed unmanaged guest must not bypass ownership validation."
+          rescue:
+            - name: Verify rejection despite the completed-VM skip and stale facts
+              ansible.builtin.assert:
+                that:
+                  - ansible_failed_task.name == 'Require matching Terraform ownership before planning'
+                  - not vms_provision_required
+                  - vms_terraform_state == {}
+
+        - name: Create an isolated Terraform command fixture directory
+          ansible.builtin.file:
+            path: "{{ vms_test_ownership_directory.path }}/bin"
+            state: directory
+            mode: "0700"
+
+        - name: Supply a show-only Terraform command fixture
+          ansible.builtin.copy:
+            dest: "{{ vms_test_ownership_directory.path }}/bin/terraform"
+            mode: "0700"
+            content: |
+              #!/bin/bash
+              if [[ "$#" != 2 || "$1" != show || "$2" != -json ]]; then
+                exit 90
+              fi
+              exec /bin/cat ownership-fixture.json
+
+        - name: Supply the matching Terraform ownership fixture
+          ansible.builtin.copy:
+            dest: "{{ vms_test_ownership_directory.path }}/ownership-fixture.json"
+            content: "{{ vms_test_owned_state | to_json }}"
+            mode: "0600"
+
+        - name: Accept a completed guest with matching state without creating a VM
+          ansible.builtin.include_role:
+            name: vms
+            tasks_from: terraform_ownership_preflight
+            apply:
+              environment:
+                PATH: "{{ vms_test_ownership_directory.path }}/bin:{{ lookup('env', 'PATH') }}"
+          vars:
+            vms_terraform_module_dir: "{{ vms_test_ownership_directory.path }}"
+
+        - name: Verify ownership was read even though initialization is skipped
+          ansible.builtin.assert:
+            that:
+              - not vms_provision_required
+              - vms_terraform_managed_vms | length == 1
+              - vms_terraform_managed_vms[0]['values']['id'] == 'test-node/qemu/100'
+
+        - name: Simulate a genuinely new guest
+          ansible.builtin.set_fact:
+            vms_provision_matches: []
+            vms_provision_required: true
+
+        - name: Accept a new guest without a module or existing Terraform state
+          ansible.builtin.include_role:
+            name: vms
+            tasks_from: terraform_ownership_preflight
+          vars:
+            vms_terraform_module_dir: "{{ vms_test_ownership_directory.path }}/missing-module"
+
+        - name: Verify fresh provisioning remains allowed and stale facts were cleared
+          ansible.builtin.assert:
+            that:
+              - vms_provision_required
+              - vms_terraform_state == {}
+              - vms_terraform_managed_vms | length == 0
+      always:
+        - name: Remove the private ownership test directory
+          ansible.builtin.file:
+            path: "{{ vms_test_ownership_directory.path }}"
+            state: absent

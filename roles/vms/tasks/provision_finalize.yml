@@ -1,0 +1,31 @@
+---
+- name: Ensure the private finalization state directory exists
+  ansible.builtin.file:
+    path: "{{ vms_finalization_state_dir }}"
+    state: directory
+    mode: "0700"
+  delegate_to: localhost
+
+- name: Record pending finalization before removing the cloud-init drive
+  ansible.builtin.copy:
+    dest: "{{ vms_finalization_checkpoint }}"
+    content: "{{ {'vmid': vms_vmid | int, 'name': vms_name} | to_json }}"
+    mode: "0600"
+  delegate_to: localhost
+
+- name: Remove the cloud-init drive if it is still present
+  ansible.builtin.include_tasks: cloud_init_remove_disk.yml
+
+- name: Reboot the guest and verify finalization
+  ansible.builtin.include_tasks: reboot.yml
+
+- name: Mark finalization complete only after verified reboot
+  ansible.builtin.file:
+    path: "{{ vms_finalization_checkpoint }}"
+    state: absent
+  delegate_to: localhost
+
+- name: Clear pending finalization facts
+  ansible.builtin.set_fact:
+    vms_finalization_pending: false
+    vms_finalization_required: false

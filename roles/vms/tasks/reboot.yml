@@ -1,26 +1,8 @@
 ---
-
-- name: Include get_vms_vmid tasks
-  ansible.builtin.include_tasks: "get_vms_vmid.yml"
-
-- name: Include get_vms_proxmox_node tasks
-  ansible.builtin.include_tasks: "get_vms_proxmox_node.yml"
-  
-- name: Reboot VM
-  ansible.builtin.uri:
-    url: 'https://{{ global_proxmox_api_host }}:8006/api2/json/nodes/{{ vms_proxmox_node }}/qemu/{{ vms_vmid }}/status/reboot'
-    method: POST
-    headers:
-      Authorization: "PVEAPIToken={{ global_proxmox_api_user }}!{{ global_proxmox_api_token_id }}={{ global_proxmox_api_token }}"
-    follow_redirects: safe
-    validate_certs: false
-  delegate_to: localhost
-  when: vms_vmid is defined
-
-- name: Wait for system to become reachable after reboot
-  ansible.builtin.wait_for_connection:
+- name: Reboot the guest and verify a new boot ID and connection
+  ansible.builtin.reboot:
+    reboot_timeout: 600
     connect_timeout: 20
-    sleep: 5 # seconds to sleep between retries
-    delay: 10 # seconds to wait before first check
-    timeout: 600 # seconds before failing
-  delegate_to: localhost
+    boot_time_command: cat /proc/sys/kernel/random/boot_id
+    test_command: whoami
+  become: true

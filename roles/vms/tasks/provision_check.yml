@@ -43,9 +43,14 @@
       delegate_to: localhost
 
 - name: Decide whether provisioning is required
+  ansible.builtin.include_tasks: provision_checkpoint_check.yml
+
+- name: Decide whether provisioning is required
   ansible.builtin.include_tasks: provision_state.yml
 
 - name: Report an already provisioned VM
   ansible.builtin.debug:
-    msg: "VM already exists without a cloud-init drive; skipping creation, initialization, and reboot."
-  when: not (vms_provision_required | bool)
+    msg: "VM creation is complete and no pending finalization checkpoint remains."
+  when:
+    - not (vms_provision_required | bool)
+    - not (vms_finalization_required | bool)

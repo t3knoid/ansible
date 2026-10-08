@@ -1,0 +1,42 @@
+---
+- name: Initialize the safety scenario
+  ansible.builtin.set_fact:
+    vms_terraform_plan_json:
+      resource_changes: >-
+        {{ [{'address': vms_test_case.address | default('proxmox_vm_qemu.vm'),
+             'mode': 'managed', 'change': {'actions': vms_test_case.actions}}]
+           if vms_test_case.actions is defined else [] }}
+    vms_cloudinit_status:
+      rc: "{{ vms_test_case.rc | default(0) }}"
+      stdout: "{{ vms_test_case.stdout | default(vms_test_case.status_doc | default({}) | to_json) }}"
+
+- name: Exercise the real safety validation tasks
+  block:
+    - name: Run the appropriate safety guard
+      ansible.builtin.include_role:
+        name: vms
+        tasks_from: "{{ 'terraform_plan_check' if vms_test_case.kind == 'plan' else 'cloud_init_check' }}"
+      vars:
+        vms_terraform_plan_operation: "{{ vms_test_case.operation | default('provision') }}"
+        vms_terraform_allow_replacement: "{{ vms_test_case.replacement | default(false) }}"
+        vms_terraform_destroy_confirm: "{{ vms_test_case.confirm | default(false) }}"
+
+    - name: Verify that only accepted scenarios passed
+      ansible.builtin.assert:
+        that:
+          - not vms_test_case.reject
+          - >-
+            vms_test_case.kind != 'plan'
+            or (vms_terraform_plan_has_changes | bool) == vms_test_case.changes
+  rescue:
+    - name: Verify the expected safety rejection
+      ansible.builtin.assert:
+        that:
+          - vms_test_case.reject
+          - >-
+            ansible_failed_task.name in
+            ['Restrict the plan to the expected VM resource',
+             'Require explicit approval for destructive plan actions',
+             'Require a successful cloud-init command',
+             'Decode final cloud-init status',
+             'Require cloud-init to be done without errors']

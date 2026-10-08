@@ -1,17 +1,13 @@
 ---
-
-# Purpose: Removes virtual machines using either Terraform or Ansible, with confirmation and DNS cleanup. 
+# Purpose: Removes virtual machines using either Terraform or Ansible, with confirmation and DNS cleanup.
 
 - name: Remove the VM
   hosts: removable
   gather_facts: false
-  vars:
-    use_terraform: true
   roles:
     - global
 
   tasks:
-
     - name: The following virtual machines will be removed
       ansible.builtin.debug:
         msg: "{{ ansible_play_hosts }}"
@@ -20,30 +16,50 @@
       ansible.builtin.pause:
         prompt: "Are you sure you want to proceed? (yes/no)"
       register: confirm_remove
-      when: confirm_remove is not defined or confirm_remove == "yes"
 
     - name: Exit
       ansible.builtin.meta: end_play
-      when: confirm_remove.user_input | default('yes') != 'yes'
+      when: confirm_remove.user_input | default('no') != 'yes'
 
-    - name: Remove dns entry
-      ansible.builtin.import_role:
-        name: pihole
-        tasks_from: delete_from_local_dns.yml
+    - name: Remove the VM and DNS under the VM workflow lock
+      block:
+        - name: Acquire the VM workflow lock
+          ansible.builtin.import_role:
+            name: vms
+            tasks_from: terraform_lock_acquire
 
-    - name: Stop vm
-      ansible.builtin.import_role:
-        name: vms
-        tasks_from: stop
+        - name: Stop vm
+          ansible.builtin.import_role:
+            name: vms
+            tasks_from: stop
+          when: not (vms_use_terraform | default(false) | bool)
 
-    - name: Remove a virtual machine using Terraform
-      ansible.builtin.import_role:
-        name: vms
-        tasks_from: remove_with_terraform
-      when: vms_use_terraform | default(false)
+        - name: Remove a virtual machine using Terraform
+          ansible.builtin.import_role:
+            name: vms
+            tasks_from: remove_with_terraform
+          vars:
+            vms_terraform_destroy_confirm: "{{ confirm_remove.user_input | default('no') == 'yes' }}"
+          when: vms_use_terraform | default(false) | bool
 
-    - name: Remove a virtual machine using Ansible
-      ansible.builtin.import_role:
-        name: vms
-        tasks_from: remove
-      when: not (vms_use_terraform | default(false))
+        - name: Remove a virtual machine using Ansible
+          ansible.builtin.import_role:
+            name: vms
+            tasks_from: remove
+          when: not (vms_use_terraform | default(false) | bool)
+
+        - name: Clear the removed VM's finalization checkpoint
+          ansible.builtin.file:
+            path: "{{ vms_finalization_checkpoint }}"
+            state: absent
+          delegate_to: localhost
+
+        - name: Remove DNS only after successful VM removal
+          ansible.builtin.import_role:
+            name: pihole
+            tasks_from: delete_from_local_dns.yml
+      always:
+        - name: Release the VM workflow lock
+          ansible.builtin.import_role:
+            name: vms
+            tasks_from: terraform_lock_release

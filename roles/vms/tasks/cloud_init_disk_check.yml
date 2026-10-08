@@ -1,0 +1,19 @@
+---
+- name: Find cloud-init drives only among VM disk devices
+  ansible.builtin.set_fact:
+    vms_cloud_init_disk_candidates: >-
+      {{ vms_vm_config.json.data | dict2items
+         | selectattr('key', 'match', '^(ide|sata|scsi|virtio)[0-9]+$')
+         | selectattr('value', 'search', 'cloudinit') | list }}
+
+- name: Reject ambiguous cloud-init drive detection
+  ansible.builtin.assert:
+    that:
+      - vms_cloud_init_disk_candidates | length <= 1
+    fail_msg: "Multiple cloud-init drives were found; refusing to select a device for deletion."
+
+- name: Reset the selected cloud-init device from current configuration
+  ansible.builtin.set_fact:
+    vms_cloud_init_disk: >-
+      {{ vms_cloud_init_disk_candidates[0].key
+         if vms_cloud_init_disk_candidates | length == 1 else '' }}

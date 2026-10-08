@@ -1,36 +1,36 @@
 ---
-
-- name: Ensure host is reachable via SSH
+- name: Wait for SSH before checking cloud-init
   ansible.builtin.wait_for:
-    host: "{{ inventory_hostname }}"
-    port: 22
+    host: "{{ ansible_host | default(inventory_hostname) }}"
+    port: "{{ ansible_port | default(22) }}"
     timeout: 600
     state: started
   delegate_to: localhost
 
-# Does not require Python on the target VM
-- name: Run 'cloud-init status' and wait for completion
-  ansible.builtin.raw: cloud-init status --wait
-  register: vms_cloudinit_status
-  changed_when: false
-  failed_when: false
+- name: Verify cloud-init completion within the polling deadline
+  block:
+    - name: Poll structured cloud-init status without requiring Python
+      ansible.builtin.raw: >-
+        timeout {{ vms_cloud_init_command_timeout | int }}s cloud-init status --format=json
+      register: vms_cloudinit_status
+      changed_when: false
+      failed_when: false
+      until: >-
+        vms_cloudinit_status.rc != 0
+        or (vms_cloudinit_status.stdout | trim | from_json).get('status', '')
+           not in ['running', 'not started']
+      retries: "{{ vms_cloud_init_poll_retries | int }}"
+      delay: "{{ vms_cloud_init_poll_delay | int }}"
+      no_log: true
 
-- name: Reboot VM if cloud-init required it
-  ansible.builtin.include_tasks: "reboot.yml"
-  when: "'error' in (vms_cloudinit_status.stdout | lower)"
-
-- name: Ensure host is reachable via SSH
-  ansible.builtin.wait_for:
-    host: "{{ inventory_hostname }}"
-    port: 22
-    timeout: 600
-    state: started
-  delegate_to: localhost
-
-# Second attempt
-- name: Wait for cloud-init to finish (second attempt)
-  ansible.builtin.raw: cloud-init status --wait
-  register: vms_cloudinit_status_second
-  changed_when: false
-  failed_when: "'error' in vms_cloudinit_status_second.stdout"
-  when: "'error' in vms_cloudinit_status.stdout"
+    - name: Validate the final cloud-init result
+      ansible.builtin.include_tasks: cloud_init_check.yml
+  rescue:
+    - name: Report incomplete or failed cloud-init
+      ansible.builtin.fail:
+        msg: >-
+          Cloud-init did not complete successfully on {{ inventory_hostname }}.
+          Return code: {{ vms_cloudinit_status.rc | default('unknown') }}.
+          Initialization is not marked complete and no automatic reboot is attempted.
+          Inspect cloud-init status --long, /var/log/cloud-init.log, and
+          /var/log/cloud-init-output.log from the guest console before retrying.

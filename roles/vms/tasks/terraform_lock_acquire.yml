@@ -1,0 +1,36 @@
+---
+- name: Acquire a control-node lock for this VM
+  when: vms_terraform_lock_depth | default(0) | int == 0
+  block:
+    - name: Ensure the private workflow lock directory exists
+      ansible.builtin.file:
+        path: "{{ vms_terraform_lock_root }}"
+        state: directory
+        mode: "0700"
+      delegate_to: localhost
+
+    - name: Atomically acquire the VM workflow lock
+      ansible.builtin.command:
+        argv:
+          - mkdir
+          - -m
+          - "0700"
+          - "--"
+          - "{{ vms_terraform_lock_dir }}"
+      register: vms_terraform_lock_attempt
+      changed_when: vms_terraform_lock_attempt.rc == 0
+      failed_when: false
+      delegate_to: localhost
+
+    - name: Refuse overlapping VM workflows
+      ansible.builtin.assert:
+        that:
+          - vms_terraform_lock_attempt.rc == 0
+        fail_msg: >-
+          Another workflow owns {{ vms_terraform_lock_dir }}. No mutation is allowed.
+          If a control-node process was terminated, confirm that no VM workflow is
+          running before manually removing its stale lock directory.
+
+- name: Record nested ownership of the VM workflow lock
+  ansible.builtin.set_fact:
+    vms_terraform_lock_depth: "{{ (vms_terraform_lock_depth | default(0) | int) + 1 }}"

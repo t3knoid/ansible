@@ -1,4 +1,15 @@
 ---
+- name: Require the VM workflow lock before Terraform removal
+  ansible.builtin.assert:
+    that:
+      - vms_terraform_lock_depth | default(0) | int > 0
+    fail_msg: "Terraform removal must run inside the locked removal playbook."
+
+- name: Require confirmed Terraform removal
+  ansible.builtin.assert:
+    that:
+      - vms_terraform_destroy_confirm | bool
+    fail_msg: "Terraform removal requires explicit confirmation from the removal playbook."
 
 - name: Check if Terraform config exists
   ansible.builtin.stat:
@@ -6,15 +17,109 @@
   register: vms_tf_config
   delegate_to: localhost
 
-- name: Skip destroy if no config found
-  ansible.builtin.meta: end_play
-  when: not vms_tf_config.stat.exists
+- name: Require existing Terraform configuration
+  ansible.builtin.assert:
+    that:
+      - vms_tf_config.stat.exists
+      - vms_tf_config.stat.isreg | default(false)
+    fail_msg: "Terraform configuration is missing; refusing removal and preserving DNS."
+
+- name: Restrict the Terraform module directory
+  ansible.builtin.file:
+    path: "{{ vms_terraform_module_dir }}"
+    state: directory
+    mode: "0700"
   delegate_to: localhost
 
-- name: Run terraform destroy
-  ansible.builtin.command:
-    cmd: terraform destroy -auto-approve
-    chdir: "{{ vms_terraform_module_dir }}"
-  register: terraform_destroy
-  changed_when: "'Destroy complete!' in terraform_destroy.stdout"
-  delegate_to: localhost
+- name: Discover the selected Proxmox VM before removal
+  ansible.builtin.include_tasks: provision_check.yml
+
+- name: Verify and remove the Terraform-owned VM
+  block:
+    - name: Initialize the existing Terraform module for removal
+      ansible.builtin.command:
+        cmd: terraform init -input=false
+        chdir: "{{ vms_terraform_module_dir }}"
+      changed_when: false
+      delegate_to: localhost
+      no_log: true
+
+    - name: Inspect Terraform ownership before removal
+      ansible.builtin.command:
+        cmd: terraform show -json
+        chdir: "{{ vms_terraform_module_dir }}"
+      register: vms_terraform_remove_state_output
+      changed_when: false
+      delegate_to: localhost
+      no_log: true
+
+    - name: Decode removal state privately
+      ansible.builtin.set_fact:
+        vms_terraform_state: "{{ vms_terraform_remove_state_output.stdout | from_json }}"
+      no_log: true
+
+    - name: Validate ownership before any destructive operation
+      ansible.builtin.include_tasks: terraform_state_check.yml
+
+    - name: Allocate an owner-only unique destroy plan
+      ansible.builtin.tempfile:
+        path: "{{ vms_terraform_module_dir }}"
+        state: file
+        prefix: .ansible-destroy-
+        suffix: .tfplan
+      register: vms_terraform_plan_file
+      delegate_to: localhost
+
+    - name: Plan Terraform destruction privately
+      ansible.builtin.command:
+        argv:
+          - terraform
+          - plan
+          - -destroy
+          - -input=false
+          - "-out={{ vms_terraform_plan_file.path }}"
+        chdir: "{{ vms_terraform_module_dir }}"
+      changed_when: false
+      delegate_to: localhost
+      no_log: true
+
+    - name: Inspect the saved destroy plan privately
+      ansible.builtin.command:
+        argv:
+          - terraform
+          - show
+          - -json
+          - "{{ vms_terraform_plan_file.path }}"
+        chdir: "{{ vms_terraform_module_dir }}"
+      register: vms_terraform_destroy_plan_output
+      changed_when: false
+      delegate_to: localhost
+      no_log: true
+
+    - name: Decode the saved destroy plan privately
+      ansible.builtin.set_fact:
+        vms_terraform_plan_json: "{{ vms_terraform_destroy_plan_output.stdout | from_json }}"
+      no_log: true
+
+    - name: Validate confirmed destroy-only actions
+      ansible.builtin.include_tasks: terraform_plan_check.yml
+      vars:
+        vms_terraform_plan_operation: destroy
+
+    - name: Apply the confirmed destroy plan
+      ansible.builtin.command:
+        argv:
+          - terraform
+          - apply
+          - -input=false
+          - "{{ vms_terraform_plan_file.path }}"
+        chdir: "{{ vms_terraform_module_dir }}"
+      changed_when: vms_terraform_plan_has_changes | bool
+      delegate_to: localhost
+      no_log: true
+  rescue:
+    - name: Preserve private Terraform removal diagnostics
+      ansible.builtin.include_tasks: terraform_failure.yml
+  always:
+    - name: Clean up private Terraform artifacts after removal
+      ansible.builtin.include_tasks: terraform_cleanup.yml

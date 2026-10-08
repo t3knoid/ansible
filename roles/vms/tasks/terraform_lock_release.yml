@@ -1,0 +1,14 @@
+---
+- name: Release this invocation's VM workflow lock
+  when: vms_terraform_lock_depth | default(0) | int > 0
+  block:
+    - name: Remove the lock only for the outermost invocation
+      ansible.builtin.file:
+        path: "{{ vms_terraform_lock_dir }}"
+        state: absent
+      when: vms_terraform_lock_depth | int == 1
+      delegate_to: localhost
+
+    - name: Release nested lock ownership
+      ansible.builtin.set_fact:
+        vms_terraform_lock_depth: "{{ (vms_terraform_lock_depth | int) - 1 }}"
