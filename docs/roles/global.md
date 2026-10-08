@@ -69,6 +69,7 @@ Provides global defaults common to all roles. It provides the IP definition of e
 | `pg-3` | `192.168.20.173` |  |
 | `pg-4` | `192.168.20.174` |  |
 | `jenkins-0` | `192.168.20.180` |  |
+| `rosie-0` | `192.168.20.182` |  |
 | `ha-0` | `192.168.20.182` |  |
 | `redmine-0` | `192.168.20.186` |  |
 | `prometheus-0` | `192.168.20.192` |  |
