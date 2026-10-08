@@ -42,9 +42,9 @@ _No constant variables found._
 - Set ownership for Node Exporter directory
 - Copy Node Exporter binary to /usr/local/bin
 - Create Node Exporter textfile collector directory
-- Install Linux updates metrics script for Ubuntu
-- Seed Linux updates metrics file for Ubuntu
-- Schedule Linux updates metrics cron job for Ubuntu
+- Install Linux updates metrics script for apt-based hosts
+- Seed Linux updates metrics file for apt-based hosts
+- Schedule Linux updates metrics cron job for apt-based hosts
 - Install failed services metrics script for systemd hosts
 - Seed failed services metrics file for systemd hosts
 - Schedule failed services metrics cron job for systemd hosts
