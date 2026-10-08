@@ -26,6 +26,9 @@ Installs Prometheus Node Exporter
 | `node_exporter_setup_linux_updates_script_path` | `"/usr/local/bin/check_updates.sh"` |  |
 | `node_exporter_setup_linux_updates_metrics_path` | `"{{ node_exporter_setup_textfile_collector_dir }}/linux_updates.prom"` |  |
 | `node_exporter_setup_linux_updates_cron_minute` | `"*/30"` |  |
+| `node_exporter_setup_pve_updates_script_path` | `"/usr/local/bin/check_pve_updates.sh"` |  |
+| `node_exporter_setup_pve_updates_metrics_path` | `"{{ node_exporter_setup_textfile_collector_dir }}/pve_updates.prom"` |  |
+| `node_exporter_setup_pve_updates_cron_minute` | `"*/30"` |  |
 | `node_exporter_setup_failed_services_script_path` | `"/usr/local/bin/check_failed_services.sh"` |  |
 | `node_exporter_setup_failed_services_metrics_path` | `"{{ node_exporter_setup_textfile_collector_dir }}/failed_services.prom"` |  |
 | `node_exporter_setup_failed_services_cron_minute` | `"*/2"` |  |
@@ -45,6 +48,10 @@ _No constant variables found._
 - Install Linux updates metrics script for apt-based hosts
 - Seed Linux updates metrics file for apt-based hosts
 - Schedule Linux updates metrics cron job for apt-based hosts
+- Check for Proxmox VE installation
+- Install Proxmox VE updates metrics script
+- Seed Proxmox VE updates metrics file
+- Schedule Proxmox VE updates metrics cron job
 - Install failed services metrics script for systemd hosts
 - Seed failed services metrics file for systemd hosts
 - Schedule failed services metrics cron job for systemd hosts
