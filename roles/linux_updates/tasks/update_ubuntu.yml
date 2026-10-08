@@ -1,5 +1,0 @@
----
-- name: Run Ubuntu updates through the linux role
-  ansible.builtin.import_role:
-    name: linux
-    tasks_from: update_ubuntu
