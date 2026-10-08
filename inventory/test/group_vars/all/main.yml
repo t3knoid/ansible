@@ -25,4 +25,4 @@ vms_autoinstall: true
 vms_enable_serial_terminal: false
 vms_additional_packages: []
 
-vms_use_terraform: true
+vms_use_terraform: false
