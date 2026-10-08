@@ -4,7 +4,7 @@
   ansible.builtin.wait_for:
     host: "{{ inventory_hostname }}"
     port: 22
-    timeout: 300
+    timeout: 600
     state: started
   delegate_to: localhost
 
@@ -23,7 +23,7 @@
   ansible.builtin.wait_for:
     host: "{{ inventory_hostname }}"
     port: 22
-    timeout: 300
+    timeout: 600
     state: started
   delegate_to: localhost
 
