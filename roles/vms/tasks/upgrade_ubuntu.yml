@@ -6,4 +6,3 @@
     autoclean: yes
     purge: true
     upgrade: dist
-

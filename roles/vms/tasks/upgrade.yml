@@ -1,4 +1,3 @@
 ---
-
-- name: Include
-  ansible.builtin.include_tasks: "upgrade_{{ ansible_facts['os_family']|lower }}.yml"
+- name: Include distribution-specific upgrade tasks
+  ansible.builtin.include_tasks: "upgrade_{{ ansible_facts['distribution'] | lower }}.yml"

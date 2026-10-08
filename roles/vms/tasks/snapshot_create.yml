@@ -1,5 +1,4 @@
 ---
-
 - name: Include get_vms_vmid tasks
   ansible.builtin.include_tasks: "get_vms_vmid.yml"
   when: vms_vmid is not defined
@@ -11,7 +10,7 @@
     api_password: "{{ global_proxmox_api_password }}"
     vmid: "{{ vms_vmid | int }}"
     state: present
-    snapname: "ansible_snapshot"
+    snapname: "{{ vms_snapshot_name | default('ansible_snapshot') }}"
     vmstate: false
     validate_certs: false
     description: "Created by ansible"
