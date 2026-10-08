@@ -67,6 +67,21 @@
   notify: Restart nginx
   tags: rproxy_setup_sites
 
+- name: Restore OAuth2 authentication after rendering frontend sites
+  ansible.builtin.include_role:
+    name: oauth2_proxy_setup
+    tasks_from: add_oauth2_directives_to_nginx_config.yml
+    apply:
+      tags: rproxy_setup_sites
+  loop: "{{ rproxy_setup_sites }}"
+  loop_control:
+    label: "{{ site.server_name }}"
+    loop_var: site
+  when:
+    - rproxy_setup_delegate_host in groups['rproxy_main']
+    - site.use_oauth2 | default(false) | bool
+  tags: rproxy_setup_sites
+
 - name: Enable Nginx site configuration
   ansible.builtin.file:
     src: "{{ nginx_setup_homedir }}/sites-available/{{ rproxy_setup_site.server_name }}.conf"
