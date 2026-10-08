@@ -93,6 +93,45 @@
       rm -f "$tmp_file"'
   when: ansible_distribution in ['Ubuntu', 'Debian']
 
+- name: Check for Proxmox VE installation
+  ansible.builtin.stat:
+    path: /usr/bin/pveversion
+  register: node_exporter_setup_pveversion
+
+- name: Install Proxmox VE updates metrics script
+  ansible.builtin.template:
+    src: check_pve_updates.sh.j2
+    dest: "{{ node_exporter_setup_pve_updates_script_path }}"
+    owner: root
+    group: root
+    mode: "0755"
+  when: node_exporter_setup_pveversion.stat.exists
+
+- name: Seed Proxmox VE updates metrics file
+  ansible.builtin.shell: |
+    set -euo pipefail
+    tmp_file="$(mktemp)"
+    {{ node_exporter_setup_pve_updates_script_path }} > "$tmp_file"
+    install -o root -g {{ node_exporter_setup_group }} -m 0644 "$tmp_file" "{{ node_exporter_setup_pve_updates_metrics_path }}"
+    rm -f "$tmp_file"
+  args:
+    executable: /bin/bash
+  changed_when: true
+  when: node_exporter_setup_pveversion.stat.exists
+
+- name: Schedule Proxmox VE updates metrics cron job
+  ansible.builtin.cron:
+    name: node_exporter_pve_updates_metrics
+    minute: "{{ node_exporter_setup_pve_updates_cron_minute }}"
+    user: root
+    job: >-
+      /bin/bash -c 'set -euo pipefail;
+      tmp_file="$(mktemp)";
+      {{ node_exporter_setup_pve_updates_script_path }} > "$tmp_file";
+      install -o root -g {{ node_exporter_setup_group }} -m 0644 "$tmp_file" {{ node_exporter_setup_pve_updates_metrics_path }};
+      rm -f "$tmp_file"'
+  when: node_exporter_setup_pveversion.stat.exists
+
 - name: Install failed services metrics script for systemd hosts
   ansible.builtin.template:
     src: check_failed_services.sh.j2
