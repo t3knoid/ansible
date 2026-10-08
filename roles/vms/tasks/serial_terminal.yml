@@ -6,8 +6,10 @@
     regexp: '^GRUB_CMDLINE_LINUX='
     line: "GRUB_CMDLINE_LINUX=\"quiet console=tty0 console=ttyS0,115200\""
   become: true
+  ansible_python_interpreter: /usr/bin/python3
 
 - name: Updated grub
   ansible.builtin.command: update-grub
   changed_when: true
   become: true
+  ansible_python_interpreter: /usr/bin/python3
