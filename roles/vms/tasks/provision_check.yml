@@ -1,0 +1,51 @@
+---
+- name: Get cluster VM resources before provisioning
+  ansible.builtin.uri:
+    url: "https://{{ global_proxmox_api_host }}:8006/api2/json/cluster/resources?type=vm"
+    method: GET
+    headers:
+      Authorization: "PVEAPIToken={{ global_proxmox_api_user }}!{{ global_proxmox_api_token_id }}={{ global_proxmox_api_token }}"
+    validate_certs: false
+  register: vms_provision_resources
+  delegate_to: localhost
+
+- name: Find matching virtual machines
+  ansible.builtin.set_fact:
+    vms_provision_matches: >-
+      {{ vms_provision_resources.json.data
+         | selectattr('name', 'defined')
+         | selectattr('name', 'equalto', vms_name | default(inventory_hostname))
+         | list }}
+
+- name: Reject ambiguous names and non-VM resources
+  ansible.builtin.assert:
+    that:
+      - vms_provision_matches | length <= 1
+      - vms_provision_matches | length == 0 or vms_provision_matches[0].type == 'qemu'
+      - vms_provision_matches | length == 0 or not (vms_provision_matches[0].template | default(false) | bool)
+    fail_msg: "The requested VM name must identify at most one QEMU guest and must not identify a template."
+
+- name: Inspect an existing VM before provisioning
+  when: vms_provision_matches | length == 1
+  block:
+    - name: Record the existing VM ID
+      ansible.builtin.set_fact:
+        vms_vmid: "{{ vms_provision_matches[0].vmid }}"
+
+    - name: Get existing VM active configuration
+      ansible.builtin.uri:
+        url: "https://{{ global_proxmox_api_host }}:8006/api2/json/nodes/{{ vms_provision_matches[0].node }}/qemu/{{ vms_vmid }}/config?current=1"
+        method: GET
+        headers:
+          Authorization: "PVEAPIToken={{ global_proxmox_api_user }}!{{ global_proxmox_api_token_id }}={{ global_proxmox_api_token }}"
+        validate_certs: false
+      register: vms_provision_config
+      delegate_to: localhost
+
+- name: Decide whether provisioning is required
+  ansible.builtin.include_tasks: provision_state.yml
+
+- name: Report an already provisioned VM
+  ansible.builtin.debug:
+    msg: "VM already exists without a cloud-init drive; skipping creation, initialization, and reboot."
+  when: not (vms_provision_required | bool)

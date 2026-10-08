@@ -1,0 +1,8 @@
+---
+- name: Provision only new VMs or VMs with a cloud-init drive
+  ansible.builtin.set_fact:
+    vms_provision_required: >-
+      {{ vms_provision_matches | length == 0
+         or (vms_provision_config.json.data | dict2items
+             | selectattr('key', 'match', '^(ide|sata|scsi|virtio)[0-9]+$')
+             | selectattr('value', 'search', 'cloudinit') | list | length > 0) }}
