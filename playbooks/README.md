@@ -77,6 +77,7 @@
 | [`linux/deploy_autofs.yml`](../docs/playbooks/deploy_autofs.md) | Deploys and configures autofs on designated servers. |
 | [`linux/deploy_fstab.yml`](../docs/playbooks/deploy_fstab.md) | Manages fstab on designated servers. |
 | [`linux/deploy_updates.yml`](../docs/playbooks/deploy_updates.md) | Deploy updates on Linux hosts |
+| [`linux/release_upgrade_ubuntu.yml`](../docs/playbooks/release_upgrade_ubuntu.md) | Upgrades one Ubuntu 24.04 VM to Ubuntu 26.04 LTS. |
 | [`linux/remove_autofs.yml`](../docs/playbooks/remove_autofs.md) | Removes autofs from designated servers. |
 | [`loki/deploy_loki.yml`](../docs/playbooks/deploy_loki.md) | Deploy Grafana Loki on loki hosts Usage: ansible-playbook -i inventory/<inventory>/inventory.ini playbooks/loki/deploy_loki.yml |
 | [`minecraft/check_bedrock_version.yml`](../docs/playbooks/check_bedrock_version.md) | Check latest Bedrock version on Bedrock hosts |
@@ -195,6 +196,5 @@
 | [`vms/start_vm.yml`](../docs/playbooks/start_vm.md) | Starts a virtual machine. |
 | [`vms/stop_vm.yml`](../docs/playbooks/stop_vm.md) | Stops a virtual machine. |
 | [`vms/update_known_hosts.yml`](../docs/playbooks/update_known_hosts.md) | Updates the known_hosts file with the SSH fingerprints of all virtual machines. |
-| [`vms/upgrade_vm_os.yml`](../docs/playbooks/upgrade_vm_os.md) | Upgrades the operating system of virtual machines. |
 | [`vpn/deploy_vpn.yml`](../docs/playbooks/deploy_vpn.md) | Deploy the IPsec VPN Docker service on VPN hosts. |
 | [`wikipedia/deploy_wikipedia.yml`](../docs/playbooks/deploy_wikipedia.md) | Deploys a Wikipedia instance using various setup roles. |
