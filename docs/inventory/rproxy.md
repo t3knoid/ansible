@@ -69,13 +69,13 @@ _No group variables defined._
 
 ### `rproxy`
 - `rproxy_main`
-- `rproxy_secondary`
 - `rproxy_primary`
+- `rproxy_secondary`
 
 ### `nginx_exporter`
 - `rproxy_main`
-- `rproxy_secondary`
 - `rproxy_primary`
+- `rproxy_secondary`
 
 ### `nginxlog_exporter`
 - `rproxy_main`
