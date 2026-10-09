@@ -14,7 +14,7 @@
     trap 'rm -f "$temporary_file"' EXIT
     timestamp="$(date +%s)"
     cat > "$temporary_file" <<EOF
-    # HELP linux_release_upgrade_phase Current phase: 1=preparing, 2=upgrading, 3=verifying, 4=complete, 5=failed.
+    # HELP linux_release_upgrade_phase Current phase: 1=preparing, 2=upgrading, 3=verifying, 4=complete, 5=failed, 6=blocked.
     # TYPE linux_release_upgrade_phase gauge
     linux_release_upgrade_phase {{ linux_release_upgrade_phase }}
     # HELP linux_release_upgrade_phase_started_timestamp_seconds Unix timestamp when the current phase began.
