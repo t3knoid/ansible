@@ -1,0 +1,12 @@
+---
+galaxy_info:
+  role_name: plex_exporter_setup
+  author: Frank Refol
+  description: Deploy Prometheus Plex Exporter as a Docker service.
+  license: MIT
+  min_ansible_version: "2.9"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - noble
+dependencies: []

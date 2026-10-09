@@ -1,0 +1,35 @@
+---
+- name: Require Plex exporter connection settings
+  ansible.builtin.assert:
+    that:
+      - plex_exporter_setup_server_url | length > 0
+      - plex_exporter_setup_token | length > 0
+    fail_msg: >-
+      Set vault_plex_exporter_token in inventory/plex/group_vars/all/vault.yml
+      before deploying the Plex exporter.
+
+- name: Create Plex exporter secret directory
+  ansible.builtin.file:
+    path: "{{ plex_exporter_setup_secret_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+
+- name: Install Plex exporter token environment file
+  ansible.builtin.template:
+    src: exporter.env.j2
+    dest: "{{ plex_exporter_setup_env_file }}"
+    owner: root
+    group: root
+    mode: "0600"
+  no_log: true
+
+- name: Deploy Plex exporter container
+  ansible.builtin.include_role:
+    name: docker_service_deploy
+  vars:
+    docker_service_deploy_config_dir: "{{ plex_exporter_setup_config_dir }}"
+    docker_service_deploy_backups_dir: "{{ plex_exporter_setup_backups_dir }}"
+    docker_service_deploy_compose_template: "docker-compose.yml.j2"
+    docker_service_deploy_container_name: "{{ plex_exporter_setup_container_name }}"

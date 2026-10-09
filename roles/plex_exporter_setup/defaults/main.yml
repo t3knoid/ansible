@@ -1,0 +1,11 @@
+---
+plex_exporter_setup_version: "main"
+plex_exporter_setup_image: "ghcr.io/jsclayton/prometheus-plex-exporter:{{ plex_exporter_setup_version }}"
+plex_exporter_setup_container_name: "prometheus-plex-exporter"
+plex_exporter_setup_port: 9000
+plex_exporter_setup_server_url: ""
+plex_exporter_setup_token: ""
+plex_exporter_setup_config_dir: "/opt/plex-exporter"
+plex_exporter_setup_backups_dir: "/nfs/backups/plex-exporter"
+plex_exporter_setup_secret_dir: "/etc/plex-exporter"
+plex_exporter_setup_env_file: "{{ plex_exporter_setup_secret_dir }}/exporter.env"
