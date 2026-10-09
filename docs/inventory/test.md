@@ -14,6 +14,9 @@ _Inventory for `test` hosts_
 ### `python`
 - `test-0`
 
+### `linux`
+- `test-0`
+
 ## ⚙️ Group Variables
 _No group variables defined._
 
