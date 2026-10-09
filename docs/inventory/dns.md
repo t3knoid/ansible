@@ -11,6 +11,10 @@ _Inventory for `dns` hosts_
 ### `vms`
 - `dns-0`
 
+### `linux`
+- `dns-0`
+- `dns-1`
+
 ### `dns`
 - `dns-0`
 - `dns-1`
@@ -20,10 +24,6 @@ _Inventory for `dns` hosts_
 
 ### `secondary_dns`
 - `dns-0`
-
-### `linux`
-- `dns-0`
-- `dns-1`
 
 ### `python`
 - `dns-0`
