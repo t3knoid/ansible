@@ -185,7 +185,6 @@
 | [`vms/prep_disk.yml`](../docs/playbooks/prep_disk.md) | Prepares and formats local disks on virtual machines and bare metal servers. |
 | [`vms/provision_vm.yml`](../docs/playbooks/provision_vm.md) | Provisions virtual machines using either Terraform or Ansible, managing DNS entries accordingly. |
 | [`vms/reboot_vm.yml`](../docs/playbooks/reboot_vm.md) | Reboots virtual machines gracefully. |
-| [`vms/release_upgrade_ubuntu.yml`](../docs/playbooks/release_upgrade_ubuntu.md) | Upgrades one Ubuntu 24.04 VM to Ubuntu 26.04 LTS. |
 | [`vms/remove_vm.yml`](../docs/playbooks/remove_vm.md) | Removes virtual machines using either Terraform or Ansible, with confirmation and DNS cleanup. |
 | [`vms/remove_vm_snapshot.yml`](../docs/playbooks/remove_vm_snapshot.md) | Removes snapshots from virtual machines. |
 | [`vms/revert_vm_snapshot.yml`](../docs/playbooks/revert_vm_snapshot.md) | Reverts virtual machines to a specified snapshot and starts them. |
