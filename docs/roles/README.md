@@ -39,7 +39,6 @@
 | [`lazylibrarian_setup`](./lazylibrarian_setup.md) | Installs and configures LazyLibrarian on Debian/Ubuntu systems. It uses a Docker image distributed by [linuxserver](https://hub.docker.com/r/linuxserver/lazylibrarian). |
 | [`lidarr_setup`](./lidarr_setup.md) | Installs and configures Lidarr on Debian/Ubuntu systems. It uses a container distributed by [linuxserver](https://hub.docker.com/r/linuxserver/lidarr). |
 | [`linux`](./linux.md) | Provides common Linux host management tasks. |
-| [`linux_updates`](./linux_updates.md) | The linux role contains tasks related to updating Linux updates. |
 | [`loki_setup`](./loki_setup.md) | Install and configure Grafana Loki using the upstream release archive. |
 | [`mediawiki_setup`](./mediawiki_setup.md) | Installs and configures MediaWiki on Ubuntu systems. |
 | [`minecraft_setup`](./minecraft_setup.md) | Installs Minecraft Server on Ubuntu and Debian systems (https://www.minecraft.net/en-us/download/server). |

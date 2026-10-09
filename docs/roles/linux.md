@@ -19,6 +19,7 @@ Provides common Linux host management tasks.
 | `linux_updates_metrics_path` | `"{{ linux_updates_textfile_collector_dir }}/linux_updates.prom"` |  |
 | `linux_updates_last_run_metric_path` | `"{{ linux_updates_textfile_collector_dir }}/linux_updates_last_run.prom"` |  |
 | `linux_updates_reboot_delay_seconds` | `180` | self-targeted Semaphore job) finishes before the host goes down. |
+| `linux_release_upgrade_target_version` | `"26.04"` |  |
 
 ## 📦 Vars
 _No constant variables found._
