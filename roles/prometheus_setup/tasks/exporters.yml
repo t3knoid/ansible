@@ -51,7 +51,19 @@
 
 - name: Merge current inventory node exporter targets into target map
   ansible.builtin.set_fact:
-    prometheus_setup_node_static_config_map: "{{ prometheus_setup_node_static_config_map | combine({item: {'targets': [global_ip_addresses[item] ~ ':' ~ (hostvars[item].node_exporter_port | string)], 'labels': {'instance': item, 'group': item | regex_replace('-[0-9]+$', '')}}}) }}"
+    prometheus_setup_node_static_config_map: >-
+      {{ prometheus_setup_node_static_config_map | combine({item: {
+        'targets': [global_ip_addresses[item] ~ ':' ~
+          (hostvars[item].node_exporter_port | default(
+            prometheus_setup_node_exporter_pve_port
+            if item in groups.get('pvenodes', [])
+            else prometheus_setup_node_exporter_port
+          ) | string)],
+        'labels': {
+          'instance': item,
+          'group': item | regex_replace('-[0-9]+$', '')
+        }
+      }}) }}
   loop: "{{ groups['node_exporter'] | default([]) }}"
 
 - name: Build merged node exporter scrape targets
@@ -69,7 +81,12 @@
 
 - name: Merge current inventory nginx exporter targets into target map
   ansible.builtin.set_fact:
-    prometheus_setup_nginx_exporter_static_config_map: "{{ prometheus_setup_nginx_exporter_static_config_map | combine({item: {'targets': [global_ip_addresses[item] ~ ':' ~ (hostvars[item].nginx_prometheus_exporter_port | string)], 'labels': {'instance': item, 'group': item | regex_replace('-[0-9]+$', '')}}}) }}"
+    prometheus_setup_nginx_exporter_static_config_map: >-
+      {{ prometheus_setup_nginx_exporter_static_config_map | combine({item: {
+        'targets': [global_ip_addresses[item] ~ ':' ~
+          (hostvars[item].nginx_prometheus_exporter_port | default(prometheus_setup_nginx_exporter_port) | string)],
+        'labels': {'instance': item, 'group': item | regex_replace('-[0-9]+$', '')}
+      }}) }}
   loop: "{{ groups['nginx_exporter'] | default([]) }}"
 
 - name: Build merged nginx exporter scrape targets
@@ -110,7 +127,12 @@
 
 - name: Merge current inventory postgres exporter targets into target map
   ansible.builtin.set_fact:
-    prometheus_setup_postgres_exporter_static_config_map: "{{ prometheus_setup_postgres_exporter_static_config_map | combine({item: {'targets': [global_ip_addresses[item] ~ ':' ~ (hostvars[item].postgres_exporter_port | string)], 'labels': {'instance': item, 'group': item | regex_replace('-[0-9]+$', '')}}}) }}"
+    prometheus_setup_postgres_exporter_static_config_map: >-
+      {{ prometheus_setup_postgres_exporter_static_config_map | combine({item: {
+        'targets': [global_ip_addresses[item] ~ ':' ~
+          (hostvars[item].postgres_exporter_port | default(prometheus_setup_postgres_exporter_port) | string)],
+        'labels': {'instance': item, 'group': item | regex_replace('-[0-9]+$', '')}
+      }}) }}
   loop: "{{ groups['postgres_exporter'] | default([]) }}"
 
 - name: Build merged postgres exporter scrape targets
@@ -132,7 +154,12 @@
 
 - name: Merge current inventory pve exporter targets into target map
   ansible.builtin.set_fact:
-    prometheus_setup_pve_exporter_static_config_map: "{{ prometheus_setup_pve_exporter_static_config_map | combine({item: {'targets': [global_ip_addresses[item] ~ ':' ~ (hostvars[item].pve_exporter_setup_port | string)], 'labels': {'instance': item, 'group': item | regex_replace('-[0-9]+$', '')}}}) }}"
+    prometheus_setup_pve_exporter_static_config_map: >-
+      {{ prometheus_setup_pve_exporter_static_config_map | combine({item: {
+        'targets': [global_ip_addresses[item] ~ ':' ~
+          (hostvars[item].pve_exporter_setup_port | default(prometheus_setup_pve_exporter_port) | string)],
+        'labels': {'instance': item, 'group': item | regex_replace('-[0-9]+$', '')}
+      }}) }}
   loop: "{{ groups['pve_exporter'] | default([]) }}"
 
 - name: Build merged pve exporter scrape targets
