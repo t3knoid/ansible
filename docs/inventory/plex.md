@@ -11,6 +11,12 @@ _Inventory for `plex` hosts_
 ### `plex`
 - `plex-0`
 
+### `docker`
+- `plex-0`
+
+### `plex_exporter`
+- `plex-0`
+
 ### `pxe_client`
 - `plex-0`
 
