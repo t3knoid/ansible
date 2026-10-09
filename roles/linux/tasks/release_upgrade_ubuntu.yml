@@ -71,12 +71,12 @@
         sleep: 15
         timeout: 7200
 
-    # os-release flips to the new version early (base-files), so wait on the upgrader itself.
     - name: Wait for do-release-upgrade to finish
-      ansible.builtin.raw: pgrep -f '[D]istUpgradeViewNonInteractive' >/dev/null && echo running || echo done
-      register: linux_release_upgrade_running
+      ansible.builtin.async_status:
+        jid: "{{ linux_release_upgrade_job.ansible_job_id }}"
+      register: linux_release_upgrade_result
       changed_when: false
-      until: "'done' in linux_release_upgrade_running.stdout"
+      until: linux_release_upgrade_result is finished
       retries: 480
       delay: 30
 
@@ -107,4 +107,9 @@
         that:
           - linux_release_upgrade_final_facts.ansible_facts.ansible_distribution == "Ubuntu"
           - linux_release_upgrade_final_facts.ansible_facts.ansible_distribution_version == linux_release_upgrade_target_version
-        fail_msg: "Ubuntu did not reach {{ linux_release_upgrade_target_version }}."
+        fail_msg: >-
+          Ubuntu did not reach {{ linux_release_upgrade_target_version }};
+          detected {{ linux_release_upgrade_final_facts.ansible_facts.ansible_distribution_version }}.
+          do-release-upgrade exit code: {{ linux_release_upgrade_result.rc | default('unknown') }}.
+          stdout: {{ linux_release_upgrade_result.stdout | default('') }}
+          stderr: {{ linux_release_upgrade_result.stderr | default('') }}
