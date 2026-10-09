@@ -62,6 +62,17 @@
   register: linux_release_upgrade_pending_updates
   changed_when: false
 
+- name: Report blocked Ubuntu release upgrade when packages remain
+  ansible.builtin.include_tasks: write_release_upgrade_metrics.yml
+  vars:
+    linux_release_upgrade_phase: 6
+  when: >-
+    (linux_release_upgrade_pending_updates.stdout_lines
+    | reject('match', '^Listing')
+    | reject('equalto', '')
+    | list
+    | length) > 0
+
 - name: Require all current-release updates before upgrading Ubuntu
   ansible.builtin.assert:
     that:
