@@ -85,8 +85,8 @@ _No group variables defined._
 - `vms`
 
 ### `rproxy`
-- `rproxy_main`
 - `rproxy_primary`
+- `rproxy_main`
 - `rproxy_secondary`
 
 ### `cname`
