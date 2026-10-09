@@ -1,4 +1,4 @@
-# 📖 Playbook: vms/release_upgrade_ubuntu.yml
+# 📖 Playbook: linux/release_upgrade_ubuntu.yml
 
 ## 🛠 Purpose
 Upgrades one Ubuntu 24.04 VM to Ubuntu 26.04 LTS.
@@ -8,5 +8,5 @@ Upgrades one Ubuntu 24.04 VM to Ubuntu 26.04 LTS.
 
 ## 🚀 Usage
 ```bash
-ansible-playbook playbooks/vms/release_upgrade_ubuntu.yml
+ansible-playbook playbooks/linux/release_upgrade_ubuntu.yml
 ```
