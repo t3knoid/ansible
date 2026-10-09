@@ -45,7 +45,7 @@ scrape_configs:
 
     static_configs:
 {% for host in groups['node_exporter'] %}
-      - targets: ['{{ global_ip_addresses[host] }}:{{ hostvars[host].node_exporter_port }}']
+      - targets: ['{{ global_ip_addresses[host] }}:{{ hostvars[host].node_exporter_port | default(prometheus_setup_node_exporter_pve_port if host in groups.get("pvenodes", []) else prometheus_setup_node_exporter_port) }}']
         labels:
           instance: {{ host }}
           group: {{ host | regex_replace('-[0-9]+$', '') }}
@@ -84,7 +84,7 @@ scrape_configs:
 
     static_configs:
 {% for host in groups['nginx_exporter'] %}
-      - targets: ['{{ global_ip_addresses[host] }}:{{ hostvars[host].nginx_prometheus_exporter_port }}']
+      - targets: ['{{ global_ip_addresses[host] }}:{{ hostvars[host].nginx_prometheus_exporter_port | default(prometheus_setup_nginx_exporter_port) }}']
         labels:
           instance: {{ host }}
           group: {{ host | regex_replace('-[0-9]+$', '') }}
@@ -134,7 +134,7 @@ scrape_configs:
 
     static_configs:
 {% for host in groups['postgres_exporter'] %}
-      - targets: ['{{ global_ip_addresses[host] }}:{{ hostvars[host].postgres_exporter_port }}']
+      - targets: ['{{ global_ip_addresses[host] }}:{{ hostvars[host].postgres_exporter_port | default(prometheus_setup_postgres_exporter_port) }}']
         labels:
           instance: {{ host }}
           group: {{ host | regex_replace('-[0-9]+$', '') }}
@@ -168,7 +168,7 @@ scrape_configs:
 
     static_configs:
 {% for host in groups['pve_exporter'] %}
-      - targets: ['{{ global_ip_addresses[host] }}:{{ hostvars[host].pve_exporter_setup_port }}']
+      - targets: ['{{ global_ip_addresses[host] }}:{{ hostvars[host].pve_exporter_setup_port | default(prometheus_setup_pve_exporter_port) }}']
         labels:
           instance: {{ host }}
           group: {{ host | regex_replace('-[0-9]+$', '') }}
