@@ -8,6 +8,8 @@
   serial: 1
   vars:
     linux_release_upgrade_confirm: false
+    # Set false for VMs whose disks cannot be snapshotted (e.g. raw disks on non-snapshot storage).
+    linux_release_upgrade_snapshot: true
     # Proxmox snapshot names only allow letters, digits, '-' and '_'.
     vms_snapshot_name: "pre-ubuntu-{{ linux_release_upgrade_target_version | replace('.', '_') }}-{{ ansible_date_time.epoch }}"
 
@@ -33,6 +35,7 @@
       ansible.builtin.import_role:
         name: vms
         tasks_from: snapshot_create
+      when: linux_release_upgrade_snapshot | bool
 
     - name: Upgrade Ubuntu to the next LTS release
       ansible.builtin.import_role:
