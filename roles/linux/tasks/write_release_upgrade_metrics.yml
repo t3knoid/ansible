@@ -1,0 +1,27 @@
+---
+- name: Ensure release-upgrade metrics directory exists
+  ansible.builtin.file:
+    path: "{{ linux_updates_textfile_collector_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Write current release-upgrade phase metric
+  ansible.builtin.shell: |
+    set -euo pipefail
+    temporary_file="$(mktemp "{{ linux_updates_textfile_collector_dir }}/.linux-release-upgrade.XXXXXX")"
+    trap 'rm -f "$temporary_file"' EXIT
+    timestamp="$(date +%s)"
+    cat > "$temporary_file" <<EOF
+    # HELP linux_release_upgrade_phase Current phase: 1=preparing, 2=upgrading, 3=verifying, 4=complete, 5=failed.
+    # TYPE linux_release_upgrade_phase gauge
+    linux_release_upgrade_phase {{ linux_release_upgrade_phase }}
+    # HELP linux_release_upgrade_phase_started_timestamp_seconds Unix timestamp when the current phase began.
+    # TYPE linux_release_upgrade_phase_started_timestamp_seconds gauge
+    linux_release_upgrade_phase_started_timestamp_seconds $timestamp
+    EOF
+    install -o root -g root -m 0644 "$temporary_file" "{{ linux_release_upgrade_metrics_path }}"
+  args:
+    executable: /bin/bash
+  changed_when: true
