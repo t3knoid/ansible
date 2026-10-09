@@ -55,6 +55,7 @@
 | [`pbs`](./pbs.md) | Installs and configures Proxmox Backup Server on Ubuntu systems. |
 | [`pihole`](./pihole.md) | Installs and configures Pi-hole on Ubuntu systems (https://pi-hole.net/). Provides tasks to manage Pi-hole settings and configurations. |
 | [`playwright`](./playwright.md) | Installs playwright. |
+| [`plex_exporter_setup`](./plex_exporter_setup.md) | Deploy Prometheus Plex Exporter as a Docker service. |
 | [`plex_setup`](./plex_setup.md) | Installs Plex Media Server. |
 | [`postgres_exporter_setup`](./postgres_exporter_setup.md) | Install and configure postgres_exporter for PostgreSQL monitoring. |
 | [`postgresql_setup`](./postgresql_setup.md) | Installs PostgreSQL. |
