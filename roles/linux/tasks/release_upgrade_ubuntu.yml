@@ -22,6 +22,51 @@
   changed_when: linux_release_upgrade_cancel_reboot.rc == 0
   failed_when: false
 
+- name: Install Ubuntu release upgrader
+  ansible.builtin.apt:
+    name: update-manager-core
+    state: present
+    update_cache: true
+
+- name: Install remaining Ubuntu updates including phased updates
+  ansible.builtin.command:
+    argv:
+      - apt-get
+      - --assume-yes
+      - -o
+      - APT::Get::Always-Include-Phased-Updates=true
+      - -o
+      - Dpkg::Options::=--force-confdef
+      - -o
+      - Dpkg::Options::=--force-confold
+      - dist-upgrade
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+    LC_ALL: C
+  register: linux_release_upgrade_package_updates
+  changed_when: "'0 upgraded, 0 newly installed, 0 to remove' not in linux_release_upgrade_package_updates.stdout"
+
+- name: Check for remaining upgradeable Ubuntu packages
+  ansible.builtin.command:
+    argv:
+      - apt
+      - list
+      - --upgradable
+  environment:
+    LC_ALL: C
+  register: linux_release_upgrade_pending_updates
+  changed_when: false
+
+- name: Require all current-release updates before upgrading Ubuntu
+  ansible.builtin.assert:
+    that:
+      - linux_release_upgrade_pending_updates.stdout_lines | reject('match', '^Listing') | reject('equalto', '') | list | length == 0
+    fail_msg: >-
+      Ubuntu still has pending updates. Resolve held packages or dependency
+      conflicts before retrying; this workflow does not override package holds.
+      Check holds with apt-mark showhold.
+      Pending updates: {{ linux_release_upgrade_pending_updates.stdout }}
+
 - name: Check whether the package upgrade requires a reboot
   ansible.builtin.stat:
     path: /var/run/reboot-required
@@ -31,12 +76,6 @@
   ansible.builtin.reboot:
     reboot_timeout: 1800
   when: linux_release_upgrade_reboot_required.stat.exists
-
-- name: Install Ubuntu release upgrader
-  ansible.builtin.apt:
-    name: update-manager-core
-    state: present
-    update_cache: true
 
 - name: Configure LTS release upgrades
   ansible.builtin.lineinfile:
