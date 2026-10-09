@@ -71,16 +71,20 @@
         sleep: 15
         timeout: 7200
 
-    - name: Wait until Ubuntu reports the target release
-      ansible.builtin.setup:
-        gather_subset:
-          - min
-      register: linux_release_upgrade_facts
-      until: >-
-        linux_release_upgrade_facts.ansible_facts.ansible_distribution_version
-        == linux_release_upgrade_target_version
-      retries: 240
+    # os-release flips to the new version early (base-files), so wait on the upgrader itself.
+    - name: Wait for do-release-upgrade to finish
+      ansible.builtin.raw: pgrep -f '[D]istUpgradeViewNonInteractive' >/dev/null && echo running || echo done
+      register: linux_release_upgrade_running
+      changed_when: false
+      until: "'done' in linux_release_upgrade_running.stdout"
+      retries: 480
       delay: 30
+
+    - name: Check for packages left unconfigured by the upgrade
+      ansible.builtin.raw: dpkg --audit
+      register: linux_release_upgrade_dpkg_audit
+      changed_when: false
+      failed_when: linux_release_upgrade_dpkg_audit.stdout | trim | length > 0
 
     - name: Check whether the release upgrade requires a final reboot
       ansible.builtin.stat:
