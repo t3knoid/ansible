@@ -1,0 +1,12 @@
+---
+services:
+  plex-exporter:
+    image: {{ plex_exporter_setup_image }}
+    container_name: {{ plex_exporter_setup_container_name }}
+    restart: unless-stopped
+    env_file:
+      - {{ plex_exporter_setup_env_file }}
+    environment:
+      PLEX_SERVER: {{ plex_exporter_setup_server_url | quote }}
+    ports:
+      - "{{ plex_exporter_setup_port }}:9000"

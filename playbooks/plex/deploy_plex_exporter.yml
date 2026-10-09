@@ -1,0 +1,13 @@
+---
+# Purpose: Deploy Prometheus Plex Exporter on plex-0.
+
+- name: Deploy Prometheus Plex Exporter
+  hosts: plex_exporter
+  gather_facts: true
+  become: true
+  roles:
+    - global
+    - users
+    - autofs
+    - docker_setup
+    - plex_exporter_setup

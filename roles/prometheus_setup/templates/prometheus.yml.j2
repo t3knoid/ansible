@@ -52,6 +52,19 @@ scrape_configs:
 {% endfor %}
 {% endif %}
 
+{% if groups['plex_exporter'] | default([]) | length > 0 %}
+  - job_name: 'plex_exporter'
+    scrape_interval: 30s
+
+    static_configs:
+{% for host in groups['plex_exporter'] %}
+      - targets: ['{{ global_ip_addresses[host] }}:{{ hostvars[host].plex_exporter_setup_port | default(9000) }}']
+        labels:
+          instance: '{{ host }}'
+          group: 'plex'
+{% endfor %}
+{% endif %}
+
 {% if prometheus_setup_nginx_exporter_static_configs is defined %}
 {% if prometheus_setup_nginx_exporter_static_configs | length > 0 %}
   - job_name: 'nginx_exporter'
