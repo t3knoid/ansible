@@ -8,6 +8,11 @@
     fail_msg: >-
       This workflow supports Ubuntu 24.04 LTS upgrading to 26.04 LTS only.
 
+- name: Report release-upgrade package preparation phase
+  ansible.builtin.include_tasks: write_release_upgrade_metrics.yml
+  vars:
+    linux_release_upgrade_phase: 1
+
 - name: Upgrade installed Ubuntu packages first
   ansible.builtin.include_tasks: updates.yml
 
@@ -85,6 +90,11 @@
     create: true
     mode: "0644"
 
+- name: Report Ubuntu release-upgrade phase
+  ansible.builtin.include_tasks: write_release_upgrade_metrics.yml
+  vars:
+    linux_release_upgrade_phase: 2
+
 - name: Start the Ubuntu LTS release upgrade
   ansible.builtin.command:
     argv:
@@ -119,6 +129,11 @@
       retries: 480
       delay: 30
 
+    - name: Report release-upgrade verification phase
+      ansible.builtin.include_tasks: write_release_upgrade_metrics.yml
+      vars:
+        linux_release_upgrade_phase: 3
+
     - name: Check for packages left unconfigured by the upgrade
       ansible.builtin.raw: dpkg --audit
       register: linux_release_upgrade_dpkg_audit
@@ -152,3 +167,21 @@
           do-release-upgrade exit code: {{ linux_release_upgrade_result.rc | default('unknown') }}.
           stdout: {{ linux_release_upgrade_result.stdout | default('') }}
           stderr: {{ linux_release_upgrade_result.stderr | default('') }}
+
+    - name: Report completed Ubuntu release upgrade
+      ansible.builtin.include_tasks: write_release_upgrade_metrics.yml
+      vars:
+        linux_release_upgrade_phase: 4
+  rescue:
+    - name: Report failed Ubuntu release upgrade
+      ansible.builtin.include_tasks: write_release_upgrade_metrics.yml
+      vars:
+        linux_release_upgrade_phase: 5
+
+    - name: Preserve release-upgrade failure details
+      ansible.builtin.fail:
+        msg: >-
+          Ubuntu release upgrade failed during {{ ansible_failed_task.name }}:
+          {{ ansible_failed_result.msg | default('') }}
+          stdout: {{ ansible_failed_result.stdout | default('') }}
+          stderr: {{ ansible_failed_result.stderr | default('') }}
