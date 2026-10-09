@@ -1,7 +1,7 @@
 ---
-# Purpose: Upgrades one Ubuntu 24.04 VM to Ubuntu 26.04 LTS.
+# Purpose: Upgrades one Ubuntu 24.04 host to Ubuntu 26.04 LTS.
 
-- name: Upgrade one Ubuntu VM to the next LTS release
+- name: Upgrade one Ubuntu host to the next LTS release
   hosts: linux
   gather_facts: true
   become: true
@@ -25,7 +25,7 @@
           - ansible_distribution_version == "24.04"
         fail_msg: >-
           Set linux_release_upgrade_confirm=true and use --limit to select
-          exactly one VM.
+          exactly one Linux host.
 
   roles:
     - global
@@ -35,7 +35,9 @@
       ansible.builtin.import_role:
         name: vms
         tasks_from: snapshot_create
-      when: linux_release_upgrade_snapshot | bool
+      when:
+        - linux_release_upgrade_snapshot | bool
+        - inventory_hostname in groups.get('vms', [])
 
     - name: Upgrade Ubuntu to the next LTS release
       ansible.builtin.import_role:
