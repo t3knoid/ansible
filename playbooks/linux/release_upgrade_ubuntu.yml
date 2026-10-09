@@ -8,7 +8,8 @@
   serial: 1
   vars:
     linux_release_upgrade_confirm: false
-    vms_snapshot_name: "pre-ubuntu-{{ linux_release_upgrade_target_version }}-{{ ansible_date_time.epoch }}"
+    # Proxmox snapshot names only allow letters, digits, '-' and '_'.
+    vms_snapshot_name: "pre-ubuntu-{{ linux_release_upgrade_target_version | replace('.', '_') }}-{{ ansible_date_time.epoch }}"
 
   pre_tasks:
     - name: Require explicit confirmation and a single-host limit
