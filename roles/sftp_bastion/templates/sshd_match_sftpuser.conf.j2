@@ -1,0 +1,7 @@
+Match User {{ sftp_bastion_user }}
+    PasswordAuthentication no
+    PubkeyAuthentication yes
+    X11Forwarding no
+    AllowTcpForwarding yes
+    PermitTunnel no
+    ForceCommand ssh -i {{ sftp_bastion_home }}/.ssh/{{ sftp_bastion_key_name }} {{ sftp_bastion_forcecommand_user }}@{{ sftp_bastion_forcecommand_host }}
