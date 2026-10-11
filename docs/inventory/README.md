@@ -56,22 +56,22 @@
 | `minecraft-1` | [`minecraft`](minecraft.md) | bedrock, cname, linux, node_exporter, python, vms |
 | `ombi-0` | [`ombi`](ombi.md) | autofs, cname, linux, pgclient, python, vms |
 | `pg-0` | [`pg`](pg.md), [`ombi`](ombi.md) | autofs, node_exporter, pgdb, postgres_exporter, python, vms |
-| `pg-1` | [`services`](services.md), [`pg`](pg.md) | autofs, node_exporter, pgdb, postgres_exporter, python, vms |
+| `pg-1` | [`pg`](pg.md), [`services`](services.md) | autofs, node_exporter, pgdb, postgres_exporter, python, vms |
 | `pg-2` | [`pg`](pg.md), [`redmine`](redmine.md) | autofs, node_exporter, pgdb, postgres_exporter, python, vms |
 | `pg-3` | [`semaphore`](semaphore.md), [`pg`](pg.md) | autofs, node_exporter, pgdb, postgres_exporter, python, vms |
 | `pg-4` | [`pg`](pg.md), [`grafana`](grafana.md) | autofs, node_exporter, pgdb, postgres_exporter, python, vms |
 | `plex-0` | [`plex`](plex.md) | autofs, baremetal, cname, docker, lamp, linux, node_exporter, plex, plex_exporter, pxe_client, python, wikipedia |
-| `prometheus-0` | [`dns`](dns.md), [`tautulli`](tautulli.md), [`pve`](pve.md), [`redmine`](redmine.md), [`grafana`](grafana.md), [`plex`](plex.md), [`rproxy`](rproxy.md), [`semaphore`](semaphore.md), [`vpn`](vpn.md), [`ansible`](ansible.md), [`minecraft`](minecraft.md), [`services`](services.md), [`pg`](pg.md), [`prometheus`](prometheus.md) | alertmanager, autofs, blackbox_exporter, cname, entra_id, linux, node_exporter, prometheus, python, vms |
+| `prometheus-0` | [`dns`](dns.md), [`plex`](plex.md), [`rproxy`](rproxy.md), [`tautulli`](tautulli.md), [`redmine`](redmine.md), [`ansible`](ansible.md), [`semaphore`](semaphore.md), [`pg`](pg.md), [`services`](services.md), [`vpn`](vpn.md), [`prometheus`](prometheus.md), [`minecraft`](minecraft.md), [`grafana`](grafana.md), [`pve`](pve.md) | alertmanager, autofs, blackbox_exporter, cname, entra_id, linux, node_exporter, prometheus, python, vms |
 | `pve-0` | [`pve`](pve.md) | ceph_nodes, cname, pvenodes |
 | `pve-1` | [`pve`](pve.md) | ceph_nodes, pvenodes |
 | `pve-2` | [`pve`](pve.md) | ceph_nodes, cname, pvenodes, template |
-| `pxe-0` | [`dns`](dns.md), [`plex`](plex.md), [`pxe`](pxe.md) | pxe, vms |
+| `pxe-0` | [`pxe`](pxe.md), [`dns`](dns.md), [`plex`](plex.md) | pxe, vms |
 | `radarr-0` | [`services`](services.md) | autofs, cname, entra_id, linux, radarr, vms |
 | `redmine-0` | [`redmine`](redmine.md) | autofs, cname, linux, node_exporter, redmine, removable, ruby |
 | `rosie-0` | [`rosie`](rosie.md) | linux, python, removable, rosie, vms |
-| `rproxy-0` | [`tautulli`](tautulli.md), [`ecube`](ecube.md), [`pve`](pve.md), [`redmine`](redmine.md), [`ad`](ad.md), [`synology`](synology.md), [`grafana`](grafana.md), [`truenas`](truenas.md), [`plex`](plex.md), [`ombi`](ombi.md), [`rproxy`](rproxy.md), [`semaphore`](semaphore.md), [`ansible`](ansible.md), [`services`](services.md), [`jenkins`](jenkins.md), [`prometheus`](prometheus.md) | certbot, certs, cname, linux, node_exporter, oauth2_proxy, python, redis, rproxy_main, vms |
-| `rproxy-1` | [`tautulli`](tautulli.md), [`ecube`](ecube.md), [`pve`](pve.md), [`redmine`](redmine.md), [`ad`](ad.md), [`synology`](synology.md), [`grafana`](grafana.md), [`truenas`](truenas.md), [`plex`](plex.md), [`ombi`](ombi.md), [`rproxy`](rproxy.md), [`semaphore`](semaphore.md), [`ansible`](ansible.md), [`services`](services.md), [`jenkins`](jenkins.md), [`prometheus`](prometheus.md) | linux, node_exporter, python, rproxy_primary, vms |
-| `rproxy-2` | [`tautulli`](tautulli.md), [`ecube`](ecube.md), [`pve`](pve.md), [`redmine`](redmine.md), [`ad`](ad.md), [`synology`](synology.md), [`grafana`](grafana.md), [`truenas`](truenas.md), [`plex`](plex.md), [`ombi`](ombi.md), [`rproxy`](rproxy.md), [`semaphore`](semaphore.md), [`ansible`](ansible.md), [`services`](services.md), [`jenkins`](jenkins.md), [`prometheus`](prometheus.md) | linux, node_exporter, python, rproxy_secondary, vms |
+| `rproxy-0` | [`plex`](plex.md), [`rproxy`](rproxy.md), [`tautulli`](tautulli.md), [`redmine`](redmine.md), [`ecube`](ecube.md), [`pve`](pve.md), [`ansible`](ansible.md), [`semaphore`](semaphore.md), [`ad`](ad.md), [`services`](services.md), [`ombi`](ombi.md), [`synology`](synology.md), [`jenkins`](jenkins.md), [`prometheus`](prometheus.md), [`grafana`](grafana.md), [`truenas`](truenas.md) | certbot, certs, cname, linux, node_exporter, oauth2_proxy, python, redis, rproxy_main, vms |
+| `rproxy-1` | [`plex`](plex.md), [`rproxy`](rproxy.md), [`tautulli`](tautulli.md), [`redmine`](redmine.md), [`ecube`](ecube.md), [`pve`](pve.md), [`ansible`](ansible.md), [`semaphore`](semaphore.md), [`ad`](ad.md), [`services`](services.md), [`ombi`](ombi.md), [`synology`](synology.md), [`jenkins`](jenkins.md), [`prometheus`](prometheus.md), [`grafana`](grafana.md), [`truenas`](truenas.md) | linux, node_exporter, python, rproxy_primary, vms |
+| `rproxy-2` | [`plex`](plex.md), [`rproxy`](rproxy.md), [`tautulli`](tautulli.md), [`redmine`](redmine.md), [`ecube`](ecube.md), [`pve`](pve.md), [`ansible`](ansible.md), [`semaphore`](semaphore.md), [`ad`](ad.md), [`services`](services.md), [`ombi`](ombi.md), [`synology`](synology.md), [`jenkins`](jenkins.md), [`prometheus`](prometheus.md), [`grafana`](grafana.md), [`truenas`](truenas.md) | linux, node_exporter, python, rproxy_secondary, vms |
 | `sabnzbd-0` | [`services`](services.md) | autofs, cname, entra_id, linux, sabnzbd, vms |
 | `semaphore-0` | [`semaphore`](semaphore.md) | ansible, autofs, cname, entra_id, linux, nginx, node_exporter, pgclient, python, semaphore, vms |
 | `sonarr-0` | [`services`](services.md) | autofs, cname, entra_id, linux, sonarr, vms |
