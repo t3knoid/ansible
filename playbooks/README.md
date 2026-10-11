@@ -77,7 +77,7 @@
 | [`linux/deploy_autofs.yml`](../docs/playbooks/deploy_autofs.md) | Deploys and configures autofs on designated servers. |
 | [`linux/deploy_fstab.yml`](../docs/playbooks/deploy_fstab.md) | Manages fstab on designated servers. |
 | [`linux/deploy_updates.yml`](../docs/playbooks/deploy_updates.md) | Deploy updates on Linux hosts |
-| [`linux/release_upgrade_ubuntu.yml`](../docs/playbooks/release_upgrade_ubuntu.md) | Upgrades one Ubuntu 24.04 VM to Ubuntu 26.04 LTS. |
+| [`linux/release_upgrade_ubuntu.yml`](../docs/playbooks/release_upgrade_ubuntu.md) | Upgrades one Ubuntu 24.04 host to Ubuntu 26.04 LTS. |
 | [`linux/remove_autofs.yml`](../docs/playbooks/remove_autofs.md) | Removes autofs from designated servers. |
 | [`loki/deploy_loki.yml`](../docs/playbooks/deploy_loki.md) | Deploy Grafana Loki on loki hosts Usage: ansible-playbook -i inventory/<inventory>/inventory.ini playbooks/loki/deploy_loki.yml |
 | [`minecraft/check_bedrock_version.yml`](../docs/playbooks/check_bedrock_version.md) | Check latest Bedrock version on Bedrock hosts |
@@ -93,6 +93,7 @@
 | [`ombi/restore_db.yml`](../docs/playbooks/restore_db.md) | Restore Ombi PostgreSQL database from backup. |
 | [`plex/backup_plex.yml`](../docs/playbooks/backup_plex.md) | Backup Plex Media Server configuration on plex hosts |
 | [`plex/deploy_plex.yml`](../docs/playbooks/deploy_plex.md) | Install and configure Plex Media Server on plex hosts |
+| [`plex/deploy_plex_exporter.yml`](../docs/playbooks/deploy_plex_exporter.md) | Deploy Prometheus Plex Exporter on plex-0. |
 | [`plex/restore_plex.yml`](../docs/playbooks/restore_plex.md) | Restore Plex Media Server configuration from backup archive. |
 | [`postgresql/deploy_postgresql.yml`](../docs/playbooks/deploy_postgresql.md) | Install and configure PostgreSQL on pgdb hosts |
 | [`prometheus/backup_db.yml`](../docs/playbooks/backup_db.md) | Create a point-in-time copy of all current data stored in Prometheus. |

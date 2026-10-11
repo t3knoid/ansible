@@ -119,6 +119,7 @@ _No constant variables found._
 - Install node availability grid dashboard
 - Install Linux update status dashboard
 - Install Linux release-upgrade progress dashboard
+- Install Plex Media Server dashboard
 - Install reverse proxy and Entra ID health dashboard
 - Create Grafana configuration directory
 - Check for existing Grafana configuration
