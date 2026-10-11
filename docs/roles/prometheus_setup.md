@@ -47,6 +47,11 @@ Installs and configures a Prometheus monitoring system on Debian/Ubuntu.
 | `prometheus_setup_pve_exporter_job_name` | `"pve_exporter"` |  |
 | `prometheus_setup_pve_exporter_module` | `"local"` |  |
 | `prometheus_setup_pve_exporter_target` | `"localhost"` |  |
+| `prometheus_setup_node_exporter_port` | `9200` |  |
+| `prometheus_setup_node_exporter_pve_port` | `9100` |  |
+| `prometheus_setup_nginx_exporter_port` | `9113` |  |
+| `prometheus_setup_postgres_exporter_port` | `9187` |  |
+| `prometheus_setup_pve_exporter_port` | `9221` |  |
 
 ## 📦 Vars
 _No constant variables found._
