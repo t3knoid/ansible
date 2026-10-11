@@ -10,3 +10,9 @@
     - global
     - node_exporter_setup
     - pve_exporter_setup
+  tasks:
+    - name: Enable the Ceph mgr prometheus module
+      ansible.builtin.command: ceph mgr module enable prometheus
+      changed_when: false
+      run_once: true
+      when: inventory_hostname in groups['ceph_nodes'] | default([])
