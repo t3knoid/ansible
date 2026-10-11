@@ -10,3 +10,4 @@ semaphoreui_setup_projects_views:
     - title: "Deploys"
     - title: "Update Checks"
     - title: "Reboots"
+    - title: "Upgrades"

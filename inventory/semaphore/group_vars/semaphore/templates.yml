@@ -401,3 +401,13 @@ semaphoreui_setup_projects_templates:
       repository: "Ansible"
       view: "Deploys"
       environment: "Empty"
+    - name: "RProxy Ubuntu Release upgrade"
+      playbook: "playbooks/vms/ubuntu_release_upgrade.yml"
+      app: "ansible"
+      arguments: '[ "-k", "-e", "linux_release_upgrade_confirm=true"]'
+      inventory: "rproxy"
+      credentials:
+        - "Ansible vault password"
+      repository: "Ansible"
+      view: "Upgrades"
+      environment: "Empty"
