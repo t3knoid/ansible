@@ -425,3 +425,17 @@ semaphoreui_setup_projects_templates:
       repository: "Ansible"
       view: "Upgrades"
       environment: "Empty"
+    - name: "Postgres Server Ubuntu Release upgrade"
+      playbook: "playbooks/linux/release_upgrade_ubuntu.yml"
+      app: "ansible"
+      arguments: '[ "-k", "-e", "linux_release_upgrade_confirm=true"]'
+      task_params:
+        limit:
+          - "postgres"
+        allow_override_limit: true
+      inventory: "postgres"
+      credentials:
+        - "Ansible vault password"
+      repository: "Ansible"
+      view: "Upgrades"
+      environment: "Empty"
