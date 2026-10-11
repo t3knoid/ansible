@@ -166,6 +166,32 @@
   ansible.builtin.set_fact:
     prometheus_setup_pve_exporter_static_configs: "{{ prometheus_setup_pve_exporter_static_config_map.values() | list }}"
 
+- name: Load existing ceph scrape targets
+  ansible.builtin.set_fact:
+    prometheus_setup_ceph_static_configs: "{{ prometheus_setup_existing_scrape_configs | selectattr('job_name', 'equalto', prometheus_setup_ceph_job_name) | map(attribute='static_configs') | first | default([]) }}"
+
+- name: Initialize ceph target map
+  ansible.builtin.set_fact:
+    prometheus_setup_ceph_static_config_map: {}
+
+- name: Seed ceph target map from existing Prometheus config
+  ansible.builtin.set_fact:
+    prometheus_setup_ceph_static_config_map: "{{ prometheus_setup_ceph_static_config_map | combine({item.labels.instance: item}) }}"
+  loop: "{{ prometheus_setup_ceph_static_configs }}"
+
+- name: Merge current inventory ceph targets into target map
+  ansible.builtin.set_fact:
+    prometheus_setup_ceph_static_config_map: >-
+      {{ prometheus_setup_ceph_static_config_map | combine({item: {
+        'targets': [global_ip_addresses[item] ~ ':' ~ (prometheus_setup_ceph_port | string)],
+        'labels': {'instance': item, 'group': item | regex_replace('-[0-9]+$', '')}
+      }}) }}
+  loop: "{{ groups['ceph_nodes'] | default([]) }}"
+
+- name: Build merged ceph scrape targets
+  ansible.builtin.set_fact:
+    prometheus_setup_ceph_static_configs: "{{ prometheus_setup_ceph_static_config_map.values() | list }}"
+
 - name: Initialize blackbox target map
   ansible.builtin.set_fact:
     prometheus_setup_blackbox_static_config_map: {}
