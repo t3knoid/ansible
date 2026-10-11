@@ -188,7 +188,7 @@
 | [`vms/reboot_vm.yml`](../docs/playbooks/reboot_vm.md) | Reboots virtual machines gracefully. |
 | [`vms/remove_vm.yml`](../docs/playbooks/remove_vm.md) | Removes virtual machines using either Terraform or Ansible, with confirmation and DNS cleanup. |
 | [`vms/remove_vm_snapshot.yml`](../docs/playbooks/remove_vm_snapshot.md) | Removes snapshots from virtual machines. |
-| [`vms/revert_vm_snapshot.yml`](../docs/playbooks/revert_vm_snapshot.md) | Reverts virtual machines to a specified snapshot and starts them. |
+| [`vms/revert_vm_snapshot.yml`](../docs/playbooks/revert_vm_snapshot.md) | Reverts virtual machines to a specified snapshot and starts them. Usage: ansible-playbook -k -i inventory/<name>/inventory.ini playbooks/vms/revert_vm_snapshot.yml -k (SSH password) is required because the reverted guest may not accept the controller's SSH key. |
 | [`vms/set_dns_servers.yml`](../docs/playbooks/set_dns_servers.md) | Sets DNS servers on virtual machines and bare metal servers. |
 | [`vms/show_vm_id.yml`](../docs/playbooks/show_vm_id.md) | Displays the VMID of virtual machines. |
 | [`vms/show_vm_node.yml`](../docs/playbooks/show_vm_node.md) | Displays the Proxmox node hosting the specified virtual machines. |
