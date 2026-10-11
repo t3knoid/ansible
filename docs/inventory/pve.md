@@ -55,12 +55,12 @@ _No group variables defined._
 - `pvenodes`
 
 ### `pbs`
-- `pvenodes`
 - `pbsnodes`
+- `pvenodes`
 
 ### `rproxy`
-- `rproxy_main`
 - `rproxy_secondary`
+- `rproxy_main`
 - `rproxy_primary`
 
 ### `node_exporter`
