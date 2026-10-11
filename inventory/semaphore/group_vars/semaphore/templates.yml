@@ -431,9 +431,9 @@ semaphoreui_setup_projects_templates:
       arguments: '[ "-k", "-e", "linux_release_upgrade_confirm=true"]'
       task_params:
         limit:
-          - "postgres"
+          - "pgdb"
         allow_override_limit: true
-      inventory: "postgres"
+      inventory: "pg"
       credentials:
         - "Ansible vault password"
       repository: "Ansible"
