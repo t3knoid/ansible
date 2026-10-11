@@ -418,7 +418,7 @@ semaphoreui_setup_projects_templates:
     - name: "Redmine Ubuntu Release upgrade"
       playbook: "playbooks/linux/release_upgrade_ubuntu.yml"
       app: "ansible"
-      arguments: '[ "-k", "-e", "linux_release_upgrade_confirm=true", "-l", redmine-0"]'
+      arguments: '[ "-k", "-e", "linux_release_upgrade_confirm=true", "-l", "redmine-0"]'
       inventory: "redmine"
       credentials:
         - "Ansible vault password"
@@ -442,7 +442,7 @@ semaphoreui_setup_projects_templates:
     - name: "Plex Ubuntu Release upgrade"
       playbook: "playbooks/linux/release_upgrade_ubuntu.yml"
       app: "ansible"
-      arguments: '[ "-k", "-e", "linux_release_upgrade_confirm=true", "-l", plex-0"]'
+      arguments: '[ "-k", "-e", "linux_release_upgrade_confirm=true", "-l", "plex-0"]'
       inventory: "plex"
       credentials:
         - "Ansible vault password"
