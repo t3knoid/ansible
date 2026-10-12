@@ -431,7 +431,7 @@ semaphoreui_setup_projects_templates:
       arguments: '[ "-k", "-e", "linux_release_upgrade_confirm=true"]'
       task_params:
         limit:
-          - "pgdb"
+          - "pg"
         allow_override_limit: true
       inventory: "pg"
       credentials:
