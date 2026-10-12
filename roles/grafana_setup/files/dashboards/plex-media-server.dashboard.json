@@ -1596,7 +1596,11 @@
   ],
   "refresh": "30s",
   "schemaVersion": 41,
-  "tags": [],
+  "tags": [
+    "plex",
+    "media server",
+    "plex exporter"
+  ],
   "templating": {
     "list": [
       {
