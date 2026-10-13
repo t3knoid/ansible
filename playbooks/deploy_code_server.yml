@@ -9,3 +9,11 @@
     - global
     - nginx_setup
     - code_server
+
+  pre_tasks:
+    - name: Create a Proxmox snapshot before upgrading
+      ansible.builtin.import_role:
+        name: vms
+        tasks_from: snapshot_create
+      when:
+        - inventory_hostname in groups.get('vms', [])
