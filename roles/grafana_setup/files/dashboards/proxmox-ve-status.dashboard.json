@@ -53,7 +53,7 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 6,
+        "w": 5,
         "x": 0,
         "y": 0
       },
@@ -112,8 +112,8 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 6,
-        "x": 6,
+        "w": 5,
+        "x": 5,
         "y": 0
       },
       "id": 2,
@@ -171,8 +171,8 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 6,
-        "x": 12,
+        "w": 5,
+        "x": 10,
         "y": 0
       },
       "id": 3,
@@ -234,8 +234,8 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 6,
-        "x": 18,
+        "w": 5,
+        "x": 15,
         "y": 0
       },
       "id": 4,
@@ -266,6 +266,46 @@
       ],
       "title": "Proxmox Nodes Down",
       "type": "stat"
+    },
+    {
+      "id": 17,
+      "title": "Total VM Snapshots",
+      "type": "stat",
+      "pluginVersion": "12.2.0",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "gridPos": {"h": 4, "w": 4, "x": 20, "y": 0},
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "decimals": 0,
+          "noValue": "Unavailable",
+          "color": {"mode": "fixed", "fixedColor": "cyan"},
+          "links": [
+            {
+              "title": "VM snapshots table",
+              "url": "/d/proxmox-ve-status?viewPanel=19",
+              "targetBlank": false
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false},
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "expr": "(count(max by (id, snapshot) (pve_vm_snapshot_created_timestamp_seconds)) or vector(0)) and on () (min((pve_vm_snapshot_collection_success * on (job, instance) up) or on (job, instance) (up{job=\"pve_exporter\"} * 0)) == 1)",
+          "instant": true,
+          "range": false,
+          "refId": "A"
+        }
+      ]
     },
     {
       "datasource": {
@@ -1580,6 +1620,130 @@
       ],
       "title": "Ceph Pool Usage",
       "type": "timeseries"
+    },
+    {
+      "id": 18,
+      "title": "Snapshot Collection",
+      "type": "stat",
+      "pluginVersion": "12.2.0",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "gridPos": {"h": 4, "w": 24, "x": 0, "y": 56},
+      "fieldConfig": {
+        "defaults": {
+          "noValue": "No data",
+          "color": {"mode": "thresholds"},
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {"color": "red", "text": "Collection failed"},
+                "1": {"color": "green", "text": "Healthy"}
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{"color": "red", "value": null}, {"color": "green", "value": 1}]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false},
+        "textMode": "value_and_name"
+      },
+      "targets": [
+        {
+          "expr": "(pve_vm_snapshot_collection_success * on (job, instance) up) or on (job, instance) (up{job=\"pve_exporter\"} * 0)",
+          "instant": true,
+          "range": false,
+          "legendFormat": "{{instance}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "title": "VM Snapshots",
+      "type": "table",
+      "pluginVersion": "12.2.0",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "gridPos": {"h": 16, "w": 24, "x": 0, "y": 60},
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "noValue": "N/A",
+          "custom": {"align": "auto", "cellOptions": {"type": "auto"}, "inspect": false}
+        },
+        "overrides": [
+          {
+            "matcher": {"id": "byName", "options": "VM"},
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "Guest Details",
+                    "url": "/d/proxmox-ve-guest-detail?var-guest=qemu/${__data.fields.VMID}",
+                    "targetBlank": false
+                  }
+                ]
+              },
+              {"id": "custom.cellOptions", "value": {"type": "data-links"}}
+            ]
+          },
+          {
+            "matcher": {"id": "byName", "options": "Age (days)"},
+            "properties": [
+              {"id": "unit", "value": "d"},
+              {"id": "decimals", "value": 2},
+              {"id": "color", "value": {"mode": "thresholds"}},
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {"color": "transparent", "value": null},
+                    {"color": "red", "value": 5}
+                  ]
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {"type": "color-background", "mode": "basic", "applyToRow": true}
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true,
+        "sortBy": [{"displayName": "Age (days)", "desc": true}]
+      },
+      "targets": [
+        {
+          "expr": "((time() - max by (id, vmid, name, node, snapshot) (pve_vm_snapshot_created_timestamp_seconds and on (job, instance) (pve_vm_snapshot_collection_success == 1) and on (job, instance) (up == 1))) / 86400) * on (id) group_left (vm_name) max by (id, vm_name) (label_replace(pve_guest_info{id=~\"qemu/.+\"}, \"vm_name\", \"$1\", \"name\", \"(.*)\"))",
+          "format": "table",
+          "instant": true,
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {"Time": true, "id": true},
+            "indexByName": {"vmid": 0, "name": 1, "vm_name": 2, "node": 3, "snapshot": 4, "Value": 5},
+            "renameByName": {"vmid": "VMID", "name": "VM", "vm_name": "VM Name", "node": "Node", "snapshot": "Snapshot", "Value": "Age (days)"}
+          }
+        }
+      ]
     }
   ],
   "refresh": "30s",

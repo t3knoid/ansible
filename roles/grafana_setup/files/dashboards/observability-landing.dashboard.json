@@ -238,6 +238,28 @@
                 }
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "VM snapshots"
+            },
+            "properties": [
+              {
+                "id": "noValue",
+                "value": "Unavailable"
+              },
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "VM snapshots",
+                    "url": "/d/proxmox-ve-status?viewPanel=19",
+                    "targetBlank": false
+                  }
+                ]
+              }
+            ]
           }
         ]
       },
@@ -280,6 +302,13 @@
           "range": false,
           "legendFormat": "Updates",
           "refId": "D"
+        },
+        {
+          "expr": "(count(max by (id, snapshot) (pve_vm_snapshot_created_timestamp_seconds)) or vector(0)) and on () (min((pve_vm_snapshot_collection_success * on (job, instance) up) or on (job, instance) (up{job=\"pve_exporter\"} * 0)) == 1)",
+          "instant": true,
+          "range": false,
+          "legendFormat": "VM snapshots",
+          "refId": "E"
         }
       ]
     },
