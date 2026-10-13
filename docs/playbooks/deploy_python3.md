@@ -4,7 +4,7 @@
 Deploy Python3 on python hosts.
 
 ## 🔗 Roles Applied
-- [`python3`](../roles/python3/README.md)
+_No roles detected._
 
 ## 🚀 Usage
 ```bash
