@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+api_url="{{ ombi_setup_api_url }}"
+response="$(curl -fsS --max-time 10 "${api_url}/api/v1/Update")"
+
+update_available="$(echo "${response}" | jq -r 'if .updateAvailable == true then 1 else 0 end')"
+latest_version="$(echo "${response}" | jq -r '.updateVersionString // "unknown"')"
+
+tmp_file="$(mktemp "{{ ombi_setup_update_metrics_path }}.XXXXXX")"
+trap 'rm -f "$tmp_file"' EXIT
+cat > "$tmp_file" <<EOF
+# HELP ombi_latest_version_info Latest Ombi version reported by the update API.
+# TYPE ombi_latest_version_info gauge
+ombi_latest_version_info{version="$latest_version"} 1
+# HELP ombi_update_available Whether a newer Ombi version is available.
+# TYPE ombi_update_available gauge
+ombi_update_available $update_available
+EOF
+install -o root -g {{ node_exporter_setup_group | default('prometheus') }} -m 0644 "$tmp_file" "{{ ombi_setup_update_metrics_path }}"
