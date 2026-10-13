@@ -112,24 +112,24 @@ _No group variables defined._
 
 ## 🧩 Group Children
 ### `multimedia`
-- `sonarr`
-- `sabnzbd`
-- `lidarr`
 - `radarr`
+- `sabnzbd`
+- `sonarr`
+- `lidarr`
 
 ### `books`
-- `calibreweb`
 - `lazylibrarian`
+- `calibreweb`
 - `calibre`
 
 ### `docker`
-- `sonarr`
 - `sabnzbd`
-- `calibre`
-- `radarr`
-- `; lidarr, radarr, sonarr use postgresql for their backend database`
-- `calibreweb`
 - `lazylibrarian`
+- `radarr`
+- `calibreweb`
+- `sonarr`
+- `; lidarr, radarr, sonarr use postgresql for their backend database`
+- `calibre`
 
 ### `rproxy`
 - `rproxy_secondary`
@@ -137,19 +137,19 @@ _No group variables defined._
 - `rproxy_main`
 
 ### `python`
-- `sonarr`
 - `sabnzbd`
-- `calibre`
-- `radarr`
-- `calibreweb`
 - `lazylibrarian`
+- `radarr`
 - `lidarr`
+- `calibreweb`
+- `sonarr`
+- `calibre`
 
 ### `node_exporter`
-- `sonarr`
 - `sabnzbd`
-- `calibre`
-- `radarr`
-- `calibreweb`
 - `lazylibrarian`
+- `radarr`
 - `lidarr`
+- `calibreweb`
+- `sonarr`
+- `calibre`
