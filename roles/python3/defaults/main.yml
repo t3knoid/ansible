@@ -9,7 +9,7 @@ python3_repo_key_local: "/etc/apt/trusted.gpg.d/deadsnakes.asc"
 python3_repo_base_url: "https://ppa.launchpadcontent.net/deadsnakes/ppa/ubuntu"
 python3_repo_key_url: "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xBA6932366A755776"
 python3_repo_deadsnakes_signing_key: "4096R/F23C5A6CF475977595C89F51BA6932366A755776"
-python3_repo_deadsnakes_ppa: "deb https://ppa.launchpadcontent.net/deadsnakes/ppa/ubuntu noble main"
+python3_repo_deadsnakes_ppa: "deb https://ppa.launchpadcontent.net/deadsnakes/ppa/ubuntu {{ ansible_distribution_release | default('noble') }} main"
 
 python3_packages_to_install:
   - python{{ python3_version }}
