@@ -19,6 +19,11 @@ Ombi Setup installs and configures an Ombi Docker container. It uses a Docker im
 | `ombi_setup_port` | `3579` |  |
 | `ombi_setup_pg_port` | `5432` |  |
 | `ombi_setup_pg_host` | `"{{ global_ip_addresses[groups['pgdb'][0]] }}"` |  |
+| `ombi_setup_api_url` | `"http://127.0.0.1:{{ ombi_setup_port }}"` |  |
+| `ombi_setup_check_update` | `true` |  |
+| `ombi_setup_update_check_script_path` | `/usr/local/bin/check_ombi_update.sh` |  |
+| `ombi_setup_update_metrics_path` | `"{{ node_exporter_setup_textfile_collector_dir | default('/var/lib/node_exporter/textfile') }}/ombi_update.prom"` |  |
+| `ombi_setup_update_check_minute` | `"*/30"` |  |
 | `ombi_setup_mount_point` | `/nfs/backups` | ombi_setup_db_password: |
 | `ombi_setup_backup_prefix` | `"ombi_"` |  |
 | `ombi_setup_backup_filename` | `"{{ ombi_setup_backup_prefix }}{{ ansible_date_time.iso8601_basic_short }}.sqlc"` |  |
@@ -31,6 +36,7 @@ _No constant variables found._
 
 ## 📑 Tasks
 - Deploy Ombi Docker Service
+- Check Ombi for available updates via Prometheus metrics
 
 ## 🔔 Handlers
 - Restart PostgreSQL
