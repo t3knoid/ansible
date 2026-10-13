@@ -28,8 +28,9 @@ vms_os: ubuntu_24_server
 vms_autoinstall: true
 vms_enable_serial_terminal: false
 vms_additional_packages: [jq]
-python3_version: 3.12
+python3_version: 3.14
 python3_venv_folder: "/opt/python_{{ python3_version }}"
+ansible_python_interpreter: "{{ python3_venv_folder }}/bin/python3"
 
 nginx_setup_disable_default_site: true
 disks_disk_mounts:
