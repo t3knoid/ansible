@@ -59,6 +59,9 @@ _Inventory for `semaphore` hosts_
 ### `prometheus`
 - `prometheus-0`
 
+### `azure_cli`
+- `semaphore-0`
+
 ## ⚙️ Group Variables
 _No group variables defined._
 
