@@ -38,6 +38,12 @@ _Inventory for `ombi` hosts_
 ### `python`
 - `ombi-0`
 
+### `node_exporter`
+- `ombi-0`
+
+### `prometheus`
+- `prometheus-0`
+
 ## ⚙️ Group Variables
 _No group variables defined._
 
