@@ -60,8 +60,8 @@ _No group variables defined._
 
 ### `rproxy`
 - `rproxy_main`
-- `rproxy_secondary`
 - `rproxy_primary`
+- `rproxy_secondary`
 
 ### `node_exporter`
 - `pvenodes`
