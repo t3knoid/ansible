@@ -61,7 +61,7 @@ rproxy_setup_sites:
     oauth2_email_domains: "*"
     enable: true
 
-azure_cli_setup_version: 2.89.1
+azure_cli_setup_version: 2.91.0
 
 semaphoreui_setup_version: 2.16.19
 
