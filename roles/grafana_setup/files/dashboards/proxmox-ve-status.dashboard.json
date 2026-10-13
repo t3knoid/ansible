@@ -272,14 +272,25 @@
       "title": "Total VM Snapshots",
       "type": "stat",
       "pluginVersion": "12.2.0",
-      "datasource": {"type": "prometheus", "uid": "prometheus"},
-      "gridPos": {"h": 4, "w": 4, "x": 20, "y": 0},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 0
+      },
       "fieldConfig": {
         "defaults": {
           "unit": "none",
           "decimals": 0,
           "noValue": "Unavailable",
-          "color": {"mode": "fixed", "fixedColor": "cyan"},
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "cyan"
+          },
           "links": [
             {
               "title": "VM snapshots table",
@@ -295,7 +306,13 @@
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "horizontal",
-        "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false},
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
         "textMode": "auto"
       },
       "targets": [
@@ -1626,24 +1643,49 @@
       "title": "Snapshot Collection",
       "type": "stat",
       "pluginVersion": "12.2.0",
-      "datasource": {"type": "prometheus", "uid": "prometheus"},
-      "gridPos": {"h": 4, "w": 24, "x": 0, "y": 56},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 56
+      },
       "fieldConfig": {
         "defaults": {
           "noValue": "No data",
-          "color": {"mode": "thresholds"},
+          "color": {
+            "mode": "thresholds"
+          },
           "mappings": [
             {
               "type": "value",
               "options": {
-                "0": {"color": "red", "text": "Collection failed"},
-                "1": {"color": "green", "text": "Healthy"}
+                "0": {
+                  "color": "red",
+                  "text": "Collection failed"
+                },
+                "1": {
+                  "color": "green",
+                  "text": "Healthy"
+                }
               }
             }
           ],
           "thresholds": {
             "mode": "absolute",
-            "steps": [{"color": "red", "value": null}, {"color": "green", "value": 1}]
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
           }
         },
         "overrides": []
@@ -1653,7 +1695,13 @@
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
-        "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false},
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
         "textMode": "value_and_name"
       },
       "targets": [
@@ -1671,17 +1719,34 @@
       "title": "VM Snapshots",
       "type": "table",
       "pluginVersion": "12.2.0",
-      "datasource": {"type": "prometheus", "uid": "prometheus"},
-      "gridPos": {"h": 16, "w": 24, "x": 0, "y": 60},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 16,
+        "w": 24,
+        "x": 0,
+        "y": 60
+      },
       "fieldConfig": {
         "defaults": {
           "mappings": [],
           "noValue": "N/A",
-          "custom": {"align": "auto", "cellOptions": {"type": "auto"}, "inspect": false}
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          }
         },
         "overrides": [
           {
-            "matcher": {"id": "byName", "options": "VM"},
+            "matcher": {
+              "id": "byName",
+              "options": "VM"
+            },
             "properties": [
               {
                 "id": "links",
@@ -1693,28 +1758,57 @@
                   }
                 ]
               },
-              {"id": "custom.cellOptions", "value": {"type": "data-links"}}
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "data-links"
+                }
+              }
             ]
           },
           {
-            "matcher": {"id": "byName", "options": "Age (days)"},
+            "matcher": {
+              "id": "byName",
+              "options": "Age (days)"
+            },
             "properties": [
-              {"id": "unit", "value": "d"},
-              {"id": "decimals", "value": 2},
-              {"id": "color", "value": {"mode": "thresholds"}},
+              {
+                "id": "unit",
+                "value": "d"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
               {
                 "id": "thresholds",
                 "value": {
                   "mode": "absolute",
                   "steps": [
-                    {"color": "transparent", "value": null},
-                    {"color": "red", "value": 5}
+                    {
+                      "color": "transparent",
+                      "value": null
+                    },
+                    {
+                      "color": "red",
+                      "value": 5
+                    }
                   ]
                 }
               },
               {
                 "id": "custom.cellOptions",
-                "value": {"type": "color-background", "mode": "basic", "applyToRow": true}
+                "value": {
+                  "type": "color-background",
+                  "mode": "basic",
+                  "applyToRow": true
+                }
               }
             ]
           }
@@ -1723,7 +1817,12 @@
       "options": {
         "cellHeight": "sm",
         "showHeader": true,
-        "sortBy": [{"displayName": "Age (days)", "desc": true}]
+        "sortBy": [
+          {
+            "displayName": "Age (days)",
+            "desc": true
+          }
+        ]
       },
       "targets": [
         {
@@ -1738,9 +1837,26 @@
         {
           "id": "organize",
           "options": {
-            "excludeByName": {"Time": true, "id": true},
-            "indexByName": {"vmid": 0, "name": 1, "vm_name": 2, "node": 3, "snapshot": 4, "Value": 5},
-            "renameByName": {"vmid": "VMID", "name": "VM", "vm_name": "VM Name", "node": "Node", "snapshot": "Snapshot", "Value": "Age (days)"}
+            "excludeByName": {
+              "Time": true,
+              "id": true
+            },
+            "indexByName": {
+              "vmid": 0,
+              "name": 1,
+              "vm_name": 2,
+              "node": 3,
+              "snapshot": 4,
+              "Value": 5
+            },
+            "renameByName": {
+              "vmid": "VMID",
+              "name": "VM",
+              "vm_name": "VM Name",
+              "node": "Node",
+              "snapshot": "Snapshot",
+              "Value": "Age (days)"
+            }
           }
         }
       ]

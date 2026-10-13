@@ -125,7 +125,9 @@
         "orientation": "horizontal",
         "textMode": "value_and_name",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         }
@@ -269,7 +271,9 @@
         "orientation": "horizontal",
         "textMode": "value_and_name",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         }
@@ -382,7 +386,9 @@
         "orientation": "horizontal",
         "textMode": "value_and_name",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         }
@@ -470,7 +476,9 @@
         "orientation": "horizontal",
         "textMode": "value_and_name",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         }
@@ -529,7 +537,11 @@
       },
       "options": {
         "legend": {
-          "calcs": ["lastNotNull", "mean", "max"],
+          "calcs": [
+            "lastNotNull",
+            "mean",
+            "max"
+          ],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -582,7 +594,9 @@
         "orientation": "horizontal",
         "textMode": "value_and_name",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
@@ -633,7 +647,9 @@
         "orientation": "horizontal",
         "textMode": "value",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         }
@@ -681,7 +697,9 @@
         "minVizHeight": 20,
         "minVizWidth": 0,
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         }
@@ -858,7 +876,9 @@
       },
       "options": {
         "legend": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -919,7 +939,10 @@
                 "id": "custom.lineStyle",
                 "value": {
                   "fill": "dash",
-                  "dash": [5, 5]
+                  "dash": [
+                    5,
+                    5
+                  ]
                 }
               }
             ]
@@ -928,7 +951,9 @@
       },
       "options": {
         "legend": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -1193,7 +1218,9 @@
             "orientation": "horizontal",
             "textMode": "value_and_name",
             "reduceOptions": {
-              "calcs": ["lastNotNull"],
+              "calcs": [
+                "lastNotNull"
+              ],
               "fields": "",
               "values": false
             }
@@ -1265,7 +1292,9 @@
             "graphMode": "none",
             "textMode": "value",
             "reduceOptions": {
-              "calcs": ["lastNotNull"],
+              "calcs": [
+                "lastNotNull"
+              ],
               "fields": "",
               "values": false
             }
@@ -1329,7 +1358,9 @@
             "graphMode": "none",
             "textMode": "value",
             "reduceOptions": {
-              "calcs": ["lastNotNull"],
+              "calcs": [
+                "lastNotNull"
+              ],
               "fields": "",
               "values": false
             }
@@ -1393,7 +1424,9 @@
             "graphMode": "none",
             "textMode": "value",
             "reduceOptions": {
-              "calcs": ["lastNotNull"],
+              "calcs": [
+                "lastNotNull"
+              ],
               "fields": "",
               "values": false
             }
@@ -1412,7 +1445,13 @@
   ],
   "refresh": "30s",
   "schemaVersion": 41,
-  "tags": ["infrastructure", "observability", "proxmox", "nginx", "traffic"],
+  "tags": [
+    "infrastructure",
+    "observability",
+    "proxmox",
+    "nginx",
+    "traffic"
+  ],
   "templating": {
     "list": []
   },
