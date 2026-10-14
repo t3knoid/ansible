@@ -22,7 +22,7 @@ vms_additional_packages: [jq]
 python3_version: 3.12
 python3_venv_folder: "/opt/python_{{ python3_version }}"
 
-postgresql_setup_version: 17
+postgresql_setup_version: 18
 nginx_setup_disable_default_site: true
 
 redis_setup_version: "6:8.4.0-1rl1" # Redis is required by oauth2_proxy
