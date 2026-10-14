@@ -25,26 +25,17 @@ vms_config:
       bridge: vmbr0
       tag: 20
 
-postgresql_setup_version: 17
-java_setup_version: 21.0.6.7.1
-
 vms_os: ubuntu_24_server
 vms_autoinstall: true
 vms_enable_serial_terminal: false
 vms_additional_packages: []
-python3_version: 3.12
+
+python3_version: 3.14
 python3_venv_folder: "/opt/python_{{ python3_version }}"
+ansible_python_interpreter: "{{ python3_venv_folder }}/bin/python3"
+
 disks_disk_mounts:
   - { mountpoint: "/minecraft", mountpoint_owner: "ansible", mountpoint_group: "ansible" }
-
-minecraft_setup_java_xmx: 2048
-minecraft_setup_java_xms: 256
-minecraft_setup_version: 1.21.4
-minecraft_setup_port: 25565
-
-geyser_setup_java_xmx: 1024
-geyser_setup_java_xms: 128
-geyser_setup_port: 19132
 
 bedrock_setup_version: 1.26.52.3
 
