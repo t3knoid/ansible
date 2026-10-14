@@ -2,43 +2,8 @@
 # tasks file for postgresql_setup
 # see https://wiki.postgresql.org/wiki/Apt
 
-- name: Install curl and ca-certificates
-  ansible.builtin.apt:
-    name:
-      - curl
-      - ca-certificates
-    state: present
-    update_cache: true
-
-- name: Create directory /usr/share/postgresql-common/pgdg
-  ansible.builtin.file:
-    path: /usr/share/postgresql-common/pgdg
-    state: directory
-    mode: '0755'
-
-- name: Download PostgreSQL GPG key
-  ansible.builtin.get_url:
-    url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
-    dest: /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc
-    mode: '0644'
-
-- name: Add PostgreSQL repository
-  ansible.builtin.lineinfile:
-    path: /etc/apt/sources.list.d/pgdg.list
-    regexp: '^deb \[signed-by=\/usr\/share\/postgresql-common\/pgdg\/apt\.postgresql\.org\.asc\] https:\/\/apt\.postgresql\.org\/pub\/repos\/apt {{ ansible_facts.distribution_release }}-pgdg main$'
-    line: >
-      deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc]
-      https://apt.postgresql.org/pub/repos/apt {{ ansible_facts.distribution_release }}-pgdg main
-    create: true
-    mode: '0644'
-
-- name: Install Postgresql packages
-  ansible.builtin.apt:
-    name: "{{ item }}"
-    state: present
-    update_cache: true
-  loop: "{{ postgresql_setup_packages_to_install }}"
-  notify: Start PostgreSQL
+- name: Install PostgreSQL prerequisites and packages
+  ansible.builtin.import_tasks: packages.yml
 
 - name: Stop PostgreSQL service
   ansible.builtin.service:
@@ -54,10 +19,10 @@
   ansible.builtin.file:
     path: "{{ postgresql_setup_data_dir }}"
     state: directory
-    mode: '0700'
+    mode: "0700"
     owner: postgres
     group: postgres
-    
+
 - name: Initialize the new data directory
   ansible.builtin.command: sudo -u postgres /usr/lib/postgresql/{{ postgresql_setup_version }}/bin/initdb -D {{ postgresql_setup_data_dir }}
   changed_when: false
@@ -83,7 +48,7 @@
 
 - name: Update pg_hba.conf to use md5 authentication
   community.postgresql.postgresql_pg_hba:
-    dest:  "{{ postgresql_setup_data_dir }}/pg_hba.conf"
+    dest: "{{ postgresql_setup_data_dir }}/pg_hba.conf"
     contype: local
     users: all
     databases: all
@@ -92,7 +57,7 @@
 
 - name: Update pg_hba.conf to allow password access using localhost
   community.postgresql.postgresql_pg_hba:
-    dest:  "{{ postgresql_setup_data_dir }}/pg_hba.conf"
+    dest: "{{ postgresql_setup_data_dir }}/pg_hba.conf"
     contype: host
     users: all
     source: "127.0.0.1/32"
