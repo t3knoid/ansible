@@ -53,7 +53,6 @@ Provides global defaults common to all roles. It provides the IP definition of e
 | `global_inventory_dir_name` | `"{{ inventory_dir | basename }}"` |  |
 | `global_ip_addresses` | `` |  |
 | `ansible-0` | `192.168.20.101` |  |
-| `ansible-1` | `192.168.20.102` |  |
 | `test-0` | `192.168.20.103` |  |
 | `semaphore-0` | `192.168.20.110` |  |
 | `sonarr-0` | `192.168.20.150` |  |
