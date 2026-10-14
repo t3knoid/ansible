@@ -125,7 +125,9 @@
         "orientation": "horizontal",
         "textMode": "value_and_name",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         }
@@ -238,6 +240,28 @@
                 }
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "VM snapshots"
+            },
+            "properties": [
+              {
+                "id": "noValue",
+                "value": "Unavailable"
+              },
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "VM snapshots",
+                    "url": "/d/proxmox-ve-status?viewPanel=19",
+                    "targetBlank": false
+                  }
+                ]
+              }
+            ]
           }
         ]
       },
@@ -247,7 +271,9 @@
         "orientation": "horizontal",
         "textMode": "value_and_name",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         }
@@ -280,6 +306,13 @@
           "range": false,
           "legendFormat": "Updates",
           "refId": "D"
+        },
+        {
+          "expr": "(count(max by (id, snapshot) (pve_vm_snapshot_created_timestamp_seconds)) or vector(0)) and on () (min((pve_vm_snapshot_collection_success * on (job, instance) up) or on (job, instance) (up{job=\"pve_exporter\"} * 0)) == 1)",
+          "instant": true,
+          "range": false,
+          "legendFormat": "VM snapshots",
+          "refId": "E"
         }
       ]
     },
@@ -353,7 +386,9 @@
         "orientation": "horizontal",
         "textMode": "value_and_name",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         }
@@ -441,7 +476,9 @@
         "orientation": "horizontal",
         "textMode": "value_and_name",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         }
@@ -500,7 +537,11 @@
       },
       "options": {
         "legend": {
-          "calcs": ["lastNotNull", "mean", "max"],
+          "calcs": [
+            "lastNotNull",
+            "mean",
+            "max"
+          ],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -553,7 +594,9 @@
         "orientation": "horizontal",
         "textMode": "value_and_name",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
@@ -604,7 +647,9 @@
         "orientation": "horizontal",
         "textMode": "value",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         }
@@ -652,7 +697,9 @@
         "minVizHeight": 20,
         "minVizWidth": 0,
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         }
@@ -829,7 +876,9 @@
       },
       "options": {
         "legend": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -890,7 +939,10 @@
                 "id": "custom.lineStyle",
                 "value": {
                   "fill": "dash",
-                  "dash": [5, 5]
+                  "dash": [
+                    5,
+                    5
+                  ]
                 }
               }
             ]
@@ -899,7 +951,9 @@
       },
       "options": {
         "legend": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -1164,7 +1218,9 @@
             "orientation": "horizontal",
             "textMode": "value_and_name",
             "reduceOptions": {
-              "calcs": ["lastNotNull"],
+              "calcs": [
+                "lastNotNull"
+              ],
               "fields": "",
               "values": false
             }
@@ -1236,7 +1292,9 @@
             "graphMode": "none",
             "textMode": "value",
             "reduceOptions": {
-              "calcs": ["lastNotNull"],
+              "calcs": [
+                "lastNotNull"
+              ],
               "fields": "",
               "values": false
             }
@@ -1300,7 +1358,9 @@
             "graphMode": "none",
             "textMode": "value",
             "reduceOptions": {
-              "calcs": ["lastNotNull"],
+              "calcs": [
+                "lastNotNull"
+              ],
               "fields": "",
               "values": false
             }
@@ -1364,14 +1424,16 @@
             "graphMode": "none",
             "textMode": "value",
             "reduceOptions": {
-              "calcs": ["lastNotNull"],
+              "calcs": [
+                "lastNotNull"
+              ],
               "fields": "",
               "values": false
             }
           },
           "targets": [
             {
-              "expr": "(sum(bedrock_server_update_available{job=\"node\",instance=~\"minecraft-.*\"}) or vector(0)) + (sum(sonarr_update_available{job=\"node\",instance=~\"sonarr-.*\"}) or vector(0)) + (sum(radarr_update_available{job=\"node\",instance=~\"radarr-.*\"}) or vector(0)) + (sum(lidarr_update_available{job=\"node\",instance=~\"lidarr-.*\"}) or vector(0)) + (sum(plex_update_available{job=\"node\",instance=~\"plex-.*\"}) or vector(0)) + (sum(tautulli_update_available{job=\"node\",instance=~\"tautulli-.*\"}) or vector(0))",
+              "expr": "(sum(bedrock_server_update_available{job=\"node\",instance=~\"minecraft-.*\"}) or vector(0)) + (sum(sonarr_update_available{job=\"node\",instance=~\"sonarr-.*\"}) or vector(0)) + (sum(radarr_update_available{job=\"node\",instance=~\"radarr-.*\"}) or vector(0)) + (sum(lidarr_update_available{job=\"node\",instance=~\"lidarr-.*\"}) or vector(0)) + (sum(ombi_update_available{job=\"node\",instance=~\"ombi-.*\"}) or vector(0)) + (sum(sabnzbd_update_available{job=\"node\",instance=~\"sabnzbd-.*\"}) or vector(0)) + (sum(plex_update_available{job=\"node\",instance=~\"plex-.*\"}) or vector(0)) + (sum(tautulli_update_available{job=\"node\",instance=~\"tautulli-.*\"}) or vector(0))",
               "instant": true,
               "range": false,
               "refId": "A"
@@ -1383,7 +1445,13 @@
   ],
   "refresh": "30s",
   "schemaVersion": 41,
-  "tags": ["infrastructure", "observability", "proxmox", "nginx", "traffic"],
+  "tags": [
+    "infrastructure",
+    "observability",
+    "proxmox",
+    "nginx",
+    "traffic"
+  ],
   "templating": {
     "list": []
   },

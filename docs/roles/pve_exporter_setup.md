@@ -41,6 +41,7 @@ _No constant variables found._
 - Set ownership for pve_exporter virtual environment
 - Create pve_exporter configuration directory
 - Render pve_exporter configuration file
+- Install pve_exporter snapshot collector launcher
 - Create pve_exporter systemd service file
 - Enable and start pve_exporter service
 

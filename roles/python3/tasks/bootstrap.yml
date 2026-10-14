@@ -7,6 +7,12 @@
       -exec grep -lE 'ppa\.launchpadcontent\.net/deadsnakes/ppa/ubuntu|ppa:deadsnakes/ppa' {} + | xargs -r rm -f
   changed_when: false
 
+- name: Read Ubuntu release codename
+  ansible.builtin.raw: '. /etc/os-release && printf "%s" "${VERSION_CODENAME:-}"'
+  register: python3_bootstrap_release
+  changed_when: false
+  failed_when: python3_bootstrap_release.stdout | trim == ""
+
 - name: Add deadsnakes apt repository key
   ansible.builtin.raw: |
     curl -fsSL "{{ python3_repo_key_url }}" -o "{{ python3_repo_key_local }}" && \
@@ -15,9 +21,9 @@
 
 - name: Add deadsnakes apt repository
   ansible.builtin.raw: |
-    echo "deb [arch=amd64 signed-by={{ python3_repo_key_local }}] {{ python3_repo_base_url }} noble main" \
-      > /etc/apt/sources.list.d/deadsnakes-ubuntu-ppa-noble.list
-    chmod 0644 /etc/apt/sources.list.d/deadsnakes-ubuntu-ppa-noble.list
+    echo "deb [arch=amd64 signed-by={{ python3_repo_key_local }}] {{ python3_repo_base_url }} {{ python3_bootstrap_release.stdout | trim }} main" \
+      > /etc/apt/sources.list.d/deadsnakes-ubuntu-ppa-{{ python3_bootstrap_release.stdout | trim }}.list
+    chmod 0644 /etc/apt/sources.list.d/deadsnakes-ubuntu-ppa-{{ python3_bootstrap_release.stdout | trim }}.list
   changed_when: false
 
 - name: Update apt cache
@@ -26,9 +32,15 @@
 
 - name: Install requested Python version
   ansible.builtin.raw: |
-    if ! dpkg -s python{{ python3_version }} >/dev/null 2>&1; then
-      apt-get install -y python{{ python3_version }}
+    ulimit -c 0 || true
+    if ! "/usr/bin/python{{ python3_version }}" -c \
+      'import sys; sys.exit(0 if sys.version_info[:2] == tuple(map(int, "{{ python3_version }}".split(".")[:2])) else 1)' \
+      >/dev/null 2>&1; then
+      apt-get install -y --reinstall \
+        python{{ python3_version }} python{{ python3_version }}-minimal
     fi
+    "/usr/bin/python{{ python3_version }}" -c \
+      'import sys; sys.exit(0 if sys.version_info[:2] == tuple(map(int, "{{ python3_version }}".split(".")[:2])) else 1)'
   changed_when: false
 
 - name: Register requested Python version as an alternative
@@ -39,10 +51,12 @@
 
 - name: Set Python interpreter for subsequent tasks
   ansible.builtin.set_fact:
-    ansible_python_interpreter: "/usr/bin/python{{ python3_version }}"
+    ansible_python_interpreter: /usr/bin/python3
 
-- name: Gather facts now that Python is available
+- name: Gather minimal facts now that Python is available
   ansible.builtin.setup:
+    gather_subset:
+      - min
 
     # ------------------------------------------------------------
     # Normal Ansible tasks can follow

@@ -1,5 +1,4 @@
 ---
-
 - name: Deploy Ombi Docker Service
   ansible.builtin.import_role:
     name: docker_service_deploy
@@ -12,3 +11,7 @@
         mode: "0640"
     docker_service_deploy_compose_template: "docker-compose.yml.j2"
     docker_service_deploy_container_name: "ombi"
+
+- name: Check Ombi for available updates via Prometheus metrics
+  ansible.builtin.import_tasks: check_update.yml
+  when: ombi_setup_check_update | bool

@@ -6,7 +6,7 @@ After=network-online.target
 [Service]
 User={{ pve_exporter_setup_user }}
 Group={{ pve_exporter_setup_group }}
-ExecStart={{ pve_exporter_setup_venv }}/bin/pve_exporter --config.file={{ pve_exporter_setup_config_file }} --web.listen-address={{ pve_exporter_setup_listen_address }}
+ExecStart={{ pve_exporter_setup_venv }}/bin/python {{ pve_exporter_setup_config_dir }}/pve_exporter_with_snapshots.py --config.file={{ pve_exporter_setup_config_file }} --web.listen-address={{ pve_exporter_setup_listen_address }}
 Restart=on-failure
 RestartSec=5
 

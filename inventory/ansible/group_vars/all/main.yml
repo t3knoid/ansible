@@ -27,7 +27,7 @@ nginx_setup_disable_default_site: true
 
 redis_setup_version: "6:8.4.0-1rl1" # Redis is required by oauth2_proxy
 
-azure_cli_setup_version: 2.89.1
+azure_cli_setup_version: 2.91.0
 
 terraform_setup_version: 1.14.3
 

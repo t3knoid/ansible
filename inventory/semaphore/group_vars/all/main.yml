@@ -28,8 +28,9 @@ vms_os: ubuntu_24_server
 vms_autoinstall: true
 vms_enable_serial_terminal: false
 vms_additional_packages: [jq]
-python3_version: 3.12
+python3_version: 3.14
 python3_venv_folder: "/opt/python_{{ python3_version }}"
+ansible_python_interpreter: "{{ python3_venv_folder }}/bin/python3"
 
 nginx_setup_disable_default_site: true
 disks_disk_mounts:
@@ -61,7 +62,7 @@ rproxy_setup_sites:
     oauth2_email_domains: "*"
     enable: true
 
-azure_cli_setup_version: 2.89.1
+azure_cli_setup_version: 2.91.0
 
 semaphoreui_setup_version: 2.16.19
 
