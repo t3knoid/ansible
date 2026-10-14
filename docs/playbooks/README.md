@@ -96,6 +96,7 @@
 | [`plex/deploy_plex_exporter.yml`](./deploy_plex_exporter.md) | Deploy Prometheus Plex Exporter on plex-0. |
 | [`plex/restore_plex.yml`](./restore_plex.md) | Restore Plex Media Server configuration from backup archive. |
 | [`postgresql/deploy_postgresql.yml`](./deploy_postgresql.md) | Install and configure PostgreSQL on pgdb hosts |
+| [`postgresql/migrate_postgresql_17_to_18.yml`](./migrate_postgresql_17_to_18.md) | Migrate one Debian/Ubuntu PostgreSQL cluster while retaining version 17 |
 | [`prometheus/backup_db.yml`](./backup_db.md) | Create a point-in-time copy of all current data stored in Prometheus. |
 | [`prometheus/deploy_blackbox_exporter.yml`](./deploy_blackbox_exporter.md) | Deploy Prometheus Blackbox Exporter on a selected host group for remote service probing |
 | [`prometheus/deploy_nginx_prometheus_exporter.yml`](./deploy_nginx_prometheus_exporter.md) | Deploy nginx-prometheus-exporter on nginx exporter hosts Usage: ansible-playbook -i inventory/rproxy/inventory.ini playbooks/prometheus/deploy_nginx_prometheus_exporter.yml |
