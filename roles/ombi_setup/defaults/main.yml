@@ -1,10 +1,15 @@
 ---
-
 ombi_setup_version: 4.47.1
 ombi_setup_config_dir: "/config"
 ombi_setup_port: 3579
 ombi_setup_pg_port: 5432
 ombi_setup_pg_host: "{{ global_ip_addresses[groups['pgdb'][0]] }}"
+
+ombi_setup_api_url: "http://127.0.0.1:{{ ombi_setup_port }}"
+ombi_setup_check_update: true
+ombi_setup_update_check_script_path: /usr/local/bin/check_ombi_update.sh
+ombi_setup_update_metrics_path: "{{ node_exporter_setup_textfile_collector_dir | default('/var/lib/node_exporter/textfile') }}/ombi_update.prom"
+ombi_setup_update_check_minute: "*/30"
 
 # See vault for the following variables
 # ombi_setup_db_name:

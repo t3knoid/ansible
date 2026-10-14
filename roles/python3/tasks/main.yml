@@ -11,8 +11,7 @@
   ansible.builtin.file:
     path: "{{ item }}"
     state: absent
-  loop: "{{ python3_deadsnakes_source_files.stdout_lines }}"
-  when: python3_deadsnakes_source_files.stdout_lines | length > 0
+  loop: "{{ python3_deadsnakes_source_files.stdout_lines | default([]) }}"
 
 - name: Add deadsnakes apt repository key.
   ansible.builtin.get_url:
@@ -28,8 +27,8 @@
 
 - name: Add deadsnakes apt repository
   ansible.builtin.apt_repository:
-    repo: "deb [arch=amd64 signed-by={{ python3_repo_key_local }}] {{ python3_repo_base_url }} noble main"
-    filename: deadsnakes-ubuntu-ppa-noble
+    repo: "deb [arch=amd64 signed-by={{ python3_repo_key_local }}] {{ python3_repo_base_url }} {{ ansible_distribution_release }} main"
+    filename: "deadsnakes-ubuntu-ppa-{{ ansible_distribution_release }}"
     mode: "0644"
     state: present
 

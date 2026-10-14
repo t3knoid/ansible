@@ -49,6 +49,15 @@
     mode: "0640"
   notify: Restart pve_exporter service
 
+- name: Install pve_exporter snapshot collector launcher
+  ansible.builtin.copy:
+    src: pve_exporter_with_snapshots.py
+    dest: "{{ pve_exporter_setup_config_dir }}/pve_exporter_with_snapshots.py"
+    owner: root
+    group: "{{ pve_exporter_setup_group }}"
+    mode: "0640"
+  notify: Restart pve_exporter service
+
 - name: Create pve_exporter systemd service file
   ansible.builtin.template:
     src: pve_exporter.service.j2

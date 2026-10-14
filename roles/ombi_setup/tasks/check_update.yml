@@ -1,0 +1,32 @@
+---
+- name: Ensure jq is installed for Ombi update metrics
+  ansible.builtin.package:
+    name: jq
+    state: present
+
+- name: Ensure Ombi update metrics directory exists
+  ansible.builtin.file:
+    path: "{{ ombi_setup_update_metrics_path | dirname }}"
+    state: directory
+    owner: root
+    group: "{{ node_exporter_setup_group | default('prometheus') }}"
+    mode: "0775"
+
+- name: Install Ombi update metrics script
+  ansible.builtin.template:
+    src: check_ombi_update.sh.j2
+    dest: "{{ ombi_setup_update_check_script_path }}"
+    owner: root
+    group: root
+    mode: "0750"
+
+- name: Seed Ombi update metrics file
+  ansible.builtin.command: "{{ ombi_setup_update_check_script_path }}"
+  changed_when: true
+
+- name: Schedule Ombi update metrics check
+  ansible.builtin.cron:
+    name: ombi_update_metrics
+    minute: "{{ ombi_setup_update_check_minute }}"
+    user: root
+    job: "{{ ombi_setup_update_check_script_path }}"

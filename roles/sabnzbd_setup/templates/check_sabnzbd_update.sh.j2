@@ -23,6 +23,9 @@ cat > "$tmp_file" <<EOF
 # HELP sabnzbd_current_version_info SABnzbd version currently reported by the API.
 # TYPE sabnzbd_current_version_info gauge
 sabnzbd_current_version_info{version="$installed_version"} 1
+# HELP sabnzbd_latest_version_info Latest SABnzbd version available.
+# TYPE sabnzbd_latest_version_info gauge
+sabnzbd_latest_version_info{version="$latest_version"} 1
 # HELP sabnzbd_update_available Whether a newer SABnzbd version is available.
 # TYPE sabnzbd_update_available gauge
 sabnzbd_update_available $update_available

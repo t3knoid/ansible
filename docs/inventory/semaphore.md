@@ -59,6 +59,9 @@ _Inventory for `semaphore` hosts_
 ### `prometheus`
 - `prometheus-0`
 
+### `azure_cli`
+- `semaphore-0`
+
 ## ⚙️ Group Variables
 _No group variables defined._
 
@@ -69,6 +72,6 @@ _No group variables defined._
 
 ## 🧩 Group Children
 ### `rproxy`
-- `rproxy_main`
 - `rproxy_secondary`
 - `rproxy_primary`
+- `rproxy_main`
