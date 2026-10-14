@@ -18,17 +18,14 @@ Installs PostgreSQL.
 | `postgresql_setup_version` | `17` | defaults file for postgresql_setup |
 | `postgresql_setup_data_dir` | `/data/pgdata` |  |
 | `postgresql_setup_dbhost` | `"{{ groups['pgdb'][0] }}"` |  |
+| `postgresql_setup_package_handlers` | `` |  |
 | `postgresql_setup_packages_to_install` | `` |  |
 
 ## 📦 Vars
 _No constant variables found._
 
 ## 📑 Tasks
-- Install curl and ca-certificates
-- Create directory /usr/share/postgresql-common/pgdg
-- Download PostgreSQL GPG key
-- Add PostgreSQL repository
-- Install Postgresql packages
+- Install PostgreSQL prerequisites and packages
 - Stop PostgreSQL service
 - Delete default PostgreSQL data directory
 - Create Postresql data directory
