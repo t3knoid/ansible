@@ -4,6 +4,8 @@
 postgresql_setup_version: 17
 postgresql_setup_data_dir: /data/pgdata
 postgresql_setup_dbhost: "{{ groups['pgdb'][0] }}"
+postgresql_setup_package_handlers:
+  - Start PostgreSQL
 postgresql_setup_packages_to_install:
   - "postgresql-{{ postgresql_setup_version }}"
   - libpq-dev
