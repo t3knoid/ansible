@@ -24,7 +24,7 @@ scrape_configs:
     scrape_interval: 5s
 
     static_configs:
-      - targets: ['{{ global_ip_addresses[ansible_host] }}:9090']
+      - targets: ['{{ global_ip_addresses[inventory_hostname] }}:9090']
 
 {% if prometheus_setup_node_static_configs is defined %}
 {% if prometheus_setup_node_static_configs | length > 0 %}
