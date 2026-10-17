@@ -31,6 +31,8 @@ _No group variables defined._
 
 ## 🖥 Host Variables
 ### `truenas-01`
+- `ansible_host`: `192.168.2.250`
+- `ansible_user`: `ansible`
 - `pihole_cname_entries`: `[{"domain": "truenas.refol.us", "target": "rproxy-0.refol.us"}]`
 
 ## 🧩 Group Children
