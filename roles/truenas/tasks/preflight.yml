@@ -1,0 +1,43 @@
+---
+- name: Wait until the middleware reports the system is ready
+  truenas_api:
+    mode: call
+    method: system.ready
+    read_only: true
+  register: truenas_ready
+  until: truenas_ready.result | default(false) | bool
+  retries: 60
+  delay: 10
+  changed_when: false
+
+- name: Read the TrueNAS version
+  truenas_api:
+    mode: call
+    method: system.version_short
+    read_only: true
+  register: truenas_version
+  changed_when: false
+
+- name: Check the minimum supported version
+  ansible.builtin.assert:
+    that:
+      - (truenas_version.result | string | regex_replace('^([0-9]+)[.]([0-9]+).*', '\\1.\\2')) is version(truenas_min_version, '>=')
+    fail_msg: >-
+      This role targets TrueNAS {{ truenas_min_version }} or newer, found {{ truenas_version.result }}.
+    quiet: true
+
+- name: Check that the initial administrator was created at install time
+  truenas_api:
+    mode: call
+    method: user.has_local_administrator_set_up
+    read_only: true
+  register: truenas_admin_exists
+  changed_when: false
+
+- name: Fail with a hint if first-boot setup is not finished
+  ansible.builtin.assert:
+    that: truenas_admin_exists.result | bool
+    fail_msg: >-
+      No local administrator is configured yet. Open the web UI once and set the
+      administrator password, then run this role again.
+    quiet: true

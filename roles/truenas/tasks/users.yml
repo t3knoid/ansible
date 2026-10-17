@@ -1,0 +1,20 @@
+---
+- name: Ensure local users
+  truenas_api:
+    namespace: user
+    lookup:
+      username: "{{ item.username }}"
+    state: "{{ item.state | default('present') }}"
+    config: "{{ item | dict2items | rejectattr('key', 'in', ['state', 'delete_group']) | items2dict }}"
+    create_only_keys: "{{ truenas_user_create_only_keys }}"
+    sensitive_keys: [password]
+    send_sensitive_when: [smb]
+    name_to_id:
+      groups: "group:name"
+      group: "group:name"
+    delete_args:
+      - delete_group: "{{ item.delete_group | default(true) }}"
+  loop: "{{ truenas_users }}"
+  loop_control:
+    label: "{{ item.username }}"
+  no_log: "{{ truenas_no_log }}"

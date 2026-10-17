@@ -1,0 +1,8 @@
+---
+- name: Configure TrueNAS
+  hosts: truenas
+  gather_facts: false
+  roles:
+    - global
+    - role: truenas
+  

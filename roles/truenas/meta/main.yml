@@ -1,0 +1,10 @@
+---
+galaxy_info:
+  role_name: truenas
+  author: you
+  description: Configure TrueNAS 25.10+ (updates, admin, users, Active Directory, datasets, shares, services) through the middleware API
+  license: GPL-3.0-or-later
+  min_ansible_version: "2.14"
+  platforms: []
+  galaxy_tags: [truenas, storage, nas]
+dependencies: []

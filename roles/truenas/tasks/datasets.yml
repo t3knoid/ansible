@@ -1,0 +1,13 @@
+---
+# Datasets are only ever created/adjusted, never deleted, to avoid data loss.
+- name: Ensure datasets
+  truenas_api:
+    namespace: pool.dataset
+    lookup:
+      id: "{{ item.name }}"
+    config: "{{ {'type': 'FILESYSTEM'} | combine(item) }}"
+    create_only_keys: "{{ truenas_dataset_create_only_keys }}"
+  loop: "{{ truenas_datasets }}"
+  loop_control:
+    label: "{{ item.name }}"
+  no_log: "{{ truenas_no_log }}"

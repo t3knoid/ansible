@@ -1,0 +1,13 @@
+---
+- name: Ensure local groups
+  truenas_api:
+    namespace: group
+    lookup:
+      name: "{{ item.name }}"
+    state: "{{ item.state | default('present') }}"
+    config: "{{ item | dict2items | rejectattr('key', 'eq', 'state') | items2dict }}"
+    create_only_keys: [gid]
+  loop: "{{ truenas_groups }}"
+  loop_control:
+    label: "{{ item.name }}"
+  no_log: "{{ truenas_no_log }}"

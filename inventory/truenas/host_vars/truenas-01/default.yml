@@ -1,0 +1,299 @@
+---
+rproxy_setup_sites:
+  - server_name: truenas.refol.us
+    port: 80
+    proxy_pass: "http://{{ global_ip_addresses['truenas-01'] }}"
+    allow_list:
+      - 192.168.0.0/24
+      - 192.168.2.0/24
+      - 24.105.250.200
+      - 70.107.117.124
+    restricted: false
+
+truenas_update_enabled: false
+truenas_update_reboot: false
+
+truenas_groups:
+  - { name: abc, gid: 2000 }
+  - { name: backup_user, gid: 3000 }
+  - { name: incoming, gid: 3001 }
+  - { name: proxmox, gid: 3002 }
+
+truenas_admin:
+  username: admin
+  uid: 950
+  password: "{{ vault_truenas_admin_password }}"
+  full_name: Administrator
+  ssh_password_enabled: true
+  sudo_commands_nopasswd: [ALL]
+
+truenas_users:
+  - username: frank
+    uid: 900
+    full_name: Frank Refol
+    password: "{{ vault_frank_password }}"
+    smb: true
+    group_create: false
+    group: ansible
+    groups: [ansible]
+    shell: /usr/bin/zsh
+    ssh_password_enabled: true
+    home: /mnt/Data/users/frank
+  - username: abc
+    uid: 2000
+    full_name: abc
+    password: "{{ vault_abc_password }}"
+    password_disabled: false
+    ssh_password_enabled: false
+    smb: true
+    group_create: false
+    group: abc
+    groups: [abc]
+    shell: /usr/sbin/nologin
+    home: /var/empty
+  - username: ansible
+    uid: 1000
+    full_name: Ansible
+    password: "{{ vault_ansible_password }}"
+    smb: false
+    group_create: false
+    group: ansible
+    groups: [ansible]
+    shell: /usr/bin/zsh
+    ssh_password_enabled: true
+    home_create: true
+    home: /mnt/Data/users/ansible
+  - username: backup_user
+    uid: 3000
+    full_name: Backup User
+    password: "{{ vault_backupuser_password }}"
+    password_disabled: false
+    smb: true
+    group_create: false
+    group: backup_user
+    groups: [backup_user]
+    shell: /usr/sbin/nologin
+    ssh_password_enabled: false
+    home: /var/empty
+  - username: incoming
+    uid: 3001
+    full_name: Incoming User
+    password: "{{ vault_incoming_password }}"
+    password_disabled: false
+    smb: true
+    group_create: false
+    group: incoming
+    groups: [incoming]
+    shell: /usr/sbin/nologin
+    ssh_password_enabled: false
+    home: /var/empty
+  - username: proxmox
+    uid: 3002
+    full_name: Proxmox User
+    random_password: true
+    password_disabled: false
+    smb: false
+    group_create: false
+    group: proxmox
+    groups: [proxmox]
+    shell: /usr/sbin/nologin
+    ssh_password_enabled: false
+    home: /var/empty
+
+truenas_network_configuration:
+  nameserver1: 192.168.20.253
+truenas_ad:
+  domain: refol.us
+  hostname: truenas
+  username: svc-truenas-join
+  password: "{{ vault_ad_join_password }}"
+
+truenas_datasets:
+  - { name: Data/backups_ex, share_type: NFS, compression: LZ4 }
+  - { name: Data/books, share_type: MULTIPROTOCOL, compression: LZ4 }
+  - { name: Data/configs, share_type: NFS, compression: LZ4 }
+  - { name: Data/configs/calibre, share_type: NFS, compression: LZ4 }
+  - { name: Data/configs/calibreweb, share_type: NFS, compression: LZ4 }
+  - { name: Data/configs/lazylibrarian, share_type: NFS, compression: LZ4 }
+  - { name: Data/configs/lidarr, share_type: NFS, compression: LZ4 }
+  - { name: Data/configs/nginx, share_type: NFS, compression: LZ4 }
+  - { name: Data/configs/ombi, share_type: NFS, compression: LZ4 }
+  - { name: Data/configs/radarr, share_type: NFS, compression: LZ4 }
+  - { name: Data/configs/readarr, share_type: NFS, compression: LZ4 }
+  - { name: Data/configs/sabnzbd, share_type: NFS, compression: LZ4 }
+  - { name: Data/configs/sabnzbd2, share_type: NFS, compression: LZ4 }
+  - { name: Data/configs/sonarr, share_type: NFS, compression: LZ4 }
+  - { name: Data/downloads, share_type: NFS, compression: LZ4 }
+  - { name: Data/downloads/complete, share_type: NFS, compression: LZ4 }
+  - { name: Data/ecube, share_type: MULTIPROTOCOL, compression: LZ4 }
+  - {
+      name: Data/ecube/demo-case-004,
+      share_type: MULTIPROTOCOL,
+      compression: LZ4,
+    }
+  - { name: Data/ecube/project1, share_type: MULTIPROTOCOL, compression: LZ4 }
+  - { name: Data/ecube/project2, share_type: MULTIPROTOCOL, compression: LZ4 }
+  - { name: Data/ecube/project3, share_type: MULTIPROTOCOL, compression: LZ4 }
+  - { name: Data/ecube/project4, share_type: MULTIPROTOCOL, compression: LZ4 }
+  - { name: Data/ftp, share_type: NFS, compression: LZ4 }
+  - { name: Data/movies, share_type: NFS, compression: LZ4 }
+  - { name: Data/music, share_type: NFS, compression: LZ4 }
+  - { name: Data/onedrive, compression: LZ4 }
+  - { name: Data/photos, share_type: NFS, compression: LZ4 }
+  - { name: Data/public, compression: LZ4 }
+  - { name: Data/public/incoming, share_type: SMB, compression: LZ4 }
+  - { name: Data/tvshows, share_type: MULTIPROTOCOL, compression: LZ4 }
+
+truenas_smb_shares:
+  - name: books
+    path: /mnt/Data/books
+    purpose: MULTIPROTOCOL_SHARE
+    comment: eBooks library
+    options:
+      purpose: MULTIPROTOCOL_SHARE
+  - name: demo-case-001
+    path: /mnt/Data/ecube/demo-case-001
+    purpose: MULTIPROTOCOL_SHARE
+    comment: Demo data for eCube application
+    options:
+      purpose: MULTIPROTOCOL_SHARE
+  - name: demo-case-002
+    path: /mnt/Data/ecube/demo-case-002
+    purpose: MULTIPROTOCOL_SHARE
+    comment: Demo data for eCube application
+    options:
+      purpose: MULTIPROTOCOL_SHARE
+  - name: demo-case-003
+    path: /mnt/Data/ecube/demo-case-003
+    purpose: MULTIPROTOCOL_SHARE
+    comment: Demo data for eCube application
+    options:
+      purpose: MULTIPROTOCOL_SHARE
+  - name: demo-case-004
+    path: /mnt/Data/ecube/demo-case-004
+    purpose: MULTIPROTOCOL_SHARE
+    comment: Demo data for eCube application
+    options:
+      purpose: MULTIPROTOCOL_SHARE
+  - name: downloads
+    path: /mnt/Data/downloads/complete
+    purpose: MULTIPROTOCOL_SHARE
+    comment: Downloads directory for completed files
+    options:
+      purpose: MULTIPROTOCOL_SHARE
+  - name: incoming
+    path: /mnt/Data/public/incoming
+    purpose: DEFAULT_SHARE
+    comment: Incoming directory for public files
+    options:
+      purpose: DEFAULT_SHARE
+  - name: movies
+    path: /mnt/Data/movies
+    purpose: MULTIPROTOCOL_SHARE
+    comment: Movies directory for media files
+    options:
+      purpose: MULTIPROTOCOL_SHARE
+  - name: music
+    path: /mnt/Data/music
+    purpose: MULTIPROTOCOL_SHARE
+    comment: Music directory for media files
+    options:
+      purpose: MULTIPROTOCOL_SHARE
+  - name: photos
+    path: /mnt/Data/photos
+    purpose: MULTIPROTOCOL_SHARE
+    comment: Photos directory for media files
+    options:
+      purpose: MULTIPROTOCOL_SHARE
+  - name: project1
+    path: /mnt/Data/ecube/project1
+    purpose: MULTIPROTOCOL_SHARE
+    comment: Project 1 directory for eCube application
+    options:
+      purpose: MULTIPROTOCOL_SHARE
+  - name: project2
+    path: /mnt/Data/ecube/project2
+    purpose: MULTIPROTOCOL_SHARE
+    comment: Project 2 directory for eCube application
+    options:
+      purpose: MULTIPROTOCOL_SHARE
+  - name: project3
+    path: /mnt/Data/ecube/project3
+    purpose: MULTIPROTOCOL_SHARE
+    comment: Project 3 directory for eCube application
+    options:
+      purpose: MULTIPROTOCOL_SHARE
+  - name: project4
+    path: /mnt/Data/ecube/project4
+    purpose: MULTIPROTOCOL_SHARE
+    comment: Project 4 directory for eCube application
+    options:
+      purpose: MULTIPROTOCOL_SHARE
+  - name: tvshows
+    path: /mnt/Data/tvshows
+    purpose: MULTIPROTOCOL_SHARE
+    comment: TV Shows directory for media files
+    options:
+      purpose: MULTIPROTOCOL_SHARE
+
+truenas_nfs_shares:
+  - path: /mnt/Data/backups_ex
+    networks: []
+    maproot_user: root
+  - path: /mnt/Data/books
+    networks: []
+    maproot_user: root
+  - path: /mnt/Data/configs
+    networks: []
+    maproot_user: root
+  - path: /mnt/Data/downloads/complete
+    networks: []
+    maproot_user: root
+  - path: /mnt/Data/downloads/incomplete
+    networks: []
+    maproot_user: root
+  - path: /mnt/Data/ecube/demo-case-001
+    networks: []
+    maproot_user: root
+  - path: /mnt/Data/ecube/demo-case-002
+    networks: []
+    maproot_user: root
+  - path: /mnt/Data/ecube/demo-case-003
+    networks: []
+    maproot_user: root
+  - path: /mnt/Data/ecube/demo-case-004
+    networks: []
+    maproot_user: root
+  - path: /mnt/Data/ecube/project1
+    networks: []
+    maproot_user: root
+  - path: /mnt/Data/ecube/project2
+    networks: []
+    maproot_user: root
+  - path: /mnt/Data/ecube/project3
+    networks: []
+    maproot_user: root
+  - path: /mnt/Data/ecube/project4
+    networks: []
+    maproot_user: root
+  - path: /mnt/Data/ftp
+    maproot_user: root
+    networks: []
+  - path: /mnt/Data/movies
+    maproot_user: root
+    networks: []
+  - path: /mnt/Data/music
+    maproot_user: root
+    networks: []
+  - path: /mnt/Data/photos
+    maproot_user: root
+    networks: []
+  - path: /mnt/Data/tvshows
+    maproot_user: root
+    networks: []
+
+truenas_services:
+  - { name: cifs, enable: true, state: started }
+  - { name: nfs, enable: true, state: started }
+  - { name: ssh, enable: true, state: started }
+  - { name: ups, enable: true, state: started }

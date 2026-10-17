@@ -1,0 +1,46 @@
+---
+- name: Show the update status
+  truenas_api:
+    mode: call
+    method: update.status
+    read_only: true
+  register: truenas_update_status
+  changed_when: false
+
+- name: Report the update status
+  ansible.builtin.debug:
+    var: truenas_update_status.result
+
+- name: Download and install the update into a new boot environment
+  truenas_api:
+    mode: call
+    method: update.run
+    job: true
+    args:
+      - "{{ {'reboot': false}
+            | combine({'train': truenas_update_train} if truenas_update_train else {})
+            | combine({'version': truenas_update_version} if truenas_update_version else {}) }}"
+    ignore_error_patterns: "{{ truenas_update_noop_patterns }}"
+  register: truenas_update_run
+
+- name: Reboot into the new boot environment
+  ansible.builtin.reboot:
+    reboot_timeout: "{{ truenas_update_reboot_timeout }}"
+    msg: "Rebooting to apply TrueNAS update (Ansible)"
+  when:
+    - truenas_update_run is changed
+    - truenas_update_reboot | bool
+
+- name: Wait for the middleware after the reboot
+  truenas_api:
+    mode: call
+    method: system.ready
+    read_only: true
+  register: truenas_ready_after_update
+  until: truenas_ready_after_update.result | default(false) | bool
+  retries: 90
+  delay: 10
+  changed_when: false
+  when:
+    - truenas_update_run is changed
+    - truenas_update_reboot | bool

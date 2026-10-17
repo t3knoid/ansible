@@ -1,0 +1,194 @@
+---
+# ---------------------------------------------------------------------------
+# General
+# ---------------------------------------------------------------------------
+# The role talks to the TrueNAS middleware locally over SSH, so it needs root.
+# truenas_admin has sudo, so keep this true when connecting as that user.
+truenas_become: true
+
+# Hide task arguments/results (they contain passwords). Set to false only to debug.
+truenas_no_log: true
+
+# Refuse to run on anything older than this (major.minor).
+truenas_min_version: "25.10"
+
+# ---------------------------------------------------------------------------
+# 1. System update
+# ---------------------------------------------------------------------------
+# When true: show update status, then run update.run (download + install into a
+# new boot environment). Nothing happens when already up to date.
+truenas_update_enabled: false
+# Reboot into the new boot environment automatically after an update.
+truenas_update_reboot: false
+# Optional: pin a train or a version. Empty = newest version for the selected profile.
+truenas_update_train: ""
+truenas_update_version: ""
+truenas_update_reboot_timeout: 1800
+# update.run errors that just mean "nothing to do".
+truenas_update_noop_patterns:
+  - "(?i)no update"
+  - "(?i)up to date"
+  - "(?i)already"
+
+# ---------------------------------------------------------------------------
+# 2. Local groups   (group.create arguments)
+# ---------------------------------------------------------------------------
+# truenas_groups:
+#   - name: media
+#     gid: 3000
+#     smb: false
+#   - name: olduser
+#     state: absent
+truenas_groups: []
+
+# ---------------------------------------------------------------------------
+# 3. Administrator account   (user.create arguments + groups)
+# ---------------------------------------------------------------------------
+# Leave empty to not touch the administrator. Only the keys you list are managed,
+# so an installer-created truenas_admin keeps every setting you do not mention.
+# `password` is only used when the account is created.
+#
+# truenas_admin:
+#   username: truenas_admin
+#   password: "{{ vault_truenas_admin_password }}"
+#   full_name: Administrator
+#   email: admin@example.com
+#   shell: /usr/bin/zsh                    # see: midclt call user.shell_choices
+#   sshpubkey: "ssh-ed25519 AAAA... ansible"
+#   ssh_password_enabled: false
+#   sudo_commands_nopasswd: [ALL]          # lets Ansible `become` without a password
+truenas_admin: {}
+
+# Local groups that grant the Local Administrator privilege. The admin account is
+# always added to these. Verify with: midclt call privilege.query
+truenas_admin_groups:
+  - builtin_administrators
+
+# ---------------------------------------------------------------------------
+# 4. Local users   (user.create arguments; `groups` take group NAMES)
+# ---------------------------------------------------------------------------
+# truenas_users:
+#   - username: alice
+#     full_name: Alice Example
+#     password: "{{ vault_alice_password }}"   # only used on creation
+#     smb: true
+#     group_create: true
+#     groups: [media]
+#     shell: /usr/sbin/nologin
+#   - username: bob
+#     state: absent
+truenas_users: []
+
+# Keys that are sent when a user is created but never compared/updated afterwards.
+truenas_user_create_only_keys:
+  - password
+  - random_password
+  - group_create
+  - group
+  - home_create
+  - home_mode
+  - uid
+
+# ---------------------------------------------------------------------------
+# 5. Network settings needed before joining a domain (network.configuration)
+# ---------------------------------------------------------------------------
+# AD requires DNS that resolves the domain, and clocks within 5 minutes of the DC.
+# truenas_network_configuration:
+#   nameserver1: 192.168.1.10
+#   domain: corp.example.com
+truenas_network_configuration: {}
+
+# ---------------------------------------------------------------------------
+# 6. Active Directory   (directoryservices.update)
+# ---------------------------------------------------------------------------
+# Leave empty to skip. The join credentials are only sent when the domain
+# configuration actually has to change.
+#
+# truenas_ad:
+#   domain: corp.example.com
+#   hostname: truenas             # computer account name, max 15 characters
+#   username: svc-truenas-join    # account allowed to create computer objects
+#   password: "{{ vault_ad_join_password }}"
+#   enable: true
+#   enable_account_cache: true
+#   enable_dns_updates: true
+#   timeout: 60
+#   kerberos_realm: CORP.EXAMPLE.COM   # optional, auto-detected on first join
+#   idmap: {}                          # optional, see directoryservices.update docs
+truenas_ad: {}
+
+# ---------------------------------------------------------------------------
+# 7. Datasets   (pool.dataset.create arguments; never deleted by this role)
+# ---------------------------------------------------------------------------
+# truenas_datasets:
+#   - name: tank/media
+#     share_type: SMB          # GENERIC | SMB | MULTIPROTOCOL | APPS (create only)
+#     compression: LZ4
+#     quota: 1099511627776
+truenas_datasets: []
+truenas_dataset_create_only_keys:
+  - name
+  - type
+  - share_type
+  - create_ancestors
+  - volsize
+  - volblocksize
+  - sparse
+  - force_size
+  - encryption
+  - encryption_options
+  - inherit_encryption
+
+# ---------------------------------------------------------------------------
+# 8. Shares
+# ---------------------------------------------------------------------------
+# SMB: sharing.smb.create arguments, keyed by `name`.
+# truenas_smb_shares:
+#   - name: media
+#     path: /mnt/tank/media
+#     purpose: DEFAULT_SHARE
+#     comment: Media library
+#     options:
+#       purpose: DEFAULT_SHARE          # options need the matching purpose
+#       hostsallow: ["192.168.1."]
+truenas_smb_shares: []
+
+# NFS: sharing.nfs.create arguments, keyed by `path`.
+# truenas_nfs_shares:
+#   - path: /mnt/tank/media
+#     networks: ["192.168.1.0/24"]
+#     ro: false
+#     maproot_user: root
+truenas_nfs_shares: []
+
+# Any other API object (iSCSI, NVMe-oF, WebShare, S3, ...). Processed in order.
+# truenas_resources:
+#   - namespace: iscsi.extent
+#     lookup: {name: vm-lun0}
+#     config: {name: vm-lun0, type: DISK, disk: zvol/tank/vm-lun0}
+#   - namespace: iscsi.target
+#     lookup: {name: vm}
+#     config: {name: vm, groups: [{portal: 1, initiator: 1}]}
+#   - namespace: iscsi.targetextent
+#     lookup: {target: vm, extent: vm-lun0}
+#     config: {target: vm, extent: vm-lun0, lunid: 0}
+#     name_to_id: {target: "iscsi.target:name", extent: "iscsi.extent:name"}
+# Per entry optional keys: state, create_only_keys, skip_compare_keys,
+# sensitive_keys, send_sensitive_on_update, name_to_id, delete_args.
+truenas_resources: []
+
+# Raw, non-idempotent API calls run after the shares exist (ACLs, ownership...).
+# truenas_post_calls:
+#   - method: filesystem.setperm
+#     job: true
+#     args:
+#       - {path: /mnt/tank/media, mode: "770", uid: 0, gid: 3000}
+truenas_post_calls: []
+
+# ---------------------------------------------------------------------------
+# 9. Services
+# ---------------------------------------------------------------------------
+# truenas_services:
+#   - {name: cifs, enable: true, state: started}
+#   - {name: nfs,  enable: true, state: started}
+truenas_services: []
