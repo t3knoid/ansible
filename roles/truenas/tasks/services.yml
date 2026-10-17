@@ -1,0 +1,34 @@
+---
+- name: Set service autostart
+  truenas_api:
+    namespace: service
+    lookup:
+      service: "{{ item.name }}"
+    config:
+      enable: "{{ item.enable | default(true) }}"
+    no_create: true
+  loop: "{{ truenas_services }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Read current service state
+  truenas_api:
+    mode: call
+    method: service.started
+    args: ["{{ item.name }}"]
+    read_only: true
+  loop: "{{ truenas_services }}"
+  loop_control:
+    label: "{{ item.name }}"
+  register: truenas_service_state
+  changed_when: false
+
+- name: Start or stop services
+  truenas_api:
+    mode: call
+    method: "service.{{ 'start' if (item.item.state | default('started')) == 'started' else 'stop' }}"
+    args: ["{{ item.item.name }}"]
+  loop: "{{ truenas_service_state.results }}"
+  loop_control:
+    label: "{{ item.item.name }}"
+  when: (item.result | bool) != ((item.item.state | default('started')) == 'started')

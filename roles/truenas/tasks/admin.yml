@@ -1,0 +1,32 @@
+---
+- name: Read privileges (to verify the administrator groups)
+  truenas_api:
+    mode: call
+    method: privilege.query
+    read_only: true
+  register: truenas_privileges
+  changed_when: false
+
+- name: Warn if an administrator group is not part of any privilege
+  ansible.builtin.debug:
+    msg: >-
+      Group '{{ item }}' does not appear in any privilege returned by privilege.query,
+      so members may not become administrators. Adjust truenas_admin_groups.
+  when: (truenas_privileges.result | to_json) is not search(item)
+  loop: "{{ truenas_admin_groups }}"
+
+- name: Ensure the administrator account
+  truenas_api:
+    namespace: user
+    lookup:
+      username: "{{ truenas_admin.username | default('truenas_admin') }}"
+    config: >-
+      {{ {'username': 'truenas_admin'} | combine(truenas_admin) | combine({'groups': truenas_admin_effective_groups}) }}
+    create_only_keys: "{{ truenas_user_create_only_keys }}"
+    sensitive_keys: [password]
+    name_to_id:
+      groups: "group:name"
+      group: "group:name"
+  vars:
+    truenas_admin_effective_groups: "{{ ((truenas_admin.groups | default([])) + truenas_admin_groups) | unique | list }}"
+  no_log: "{{ truenas_no_log }}"

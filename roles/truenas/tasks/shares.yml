@@ -1,0 +1,56 @@
+---
+- name: Ensure SMB shares
+  truenas_api:
+    namespace: sharing.smb
+    lookup:
+      name: "{{ item.name }}"
+    state: "{{ item.state | default('present') }}"
+    config: "{{ item | dict2items | rejectattr('key', 'eq', 'state') | items2dict }}"
+  loop: "{{ truenas_smb_shares }}"
+  loop_control:
+    label: "{{ item.name }}"
+  when: truenas_smb_shares | length > 0
+
+- name: Ensure NFS shares
+  truenas_api:
+    namespace: sharing.nfs
+    lookup:
+      path: "{{ item.path }}"
+    state: "{{ item.state | default('present') }}"
+    config: "{{ item | dict2items | rejectattr('key', 'eq', 'state') | items2dict }}"
+  loop: "{{ truenas_nfs_shares }}"
+  loop_control:
+    label: "{{ item.path }}"
+  when: truenas_nfs_shares | length > 0
+
+- name: Ensure additional objects (iSCSI, NVMe-oF, WebShare, S3, ...)
+  truenas_api:
+    namespace: "{{ item.namespace }}"
+    lookup: "{{ item.lookup }}"
+    config: "{{ item.config | default({}) }}"
+    state: "{{ item.state | default('present') }}"
+    create_only_keys: "{{ item.create_only_keys | default([]) }}"
+    skip_compare_keys: "{{ item.skip_compare_keys | default([]) }}"
+    sensitive_keys: "{{ item.sensitive_keys | default([]) }}"
+    send_sensitive_on_update: "{{ item.send_sensitive_on_update | default(false) }}"
+    name_to_id: "{{ item.name_to_id | default({}) }}"
+    delete_args: "{{ item.delete_args | default([]) }}"
+  loop: "{{ truenas_resources }}"
+  loop_control:
+    label: "{{ item.namespace }}"
+  when: truenas_resources | length > 0
+  no_log: "{{ truenas_no_log }}"
+
+- name: Run additional API calls (not idempotent)
+  truenas_api:
+    mode: call
+    method: "{{ item.method }}"
+    args: "{{ item.args | default([]) }}"
+    job: "{{ item.job | default(false) }}"
+    read_only: "{{ item.read_only | default(false) }}"
+    ignore_error_patterns: "{{ item.ignore_error_patterns | default([]) }}"
+  loop: "{{ truenas_post_calls }}"
+  loop_control:
+    label: "{{ item.method }}"
+  when: truenas_post_calls | length > 0
+  no_log: "{{ truenas_no_log }}"

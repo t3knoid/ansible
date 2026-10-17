@@ -1,0 +1,39 @@
+---
+# Order matters: AD and local users must exist before SMB shares, datasets before
+# shares, and services are switched on last.
+- name: Configure TrueNAS through the middleware API
+  become: "{{ truenas_become }}"
+  block:
+    - ansible.builtin.import_tasks: preflight.yml
+      tags: [truenas_preflight, always]
+
+    - ansible.builtin.import_tasks: update.yml
+      when: truenas_update_enabled | bool
+      tags: [truenas_update]
+
+    - ansible.builtin.import_tasks: groups.yml
+      when: truenas_groups | length > 0
+      tags: [truenas_groups, truenas_users]
+
+    - ansible.builtin.import_tasks: admin.yml
+      when: truenas_admin | length > 0
+      tags: [truenas_admin]
+
+    - ansible.builtin.import_tasks: users.yml
+      when: truenas_users | length > 0
+      tags: [truenas_users]
+
+    - ansible.builtin.import_tasks: directory_services.yml
+      when: (truenas_ad | length > 0) or (truenas_network_configuration | length > 0)
+      tags: [truenas_ad]
+
+    - ansible.builtin.import_tasks: datasets.yml
+      when: truenas_datasets | length > 0
+      tags: [truenas_datasets]
+
+    - ansible.builtin.import_tasks: shares.yml
+      tags: [truenas_shares]
+
+    - ansible.builtin.import_tasks: services.yml
+      when: truenas_services | length > 0
+      tags: [truenas_services]

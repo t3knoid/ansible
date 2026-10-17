@@ -1,0 +1,35 @@
+---
+- name: Configure DNS / network identity needed for the domain
+  truenas_api:
+    mode: config
+    namespace: network.configuration
+    config: "{{ truenas_network_configuration }}"
+  when: truenas_network_configuration | length > 0
+
+- name: Join / configure Active Directory
+  truenas_api:
+    mode: config
+    namespace: directoryservices
+    job: true
+    config: "{{ truenas_ad_config }}"
+    sensitive_keys: [credential]
+    # Credentials are only sent when the join itself has to change.
+    send_sensitive_when: [service_type, enable, configuration]
+  vars:
+    truenas_ad_base:
+      service_type: ACTIVEDIRECTORY
+      enable: "{{ truenas_ad.enable | default(true) }}"
+      enable_account_cache: "{{ truenas_ad.enable_account_cache | default(true) }}"
+      enable_dns_updates: "{{ truenas_ad.enable_dns_updates | default(true) }}"
+      timeout: "{{ truenas_ad.timeout | default(60) }}"
+      credential:
+        credential_type: KERBEROS_USER
+        username: "{{ truenas_ad.username }}"
+        password: "{{ truenas_ad.password }}"
+      configuration: >-
+        {{ {'service_type': 'ACTIVEDIRECTORY', 'hostname': truenas_ad.hostname, 'domain': truenas_ad.domain}
+           | combine({'idmap': truenas_ad.idmap} if truenas_ad.idmap | default({}) | length > 0 else {}) }}
+    truenas_ad_config: >-
+      {{ truenas_ad_base | combine({'kerberos_realm': truenas_ad.kerberos_realm} if truenas_ad.kerberos_realm is defined else {}) }}
+  when: truenas_ad | length > 0
+  no_log: "{{ truenas_no_log }}"
