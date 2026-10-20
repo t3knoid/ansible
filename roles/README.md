@@ -78,6 +78,7 @@
 | [`terraform_setup`](../docs/roles/terraform_setup.md) | Installs Terraform |
 | [`tinyproxy_client`](../docs/roles/tinyproxy_client.md) | Configures Linux clients to use a Tinyproxy forward proxy for shell and APT traffic and Windows clients for machine environment, WinINet, and WinHTTP proxy settings using the WinHttpProxy PowerShell module, which must already be available on Windows target hosts. |
 | [`tinyproxy_setup`](../docs/roles/tinyproxy_setup.md) | Installs Tinyproxy and configures it as a lightweight HTTP/HTTPS proxy server |
+| [`truenas`](../docs/roles/truenas.md) | Configure TrueNAS 25.10+ (updates, admin, users, Active Directory, datasets, shares, services) through the middleware API |
 | [`unbound`](../docs/roles/unbound.md) | Installs and configures Unbound DNS resolver with optional logging support. |
 | [`users`](../docs/roles/users.md) | Provides tasks to manage system users in Ubuntu and Debian. |
 | [`vault_setup`](../docs/roles/vault_setup.md) | Installs and configures Hashicorp Vault |
