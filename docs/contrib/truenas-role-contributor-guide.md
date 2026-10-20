@@ -1,8 +1,8 @@
-# TrueNAS Role Contributor Guide
+# 📘 TrueNAS Role Contributor Guide
 
 The `truenas` role configures an already-installed TrueNAS 25.10+ system through its local middleware API. It manages updates, local groups and users, the administrator account, network settings and Active Directory, datasets, shares, and services. The role does not install TrueNAS or provision its initial boot disk.
 
-## Requirements and Bootstrap
+## 📋 Requirements and Bootstrap
 
 - Ansible 2.14 or newer on the control node.
 - TrueNAS 25.10 or newer. The role checks the version before making changes.
@@ -13,7 +13,7 @@ Before the first run, enable SSH in the TrueNAS UI for the inventory connection 
 
 If the inventory connection user does not have key-based SSH configured yet, run the playbook with `-k` to prompt for that user's SSH password. In this repository inventory, that means entering the password for `ansible_user=ansible`. Keep `--ask-vault-pass` separate; it prompts for the Ansible vault secret, not the SSH password.
 
-## Repository Workflow
+## 📝 Repository Workflow
 
 The repository deployment inventory is [`inventory/truenas/inventory.ini`](../../inventory/truenas/inventory.ini), and its playbook is [`playbooks/truenas/configure_truenas.yml`](../../playbooks/truenas/configure_truenas.yml). Host variables belong under `inventory/truenas/host_vars/truenas-01/`; files elsewhere beside the inventory are not automatically loaded by Ansible.
 
@@ -31,7 +31,7 @@ ansible-playbook -i inventory/truenas/inventory.ini playbooks/truenas/configure_
 
 If the `ansible` account already has a working SSH key on the NAS, you can omit `-k`. When contributing new behavior, validate it against the repository inventory unless the change is intentionally generic and inventory-agnostic. Keep role defaults focused on interface documentation and safe defaults, and put site-specific configuration in inventory host vars.
 
-## Execution Order
+## 🔢 Execution Order
 
 The role always begins with preflight checks, then runs enabled configuration stages in this order:
 
@@ -47,7 +47,7 @@ The role always begins with preflight checks, then runs enabled configuration st
 
 The order allows groups and users to exist before shares are exposed and datasets to exist before shares are configured. Services are started last.
 
-## How Inputs Map To The API
+## 🔗 How Inputs Map To The API
 
 Most role variables map directly to TrueNAS middleware methods.
 
@@ -66,7 +66,7 @@ Most role variables map directly to TrueNAS middleware methods.
 
 The role is intentionally thin. If a field is accepted by the underlying API method and the role passes that object through unchanged, configure it exactly as the TrueNAS API expects.
 
-## Configuration Reference
+## ⚙️ Configuration Reference
 
 All role inputs are declared in [`defaults/main.yml`](defaults/main.yml); unset lists and maps default to empty, so their stages are skipped. Treat that file as the canonical variable contract when adding or reviewing new settings.
 
@@ -90,9 +90,9 @@ All role inputs are declared in [`defaults/main.yml`](defaults/main.yml); unset 
 
 For users and groups, `state: absent` deletes the matching object. The role does not provide a deletion option for the administrator or datasets. A user's `password` is sent on creation, and is also resent on update when the `smb` flag changes because TrueNAS requires a password reset when SMB authentication is enabled for an existing account. For general password rotation on an existing account, use a deliberate `user.set_password` call or another explicit workflow.
 
-## Common Configuration Patterns
+## 🧩 Common Configuration Patterns
 
-### Administrator and local users
+### 👤 Administrator and local users
 
 - `truenas_admin` and `truenas_users` accept `user.create` fields directly.
 - If `group_create: false`, set `group` to the primary group name. Supplementary `groups` do not replace the primary group field.
@@ -130,7 +130,7 @@ truenas_users:
     ssh_password_enabled: true
 ```
 
-### Datasets
+### 💾 Datasets
 
 - `truenas_datasets` manages datasets only. It does not create SMB or NFS shares by itself.
 - `share_type` is a dataset property accepted by `pool.dataset.create`; supported values used by this role include `GENERIC`, `SMB`, `MULTIPROTOCOL`, and `APPS`.
@@ -146,7 +146,7 @@ truenas_datasets:
     compression: LZ4
 ```
 
-### SMB shares
+### 📁 SMB shares
 
 - `truenas_smb_shares` entries are passed to `sharing.smb`.
 - `purpose` must be a valid TrueNAS enum such as `DEFAULT_SHARE` or `MULTIPROTOCOL_SHARE`.
@@ -165,7 +165,7 @@ truenas_smb_shares:
       purpose: MULTIPROTOCOL_SHARE
 ```
 
-### NFS shares
+### 🌐 NFS shares
 
 - `truenas_nfs_shares` entries are passed to `sharing.nfs`.
 - `maproot_*` and `mapall_*` are mutually exclusive in the TrueNAS API. Set one family or the other, not both.
@@ -180,7 +180,7 @@ truenas_nfs_shares:
     maproot_user: root
 ```
 
-### Additional resources
+### ➕ Additional resources
 
 Use `truenas_resources` when there is no SMB/NFS shortcut. This is the preferred place for iSCSI, NVMe-oF, WebDAV, S3, and other middleware-managed objects that are not covered by dedicated role inputs.
 
@@ -202,7 +202,7 @@ truenas_resources:
     name_to_id: { target: "iscsi.target:name", extent: "iscsi.extent:name" }
 ```
 
-### Raw post-configuration calls
+### 🔧 Raw post-configuration calls
 
 `truenas_post_calls` is an escape hatch for raw middleware operations that should run after datasets, shares, and `truenas_resources` are already in place.
 
@@ -224,7 +224,7 @@ truenas_post_calls:
       - { path: /mnt/Data/shared, mode: "770", uid: 0, gid: 3000 }
 ```
 
-## Tags and Targeted Runs
+## 🏷️ Tags and Targeted Runs
 
 The role exposes these tags for selecting a stage:
 
@@ -241,7 +241,7 @@ The role exposes these tags for selecting a stage:
 
 Use `--tags truenas_shares` to select share/resource work. The groups task also carries `truenas_users`, so a user-targeted run ensures declared groups first. Preflight is tagged `always` and continues to run for tagged invocations.
 
-## Idempotency and Safety
+## 🛡️ Idempotency and Safety
 
 The custom module queries each object and compares only the keys provided in its desired `config`. Unspecified fields are left alone. It creates, updates, or deletes an object only when necessary; check mode reports the planned changes without applying them. Sensitive values are omitted from comparison and diffs.
 
@@ -253,7 +253,7 @@ The custom module queries each object and compares only the keys provided in its
 - Review service changes carefully, especially SSH autostart/state or `ssh_password_enabled`, to avoid losing access.
 - `truenas_post_calls` are raw calls. In check mode, a non-read-only call is reported as a pending change but is not executed.
 
-## The `truenas_api` Module
+## 🔌 The `truenas_api` Module
 
 The role's custom [truenas_api.py](library/truenas_api.py) module is the implementation layer behind every stage.
 
@@ -271,7 +271,7 @@ The role's custom [truenas_api.py](library/truenas_api.py) module is the impleme
 
 Use the module directly only when extending the role or prototyping a new resource pattern. Prefer the higher-level role inputs whenever one already exists.
 
-## Contributor Notes
+## 📌 Contributor Notes
 
 - Keep the role interface narrow. Add a dedicated top-level variable only when a middleware surface needs custom orchestration, validation, or ordering beyond a generic `truenas_resources` entry.
 - Prefer expressing new TrueNAS objects through `truenas_resources` before introducing new tasks. Promote a pattern into its own task file only after the generic form becomes noisy or needs special update semantics.
@@ -281,6 +281,6 @@ Use the module directly only when extending the role or prototyping a new resour
 
 Consult the [TrueNAS 25.10 API](https://api.truenas.com/v25.10/) for accepted fields. The API can also be inspected on the NAS with `midclt call <namespace>.query`.
 
-## Verification Status
+## ✅ Verification Status
 
 The module's comparison behavior and role Jinja expressions have been exercised offline against a mock middleware, including check mode, drift, name-to-ID resolution, and sensitive values. The relevant API method names and argument shapes were checked against TrueNAS 25.10 documentation. The role has not been verified against a live TrueNAS 25.10.7 host; begin with check-mode runs and verify version-specific fields, shell choices, and the administrator privilege group against the target system.
