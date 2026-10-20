@@ -38,3 +38,14 @@ prometheus_setup_postgres_exporter_port: 9187
 prometheus_setup_pve_exporter_port: 9221
 prometheus_setup_ceph_job_name: "ceph"
 prometheus_setup_ceph_port: 9283
+prometheus_setup_remove_instances: []
+prometheus_setup_remove_targets: []
+prometheus_setup_remove_jobs:
+  - node
+  - nginx_exporter
+  - nginxlog_exporter
+  - "{{ prometheus_setup_postgres_exporter_job_name }}"
+  - "{{ prometheus_setup_pve_exporter_job_name }}"
+  - "{{ prometheus_setup_ceph_job_name }}"
+  - "{{ prometheus_setup_blackbox_job_name }}"
+prometheus_setup_remove_reload_url: "http://localhost:9090/-/reload"

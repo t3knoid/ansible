@@ -1,0 +1,224 @@
+---
+- name: Test exact Prometheus target removal without production infrastructure
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+    prometheus_setup_remove_instances:
+      - retired-0
+      - retired.example.test
+    prometheus_setup_remove_targets:
+      - 192.0.2.10:9200
+      - https://retired.example.test
+    prometheus_setup_remove_reload_url: http://127.0.0.1:18765/-/reload
+    removal_fixture:
+      global:
+        scrape_interval: 30s
+      scrape_configs:
+        - job_name: node
+          static_configs:
+            - targets: ["192.0.2.10:9200"]
+              labels:
+                instance: retired-0
+            - targets: ["192.0.2.10:9200", "192.0.2.11:9200"]
+              labels:
+                instance: shared
+            - targets: ["192.0.2.12:9200"]
+              labels:
+                instance: retired-01
+        - job_name: blackbox_http
+          metrics_path: /probe
+          static_configs:
+            - targets: ["https://retired.example.test"]
+              labels:
+                instance: retired.example.test
+            - targets: ["https://keep.example.test"]
+        - job_name: untouched
+          static_configs:
+            - targets: ["192.0.2.10:9200"]
+              labels:
+                instance: retired-0
+        - job_name: discovered
+          file_sd_configs:
+            - files: ["/tmp/targets.json"]
+  tasks:
+    - name: Allocate isolated test files
+      ansible.builtin.tempfile:
+        state: directory
+        prefix: prometheus-removal-test-
+      register: removal_test_dir
+      when: not ansible_check_mode
+
+    - name: Exercise removal and failure paths
+      when: not ansible_check_mode
+      block:
+        - name: Configure isolated paths
+          ansible.builtin.set_fact:
+            prometheus_setup_config_file: "{{ removal_test_dir.path }}/prometheus.yml"
+            prometheus_setup_home: "{{ removal_test_dir.path }}"
+
+        - name: Install a successful validation stub
+          ansible.builtin.file:
+            src: /bin/true
+            dest: "{{ removal_test_dir.path }}/promtool"
+            state: link
+
+        - name: Write the fixture
+          ansible.builtin.copy:
+            content: "{{ removal_fixture | to_nice_yaml }}"
+            dest: "{{ prometheus_setup_config_file }}"
+            mode: "0640"
+
+        - name: Remove selected targets
+          ansible.builtin.include_role:
+            name: prometheus_setup
+            tasks_from: remove_targets.yml
+
+        - name: Read the resulting configuration
+          ansible.builtin.slurp:
+            src: "{{ prometheus_setup_config_file }}"
+          register: removal_test_result
+
+        - name: Decode the result
+          ansible.builtin.set_fact:
+            removal_result: "{{ removal_test_result.content | b64decode | from_yaml }}"
+
+        - name: Verify exact selection and preservation
+          ansible.builtin.assert:
+            that:
+              - removal_result['global'] == removal_fixture['global']
+              - removal_result.scrape_configs[0].static_configs | length == 2
+              - removal_result.scrape_configs[0].static_configs[0].targets == ['192.0.2.11:9200']
+              - removal_result.scrape_configs[0].static_configs[0].labels.instance == 'shared'
+              - removal_result.scrape_configs[0].static_configs[1].labels.instance == 'retired-01'
+              - removal_result.scrape_configs[1].static_configs | length == 1
+              - removal_result.scrape_configs[1].static_configs[0].targets == ['https://keep.example.test']
+              - removal_result.scrape_configs[2:] == removal_fixture.scrape_configs[2:]
+              - prometheus_setup_removal_install.backup_file is defined
+
+        - name: Repeat removal to verify idempotence
+          ansible.builtin.include_role:
+            name: prometheus_setup
+            tasks_from: remove_targets.yml
+
+        - name: Verify that no second replacement was required
+          ansible.builtin.assert:
+            that:
+              - prometheus_setup_removal_candidate == prometheus_setup_removal_original
+
+        - name: Restore the fixture for validation failure testing
+          ansible.builtin.copy:
+            content: "{{ removal_fixture | to_nice_yaml }}"
+            dest: "{{ prometheus_setup_config_file }}"
+            mode: "0640"
+
+        - name: Install a failed validation stub
+          ansible.builtin.file:
+            src: /bin/false
+            dest: "{{ removal_test_dir.path }}/promtool"
+            state: link
+            force: true
+
+        - name: Observe failed validation
+          block:
+            - name: Try removing targets with invalid candidate validation
+              ansible.builtin.include_role:
+                name: prometheus_setup
+                tasks_from: remove_targets.yml
+          rescue:
+            - name: Record expected validation failure
+              ansible.builtin.set_fact:
+                removal_validation_failed: true
+
+        - name: Inspect the live file after failed validation
+          ansible.builtin.slurp:
+            src: "{{ prometheus_setup_config_file }}"
+          register: removal_failure_result
+
+        - name: Verify failure leaves the live configuration intact
+          ansible.builtin.assert:
+            that:
+              - removal_validation_failed | default(false)
+              - removal_failure_result.content | b64decode | from_yaml == removal_fixture
+
+        - name: Reinstall a successful validation stub
+          ansible.builtin.file:
+            src: /bin/true
+            dest: "{{ removal_test_dir.path }}/promtool"
+            state: link
+            force: true
+
+        - name: Observe failed reload
+          block:
+            - name: Try removal against an unavailable reload endpoint
+              ansible.builtin.include_role:
+                name: prometheus_setup
+                tasks_from: remove_targets.yml
+              vars:
+                prometheus_setup_remove_reload_url: http://127.0.0.1:18765/fail
+          rescue:
+            - name: Record expected reload failure
+              ansible.builtin.set_fact:
+                removal_reload_failed: true
+
+        - name: Inspect the live file after rollback
+          ansible.builtin.slurp:
+            src: "{{ prometheus_setup_config_file }}"
+          register: removal_rollback_result
+
+        - name: Verify rollback restores the original file
+          ansible.builtin.assert:
+            that:
+              - removal_reload_failed | default(false)
+              - removal_rollback_result.content | b64decode | from_yaml == removal_fixture
+
+      always:
+        - name: Remove isolated test files
+          ansible.builtin.file:
+            path: "{{ removal_test_dir.path }}"
+            state: absent
+
+    - name: Verify preview with a real command-line check mode invocation
+      when: ansible_check_mode
+      block:
+        - name: Allocate isolated preview files
+          ansible.builtin.tempfile:
+            state: directory
+            prefix: prometheus-preview-test-
+          register: removal_preview_dir
+          check_mode: false
+
+        - name: Configure the isolated preview path
+          ansible.builtin.set_fact:
+            prometheus_setup_config_file: "{{ removal_preview_dir.path }}/prometheus.yml"
+
+        - name: Write the preview fixture
+          ansible.builtin.copy:
+            content: "{{ removal_fixture | to_nice_yaml }}"
+            dest: "{{ prometheus_setup_config_file }}"
+            mode: "0600"
+          check_mode: false
+
+        - name: Preview removal without a validator or reload server
+          ansible.builtin.include_role:
+            name: prometheus_setup
+            tasks_from: remove_targets.yml
+
+        - name: Inspect the live file after preview
+          ansible.builtin.slurp:
+            src: "{{ prometheus_setup_config_file }}"
+          register: removal_preview_result
+
+        - name: Verify check mode preserves the live configuration
+          ansible.builtin.assert:
+            that:
+              - removal_preview_result.content | b64decode | from_yaml == removal_fixture
+              - prometheus_setup_removal_candidate != prometheus_setup_removal_original
+      always:
+        - name: Remove isolated preview files
+          ansible.builtin.file:
+            path: "{{ removal_preview_dir.path }}"
+            state: absent
+          check_mode: false
+          when: removal_preview_dir.path is defined

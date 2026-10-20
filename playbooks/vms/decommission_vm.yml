@@ -1,0 +1,85 @@
+---
+# Purpose: Preview VM decommissioning; destructive stages are not implemented.
+# Usage: ansible-playbook playbooks/vms/decommission_vm.yml -e '{"decommission_hosts":["retired-0"]}'
+
+- name: Plan VM decommissioning
+  hosts: localhost
+  connection: local
+  become: false
+  gather_facts: false
+  vars:
+    decommission_hosts: []
+    decommission_mode: plan
+  roles:
+    - global
+  tasks:
+    - name: Reject execution until the guarded workflow is implemented
+      ansible.builtin.assert:
+        that:
+          - decommission_mode == 'plan'
+        fail_msg: >-
+          This scaffold only supports decommission_mode=plan. No VM, DNS,
+          Prometheus, Grafana, or repository cleanup is implemented.
+          Follow docs/contrib/decommission_vm.md for the operational procedure.
+
+    - name: Require an explicit nonempty list of hostnames
+      ansible.builtin.assert:
+        that:
+          - decommission_hosts | type_debug == 'list'
+          - decommission_hosts | length > 0
+          - decommission_hosts | select('string') | list | length == decommission_hosts | length
+        fail_msg: >-
+          Supply decommission_hosts as a nonempty JSON/YAML list of exact
+          inventory hostnames, not an Ansible host pattern or a comma-separated string.
+
+    - name: Reject duplicate hostnames
+      ansible.builtin.assert:
+        that:
+          - decommission_hosts | unique | length == decommission_hosts | length
+        fail_msg: "Each decommission hostname must appear exactly once."
+
+    - name: Validate each selected VM against inventory and the global IP map
+      ansible.builtin.assert:
+        that:
+          - decommission_host is match('^[A-Za-z0-9][A-Za-z0-9_.-]*$')
+          - decommission_host in groups.get('vms', [])
+          - decommission_host in groups.get('removable', [])
+          - decommission_host in global_ip_addresses
+        fail_msg: >-
+          {{ decommission_host }} must be an exact hostname in both vms and
+          removable, with an existing global_ip_addresses entry.
+      loop: "{{ decommission_hosts }}"
+      loop_control:
+        loop_var: decommission_host
+
+    - name: Report inventory-derived decommission plans
+      ansible.builtin.debug:
+        msg:
+          hostname: "{{ decommission_host }}"
+          vm_name: "{{ hostvars[decommission_host].vms_name | default(decommission_host) }}"
+          ip_address: "{{ global_ip_addresses[decommission_host] }}"
+          configured_proxmox_node: "{{ hostvars[decommission_host].vms_proxmox_node | default('not set in inventory') }}"
+          configured_vmid: "{{ hostvars[decommission_host].vms_vmid | default('requires Proxmox discovery') }}"
+          terraform_enabled_in_inventory: "{{ hostvars[decommission_host].vms_use_terraform | default(false) | bool }}"
+          cname_domains_to_review: "{{ hostvars[decommission_host].pihole_cname_entries | default([]) | map(attribute='domain') | list }}"
+          exporter_groups_to_review: >-
+            {{ hostvars[decommission_host].group_names | intersect([
+              'node_exporter', 'nginx_exporter', 'nginxlog_exporter',
+              'postgres_exporter', 'pve_exporter', 'ceph_nodes'
+            ]) | sort }}
+          status: "Inventory preview only; no infrastructure was queried or decommissioned."
+      loop: "{{ decommission_hosts }}"
+      loop_control:
+        loop_var: decommission_host
+
+    - name: Report workflow stages still requiring implementation
+      ansible.builtin.debug:
+        msg:
+          - "Preflight: verify live VM identity/ownership, backups, approval, dependencies, and infrastructure access."
+          - "VM removal: reuse the locked and confirmed workflow in playbooks/vms/remove_vm.yml."
+          - "Already-absent mode: verify Proxmox absence and reconcile Terraform ownership/state safely."
+          - "DNS: remove reviewed host/CNAME records only after VM absence is verified; check secondary resolvers."
+          - "Prometheus: prune exact targets/probes, persist exclusions, validate with promtool, and reload."
+          - "Grafana: audit references; preserve shared resources and historical metrics."
+          - "Completion: persist per-host stage results and propose repository cleanup for review."
+          - "Until implemented and tested, use docs/contrib/decommission_vm.md; this plan is not approval to destroy a VM."
