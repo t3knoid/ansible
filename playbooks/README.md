@@ -106,6 +106,7 @@
 | [`prometheus/deploy_prometheus.yml`](../docs/playbooks/deploy_prometheus.md) | Deploy Prometheus monitoring system Usage: ansible-playbook -i inventory/prometheus/inventory.ini playbooks/prometheus/deploy_prometheus.yml Use playbooks/prometheus/deploy_prometheus_exporters.yml to refresh exporter scrape targets. |
 | [`prometheus/deploy_prometheus_exporters.yml`](../docs/playbooks/deploy_prometheus_exporters.md) | Refresh Prometheus exporter scrape targets Usage: ansible-playbook playbooks/prometheus/deploy_prometheus_exporters.yml Note: This refreshes exporter targets from the current inventory into the Prometheus config. Requires the full combined inventory (ansible.cfg's default inventory=inventory/) so every service's exporter group (node_exporter, postgres_exporter, pve_exporter, etc.) is visible. Do not scope this run with -i to a single inventory subfolder. |
 | [`prometheus/deploy_pve_exporter.yml`](../docs/playbooks/deploy_pve_exporter.md) | Deploy Node Exporter and the Proxmox VE Exporter on Proxmox hosts for monitoring Usage: ansible-playbook -i inventory/pve/inventory.ini playbooks/prometheus/deploy_pve_exporter.yml |
+| [`prometheus/remove_prometheus_targets.yml`](../docs/playbooks/remove_prometheus_targets.md) | Remove explicitly selected Prometheus static targets with validation and backup. Usage: ansible-playbook playbooks/prometheus/remove_prometheus_targets.yml -e '{"prometheus_setup_remove_instances":["retired-0"]}' |
 | [`proxmox/deploy_ceph.yml`](../docs/playbooks/deploy_ceph.md) | Install Ceph storage cluster on Proxmox nodes |
 | [`proxmox/deploy_pbs.yml`](../docs/playbooks/deploy_pbs.md) | Install Proxmox Backup Server on pbs hosts |
 | [`proxmox/deploy_pve_monitoring.yml`](../docs/playbooks/deploy_pve_monitoring.md) | Deploy Node Exporter and the Proxmox VE Exporter on Proxmox hosts for monitoring Usage: ansible-playbook -i inventory/pve/inventory.ini playbooks/proxmox/deploy_pve_monitoring.yml |
@@ -179,6 +180,7 @@
 | [`vms/create_cloud_init_iso.yml`](../docs/playbooks/create_cloud_init_iso.md) | Creates a cloud-init ISO for virtual machines to enable autoinstallation. |
 | [`vms/create_vm.yml`](../docs/playbooks/create_vm.md) | Creates virtual machines and manages their DNS entries. |
 | [`vms/create_vm_snapshot.yml`](../docs/playbooks/create_vm_snapshot.md) | Creates snapshots of virtual machines. |
+| [`vms/decommission_vm.yml`](../docs/playbooks/decommission_vm.md) | Preview VM decommissioning; destructive stages are not implemented. Usage: ansible-playbook playbooks/vms/decommission_vm.yml -e '{"decommission_hosts":["retired-0"]}' |
 | [`vms/deploy_sshpass.yml`](../docs/playbooks/deploy_sshpass.md) | Deploys sshpass utility on virtual machines. |
 | [`vms/force_reboot_vm.yml`](../docs/playbooks/force_reboot_vm.md) | Forces a reboot of virtual machines by stopping and starting them. |
 | [`vms/install_vm_packages.yml`](../docs/playbooks/install_vm_packages.md) | Installs required packages on virtual machines. |
