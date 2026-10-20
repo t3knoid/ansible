@@ -54,6 +54,10 @@ Installs and configures a Prometheus monitoring system on Debian/Ubuntu.
 | `prometheus_setup_pve_exporter_port` | `9221` |  |
 | `prometheus_setup_ceph_job_name` | `"ceph"` |  |
 | `prometheus_setup_ceph_port` | `9283` |  |
+| `prometheus_setup_remove_instances` | `[]` |  |
+| `prometheus_setup_remove_targets` | `[]` |  |
+| `prometheus_setup_remove_jobs` | `` |  |
+| `prometheus_setup_remove_reload_url` | `"http://localhost:9090/-/reload"` |  |
 
 ## 📦 Vars
 _No constant variables found._
