@@ -1,0 +1,160 @@
+---
+- name: Validate explicit target removal selections
+  ansible.builtin.assert:
+    that:
+      - prometheus_setup_remove_instances | type_debug == 'list'
+      - prometheus_setup_remove_targets | type_debug == 'list'
+      - prometheus_setup_remove_jobs | type_debug == 'list'
+      - prometheus_setup_remove_instances | length + prometheus_setup_remove_targets | length > 0
+      - prometheus_setup_remove_jobs | length > 0
+      - prometheus_setup_remove_instances | select('string') | list | length == prometheus_setup_remove_instances | length
+      - prometheus_setup_remove_targets | select('string') | list | length == prometheus_setup_remove_targets | length
+      - prometheus_setup_remove_jobs | select('string') | list | length == prometheus_setup_remove_jobs | length
+      - "'' not in prometheus_setup_remove_instances + prometheus_setup_remove_targets + prometheus_setup_remove_jobs"
+    fail_msg: "Supply nonempty exact instance labels and/or literal targets as lists, and an explicit job list. Patterns are not expanded."
+
+- name: Inspect the live Prometheus configuration
+  ansible.builtin.stat:
+    path: "{{ prometheus_setup_config_file }}"
+  register: prometheus_setup_removal_stat
+
+- name: Require a regular Prometheus configuration file
+  ansible.builtin.assert:
+    that:
+      - prometheus_setup_removal_stat.stat.isreg | default(false)
+    fail_msg: "The existing Prometheus configuration must be a regular file."
+
+- name: Read the live Prometheus configuration
+  ansible.builtin.slurp:
+    src: "{{ prometheus_setup_config_file }}"
+  register: prometheus_setup_removal_source
+  no_log: true
+
+- name: Decode the live Prometheus configuration
+  ansible.builtin.set_fact:
+    prometheus_setup_removal_original: "{{ prometheus_setup_removal_source.content | b64decode | from_yaml }}"
+  no_log: true
+
+- name: Require a scrape configuration list
+  ansible.builtin.assert:
+    that:
+      - prometheus_setup_removal_original is mapping
+      - prometheus_setup_removal_original.scrape_configs | default(none) | type_debug == 'list'
+
+- name: Remove exact matches while preserving other jobs and static targets
+  ansible.builtin.set_fact:
+    prometheus_setup_removal_serialized: >-
+      {% set result = namespace(jobs=[]) %}
+      {% for job in prometheus_setup_removal_original.scrape_configs %}
+        {% if job.job_name in prometheus_setup_remove_jobs and 'static_configs' in job %}
+          {% set selected = namespace(configs=[]) %}
+          {% for config in job.static_configs %}
+            {% if config.get('labels', {}).get('instance') not in prometheus_setup_remove_instances %}
+              {% set remaining = config.targets | reject('in', prometheus_setup_remove_targets) | list %}
+              {% if remaining | length > 0 %}
+                {% set selected.configs = selected.configs + [config | combine({'targets': remaining})] %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          {% set result.jobs = result.jobs + [job | combine({'static_configs': selected.configs})] %}
+        {% else %}
+          {% set result.jobs = result.jobs + [job] %}
+        {% endif %}
+      {% endfor %}
+      {{ prometheus_setup_removal_original | combine({'scrape_configs': result.jobs}) | to_json }}
+  no_log: true
+
+- name: Decode the structured candidate configuration
+  ansible.builtin.set_fact:
+    prometheus_setup_removal_candidate: "{{ prometheus_setup_removal_serialized | from_json }}"
+  no_log: true
+
+- name: Require a structured candidate before writing any files
+  ansible.builtin.assert:
+    that:
+      - prometheus_setup_removal_candidate is mapping
+
+- name: Report whether the selected static targets would be removed
+  ansible.builtin.debug:
+    msg:
+      instances: "{{ prometheus_setup_remove_instances }}"
+      targets: "{{ prometheus_setup_remove_targets }}"
+      jobs: "{{ prometheus_setup_remove_jobs }}"
+      configuration_would_change: "{{ prometheus_setup_removal_candidate != prometheus_setup_removal_original }}"
+      check_mode: "{{ ansible_check_mode }}"
+
+- name: Validate and install changed Prometheus configuration
+  when:
+    - prometheus_setup_removal_candidate != prometheus_setup_removal_original
+    - not ansible_check_mode
+  block:
+    - name: Allocate a candidate beside the live file for relative path validation
+      ansible.builtin.tempfile:
+        path: "{{ prometheus_setup_config_file | dirname }}"
+        prefix: .prometheus-remove-targets-
+        suffix: .yml
+        state: file
+      register: prometheus_setup_removal_temp
+
+    - name: Write the candidate configuration privately
+      ansible.builtin.copy:
+        content: "{{ prometheus_setup_removal_candidate | to_nice_yaml(indent=2, sort_keys=false) }}"
+        dest: "{{ prometheus_setup_removal_temp.path }}"
+        mode: "0600"
+      no_log: true
+
+    - name: Validate the candidate with promtool before replacing the live file
+      ansible.builtin.command:
+        argv:
+          - "{{ prometheus_setup_home }}/promtool"
+          - check
+          - config
+          - "{{ prometheus_setup_removal_temp.path }}"
+      changed_when: false
+
+    - name: Back up and atomically replace the validated configuration
+      ansible.builtin.copy:
+        src: "{{ prometheus_setup_removal_temp.path }}"
+        dest: "{{ prometheus_setup_config_file }}"
+        remote_src: true
+        backup: true
+        owner: "{{ prometheus_setup_removal_stat.stat.uid }}"
+        group: "{{ prometheus_setup_removal_stat.stat.gid }}"
+        mode: "{{ prometheus_setup_removal_stat.stat.mode }}"
+      register: prometheus_setup_removal_install
+
+    - name: Reload Prometheus or restore the previous configuration
+      block:
+        - name: Reload Prometheus locally after a validated configuration change
+          ansible.builtin.uri:
+            url: "{{ prometheus_setup_remove_reload_url }}"
+            method: POST
+            status_code: 200
+            use_proxy: false
+      rescue:
+        - name: Restore the backed up configuration after a failed reload
+          ansible.builtin.copy:
+            src: "{{ prometheus_setup_removal_install.backup_file }}"
+            dest: "{{ prometheus_setup_config_file }}"
+            remote_src: true
+            owner: "{{ prometheus_setup_removal_stat.stat.uid }}"
+            group: "{{ prometheus_setup_removal_stat.stat.gid }}"
+            mode: "{{ prometheus_setup_removal_stat.stat.mode }}"
+
+        - name: Attempt to reload the restored configuration
+          ansible.builtin.uri:
+            url: "{{ prometheus_setup_remove_reload_url }}"
+            method: POST
+            status_code: 200
+            use_proxy: false
+          failed_when: false
+
+        - name: Report the failed reload and restored configuration
+          ansible.builtin.fail:
+            msg: "Prometheus reload failed. The previous config was restored; verify service health and retry removal."
+  always:
+    - name: Remove the private candidate configuration
+      ansible.builtin.file:
+        path: "{{ prometheus_setup_removal_temp.path }}"
+        state: absent
+      when: prometheus_setup_removal_temp.path is defined

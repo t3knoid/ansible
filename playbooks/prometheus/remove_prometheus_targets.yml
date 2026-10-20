@@ -1,0 +1,15 @@
+---
+# Purpose: Remove explicitly selected Prometheus static targets with validation and backup.
+# Usage: ansible-playbook playbooks/prometheus/remove_prometheus_targets.yml -e '{"prometheus_setup_remove_instances":["retired-0"]}'
+
+- name: Remove retired Prometheus scrape targets
+  hosts: prometheus
+  become: true
+  gather_facts: false
+  roles:
+    - global
+  tasks:
+    - name: Import validated target removal tasks
+      ansible.builtin.import_role:
+        name: prometheus_setup
+        tasks_from: remove_targets.yml
