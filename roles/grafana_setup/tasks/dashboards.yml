@@ -1,0 +1,75 @@
+---
+- name: Inspect the existing Grafana configuration for dashboard-only deployment
+  ansible.builtin.stat:
+    path: "{{ grafana_setup_config_file }}"
+  register: grafana_setup_dashboard_existing_config
+  when: grafana_setup_dashboards_only | default(false) | bool
+
+- name: Require Grafana to be configured before dashboard-only deployment
+  ansible.builtin.assert:
+    that:
+      - grafana_setup_dashboard_existing_config.stat.isreg | default(false)
+    fail_msg: "Deploy and configure Grafana first. Dashboard-only deployment does not install Grafana, data sources, or authentication."
+  when: grafana_setup_dashboards_only | default(false) | bool
+
+- name: Create Grafana provisioning directory for dashboards
+  ansible.builtin.file:
+    path: "{{ grafana_setup_provisioning_dir }}"
+    state: directory
+    owner: grafana
+    group: grafana
+    mode: "0750"
+
+- name: Create Grafana provisioning/dashboards directory
+  ansible.builtin.file:
+    path: "{{ grafana_setup_provisioning_dashboards_dir }}"
+    state: directory
+    owner: "{{ grafana_setup_user }}"
+    group: "{{ grafana_setup_group }}"
+    mode: "0750"
+
+- name: Create Grafana dashboards directory
+  ansible.builtin.file:
+    path: "{{ grafana_setup_dashboards_dir }}"
+    state: directory
+    owner: "{{ grafana_setup_user }}"
+    group: "{{ grafana_setup_group }}"
+    mode: "0750"
+
+- name: Provision dashboard provider
+  ansible.builtin.template:
+    src: provisioning-dashboards.yml.j2
+    dest: "{{ grafana_setup_provisioning_dashboards_dir }}/dashboards.yml"
+    owner: "{{ grafana_setup_user }}"
+    group: "{{ grafana_setup_group }}"
+    mode: "0640"
+  notify: Restart Grafana
+
+- name: Install provisioned Grafana dashboards
+  ansible.builtin.copy:
+    src: "dashboards/{{ item }}"
+    dest: "{{ grafana_setup_dashboards_dir }}/{{ item }}"
+    owner: "{{ grafana_setup_user }}"
+    group: "{{ grafana_setup_group }}"
+    mode: "0640"
+  loop:
+    - nginx-prometheus-exporter.dashboard.json
+    - observability-landing.dashboard.json
+    - web-service-status.dashboard.json
+    - postgresql-status.dashboard.json
+    - proxmox-ve-status.dashboard.json
+    - proxmox-ve-guest-detail.dashboard.json
+    - node-exporter-overview.dashboard.json
+    - node-exporter-node-detail.dashboard.json
+    - failed-services.dashboard.json
+    - application-update-status.dashboard.json
+    - node-availability-grid.dashboard.json
+    - linux-update-status.dashboard.json
+    - linux-release-upgrade-progress.dashboard.json
+    - plex-media-server.dashboard.json
+    - rproxy-entra-id-health.dashboard.json
+
+- name: Remove standalone Proxmox VM snapshots dashboard
+  ansible.builtin.file:
+    path: "{{ grafana_setup_dashboards_dir }}/proxmox-vm-snapshots.dashboard.json"
+    state: absent
