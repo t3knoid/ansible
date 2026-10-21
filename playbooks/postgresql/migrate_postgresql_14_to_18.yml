@@ -1,0 +1,321 @@
+---
+# Purpose: Migrate one Debian/Ubuntu PostgreSQL cluster while retaining version 14
+
+- name: Migrate PostgreSQL 14 to 18
+  hosts: "{{ postgresql_migrate_host | mandatory }}"
+  become: true
+  gather_facts: true
+  any_errors_fatal: true
+  vars:
+    postgresql_migrate_confirm: false
+    postgresql_migrate_cluster: main
+    postgresql_migrate_port: 5432
+    postgresql_migrate_source_dir: /data/pgdata
+    postgresql_migrate_target_dir: /data/pgdata18
+    postgresql_migrate_extra_packages: []
+    postgresql_migrate_baseline_query: >-
+      SELECT json_build_object(
+      'version', current_setting('server_version_num')::int,
+      'data_directory', current_setting('data_directory'),
+      'port', current_setting('port')::int,
+      'databases', (SELECT array_agg(datname ORDER BY datname) FROM pg_database),
+      'roles', (SELECT array_agg(rolname ORDER BY rolname) FROM pg_roles));
+  pre_tasks:
+    - name: Require an explicitly selected host and maintenance prerequisites
+      ansible.builtin.assert:
+        that:
+          - ansible_play_hosts_all | length == 1
+          - postgresql_migrate_host == inventory_hostname
+          - ansible_facts.os_family == 'Debian'
+          - not ansible_check_mode
+          - postgresql_migrate_confirm | bool
+          - postgresql_migrate_cluster is match('^[a-zA-Z0-9_][a-zA-Z0-9_-]*$')
+          - postgresql_migrate_source_dir is match('^/')
+          - postgresql_migrate_target_dir is match('^/')
+          - postgresql_migrate_source_dir != postgresql_migrate_target_dir
+        fail_msg: >-
+          Select one inventory hostname with postgresql_migrate_host. Before setting
+          postgresql_migrate_confirm=true, stop all writers and deployment automation,
+          verify an independent backup restore, check disk space on all affected
+          filesystems, and identify required PostgreSQL 18 extension packages.
+          Check mode is not supported.
+  roles:
+    - global
+  tasks:
+    - name: Inspect the old data version and new cluster paths
+      ansible.builtin.stat:
+        path: "{{ item }}"
+      loop:
+        - "{{ postgresql_migrate_source_dir }}/PG_VERSION"
+        - "/etc/postgresql/18/{{ postgresql_migrate_cluster }}"
+        - "{{ postgresql_migrate_target_dir }}"
+        - "{{ postgresql_migrate_target_dir | dirname }}"
+        - /etc/postgresql-common/createcluster.conf
+      register: postgresql_migrate_paths
+
+    - name: Require an existing source and an unused target
+      ansible.builtin.assert:
+        that:
+          - postgresql_migrate_paths.results[0].stat.exists
+          - not postgresql_migrate_paths.results[1].stat.exists
+          - not postgresql_migrate_paths.results[2].stat.exists
+          - postgresql_migrate_paths.results[4].stat.isreg | default(false)
+        fail_msg: >-
+          The source PG_VERSION and createcluster.conf must exist, and both the target cluster and
+          target data directory must be absent. Inspect existing targets; never
+          delete one merely to make a retry succeed.
+
+    - name: Require an existing target parent directory
+      ansible.builtin.assert:
+        that:
+          - postgresql_migrate_paths.results[3].stat.isdir | default(false)
+        fail_msg: >-
+          Target parent {{ postgresql_migrate_target_dir | dirname }} does not exist
+          or is not a directory. Provision it on the intended filesystem with postgres
+          write access, or select another target with postgresql_migrate_target_dir
+          (for example /data/pgdata18 if /data has sufficient free space).
+          The playbook does not create or mount the parent automatically.
+
+    - name: Read the source data version
+      ansible.builtin.slurp:
+        src: "{{ postgresql_migrate_source_dir }}/PG_VERSION"
+      register: postgresql_migrate_source_version
+
+    - name: Require PostgreSQL 14 source data
+      ansible.builtin.assert:
+        that:
+          - postgresql_migrate_source_version.content | b64decode | trim == '14'
+
+    - name: Check target parent permissions for postgres
+      ansible.builtin.command:
+        argv:
+          - test
+          - -w
+          - "{{ postgresql_migrate_target_dir | dirname }}"
+      become_user: postgres
+      changed_when: false
+
+    - name: Check source cluster status
+      ansible.builtin.command:
+        argv: [pg_ctlcluster, "14", "{{ postgresql_migrate_cluster }}", status]
+      register: postgresql_migrate_source_status
+      changed_when: false
+      failed_when: postgresql_migrate_source_status.rc not in [0, 3]
+
+    - name: Start source cluster if stopped
+      ansible.builtin.command:
+        argv: [pg_ctlcluster, "14", "{{ postgresql_migrate_cluster }}", start]
+      when: postgresql_migrate_source_status.rc == 3
+      changed_when: true
+
+    - name: Record the source cluster baseline
+      ansible.builtin.command:
+        argv:
+          - /usr/lib/postgresql/14/bin/psql
+          - --no-psqlrc
+          - --no-password
+          - --tuples-only
+          - --no-align
+          - --set=ON_ERROR_STOP=1
+          - "--port={{ postgresql_migrate_port }}"
+          - --dbname=postgres
+          - "--command={{ postgresql_migrate_baseline_query }}"
+        chdir: /tmp
+      become_user: postgres
+      register: postgresql_migrate_source_baseline
+      changed_when: false
+
+    - name: Require the source server to match the expected layout
+      ansible.builtin.assert:
+        that:
+          - (postgresql_migrate_source_baseline.stdout | from_json).version | int // 10000 == 14
+          - (postgresql_migrate_source_baseline.stdout | from_json).data_directory == postgresql_migrate_source_dir
+          - (postgresql_migrate_source_baseline.stdout | from_json).port | int == postgresql_migrate_port | int
+
+    - name: Choose a unique backup directory
+      ansible.builtin.set_fact:
+        postgresql_migrate_backup_dir: >-
+          /var/backups/postgresql/14-{{ postgresql_migrate_cluster }}-{{ ansible_facts.date_time.iso8601_basic_short }}
+
+    - name: Create a private backup directory
+      ansible.builtin.file:
+        path: "{{ postgresql_migrate_backup_dir }}"
+        state: directory
+        owner: postgres
+        group: postgres
+        mode: "0700"
+
+    - name: Back up all databases and roles
+      ansible.builtin.command:
+        argv:
+          - /usr/lib/postgresql/14/bin/pg_dumpall
+          - --no-password
+          - "--port={{ postgresql_migrate_port }}"
+          - "--file={{ postgresql_migrate_backup_dir }}/cluster.sql"
+        chdir: /tmp
+      become_user: postgres
+      changed_when: true
+
+    - name: Restrict database backup permissions
+      ansible.builtin.file:
+        path: "{{ postgresql_migrate_backup_dir }}/cluster.sql"
+        mode: "0600"
+
+    - name: Back up version 14 configuration
+      ansible.builtin.command:
+        argv:
+          - tar
+          - --create
+          - --gzip
+          - "--file={{ postgresql_migrate_backup_dir }}/configuration.tar.gz"
+          - --directory=/etc/postgresql
+          - "14"
+      changed_when: true
+
+    - name: Save the source baseline
+      ansible.builtin.copy:
+        content: "{{ postgresql_migrate_source_baseline.stdout }}\n"
+        dest: "{{ postgresql_migrate_backup_dir }}/baseline.json"
+        mode: "0600"
+
+    - name: Record package cluster creation settings
+      ansible.builtin.slurp:
+        src: /etc/postgresql-common/createcluster.conf
+      register: postgresql_migrate_createcluster_config
+
+    - name: Install packages without creating or starting a cluster
+      block:
+        - name: Disable automatic main cluster creation
+          ansible.builtin.lineinfile:
+            path: /etc/postgresql-common/createcluster.conf
+            regexp: '^\s*#?\s*create_main_cluster\s*='
+            line: create_main_cluster = false
+
+        - name: Install only PostgreSQL package prerequisites
+          ansible.builtin.include_role:
+            name: postgresql_setup
+            tasks_from: packages
+          vars:
+            postgresql_setup_version: 18
+            postgresql_setup_package_handlers: []
+            postgresql_setup_policy_rc_d: 101
+            postgresql_setup_packages_to_install: >-
+              {{ ['postgresql-18', 'libpq-dev', 'python3-psycopg2', 'acl']
+                 + postgresql_migrate_extra_packages }}
+      always:
+        - name: Restore package cluster creation settings
+          ansible.builtin.copy:
+            content: "{{ postgresql_migrate_createcluster_config.content | b64decode }}"
+            dest: /etc/postgresql-common/createcluster.conf
+
+    - name: Verify PostgreSQL 18 binaries are installed
+      ansible.builtin.command:
+        argv: [/usr/lib/postgresql/18/bin/postgres, --version]
+      changed_when: false
+
+    - name: Verify package installation did not create a target cluster
+      ansible.builtin.stat:
+        path: "/etc/postgresql/18/{{ postgresql_migrate_cluster }}"
+      register: postgresql_migrate_target_config
+
+    - name: Require no package-created target
+      ansible.builtin.assert:
+        that:
+          - not postgresql_migrate_target_config.stat.exists
+
+    - name: Stop the source cluster
+      ansible.builtin.command:
+        argv: [pg_ctlcluster, "14", "{{ postgresql_migrate_cluster }}", stop]
+      changed_when: true
+
+    - name: Upgrade using dump and restore while retaining version 14
+      ansible.builtin.command:
+        argv:
+          - pg_upgradecluster
+          - --method=dump
+          - -v
+          - "18"
+          - "14"
+          - "{{ postgresql_migrate_cluster }}"
+          - "{{ postgresql_migrate_target_dir }}"
+      changed_when: true
+
+    - name: Require the retained version 14 cluster to be stopped
+      ansible.builtin.command:
+        argv: [pg_ctlcluster, "14", "{{ postgresql_migrate_cluster }}", status]
+      register: postgresql_migrate_retained_status
+      changed_when: false
+      failed_when: postgresql_migrate_retained_status.rc != 3
+
+    - name: Read the migrated cluster baseline
+      ansible.builtin.command:
+        argv:
+          - /usr/lib/postgresql/18/bin/psql
+          - --no-psqlrc
+          - --no-password
+          - --tuples-only
+          - --no-align
+          - --set=ON_ERROR_STOP=1
+          - "--port={{ postgresql_migrate_port }}"
+          - --dbname=postgres
+          - "--command={{ postgresql_migrate_baseline_query }}"
+        chdir: /tmp
+      become_user: postgres
+      register: postgresql_migrate_target_baseline
+      changed_when: false
+
+    - name: Verify version, directory, port, and databases
+      ansible.builtin.assert:
+        that:
+          - (postgresql_migrate_target_baseline.stdout | from_json).version | int // 10000 == 18
+          - (postgresql_migrate_target_baseline.stdout | from_json).data_directory == postgresql_migrate_target_dir
+          - (postgresql_migrate_target_baseline.stdout | from_json).port | int == postgresql_migrate_port | int
+          - (postgresql_migrate_target_baseline.stdout | from_json).databases == (postgresql_migrate_source_baseline.stdout | from_json).databases
+
+    - name: Verify retained roles while allowing new PostgreSQL built-in roles
+      ansible.builtin.assert:
+        that:
+          - >-
+            (postgresql_migrate_source_baseline.stdout | from_json).roles
+            | difference((postgresql_migrate_target_baseline.stdout | from_json).roles)
+            | length == 0
+          - >-
+            (postgresql_migrate_target_baseline.stdout | from_json).roles
+            | reject('match', '^pg_') | sort ==
+            (postgresql_migrate_source_baseline.stdout | from_json).roles
+            | reject('match', '^pg_') | sort
+        fail_msg: >-
+          Missing roles: {{ (postgresql_migrate_source_baseline.stdout | from_json).roles
+          | difference((postgresql_migrate_target_baseline.stdout | from_json).roles) }}.
+          Unexpected application roles: {{ (postgresql_migrate_target_baseline.stdout | from_json).roles
+          | reject('match', '^pg_')
+          | difference((postgresql_migrate_source_baseline.stdout | from_json).roles) }}.
+          Keep writers stopped and inspect the migrated cluster; do not rerun the migration.
+
+    - name: Rebuild optimizer statistics
+      ansible.builtin.command:
+        argv:
+          - /usr/lib/postgresql/18/bin/vacuumdb
+          - "--port={{ postgresql_migrate_port }}"
+          - --all
+          - --analyze-in-stages
+        chdir: /tmp
+      become_user: postgres
+      changed_when: true
+
+    - name: Inspect final cluster state
+      ansible.builtin.command: pg_lsclusters
+      register: postgresql_migrate_clusters
+      changed_when: false
+
+    - name: Report migration and required application checks
+      ansible.builtin.debug:
+        msg:
+          - "{{ postgresql_migrate_clusters.stdout_lines }}"
+          - "Backup: {{ postgresql_migrate_backup_dir }}"
+          - >-
+            Keep writers stopped until application credentials, extensions, representative
+            row counts, and important queries are validated. Set the affected inventory's
+            postgresql_setup_version to 18 and postgresql_setup_data_dir to
+            {{ postgresql_migrate_target_dir }}. Do not run the normal setup role on this
+            migrated cluster without reviewing its data-directory and pg_hba.conf handling.
