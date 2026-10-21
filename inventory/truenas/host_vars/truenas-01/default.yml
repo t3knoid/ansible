@@ -297,3 +297,39 @@ truenas_services:
   - { name: nfs, enable: true, state: started }
   - { name: ssh, enable: true, state: started }
   - { name: ups, enable: true, state: started }
+
+truenas_apps_mode: apply
+
+truenas_apps:
+  - name: postgres
+    source: catalog
+    state: present
+    runtime: running
+    catalog:
+      app: postgres
+      train: community
+      version: "1.5.39"
+    values:
+      postgres:
+        image_selector: v18_image
+        user: postgres
+        password: "{{ vault_truenas_postgres_password }}"
+        database: postgres
+        shm_size_mb: 512
+      resources:
+        limits:
+          cpus: 2
+          memory: 4096
+      network:
+        host_network: false
+        tcp_port:
+          bind_mode: published
+          port_number: 5432
+          host_ips:
+            - "0.0.0.0"
+      storage:
+        data:
+          type: ix_volume
+          ix_volume_config:
+            acl_enable: false
+            dataset_name: data

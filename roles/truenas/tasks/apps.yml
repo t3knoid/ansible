@@ -1,0 +1,51 @@
+---
+- name: Validate all Apps declarations before deployment
+  ansible.builtin.import_tasks: apps_validate.yml
+
+- name: Reconcile TrueNAS applications through middleware
+  become: "{{ truenas_become }}"
+  when: truenas_apps | length > 0
+  block:
+    - name: Run read-only TrueNAS preflight
+      ansible.builtin.import_tasks: preflight.yml
+
+    - name: Read the Apps storage configuration
+      truenas_api:
+        mode: call
+        method: docker.config
+        read_only: true
+      register: truenas_apps_storage
+      changed_when: false
+      no_log: "{{ truenas_no_log }}"
+
+    - name: Require an existing Apps pool
+      ansible.builtin.assert:
+        that:
+          - truenas_apps_storage.result.pool | default('') | length > 0
+        fail_msg: "Configure an Apps storage pool in TrueNAS before deploying applications."
+
+    - name: Plan or apply the generic Apps lifecycle
+      truenas_api:
+        mode: app
+        app: "{{ item }}"
+        app_apply: "{{ truenas_apps_mode == 'apply' }}"
+        app_job_timeout: "{{ truenas_apps_job_timeout }}"
+        app_health_timeout: "{{ truenas_apps_health_timeout }}"
+        app_poll_interval: "{{ truenas_apps_poll_interval }}"
+      loop: "{{ truenas_apps }}"
+      loop_control:
+        label: "{{ item.name }}"
+      register: truenas_apps_results
+      no_log: "{{ truenas_no_log }}"
+
+    - name: Report redacted application results
+      ansible.builtin.debug:
+        msg:
+          name: "{{ item }}"
+          actions: "{{ truenas_apps_result.actions }}"
+          planned: "{{ truenas_apps_result.planned }}"
+          runtime_state: "{{ truenas_apps_result.runtime_state | default('ABSENT') }}"
+          approval_required: "{{ truenas_apps_result.approval_required | default(false) }}"
+      vars:
+        truenas_apps_result: "{{ truenas_apps_results.results | selectattr('item.name', 'equalto', item) | first }}"
+      loop: "{{ truenas_apps | map(attribute='name') | list }}"

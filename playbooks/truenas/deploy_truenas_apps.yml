@@ -1,0 +1,16 @@
+---
+# Purpose: Plan or deploy generic catalog and custom TrueNAS applications through middleware.
+# Usage: ansible-playbook -i inventory/truenas/inventory.ini playbooks/truenas/deploy_truenas_apps.yml --limit truenas-01
+
+- name: Manage TrueNAS applications
+  hosts: truenas
+  become: true
+  gather_facts: false
+  roles:
+    - global
+  tasks:
+    - name: Import the isolated TrueNAS Apps workflow
+      ansible.builtin.import_role:
+        name: truenas
+        tasks_from: apps.yml
+      tags: [truenas_apps]

@@ -15,12 +15,32 @@ description:
   - C(mode=resource) ensures an object exists/does not exist, found via C(<namespace>.query).
   - C(mode=config) manages a singleton configuration (C(<namespace>.config) / C(<namespace>.update)).
   - C(mode=call) performs a raw API call (not idempotent unless C(read_only=true)).
+    - C(mode=app) reconciles generic catalog/custom Apps with bounded middleware jobs and runtime checks.
 options:
   mode:
     description: Operating mode.
     type: str
     default: resource
-    choices: [resource, config, call]
+        choices: [resource, config, call, app]
+    app:
+        description: App definition with name, source, state, runtime, catalog/values or compose, and explicit allow_upgrade/allow_delete approvals.
+        type: dict
+    app_apply:
+        description: Allow app mutations; false plans using read-only queries. Check mode always prevents mutations.
+        type: bool
+        default: false
+    app_job_timeout:
+        description: Maximum seconds to wait for each Apps middleware job; a timeout does not cancel the job.
+        type: int
+        default: 900
+    app_health_timeout:
+        description: Maximum seconds to wait for each desired Apps runtime state.
+        type: int
+        default: 180
+    app_poll_interval:
+        description: Seconds between Apps job and runtime checks.
+        type: int
+        default: 5
   namespace:
     description: API namespace, e.g. C(sharing.smb), C(user), C(pool.dataset), C(directoryservices).
     type: str
@@ -151,6 +171,9 @@ result:
 import copy
 import json
 import re
+import time
+
+import yaml
 
 from ansible.module_utils.basic import AnsibleModule
 
@@ -428,10 +451,191 @@ def run_call(module, tp):
     return dict(changed=True, result=out)
 
 
+def app_job(tp, method, args, timeout, interval):
+    job_id = tp.call(method, *args)
+    if not _is_int(job_id):
+        raise MiddlewareError("%s did not return a job ID" % method)
+    deadline = time.monotonic() + timeout
+    while True:
+        jobs = tp.call("core.get_jobs", [["id", "=", job_id]])
+        if len(jobs) != 1:
+            raise MiddlewareError("Cannot find %s job %s" % (method, job_id))
+        state = jobs[0]["state"]
+        if state == "SUCCESS":
+            return jobs[0].get("result")
+        if state in ("FAILED", "ABORTED"):
+            raise MiddlewareError("%s job %s ended in %s; inspect TrueNAS job logs" % (method, job_id, state))
+        if time.monotonic() >= deadline:
+            raise MiddlewareError("%s job %s timed out; it may still be running; inspect before retrying" % (method, job_id))
+        time.sleep(min(interval, max(0, deadline - time.monotonic())))
+
+
+def app_config_matches(desired, current):
+    if isinstance(desired, dict):
+        return isinstance(current, dict) and all(
+            key in current and app_config_matches(value, current[key])
+            for key, value in desired.items()
+        )
+    if isinstance(desired, list):
+        return isinstance(current, list) and len(desired) == len(current) and all(
+            app_config_matches(want, have) for want, have in zip(desired, current)
+        )
+    return type(desired) is type(current) and desired == current
+
+
+def app_wait_state(tp, name, expected, timeout, interval):
+    deadline = time.monotonic() + timeout
+    while True:
+        rows = tp.call("app.query", [["id", "=", name]])
+        if expected == "ABSENT" and not rows:
+            return "ABSENT"
+        current = rows[0].get("state") if len(rows) == 1 else "ABSENT"
+        if current == expected:
+            return current
+        if time.monotonic() >= deadline:
+            raise MiddlewareError("App %s did not reach %s (last state: %s); inspect TrueNAS" % (name, expected, current))
+        time.sleep(min(interval, max(0, deadline - time.monotonic())))
+
+
+def app_merge(current, desired):
+    result = copy.deepcopy(current)
+    for key, value in desired.items():
+        if isinstance(value, dict) and isinstance(result.get(key), dict):
+            result[key] = app_merge(result[key], value)
+        else:
+            result[key] = copy.deepcopy(value)
+    return result
+
+
+def run_app(module, tp):
+    definition = module.params["app"]
+    allowed = {"name", "source", "state", "runtime", "catalog", "values", "compose", "allow_delete", "allow_upgrade"}
+    if set(definition) - allowed:
+        raise MiddlewareError("Unrecognized top-level Apps fields; place application settings inside values or compose")
+    name = definition.get("name", "")
+    source = definition.get("source")
+    desired_state = definition.get("state", "present")
+    runtime = definition.get("runtime", "running")
+    if not isinstance(name, str) or not re.fullmatch(r"[a-z](?:[-a-z0-9]*[a-z0-9])?", name) or len(name) > 40:
+        raise MiddlewareError("App name must be lowercase, start with a letter, end with an alphanumeric, and be at most 40 characters")
+    if source not in ("catalog", "custom") or desired_state not in ("present", "absent") or runtime not in ("running", "stopped"):
+        raise MiddlewareError("Invalid app source, state, or runtime")
+    for gate in ("allow_delete", "allow_upgrade"):
+        if gate in definition and not isinstance(definition[gate], bool):
+            raise MiddlewareError("%s must be a boolean" % gate)
+    timeout = module.params["app_job_timeout"]
+    health_timeout = module.params["app_health_timeout"]
+    interval = module.params["app_poll_interval"]
+    if min(timeout, health_timeout, interval) <= 0:
+        raise MiddlewareError("Apps job timeout, health timeout, and polling interval must be positive")
+    dry_run = module.check_mode or not module.params["app_apply"]
+    result = dict(changed=False, name=name, actions=[], planned=dry_run)
+    payload = {}
+    catalog = {}
+    if desired_state == "present":
+        if source == "custom":
+            if "catalog" in definition or "values" in definition:
+                raise MiddlewareError("Custom apps cannot specify catalog or values")
+            try:
+                compose = yaml.safe_load(definition.get("compose", ""))
+            except (yaml.YAMLError, TypeError):
+                raise MiddlewareError("Custom app compose must be valid YAML")
+            if not isinstance(compose, dict) or not isinstance(compose.get("services"), dict) or not compose["services"]:
+                raise MiddlewareError("Custom compose requires a nonempty services mapping")
+            payload = {"custom_compose_config": compose}
+        else:
+            catalog = definition.get("catalog", {})
+            if not isinstance(catalog, dict) or any(
+                not isinstance(catalog.get(key), str) or not catalog[key].strip()
+                for key in ("app", "train", "version")
+            ) or catalog["version"] == "latest":
+                raise MiddlewareError("Catalog apps require app, train, and an explicit version other than latest")
+            if "compose" in definition or not isinstance(definition.get("values", {}), dict):
+                raise MiddlewareError("Catalog apps require mapping values and cannot specify compose")
+            payload = {"values": definition.get("values", {})}
+    rows = tp.call("app.query", [["id", "=", name]])
+    if len(rows) > 1:
+        raise MiddlewareError("App identity is ambiguous")
+    current = rows[0] if rows else None
+    if current and current.get("custom_app") is not (source == "custom"):
+        raise MiddlewareError("Existing app source differs; automatic source conversion is refused")
+    if desired_state == "absent":
+        if current is None:
+            return result
+        result.update(changed=True, actions=["delete"], approval_required=not definition.get("allow_delete", False))
+        if not dry_run:
+            if not definition.get("allow_delete", False):
+                raise MiddlewareError("App deletion requires allow_delete: true and a reviewed backup/data-retention plan")
+            app_job(tp, "app.delete", [name, {"remove_images": False, "remove_ix_volumes": False}], timeout, interval)
+            result["runtime_state"] = app_wait_state(tp, name, "ABSENT", health_timeout, interval)
+        return result
+    if current and source == "catalog":
+        metadata = current.get("metadata", {})
+        if metadata.get("name") != catalog["app"] or metadata.get("train") != catalog["train"]:
+            raise MiddlewareError("Existing catalog app/train differs; automatic catalog replacement is refused")
+    if current is None:
+        result["actions"].append("create")
+        create = dict(payload, app_name=name, custom_app=(source == "custom"))
+        if source == "catalog":
+            create.update(catalog_app=catalog["app"], train=catalog["train"], version=catalog["version"])
+        if not dry_run:
+            app_job(tp, "app.create", [create], timeout, interval)
+    else:
+        current_config = tp.call("app.config", name)
+        if not isinstance(current_config, dict):
+            raise MiddlewareError("App configuration is not a mapping")
+        if source == "catalog" and current.get("version") != catalog["version"]:
+            result["actions"].append("upgrade")
+            result["approval_required"] = not definition.get("allow_upgrade", False)
+            if not dry_run:
+                if not definition.get("allow_upgrade", False):
+                    raise MiddlewareError("Catalog version change requires allow_upgrade: true; downgrades require a separate rollback workflow")
+                summary = tp.call("app.upgrade_summary", name, {"app_version": catalog["version"]})
+                if summary.get("upgrade_version") != catalog["version"]:
+                    raise MiddlewareError("Requested catalog version is not an available upgrade")
+                app_job(tp, "app.upgrade", [name, {"app_version": catalog["version"], "values": app_merge(current_config, payload["values"])}], timeout, interval)
+        elif source == "custom":
+            desired = payload["custom_compose_config"]
+            if not (app_config_matches(desired, current_config) and app_config_matches(current_config, desired)):
+                result["actions"].append("update")
+                if not dry_run:
+                    app_job(tp, "app.update", [name, payload], timeout, interval)
+        elif not app_config_matches(payload["values"], current_config):
+            result["actions"].append("update")
+            if not dry_run:
+                app_job(tp, "app.update", [name, {"values": app_merge(current_config, payload["values"])}], timeout, interval)
+    expected = "RUNNING" if runtime == "running" else "STOPPED"
+    if not dry_run:
+        rows = tp.call("app.query", [["id", "=", name]])
+        if len(rows) != 1:
+            raise MiddlewareError("App missing after reconciliation")
+        current = rows[0]
+    current_state = current.get("state") if current else None
+    if runtime == "stopped" and current_state != "STOPPED":
+        result["actions"].append("stop")
+        if not dry_run:
+            app_job(tp, "app.stop", [name], timeout, interval)
+    elif runtime == "running" and current_state in ("STOPPED", "CRASHED"):
+        result["actions"].append("start")
+        if not dry_run:
+            app_job(tp, "app.start", [name], timeout, interval)
+    result["changed"] = bool(result["actions"])
+    if not dry_run:
+        result["runtime_state"] = app_wait_state(tp, name, expected, health_timeout, interval)
+    else:
+        result["runtime_state"] = current_state or "ABSENT"
+    return result
+
+
 def main():
     module = AnsibleModule(
         argument_spec=dict(
-            mode=dict(type="str", default="resource", choices=["resource", "config", "call"]),
+            mode=dict(type="str", default="resource", choices=["resource", "config", "call", "app"]),
+            app=dict(type="dict", no_log=True),
+            app_apply=dict(type="bool", default=False),
+            app_job_timeout=dict(type="int", default=900),
+            app_health_timeout=dict(type="int", default=180),
+            app_poll_interval=dict(type="int", default=5),
             namespace=dict(type="str"),
             lookup=dict(type="dict", default={}),
             config=dict(type="dict", default={}),
@@ -457,10 +661,11 @@ def main():
             ("mode", "resource", ["namespace"]),
             ("mode", "config", ["namespace"]),
             ("mode", "call", ["method"]),
+            ("mode", "app", ["app"]),
         ],
         supports_check_mode=True,
     )
-    runner = dict(resource=run_resource, config=run_config, call=run_call)[module.params["mode"]]
+    runner = dict(resource=run_resource, config=run_config, call=run_call, app=run_app)[module.params["mode"]]
     try:
         with Transport(module, module.params["transport"]) as tp:
             result = runner(module, tp)

@@ -1,0 +1,30 @@
+---
+- name: Validate TrueNAS Apps declarations without NAS access
+  hosts: localhost
+  connection: local
+  become: false
+  gather_facts: false
+  vars:
+    truenas_apps:
+      - name: catalog-example
+        source: catalog
+        catalog:
+          app: example
+          train: example-train
+          version: "1.0.0"
+        values:
+          password: scaffold-secret-must-not-be-printed
+      - name: custom-example
+        source: custom
+        compose: |
+          services:
+            example:
+              image: example.invalid/test:1.0.0
+      - name: retired-example
+        source: custom
+        state: absent
+  tasks:
+    - name: Exercise the declaration validation entry point
+      ansible.builtin.import_role:
+        name: truenas
+        tasks_from: apps_validate.yml
