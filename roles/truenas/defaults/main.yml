@@ -192,3 +192,9 @@ truenas_post_calls: []
 #   - {name: cifs, enable: true, state: started}
 #   - {name: nfs,  enable: true, state: started}
 truenas_services: []
+
+truenas_apps_mode: plan
+truenas_apps: []
+truenas_apps_job_timeout: 900
+truenas_apps_health_timeout: 180
+truenas_apps_poll_interval: 5

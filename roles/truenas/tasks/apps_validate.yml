@@ -1,0 +1,88 @@
+---
+- name: Validate the Apps execution mode
+  ansible.builtin.assert:
+    that:
+      - truenas_apps_mode in ['plan', 'apply']
+      - truenas_apps_job_timeout | int > 0
+      - truenas_apps_health_timeout | int > 0
+      - truenas_apps_poll_interval | int > 0
+    fail_msg: "Use plan or apply mode with positive Apps job/health timeouts and polling interval."
+
+- name: Require a list of application mappings
+  ansible.builtin.assert:
+    that:
+      - truenas_apps | type_debug == 'list'
+      - truenas_apps | select('mapping') | list | length == truenas_apps | length
+    fail_msg: "truenas_apps must be a list of application definitions."
+
+- name: Validate application identities and lifecycle controls
+  ansible.builtin.assert:
+    that:
+      - item.name is defined
+      - item.name is string
+      - item.name is match('^[a-z]([-a-z0-9]*[a-z0-9])?$')
+      - item.name | length <= 40
+      - item.source | default('') in ['catalog', 'custom']
+      - item.state | default('present') in ['present', 'absent']
+      - item.runtime | default('running') in ['running', 'stopped']
+      - item.allow_delete | default(false) is boolean
+      - item.allow_upgrade | default(false) is boolean
+      - item.keys() | difference(['name', 'source', 'state', 'runtime', 'catalog', 'values', 'compose', 'allow_delete', 'allow_upgrade']) | length == 0
+    fail_msg: "Check app name (maximum 40 characters), source, state, runtime, and boolean approval controls."
+  loop: "{{ truenas_apps }}"
+  no_log: "{{ truenas_no_log }}"
+
+- name: Reject duplicate application names
+  ansible.builtin.assert:
+    that:
+      - truenas_apps | map(attribute='name') | unique | length == truenas_apps | length
+    fail_msg: "Each TrueNAS application name must appear exactly once."
+
+- name: Validate catalog application declarations
+  ansible.builtin.assert:
+    that:
+      - item.catalog | default(none) is mapping
+      - item.catalog.app | default('') is string
+      - item.catalog.app | default('') | trim | length > 0
+      - item.catalog.train | default('') is string
+      - item.catalog.train | default('') | trim | length > 0
+      - item.catalog.version | default('') is string
+      - item.catalog.version | default('') | trim | length > 0
+      - item.catalog.version | default('') != 'latest'
+      - item.get('values', {}) is mapping
+      - item.compose is not defined
+    fail_msg: "Catalog apps require catalog.app/train/version and mapping values; do not supply compose or use latest."
+  loop: "{{ truenas_apps }}"
+  when:
+    - item.source == 'catalog'
+    - item.state | default('present') == 'present'
+  no_log: "{{ truenas_no_log }}"
+
+- name: Validate custom application declarations
+  ansible.builtin.assert:
+    that:
+      - item.compose | default('') is string
+      - item.compose | default('') | trim | length > 0
+      - item.catalog is not defined
+      - "'values' not in item"
+    fail_msg: "Custom apps require a nonempty compose YAML string and cannot specify catalog or values."
+  loop: "{{ truenas_apps }}"
+  when:
+    - item.source == 'custom'
+    - item.state | default('present') == 'present'
+  no_log: "{{ truenas_no_log }}"
+
+- name: Validate custom Compose structure before any deployment
+  ansible.builtin.assert:
+    that:
+      - truenas_apps_compose is mapping
+      - truenas_apps_compose.services | default(none) is mapping
+      - truenas_apps_compose.services | length > 0
+    fail_msg: "Custom Compose YAML must contain a nonempty services mapping."
+  vars:
+    truenas_apps_compose: "{{ item.compose | from_yaml }}"
+  loop: "{{ truenas_apps }}"
+  when:
+    - item.source == 'custom'
+    - item.state | default('present') == 'present'
+  no_log: "{{ truenas_no_log }}"
