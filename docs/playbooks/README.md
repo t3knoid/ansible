@@ -166,6 +166,7 @@
 | [`template/create_ubuntu_24_04_server_template.yml`](./create_ubuntu_24_04_server_template.md) | Creates an Ubuntu 24.04 Server VM template using cloud-init on the specified Proxmox node. |
 | [`terraform/deploy_terraform.yml`](./deploy_terraform.md) | Installs Terraform |
 | [`tplink/deploy_omada_controller.yml`](./deploy_omada_controller.md) | Installs and configures Tp-Link Omada Controller |
+| [`truenas/deploy_truenas_apps.yml`](./deploy_truenas_apps.md) | Plan or deploy generic catalog and custom TrueNAS applications through middleware. Usage: ansible-playbook -i inventory/truenas/inventory.ini playbooks/truenas/deploy_truenas_apps.yml --limit truenas-01 |
 | [`ubuntu/check_ubuntu_install.yml`](./check_ubuntu_install.md) | Checks if Ubuntu is installed on the target machine |
 | [`vault/config.yml`](./config.md) | Configures HashiCorp Vault on designated vault servers. |
 | [`vault/create_ca.yml`](./create_ca.md) | Creates a Certificate Authority and Vault server certificate for HashiCorp Vault. |
