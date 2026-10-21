@@ -1,0 +1,40 @@
+---
+- name: Check whether the Sabnzbd container exists
+  ansible.builtin.command:
+    argv:
+      - docker
+      - ps
+      - --all
+      - --quiet
+      - --filter
+      - name=^/sabnzbd$
+  register: sabnzbd_setup_start_existing_container
+  changed_when: false
+  check_mode: false
+
+- name: Require an existing Sabnzbd container
+  ansible.builtin.assert:
+    that:
+      - sabnzbd_setup_start_existing_container.stdout | trim | length > 0
+    fail_msg: "The sabnzbd container does not exist. Deploy Sabnzbd before using the start playbook."
+
+- name: Check whether the Sabnzbd container is running
+  ansible.builtin.command:
+    argv:
+      - docker
+      - ps
+      - --quiet
+      - --filter
+      - name=^/sabnzbd$
+  register: sabnzbd_setup_start_running_container
+  changed_when: false
+  check_mode: false
+
+- name: Start the Sabnzbd container
+  ansible.builtin.command:
+    argv:
+      - docker
+      - start
+      - sabnzbd
+  when: sabnzbd_setup_start_running_container.stdout | trim | length == 0
+  changed_when: true

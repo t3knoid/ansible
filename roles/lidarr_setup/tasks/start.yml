@@ -1,0 +1,40 @@
+---
+- name: Check whether the Lidarr container exists
+  ansible.builtin.command:
+    argv:
+      - docker
+      - ps
+      - --all
+      - --quiet
+      - --filter
+      - name=^/lidarr$
+  register: lidarr_setup_start_existing_container
+  changed_when: false
+  check_mode: false
+
+- name: Require an existing Lidarr container
+  ansible.builtin.assert:
+    that:
+      - lidarr_setup_start_existing_container.stdout | trim | length > 0
+    fail_msg: "The lidarr container does not exist. Deploy Lidarr before using the start playbook."
+
+- name: Check whether the Lidarr container is running
+  ansible.builtin.command:
+    argv:
+      - docker
+      - ps
+      - --quiet
+      - --filter
+      - name=^/lidarr$
+  register: lidarr_setup_start_running_container
+  changed_when: false
+  check_mode: false
+
+- name: Start the Lidarr container
+  ansible.builtin.command:
+    argv:
+      - docker
+      - start
+      - lidarr
+  when: lidarr_setup_start_running_container.stdout | trim | length == 0
+  changed_when: true
