@@ -36,6 +36,11 @@ Configure TrueNAS 25.10+ (updates, admin, users, Active Directory, datasets, sha
 | `truenas_resources` | `[]` | sensitive_keys, send_sensitive_on_update, name_to_id, delete_args. |
 | `truenas_post_calls` | `[]` | - {path: /mnt/tank/media, mode: "770", uid: 0, gid: 3000} |
 | `truenas_services` | `[]` | - {name: nfs,  enable: true, state: started} |
+| `truenas_apps_mode` | `plan` |  |
+| `truenas_apps` | `[]` |  |
+| `truenas_apps_job_timeout` | `900` |  |
+| `truenas_apps_health_timeout` | `180` |  |
+| `truenas_apps_poll_interval` | `5` |  |
 
 ## 📦 Vars
 _No constant variables found._
