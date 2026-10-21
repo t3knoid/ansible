@@ -1,0 +1,21 @@
+---
+- name: Check whether the Sonarr container is running
+  ansible.builtin.command:
+    argv:
+      - docker
+      - ps
+      - --quiet
+      - --filter
+      - name=^/sonarr$
+  register: sonarr_setup_stop_running_container
+  changed_when: false
+  check_mode: false
+
+- name: Stop the Sonarr container
+  ansible.builtin.command:
+    argv:
+      - docker
+      - stop
+      - sonarr
+  when: sonarr_setup_stop_running_container.stdout | trim | length > 0
+  changed_when: true

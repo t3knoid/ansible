@@ -1,0 +1,40 @@
+---
+- name: Check whether the Sonarr container exists
+  ansible.builtin.command:
+    argv:
+      - docker
+      - ps
+      - --all
+      - --quiet
+      - --filter
+      - name=^/sonarr$
+  register: sonarr_setup_start_existing_container
+  changed_when: false
+  check_mode: false
+
+- name: Require an existing Sonarr container
+  ansible.builtin.assert:
+    that:
+      - sonarr_setup_start_existing_container.stdout | trim | length > 0
+    fail_msg: "The sonarr container does not exist. Deploy Sonarr before using the start playbook."
+
+- name: Check whether the Sonarr container is running
+  ansible.builtin.command:
+    argv:
+      - docker
+      - ps
+      - --quiet
+      - --filter
+      - name=^/sonarr$
+  register: sonarr_setup_start_running_container
+  changed_when: false
+  check_mode: false
+
+- name: Start the Sonarr container
+  ansible.builtin.command:
+    argv:
+      - docker
+      - start
+      - sonarr
+  when: sonarr_setup_start_running_container.stdout | trim | length == 0
+  changed_when: true

@@ -2,15 +2,15 @@
 
 # Purpose: Stops Lidarr service
 
-- name: Stop lidarr
-  hosts: lidarr
+- name: Stop Radarr
+  hosts: radarr
   become: true
   gather_facts: true
   roles:
     - global
 
   tasks:
-    - name: Import lidarr_setup role stop task
+    - name: Import radarr_setup role stop task
       ansible.builtin.import_role:
-        name: lidarr_setup
+        name: radarr_setup
         tasks_from: stop

@@ -1,0 +1,21 @@
+---
+- name: Check whether the Sabnzbd container is running
+  ansible.builtin.command:
+    argv:
+      - docker
+      - ps
+      - --quiet
+      - --filter
+      - name=^/sabnzbd$
+  register: sabnzbd_setup_stop_running_container
+  changed_when: false
+  check_mode: false
+
+- name: Stop the Sabnzbd container
+  ansible.builtin.command:
+    argv:
+      - docker
+      - stop
+      - sabnzbd
+  when: sabnzbd_setup_stop_running_container.stdout | trim | length > 0
+  changed_when: true
