@@ -1,0 +1,17 @@
+---
+# Purpose: Update provisioned dashboards on an existing Grafana installation without Azure or Entra setup.
+# Usage: ansible-playbook -i inventory/grafana/inventory.ini playbooks/grafana/deploy_grafana_dashboards.yml
+
+- name: Deploy Grafana dashboards
+  hosts: grafana
+  become: true
+  gather_facts: false
+  roles:
+    - global
+  tasks:
+    - name: Deploy only Grafana dashboard provisioning and files
+      ansible.builtin.import_role:
+        name: grafana_setup
+        tasks_from: dashboards.yml
+      vars:
+        grafana_setup_dashboards_only: true
