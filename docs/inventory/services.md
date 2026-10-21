@@ -91,11 +91,11 @@ _No group variables defined._
 
 ## 🖥 Host Variables
 ### `sonarr-0`
-- `vms_proxmox_node`: `pve-0`
+- `vms_proxmox_node`: `pve-1`
 - `pihole_cname_entries`: `[{"domain": "sonarr.refol.us", "target": "rproxy-0.refol.us"}]`
 
 ### `lidarr-0`
-- `vms_proxmox_node`: `pve-0`
+- `vms_proxmox_node`: `pve-1`
 - `pihole_cname_entries`: `[{"domain": "lidarr.refol.us", "target": "rproxy-0.refol.us"}]`
 
 ### `radarr-0`
@@ -112,44 +112,44 @@ _No group variables defined._
 
 ## 🧩 Group Children
 ### `multimedia`
+- `sonarr`
+- `lidarr`
 - `sabnzbd`
 - `radarr`
-- `lidarr`
-- `sonarr`
 
 ### `books`
+- `lazylibrarian`
 - `calibre`
 - `calibreweb`
-- `lazylibrarian`
 
 ### `docker`
+- `; lidarr, radarr, sonarr use postgresql for their backend database`
+- `lazylibrarian`
 - `calibreweb`
+- `sonarr`
 - `calibre`
 - `sabnzbd`
-- `; lidarr, radarr, sonarr use postgresql for their backend database`
 - `radarr`
-- `lazylibrarian`
-- `sonarr`
 
 ### `rproxy`
 - `rproxy_main`
-- `rproxy_primary`
 - `rproxy_secondary`
+- `rproxy_primary`
 
 ### `python`
 - `lidarr`
+- `lazylibrarian`
 - `calibreweb`
+- `sonarr`
 - `calibre`
 - `sabnzbd`
 - `radarr`
-- `lazylibrarian`
-- `sonarr`
 
 ### `node_exporter`
 - `lidarr`
+- `lazylibrarian`
 - `calibreweb`
+- `sonarr`
 - `calibre`
 - `sabnzbd`
 - `radarr`
-- `lazylibrarian`
-- `sonarr`
