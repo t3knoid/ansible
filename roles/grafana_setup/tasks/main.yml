@@ -209,3 +209,16 @@
     name: grafana-server
     enabled: true
     state: started
+
+- name: Wait for Grafana web site to be ready
+  ansible.builtin.uri:
+    url: "{{ grafana_setup_health_url }}"
+    status_code: 200
+  until: grafana_setup_web_result.status == 200
+  register: grafana_setup_web_result
+  retries: 10
+  delay: 6
+
+- name: Configure Grafana update check
+  ansible.builtin.import_tasks: check_update.yml
+  when: grafana_setup_check_update | bool and grafana_setup_web_result.status == 200

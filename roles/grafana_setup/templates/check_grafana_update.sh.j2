@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+health_url="{{ grafana_setup_health_url }}"
+metrics_file="{{ grafana_setup_update_metrics_path }}"
+current_version="unknown"
+latest_version="unknown"
+update_available=-1
+
+if health_response="$(curl -fsS --max-time 10 "${health_url}")"; then
+  current_version="$(jq -r '.version // "unknown"' <<<"${health_response}")"
+fi
+
+if release_response="$(curl -fsS --max-time 15 https://api.github.com/repos/grafana/grafana/releases/latest)"; then
+  latest_version="$(jq -r '.tag_name // "unknown"' <<<"${release_response}" | sed 's/^v//')"
+fi
+
+if [[ "${current_version}" =~ ^[0-9]+(\.[0-9]+)*$ && "${latest_version}" =~ ^[0-9]+(\.[0-9]+)*$ ]]; then
+  update_available=0
+  if dpkg --compare-versions "${current_version}" lt "${latest_version}"; then
+    update_available=1
+  fi
+fi
+
+tmp_file="$(mktemp "${metrics_file}.XXXXXX")"
+trap 'rm -f "$tmp_file"' EXIT
+cat > "${tmp_file}" <<EOF
+# HELP grafana_current_version_info Grafana version currently running.
+# TYPE grafana_current_version_info gauge
+grafana_current_version_info{version="${current_version}"} 1
+# HELP grafana_latest_version_info Latest stable Grafana version available.
+# TYPE grafana_latest_version_info gauge
+grafana_latest_version_info{version="${latest_version}"} 1
+# HELP grafana_update_available Whether a newer stable Grafana version is available.
+# TYPE grafana_update_available gauge
+grafana_update_available ${update_available}
+EOF
+
+install -o root -g {{ node_exporter_setup_group | default('prometheus') }} -m 0644 "${tmp_file}" "${metrics_file}"

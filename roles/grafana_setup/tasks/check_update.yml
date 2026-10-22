@@ -1,0 +1,35 @@
+---
+- name: Install packages required for Grafana update metrics
+  ansible.builtin.apt:
+    name:
+      - cron
+      - curl
+      - jq
+    state: present
+
+- name: Ensure Grafana update metrics directory exists
+  ansible.builtin.file:
+    path: "{{ grafana_setup_update_metrics_path | dirname }}"
+    state: directory
+    owner: root
+    group: "{{ node_exporter_setup_group | default('prometheus') }}"
+    mode: "0775"
+
+- name: Install Grafana update metrics script
+  ansible.builtin.template:
+    src: check_grafana_update.sh.j2
+    dest: "{{ grafana_setup_update_check_script_path }}"
+    owner: root
+    group: root
+    mode: "0750"
+
+- name: Seed Grafana update metrics
+  ansible.builtin.command: "{{ grafana_setup_update_check_script_path }}"
+  changed_when: true
+
+- name: Schedule Grafana update metrics check
+  ansible.builtin.cron:
+    name: grafana_update_metrics
+    minute: "{{ grafana_setup_update_check_minute }}"
+    user: root
+    job: "{{ grafana_setup_update_check_script_path }}"
