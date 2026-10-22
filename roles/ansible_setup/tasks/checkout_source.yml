@@ -4,7 +4,7 @@
   ansible.builtin.git:
     repo: "{{ ansible_setup_git_repository }}"
     dest: "{{ ansible_setup_workdir }}"
-    update: true
+    update: false
   become: false
 
 - name: Set Git remote origin
