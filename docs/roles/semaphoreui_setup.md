@@ -17,6 +17,10 @@ Installs and configures [Semaphore UI](https://docs.semaphoreui.com/) with optio
 |----------|---------------|-------------|
 | `semaphoreui_setup_version` | `2.16.19` |  |
 | `semaphoreui_setup_installer` | `"semaphore_{{ semaphoreui_setup_version }}_linux_amd64.deb"` |  |
+| `semaphoreui_setup_check_update` | `true` |  |
+| `semaphoreui_setup_update_check_script_path` | `/usr/local/bin/check_semaphore_update.sh` |  |
+| `semaphoreui_setup_update_metrics_path` | `"{{ node_exporter_setup_textfile_collector_dir | default('/var/lib/node_exporter/textfile') }}/semaphore_update.prom"` |  |
+| `semaphoreui_setup_update_check_minute` | `"*/30"` |  |
 | `semaphoreui_setup_loglevel` | `INFO` |  |
 | `semaphoreui_setup_python_packages` | `` |  |
 | `semaphoreui_setup_homedir` | `/ansible/semaphore` |  |
@@ -112,6 +116,7 @@ _No constant variables found._
 - Include install.yml tasks
 - Include configure.yml tasks
 - Include runner.yml tasks
+- Configure Semaphore update check
 
 ## 🔔 Handlers
 - Restart PostgreSQL
