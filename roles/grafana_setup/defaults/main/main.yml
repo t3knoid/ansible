@@ -7,6 +7,11 @@ grafana_setup_install_dir: "/opt/grafana-{{ grafana_setup_version }}"
 grafana_setup_bin_path: "{{ grafana_setup_install_dir }}/bin/grafana server"
 
 grafana_setup_http_port: 3000
+grafana_setup_health_url: "http://127.0.0.1:{{ grafana_setup_http_port }}/api/health"
+grafana_setup_check_update: true
+grafana_setup_update_check_script_path: /usr/local/bin/check_grafana_update.sh
+grafana_setup_update_metrics_path: "{{ node_exporter_setup_textfile_collector_dir | default('/var/lib/node_exporter/textfile') }}/grafana_update.prom"
+grafana_setup_update_check_minute: "*/30"
 grafana_setup_domain: "localhost"
 grafana_setup_protocol: "http"
 grafana_setup_root_url: "{{ grafana_setup_protocol }}://{{ grafana_setup_domain }}/"
