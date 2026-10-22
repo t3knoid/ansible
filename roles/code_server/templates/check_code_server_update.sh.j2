@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+metrics_file="{{ code_server_update_metrics_path }}"
+current_version="$(code-server -v 2>/dev/null | awk 'NR == 1 { print $1; exit }' || true)"
+latest_version="unknown"
+update_available=-1
+current_version="${current_version:-unknown}"
+
+if release_response="$(curl -fsS --max-time 15 https://api.github.com/repos/coder/code-server/releases/latest)"; then
+  latest_version="$(jq -r '.tag_name // "unknown"' <<<"${release_response}" | sed 's/^[^0-9]*//')"
+fi
+
+if [[ "${current_version}" =~ ^[0-9]+(\.[0-9]+)*$ && "${latest_version}" =~ ^[0-9]+(\.[0-9]+)*$ ]]; then
+  update_available=0
+  if dpkg --compare-versions "${current_version}" lt "${latest_version}"; then
+    update_available=1
+  fi
+fi
+
+tmp_file="$(mktemp "${metrics_file}.XXXXXX")"
+trap 'rm -f "$tmp_file"' EXIT
+cat > "${tmp_file}" <<EOF
+# HELP code_server_current_version_info code-server version currently installed.
+# TYPE code_server_current_version_info gauge
+code_server_current_version_info{version="${current_version}"} 1
+# HELP code_server_latest_version_info Latest stable code-server version available.
+# TYPE code_server_latest_version_info gauge
+code_server_latest_version_info{version="${latest_version}"} 1
+# HELP code_server_update_available Whether a newer stable code-server version is available.
+# TYPE code_server_update_available gauge
+code_server_update_available ${update_available}
+EOF
+
+chown root:{{ node_exporter_setup_group | default('prometheus') }} "${tmp_file}"
+chmod 0644 "${tmp_file}"
+mv -f "${tmp_file}" "${metrics_file}"
