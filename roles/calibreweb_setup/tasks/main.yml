@@ -1,5 +1,4 @@
 ---
-
 - name: Deploy Calibre Web Docker Service
   ansible.builtin.import_role:
     name: docker_service_deploy
@@ -8,3 +7,7 @@
     docker_service_deploy_backups_dir: "{{ calibreweb_setup_backups_dir }}"
     docker_service_deploy_compose_template: "docker-compose.yml.j2"
     docker_service_deploy_container_name: "calibreweb"
+
+- name: Configure Calibre-Web update check
+  ansible.builtin.import_tasks: check_update.yml
+  when: calibreweb_setup_check_update | bool

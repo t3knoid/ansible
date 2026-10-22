@@ -1,0 +1,35 @@
+---
+- name: Install packages required for Calibre-Web update metrics
+  ansible.builtin.apt:
+    name:
+      - cron
+      - curl
+      - jq
+    state: present
+
+- name: Ensure Calibre-Web update metrics directory exists
+  ansible.builtin.file:
+    path: "{{ calibreweb_setup_update_metrics_path | dirname }}"
+    state: directory
+    owner: root
+    group: "{{ node_exporter_setup_group | default('prometheus') }}"
+    mode: "0775"
+
+- name: Install Calibre-Web update metrics script
+  ansible.builtin.template:
+    src: check_calibreweb_update.sh.j2
+    dest: "{{ calibreweb_setup_update_check_script_path }}"
+    owner: root
+    group: root
+    mode: "0750"
+
+- name: Seed Calibre-Web update metrics
+  ansible.builtin.command: "{{ calibreweb_setup_update_check_script_path }}"
+  changed_when: true
+
+- name: Schedule Calibre-Web update metrics check
+  ansible.builtin.cron:
+    name: calibreweb_update_metrics
+    minute: "{{ calibreweb_setup_update_check_minute }}"
+    user: root
+    job: "{{ calibreweb_setup_update_check_script_path }}"
