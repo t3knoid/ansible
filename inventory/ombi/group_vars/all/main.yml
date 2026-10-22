@@ -21,6 +21,7 @@ vms_config:
       tag: 20
 
 postgresql_setup_version: 18
+postgresql_setup_data_dir: /data/pgdata18
 
 vms_os: ubuntu_24_server
 vms_autoinstall: true
