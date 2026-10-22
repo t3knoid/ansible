@@ -1,5 +1,4 @@
 ---
-
 - name: Create ansible work folder
   ansible.builtin.file:
     path: "{{ ansible_setup_workdir }}"
@@ -9,6 +8,17 @@
 
 - name: Install Ansible Python modules
   ansible.builtin.include_tasks: install_python_modules.yml
+
+- name: Ensure Azure Ansible collection is installed
+  ansible.builtin.command:
+    argv:
+      - "{{ python3_venv_folder }}/bin/ansible-galaxy"
+      - collection
+      - install
+      - "azure.azcollection:{{ ansible_setup_azure_collection_version }}"
+  become: false
+  register: ansible_setup_azure_collection_install
+  changed_when: "'was installed successfully' in ansible_setup_azure_collection_install.stdout"
 
 - name: Checkout Ansible source code from github
   ansible.builtin.include_tasks: checkout_source.yml

@@ -6,6 +6,8 @@
   gather_facts: true
   become: true
   become_user: root
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
   roles:
     - global
 
@@ -27,8 +29,6 @@
       ansible.builtin.import_role:
         name: python3
         tasks_from: venv.yml
-      vars:
-        python3_set_as_system_default: true
 
     - name: Import ansible_setup role
       ansible.builtin.import_role:
