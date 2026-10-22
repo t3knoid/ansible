@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+metrics_file="{{ semaphoreui_setup_update_metrics_path }}"
+current_version="$(dpkg-query -W -f='${Version}' semaphore 2>/dev/null || true)"
+latest_version="unknown"
+update_available=-1
+current_version="${current_version:-unknown}"
+
+if release_response="$(curl -fsS --max-time 15 https://api.github.com/repos/semaphoreui/semaphore/releases/latest)"; then
+  latest_version="$(jq -r '.tag_name // "unknown"' <<<"${release_response}" | sed 's/^[^0-9]*//')"
+fi
+
+if [[ "${current_version}" =~ ^[0-9]+(\.[0-9]+)*$ && "${latest_version}" =~ ^[0-9]+(\.[0-9]+)*$ ]]; then
+  update_available=0
+  if dpkg --compare-versions "${current_version}" lt "${latest_version}"; then
+    update_available=1
+  fi
+fi
+
+tmp_file="$(mktemp "${metrics_file}.XXXXXX")"
+trap 'rm -f "$tmp_file"' EXIT
+cat > "${tmp_file}" <<EOF
+# HELP semaphore_current_version_info Semaphore version currently installed.
+# TYPE semaphore_current_version_info gauge
+semaphore_current_version_info{version="${current_version}"} 1
+# HELP semaphore_latest_version_info Latest stable Semaphore version available.
+# TYPE semaphore_latest_version_info gauge
+semaphore_latest_version_info{version="${latest_version}"} 1
+# HELP semaphore_update_available Whether a newer stable Semaphore version is available.
+# TYPE semaphore_update_available gauge
+semaphore_update_available ${update_available}
+EOF
+
+chown root:{{ node_exporter_setup_group | default('prometheus') }} "${tmp_file}"
+chmod 0644 "${tmp_file}"
+mv -f "${tmp_file}" "${metrics_file}"
