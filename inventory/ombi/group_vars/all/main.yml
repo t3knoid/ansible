@@ -20,7 +20,7 @@ vms_config:
       bridge: vmbr0
       tag: 20
 
-postgresql_setup_version: 17
+postgresql_setup_version: 18
 
 vms_os: ubuntu_24_server
 vms_autoinstall: true
