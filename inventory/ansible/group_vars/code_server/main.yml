@@ -1,4 +1,5 @@
 ---
+nginx_setup_version: "1.28.3-2ubuntu1.11"
 nginx_setup_worker_connections: 768
 nginx_setup_homedir: "/opt/nginx"
 nginx_setup_certroot: "/opt/certs"

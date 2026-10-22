@@ -78,3 +78,7 @@
     state: link
     force: true
   notify: Restart nginx
+
+- name: Configure code-server update check
+  ansible.builtin.import_tasks: check_update.yml
+  when: code_server_check_update | bool
