@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+metrics_file="{{ calibre_setup_update_metrics_path }}"
+current_version="unknown"
+latest_version="unknown"
+update_available=-1
+
+if image_json="$(docker inspect calibre 2>/dev/null)"; then
+  image_name="$(jq -r '.[0].Config.Image // "unknown"' <<<"${image_json}")"
+  image_tag="${image_name##*:}"
+  if [[ "${image_tag}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+    current_version="${image_tag}"
+  fi
+fi
+
+if tag_response="$(curl -fsS --max-time 15 'https://hub.docker.com/v2/repositories/linuxserver/calibre/tags?page_size=100&ordering=last_updated')"; then
+  latest_version="$(jq -r '[.results[].name | select(test("^[0-9]+\\.[0-9]+\\.[0-9]+$"))] | sort_by(split(".") | map(tonumber)) | last // "unknown"' <<<"${tag_response}")"
+fi
+
+if [[ "${current_version}" =~ ^[0-9]+(\.[0-9]+)*$ && "${latest_version}" =~ ^[0-9]+(\.[0-9]+)*$ ]]; then
+  update_available=0
+  if dpkg --compare-versions "${current_version}" lt "${latest_version}"; then
+    update_available=1
+  fi
+fi
+
+tmp_file="$(mktemp "${metrics_file}.XXXXXX")"
+trap 'rm -f "$tmp_file"' EXIT
+cat > "${tmp_file}" <<EOF
+# HELP calibre_current_version_info Calibre image version currently running.
+# TYPE calibre_current_version_info gauge
+calibre_current_version_info{version="${current_version}"} 1
+# HELP calibre_latest_version_info Latest stable Calibre image version available.
+# TYPE calibre_latest_version_info gauge
+calibre_latest_version_info{version="${latest_version}"} 1
+# HELP calibre_update_available Whether a newer stable Calibre version is available.
+# TYPE calibre_update_available gauge
+calibre_update_available ${update_available}
+EOF
+
+chown root:{{ node_exporter_setup_group | default('prometheus') }} "${tmp_file}"
+chmod 0644 "${tmp_file}"
+mv -f "${tmp_file}" "${metrics_file}"
