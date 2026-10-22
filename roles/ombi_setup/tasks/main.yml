@@ -12,6 +12,15 @@
     docker_service_deploy_compose_template: "docker-compose.yml.j2"
     docker_service_deploy_container_name: "ombi"
 
+- name: Wait for Ombi web site to be ready
+  ansible.builtin.uri:
+    url: "{{ ombi_setup_api_url }}"
+    status_code: 200
+  until: ombi_setup_web_result.status == 200
+  register: ombi_setup_web_result
+  retries: 10
+  delay: 6
+
 - name: Check Ombi for available updates via Prometheus metrics
   ansible.builtin.import_tasks: check_update.yml
-  when: ombi_setup_check_update | bool
+  when: ombi_setup_check_update | bool and ombi_setup_web_result.status == 200
