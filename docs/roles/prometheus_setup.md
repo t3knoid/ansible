@@ -16,6 +16,11 @@ Installs and configures a Prometheus monitoring system on Debian/Ubuntu.
 | Variable | Default Value | Description |
 |----------|---------------|-------------|
 | `prometheus_setup_version` | `3.6.0` |  |
+| `prometheus_setup_check_update` | `true` |  |
+| `prometheus_setup_update_health_url` | `"http://127.0.0.1:9090/api/v1/status/buildinfo"` |  |
+| `prometheus_setup_update_check_script_path` | `/usr/local/bin/check_prometheus_update.sh` |  |
+| `prometheus_setup_update_metrics_path` | `"{{ node_exporter_setup_textfile_collector_dir | default('/var/lib/node_exporter/textfile') }}/prometheus_update.prom"` |  |
+| `prometheus_setup_update_check_minute` | `"*/30"` |  |
 | `prometheus_setup_home` | `"/opt/prometheus"` |  |
 | `prometheus_setup_data_dir` | `"/data/prometheus"` |  |
 | `prometheus_setup_user` | `"{{ users_list[0].username }}"` |  |
@@ -78,6 +83,7 @@ _No constant variables found._
 - Bind mount NAS share to Prometheus data directory
 - Create Prometheus systemd service file
 - Enable and start Prometheus service
+- Configure Prometheus update check
 
 ## 🔔 Handlers
 - Reload systemd daemon
