@@ -22,7 +22,6 @@ Configures entra_id settings for oAuth2-enabled sites.
 _No constant variables found._
 
 ## 📑 Tasks
-- Ensure azure.azcollection required Python modules are installed
 - Calculate secret expiry offset from today
 - Login with service principal
 - Register Entra ID application for each site
