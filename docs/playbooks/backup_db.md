@@ -1,12 +1,12 @@
-# 📖 Playbook: tautulli/backup_db.yml
+# 📖 Playbook: semaphoreui/backup_db.yml
 
 ## 🛠 Purpose
-Backs up Tautulli database and configuration files to a specified NFS share.
+Backup Semaphore UI database to NFS share.
 
 ## 🔗 Roles Applied
 - [`global`](../roles/global/README.md)
 
 ## 🚀 Usage
 ```bash
-ansible-playbook playbooks/tautulli/backup_db.yml
+ansible-playbook playbooks/semaphoreui/backup_db.yml
 ```
