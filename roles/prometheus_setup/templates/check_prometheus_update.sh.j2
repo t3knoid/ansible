@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+health_url="{{ prometheus_setup_update_health_url }}"
+metrics_file="{{ prometheus_setup_update_metrics_path }}"
+current_version="unknown"
+latest_version="unknown"
+update_available=-1
+
+if build_response="$(curl -fsS --max-time 10 "${health_url}")"; then
+  current_version="$(jq -r '.data.version // "unknown"' <<<"${build_response}")"
+fi
+
+if release_response="$(curl -fsS --max-time 15 https://api.github.com/repos/prometheus/prometheus/releases/latest)"; then
+  latest_version="$(jq -r '.tag_name // "unknown"' <<<"${release_response}" | sed 's/^v//')"
+fi
+
+if [[ "${current_version}" =~ ^[0-9]+(\.[0-9]+)*$ && "${latest_version}" =~ ^[0-9]+(\.[0-9]+)*$ ]]; then
+  update_available=0
+  if dpkg --compare-versions "${current_version}" lt "${latest_version}"; then
+    update_available=1
+  fi
+fi
+
+tmp_file="$(mktemp "${metrics_file}.XXXXXX")"
+trap 'rm -f "$tmp_file"' EXIT
+cat > "${tmp_file}" <<EOF
+# HELP prometheus_current_version_info Prometheus version currently running.
+# TYPE prometheus_current_version_info gauge
+prometheus_current_version_info{version="${current_version}"} 1
+# HELP prometheus_latest_version_info Latest stable Prometheus version available.
+# TYPE prometheus_latest_version_info gauge
+prometheus_latest_version_info{version="${latest_version}"} 1
+# HELP prometheus_update_available Whether a newer stable Prometheus version is available.
+# TYPE prometheus_update_available gauge
+prometheus_update_available ${update_available}
+EOF
+
+chown root:{{ node_exporter_setup_group | default('prometheus') }} "${tmp_file}"
+chmod 0644 "${tmp_file}"
+mv -f "${tmp_file}" "${metrics_file}"

@@ -6,7 +6,7 @@
     dest: /opt/
     remote_src: true
     creates: "/opt/prometheus-{{ prometheus_setup_version }}.linux-amd64"
-    mode: '0755'
+    mode: "0755"
 
 - name: Create symlink for Prometheus
   ansible.builtin.file:
@@ -98,7 +98,7 @@
   ansible.builtin.file:
     path: "/nfs/backups/prometheus"
     state: directory
-    mode: '0755'
+    mode: "0755"
     owner: "{{ prometheus_setup_user }}"
     group: "{{ prometheus_setup_group }}"
 
@@ -127,3 +127,7 @@
     name: prometheus
     enabled: true
     state: started
+
+- name: Configure Prometheus update check
+  ansible.builtin.import_tasks: check_update.yml
+  when: prometheus_setup_check_update | bool

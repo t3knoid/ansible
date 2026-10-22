@@ -1,0 +1,35 @@
+---
+- name: Install packages required for Prometheus update metrics
+  ansible.builtin.apt:
+    name:
+      - cron
+      - curl
+      - jq
+    state: present
+
+- name: Ensure Prometheus update metrics directory exists
+  ansible.builtin.file:
+    path: "{{ prometheus_setup_update_metrics_path | dirname }}"
+    state: directory
+    owner: root
+    group: "{{ node_exporter_setup_group | default('prometheus') }}"
+    mode: "0775"
+
+- name: Install Prometheus update metrics script
+  ansible.builtin.template:
+    src: check_prometheus_update.sh.j2
+    dest: "{{ prometheus_setup_update_check_script_path }}"
+    owner: root
+    group: root
+    mode: "0750"
+
+- name: Seed Prometheus update metrics
+  ansible.builtin.command: "{{ prometheus_setup_update_check_script_path }}"
+  changed_when: true
+
+- name: Schedule Prometheus update metrics check
+  ansible.builtin.cron:
+    name: prometheus_update_metrics
+    minute: "{{ prometheus_setup_update_check_minute }}"
+    user: root
+    job: "{{ prometheus_setup_update_check_script_path }}"
