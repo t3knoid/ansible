@@ -121,3 +121,5 @@ prometheus_setup_blackbox_targets:
 node_exporter_port: 9200
 postgres_exporter_port: 9187
 blackbox_exporter_port: 9115
+
+prometheus_setup_truenas_update_check: true

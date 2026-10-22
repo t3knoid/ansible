@@ -1,0 +1,80 @@
+#!{{ python3_venv_folder }}/bin/python3
+
+import grp
+import json
+import os
+import sys
+import tempfile
+
+from truenas_api_client import Client
+
+
+api_url = {{ prometheus_setup_truenas_update_api_url | to_json }}
+credentials_path = {{ prometheus_setup_truenas_update_credentials_path | to_json }}
+metrics_path = {{ prometheus_setup_truenas_update_metrics_path | to_json }}
+metrics_group = {{ (node_exporter_setup_group | default('prometheus')) | to_json }}
+current_version = "unknown"
+latest_version = "unknown"
+current_train = "unknown"
+update_available = -1
+
+
+def prom_escape(value):
+    return str(value).replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n")
+
+
+try:
+    with open(credentials_path, encoding="utf-8") as credentials_file:
+        api_key = json.load(credentials_file)["api_key"]
+
+    with Client(uri=api_url, verify_ssl=False, call_timeout=30) as client:
+        if not client.call("auth.login_with_api_key", api_key):
+            raise RuntimeError("TrueNAS API key authentication failed")
+
+        current_version = str(client.call("system.version_short"))
+        status = client.call("update.status")
+        if status.get("code") != "NORMAL" or not isinstance(status.get("status"), dict):
+            raise RuntimeError("TrueNAS update status is unavailable")
+
+        current = status["status"]["current_version"]
+        current_train = str(current["train"])
+        new_version = status["status"].get("new_version")
+        latest_version = str(new_version["version"]) if new_version else current_version
+        update_available = int(latest_version != current_version)
+except Exception as error:
+    print(f"TrueNAS update check failed: {error}", file=sys.stderr)
+
+metrics = "\n".join(
+    [
+        "# HELP truenas_current_version_info TrueNAS version currently running.",
+        "# TYPE truenas_current_version_info gauge",
+        "truenas_current_version_info{"
+        + f'version="{prom_escape(current_version)}",train="{prom_escape(current_train)}"'
+        + "} 1",
+        "# HELP truenas_latest_version_info Latest TrueNAS version available for the configured update profile.",
+        "# TYPE truenas_latest_version_info gauge",
+        "truenas_latest_version_info{"
+        + f'version="{prom_escape(latest_version)}"'
+        + "} 1",
+        "# HELP truenas_update_available Whether a TrueNAS update is available; -1 means the check failed.",
+        "# TYPE truenas_update_available gauge",
+        f"truenas_update_available {update_available}",
+        "",
+    ]
+)
+
+temporary_path = None
+try:
+    with tempfile.NamedTemporaryFile(
+        mode="w", encoding="utf-8", dir=os.path.dirname(metrics_path),
+        prefix=os.path.basename(metrics_path) + ".", delete=False
+    ) as metrics_file:
+        temporary_path = metrics_file.name
+        metrics_file.write(metrics)
+    os.chown(temporary_path, 0, grp.getgrnam(metrics_group).gr_gid)
+    os.chmod(temporary_path, 0o644)
+    os.replace(temporary_path, metrics_path)
+except Exception:
+    if temporary_path and os.path.exists(temporary_path):
+        os.unlink(temporary_path)
+    raise

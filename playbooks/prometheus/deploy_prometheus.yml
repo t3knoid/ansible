@@ -11,5 +11,7 @@
     - global
     - users
     - autofs
+    - role: python3
+      when: prometheus_setup_truenas_update_check | default(false) | bool
     - prometheus_setup
     - alertmanager_setup
