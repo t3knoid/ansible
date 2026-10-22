@@ -7,6 +7,7 @@ Deploy Prometheus monitoring system Usage: ansible-playbook -i inventory/prometh
 - [`global`](../roles/global/README.md)
 - [`users`](../roles/users/README.md)
 - [`autofs`](../roles/autofs/README.md)
+- [`python3`](../roles/python3/README.md)
 - [`prometheus_setup`](../roles/prometheus_setup/README.md)
 - [`alertmanager_setup`](../roles/alertmanager_setup/README.md)
 
