@@ -1,5 +1,4 @@
 ---
-
 - name: Install Python modules
   ansible.builtin.pip:
     name: "{{ item }}"
@@ -7,3 +6,25 @@
     state: present
     umask: "0022"
   loop: "{{ ansible_setup_python_modules }}"
+
+- name: Install controller Azure modules from requirements.txt
+  run_once: true
+  block:
+    - name: Stage Azure requirements on the Ansible controller
+      ansible.builtin.copy:
+        src: azure-requirements.txt
+        dest: /tmp/ansible-setup-azure-requirements.txt
+        mode: "0644"
+
+    - name: Install Azure Python modules
+      ansible.builtin.pip:
+        requirements: /tmp/ansible-setup-azure-requirements.txt
+        virtualenv: "/opt/python_{{ python3_version }}"
+        state: present
+        umask: "0022"
+
+  always:
+    - name: Remove staged Azure requirements
+      ansible.builtin.file:
+        path: /tmp/ansible-setup-azure-requirements.txt
+        state: absent
