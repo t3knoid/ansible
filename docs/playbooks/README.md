@@ -131,7 +131,7 @@
 | [`semaphoreui/backup_db.yml`](./backup_db.md) | Backup Semaphore UI database to NFS share. |
 | [`semaphoreui/check_semaphore_version.yml`](./check_semaphore_version.md) | Check the latest version of SemaphoreUI available. |
 | [`semaphoreui/create_db.yml`](./create_db.md) | Create PostgreSQL database for Semaphore UI application. |
-| [`semaphoreui/deploy_semaphoreui.yml`](./deploy_semaphoreui.md) | Installs Semaphore UI application on semaphore hosts. |
+| [`semaphoreui/deploy_semaphoreui.yml`](./deploy_semaphoreui.md) | Installs Semaphore UI application on semaphore hosts. - name: Deploy postgresql ansible.builtin.import_playbook: ../postgresql/deploy_postgresql.yml - name: Create the SemaphoreUI database ansible.builtin.import_playbook: create_db.yml - name: Install Ansible ansible.builtin.import_playbook: ../ansible/deploy_ansible.yml |
 | [`semaphoreui/restore_db.yml`](./restore_db.md) | Restore Semaphoreui PostgreSQL database from backup. |
 | [`semaphoreui/setup_semaphoreui.yml`](./setup_semaphoreui.md) | Sets up Semaphore UI application on semaphore hosts. It configures the Semaphore using the values in the semaphoreui_setup_projects variable. This playbook assumes that Semaphore UI has been installed. |
 | [`services/backup_lidarr_db.yml`](./backup_lidarr_db.md) | Backup Lidarr database to NFS share. |
