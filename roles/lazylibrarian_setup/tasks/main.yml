@@ -1,5 +1,4 @@
 ---
-
 - name: Deploy Lazylibrarian Docker Service
   ansible.builtin.import_role:
     name: docker_service_deploy
