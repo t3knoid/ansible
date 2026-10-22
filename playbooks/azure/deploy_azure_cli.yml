@@ -3,7 +3,7 @@
 # Purpose: Deploy Azure CLI on target hosts
 
 - name: Deploy Azure CLI
-  hosts: azure_cli
+  hosts: azure_cli, rproxy
   become: true
   roles:
     - role: azure_cli_setup

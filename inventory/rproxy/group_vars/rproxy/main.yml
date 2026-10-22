@@ -16,3 +16,6 @@ rproxy_setup_sites:
 python3_version: 3.12
 python3_venv_folder: "/opt/python_{{ python3_version }}"
 ansible_python_interpreter: "{{ python3_venv_folder }}/bin/python3"
+
+azure_cli_setup_version: 2.91.0
+redis_setup_version: 6:8.10.2-1rl1
