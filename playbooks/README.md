@@ -56,6 +56,7 @@
 | [`grafana/backup_db.yml`](../docs/playbooks/backup_db.md) | Backup Grafana database to NFS share |
 | [`grafana/create_db.yml`](../docs/playbooks/create_db.md) | Create PostgreSQL database for Grafana on the database server |
 | [`grafana/deploy_grafana.yml`](../docs/playbooks/deploy_grafana.md) | Deploy Grafana monitoring tool on Grafana hosts |
+| [`grafana/deploy_grafana_dashboards.yml`](../docs/playbooks/deploy_grafana_dashboards.md) | Update provisioned dashboards on an existing Grafana installation without Azure or Entra setup. Usage: ansible-playbook -i inventory/grafana/inventory.ini playbooks/grafana/deploy_grafana_dashboards.yml |
 | [`grafana/restore_db.yml`](../docs/playbooks/restore_db.md) | Restore Grafana PostgreSQL database from backup. |
 | [`graphite/deploy_graphite.yml`](../docs/playbooks/deploy_graphite.md) | Install and configure Graphite monitoring tool on all hosts |
 | [`graphite/restart_carbon_cache.yml`](../docs/playbooks/restart_carbon_cache.md) | Restart the carbon-cache service on Graphite hosts |
@@ -96,6 +97,7 @@
 | [`plex/deploy_plex_exporter.yml`](../docs/playbooks/deploy_plex_exporter.md) | Deploy Prometheus Plex Exporter on plex-0. |
 | [`plex/restore_plex.yml`](../docs/playbooks/restore_plex.md) | Restore Plex Media Server configuration from backup archive. |
 | [`postgresql/deploy_postgresql.yml`](../docs/playbooks/deploy_postgresql.md) | Install and configure PostgreSQL on pgdb hosts |
+| [`postgresql/migrate_postgresql_14_to_18.yml`](../docs/playbooks/migrate_postgresql_14_to_18.md) | Migrate one Debian/Ubuntu PostgreSQL cluster while retaining version 14 |
 | [`postgresql/migrate_postgresql_17_to_18.yml`](../docs/playbooks/migrate_postgresql_17_to_18.md) | Migrate one Debian/Ubuntu PostgreSQL cluster while retaining version 17 |
 | [`prometheus/backup_db.yml`](../docs/playbooks/backup_db.md) | Create a point-in-time copy of all current data stored in Prometheus. |
 | [`prometheus/deploy_blackbox_exporter.yml`](../docs/playbooks/deploy_blackbox_exporter.md) | Deploy Prometheus Blackbox Exporter on a selected host group for remote service probing |
