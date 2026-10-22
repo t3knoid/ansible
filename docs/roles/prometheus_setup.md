@@ -21,6 +21,13 @@ Installs and configures a Prometheus monitoring system on Debian/Ubuntu.
 | `prometheus_setup_update_check_script_path` | `/usr/local/bin/check_prometheus_update.sh` |  |
 | `prometheus_setup_update_metrics_path` | `"{{ node_exporter_setup_textfile_collector_dir | default('/var/lib/node_exporter/textfile') }}/prometheus_update.prom"` |  |
 | `prometheus_setup_update_check_minute` | `"*/30"` |  |
+| `prometheus_setup_truenas_update_check` | `false` |  |
+| `prometheus_setup_truenas_update_api_url` | `"wss://192.168.2.250/api/current"` |  |
+| `prometheus_setup_truenas_update_client_version` | `"TS-25.10.3"` |  |
+| `prometheus_setup_truenas_update_script_path` | `/usr/local/bin/check_truenas_update.py` |  |
+| `prometheus_setup_truenas_update_metrics_path` | `>-` |  |
+| `prometheus_setup_truenas_update_credentials_path` | `/etc/prometheus/truenas-update-api.json` |  |
+| `prometheus_setup_truenas_update_check_minute` | `"*/30"` |  |
 | `prometheus_setup_home` | `"/opt/prometheus"` |  |
 | `prometheus_setup_data_dir` | `"/data/prometheus"` |  |
 | `prometheus_setup_user` | `"{{ users_list[0].username }}"` |  |
@@ -84,6 +91,7 @@ _No constant variables found._
 - Create Prometheus systemd service file
 - Enable and start Prometheus service
 - Configure Prometheus update check
+- Configure TrueNAS update check
 
 ## 🔔 Handlers
 - Reload systemd daemon
