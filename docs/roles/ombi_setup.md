@@ -36,6 +36,7 @@ _No constant variables found._
 
 ## 📑 Tasks
 - Deploy Ombi Docker Service
+- Wait for Ombi web site to be ready
 - Check Ombi for available updates via Prometheus metrics
 
 ## 🔔 Handlers
