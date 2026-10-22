@@ -27,6 +27,10 @@
   register: semaphoreui_setup_existing_config_content
   when: semaphoreui_setup_existing_config.stat.exists
 
+- name: Show semaphoreui_setup_oidc_client_id
+  ansible.builtin.debug:
+    msg: "semaphoreui_setup_oidc_client_id: {{ semaphoreui_setup_oidc_client_id }}"
+
 - name: Preserve existing Semaphore OIDC values when replacements are unavailable
   no_log: true
   ansible.builtin.set_fact:
