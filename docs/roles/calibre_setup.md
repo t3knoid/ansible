@@ -18,6 +18,10 @@ Installs and configures Calibre eBook management software. It uses a Docker imag
 | `calibre_setup_config_dir` | `"/config/calibre"` |  |
 | `calibre_setup_version` | `8.16.2` |  |
 | `calibre_setup_docker_image_name` | `"calibre:{{ calibre_setup_version }}"` |  |
+| `calibre_setup_check_update` | `true` |  |
+| `calibre_setup_update_check_script_path` | `/usr/local/bin/check_calibre_update.sh` |  |
+| `calibre_setup_update_metrics_path` | `"{{ node_exporter_setup_textfile_collector_dir | default('/var/lib/node_exporter/textfile') }}/calibre_update.prom"` |  |
+| `calibre_setup_update_check_minute` | `"*/30"` |  |
 | `calibre_setup_mount_point` | `/nfs/backups` |  |
 | `calibre_setup_backup_prefix` | `"calibre_"` |  |
 | `calibre_setup_backup_filename` | `"{{ calibre_setup_backup_prefix }}{{ ansible_date_time.iso8601_basic_short }}.sqlc"` |  |
@@ -29,6 +33,7 @@ _No constant variables found._
 
 ## 📑 Tasks
 - Deploy Calibre Docker Service
+- Configure Calibre update check
 
 ## 🔔 Handlers
 _No handlers defined._
