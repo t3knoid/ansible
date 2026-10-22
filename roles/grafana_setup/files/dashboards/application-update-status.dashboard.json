@@ -705,6 +705,89 @@
       ],
       "title": "Grafana Update Status",
       "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "-1": {
+                  "index": 0,
+                  "text": "Version check unavailable"
+                },
+                "0": {
+                  "index": 1,
+                  "text": "Up to date"
+                },
+                "1": {
+                  "index": 2,
+                  "text": "Update available"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "gray",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 0,
+        "y": 12
+      },
+      "id": 10,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "name"
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "label_replace(max by (version) ((prometheus_update_available{job=\"node\",instance=~\"prometheus-.*\"} == 1) * on (job, instance) group_left (version) prometheus_latest_version_info{job=\"node\",instance=~\"prometheus-.*\"}), \"display\", \"Update available: $1\", \"version\", \"(.*)\") or on () label_replace(max(prometheus_update_available{job=\"node\",instance=~\"prometheus-.*\"} == 0), \"display\", \"Up to date\", \"\", \"\") or on () label_replace(max(prometheus_update_available{job=\"node\",instance=~\"prometheus-.*\"} == -1), \"display\", \"Version check unavailable\", \"\", \"\")",
+          "instant": true,
+          "legendFormat": "{{display}}",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Prometheus Update Status",
+      "type": "stat"
     }
   ],
   "refresh": "30s",
@@ -721,6 +804,6 @@
   "timezone": "",
   "title": "Application Update Status",
   "uid": "application-update-status",
-  "version": 3,
+  "version": 4,
   "weekStart": ""
 }
