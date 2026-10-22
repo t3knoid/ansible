@@ -32,12 +32,12 @@
 
 - name: Install requested Python version
   ansible.builtin.raw: |
+    set -e
     ulimit -c 0 || true
     if ! "/usr/bin/python{{ python3_version }}" -c \
       'import sys; sys.exit(0 if sys.version_info[:2] == tuple(map(int, "{{ python3_version }}".split(".")[:2])) else 1)' \
       >/dev/null 2>&1; then
-      apt-get install -y --reinstall \
-        python{{ python3_version }} python{{ python3_version }}-minimal
+      apt-get install -y --reinstall python{{ python3_version }}
     fi
     "/usr/bin/python{{ python3_version }}" -c \
       'import sys; sys.exit(0 if sys.version_info[:2] == tuple(map(int, "{{ python3_version }}".split(".")[:2])) else 1)'
