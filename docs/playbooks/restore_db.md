@@ -1,7 +1,7 @@
-# 📖 Playbook: tautulli/restore_db.yml
+# 📖 Playbook: semaphoreui/restore_db.yml
 
 ## 🛠 Purpose
-Restore Tautulli PostgreSQL database from backup.
+Restore Semaphoreui PostgreSQL database from backup.
 
 ## 🔗 Roles Applied
 - [`global`](../roles/global/README.md)
@@ -10,5 +10,5 @@ Restore Tautulli PostgreSQL database from backup.
 
 ## 🚀 Usage
 ```bash
-ansible-playbook playbooks/tautulli/restore_db.yml
+ansible-playbook playbooks/semaphoreui/restore_db.yml
 ```
