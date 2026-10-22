@@ -1,0 +1,35 @@
+---
+- name: Install packages required for LazyLibrarian update metrics
+  ansible.builtin.apt:
+    name:
+      - cron
+      - curl
+      - jq
+    state: present
+
+- name: Ensure LazyLibrarian update metrics directory exists
+  ansible.builtin.file:
+    path: "{{ lazylibrarian_setup_update_metrics_path | dirname }}"
+    state: directory
+    owner: root
+    group: "{{ node_exporter_setup_group | default('prometheus') }}"
+    mode: "0775"
+
+- name: Install LazyLibrarian update metrics script
+  ansible.builtin.template:
+    src: check_lazylibrarian_update.sh.j2
+    dest: "{{ lazylibrarian_setup_update_check_script_path }}"
+    owner: root
+    group: root
+    mode: "0750"
+
+- name: Seed LazyLibrarian update metrics
+  ansible.builtin.command: "{{ lazylibrarian_setup_update_check_script_path }}"
+  changed_when: true
+
+- name: Schedule LazyLibrarian update metrics check
+  ansible.builtin.cron:
+    name: lazylibrarian_update_metrics
+    minute: "{{ lazylibrarian_setup_update_check_minute }}"
+    user: root
+    job: "{{ lazylibrarian_setup_update_check_script_path }}"
