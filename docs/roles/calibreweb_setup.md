@@ -18,6 +18,10 @@ Installs and configures Calibre-Web, a web-based eBook management application. I
 | `calibreweb_setup_config_dir` | `"/config/calibreweb"` |  |
 | `calibreweb_setup_version` | `0.6.25` |  |
 | `calibreweb_setup_docker_image_name` | `"calibre-web:{{ calibreweb_setup_version }}"` |  |
+| `calibreweb_setup_check_update` | `true` |  |
+| `calibreweb_setup_update_check_script_path` | `/usr/local/bin/check_calibreweb_update.sh` |  |
+| `calibreweb_setup_update_metrics_path` | `"{{ node_exporter_setup_textfile_collector_dir | default('/var/lib/node_exporter/textfile') }}/calibreweb_update.prom"` |  |
+| `calibreweb_setup_update_check_minute` | `"*/30"` |  |
 | `calibreweb_setup_mount_point` | `/nfs/backups` |  |
 | `calibreweb_setup_backup_prefix` | `"calibreweb_"` |  |
 | `calibreweb_setup_backup_filename` | `"{{ calibreweb_setup_backup_prefix }}{{ ansible_date_time.iso8601_basic_short }}.sqlc"` |  |
@@ -29,6 +33,7 @@ _No constant variables found._
 
 ## 📑 Tasks
 - Deploy Calibre Web Docker Service
+- Configure Calibre-Web update check
 
 ## 🔔 Handlers
 _No handlers defined._
