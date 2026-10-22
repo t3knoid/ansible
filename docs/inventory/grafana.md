@@ -41,6 +41,9 @@ _Inventory for `grafana` hosts_
 ### `python`
 - `grafana-0`
 
+### `node_exporter`
+- `grafana-0`
+
 ### `prometheus`
 - `prometheus-0`
 
@@ -56,5 +59,5 @@ _No group variables defined._
 ## 🧩 Group Children
 ### `rproxy`
 - `rproxy_main`
-- `rproxy_primary`
 - `rproxy_secondary`
+- `rproxy_primary`
