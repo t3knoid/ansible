@@ -131,3 +131,7 @@
 - name: Configure Prometheus update check
   ansible.builtin.import_tasks: check_update.yml
   when: prometheus_setup_check_update | bool
+
+- name: Configure TrueNAS update check
+  ansible.builtin.import_tasks: check_truenas_update.yml
+  when: prometheus_setup_truenas_update_check | bool

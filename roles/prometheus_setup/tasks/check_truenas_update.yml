@@ -1,0 +1,68 @@
+---
+- name: Verify the TrueNAS API key is configured
+  ansible.builtin.assert:
+    that:
+      - vault_ansible_api_key is defined
+      - vault_ansible_api_key | default('') | length > 0
+    fail_msg: >-
+      Set vault_ansible_api_key in the encrypted
+      inventory/prometheus/group_vars/all/vault.yml before enabling
+      prometheus_setup_truenas_update_check.
+    quiet: true
+
+- name: Install packages required for the TrueNAS API client
+  ansible.builtin.apt:
+    name:
+      - git
+    state: present
+
+- name: Install the TrueNAS 25.10 API client
+  ansible.builtin.pip:
+    name: "git+https://github.com/truenas/api_client.git@{{ prometheus_setup_truenas_update_client_version }}"
+    virtualenv: "{{ python3_venv_folder }}"
+    state: present
+
+- name: Ensure TrueNAS update metrics directory exists
+  ansible.builtin.file:
+    path: "{{ prometheus_setup_truenas_update_metrics_path | dirname }}"
+    state: directory
+    owner: root
+    group: "{{ node_exporter_setup_group | default('prometheus') }}"
+    mode: "0775"
+
+- name: Ensure TrueNAS API credentials directory exists
+  ansible.builtin.file:
+    path: "{{ prometheus_setup_truenas_update_credentials_path | dirname }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Install TrueNAS API credentials
+  ansible.builtin.template:
+    src: truenas_update_api.json.j2
+    dest: "{{ prometheus_setup_truenas_update_credentials_path }}"
+    owner: root
+    group: root
+    mode: "0600"
+  no_log: true
+
+- name: Install TrueNAS update metrics script
+  ansible.builtin.template:
+    src: check_truenas_update.py.j2
+    dest: "{{ prometheus_setup_truenas_update_script_path }}"
+    owner: root
+    group: root
+    mode: "0750"
+
+- name: Seed TrueNAS update metrics
+  ansible.builtin.command: "{{ python3_venv_folder }}/bin/python3 {{ prometheus_setup_truenas_update_script_path }}"
+  changed_when: true
+  no_log: true
+
+- name: Schedule TrueNAS update metrics check
+  ansible.builtin.cron:
+    name: truenas_update_metrics
+    minute: "{{ prometheus_setup_truenas_update_check_minute }}"
+    user: root
+    job: "{{ python3_venv_folder }}/bin/python3 {{ prometheus_setup_truenas_update_script_path }}"
