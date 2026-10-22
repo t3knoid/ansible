@@ -2,7 +2,7 @@
 set -euo pipefail
 
 api_url="{{ ombi_setup_api_url }}"
-response="$(curl -fsS --max-time 10 "${api_url}/api/v1/Update")"
+response="$(curl -fsS --max-time 30 "${api_url}/api/v1/Update")"
 
 update_available="$(echo "${response}" | jq -r 'if .updateAvailable == true then 1 else 0 end')"
 latest_version="$(echo "${response}" | jq -r '.updateVersionString // "unknown"')"
