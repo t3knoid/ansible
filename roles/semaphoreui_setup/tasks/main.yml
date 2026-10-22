@@ -1,5 +1,4 @@
 ---
-
 - name: Include install.yml tasks
   ansible.builtin.include_tasks: install.yml
 
@@ -9,3 +8,7 @@
 - name: Include runner.yml tasks
   ansible.builtin.include_tasks: runner.yml
   when: semaphoreui_setup_use_remote_runner
+
+- name: Configure Semaphore update check
+  ansible.builtin.import_tasks: check_update.yml
+  when: semaphoreui_setup_check_update | bool

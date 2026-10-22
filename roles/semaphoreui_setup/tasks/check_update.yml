@@ -1,0 +1,35 @@
+---
+- name: Install packages required for Semaphore update metrics
+  ansible.builtin.apt:
+    name:
+      - cron
+      - curl
+      - jq
+    state: present
+
+- name: Ensure Semaphore update metrics directory exists
+  ansible.builtin.file:
+    path: "{{ semaphoreui_setup_update_metrics_path | dirname }}"
+    state: directory
+    owner: root
+    group: "{{ node_exporter_setup_group | default('prometheus') }}"
+    mode: "0775"
+
+- name: Install Semaphore update metrics script
+  ansible.builtin.template:
+    src: check_semaphore_update.sh.j2
+    dest: "{{ semaphoreui_setup_update_check_script_path }}"
+    owner: root
+    group: root
+    mode: "0750"
+
+- name: Seed Semaphore update metrics
+  ansible.builtin.command: "{{ semaphoreui_setup_update_check_script_path }}"
+  changed_when: true
+
+- name: Schedule Semaphore update metrics check
+  ansible.builtin.cron:
+    name: semaphore_update_metrics
+    minute: "{{ semaphoreui_setup_update_check_minute }}"
+    user: root
+    job: "{{ semaphoreui_setup_update_check_script_path }}"
