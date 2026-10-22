@@ -2,8 +2,6 @@
 
 - name: Install required packages
   ansible.builtin.apt:
-    autoclean: true
-    autoremove: true
     name: "{{ python3_required_packages_for_compile }}"
     state: present
 
