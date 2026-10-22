@@ -1,6 +1,6 @@
 ---
 
-semaphoreui_setup_version: 2.18.1
+semaphoreui_setup_version: 2.19.17
 semaphoreui_setup_homedir: /ansible/semaphore
 autofs_nfs_mounts:
   - mount_name: backups
