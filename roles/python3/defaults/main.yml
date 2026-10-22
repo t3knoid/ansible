@@ -17,6 +17,7 @@ python3_packages_to_install:
   - python3-pip
   - python3-requests
   - python3-pexpect
+  - python{{ python3_version }}-venv
   - python3-venv
   - python3-passlib
   - python3-psycopg2
