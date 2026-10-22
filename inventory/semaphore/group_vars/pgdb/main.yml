@@ -1,4 +1,4 @@
 ---
 
-postgresql_setup_data_dir: /semaphore/pgdata
-postgresql_setup_version: 17
+postgresql_setup_data_dir: /semaphore/pgdata18
+postgresql_setup_version: 18
