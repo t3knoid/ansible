@@ -43,6 +43,7 @@ Installs and configures a Prometheus monitoring system on Debian/Ubuntu.
 | `prometheus_setup_rules_file` | `"{{ prometheus_setup_data_dir }}/etc/prometheus.rules.yml"` |  |
 | `prometheus_setup_tsdb_dir` | `"{{ prometheus_setup_data_dir }}/data"` |  |
 | `prometheus_setup_snapshots_dir` | `"{{ prometheus_setup_tsdb_dir }}/snapshots"` |  |
+| `prometheus_setup_backup_dir` | `/nfs/backups/prometheus` |  |
 | `prometheus_setup_console_templates` | `"{{ prometheus_setup_data_dir }}/consoles"` |  |
 | `prometheus_setup_console_libraries` | `"{{ prometheus_setup_data_dir }}/console_libraries"` |  |
 | `prometheus_setup_extra_args` | `"--web.enable-lifecycle --web.enable-admin-api"` |  |
@@ -86,8 +87,7 @@ _No constant variables found._
 - Create Prometheus console_libraries directory
 - Copy Prometheus configuration file
 - Copy Prometheus rule file
-- Create a Prometheus backup directory on /nfs/backups/
-- Bind mount NAS share to Prometheus data directory
+- Prepare local snapshot staging and NFS backups
 - Create Prometheus systemd service file
 - Enable and start Prometheus service
 - Configure Prometheus update check
