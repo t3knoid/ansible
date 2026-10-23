@@ -1,0 +1,67 @@
+---
+- name: Verify snapshot staging and backup directories are separate
+  ansible.builtin.assert:
+    that:
+      - prometheus_setup_snapshots_dir != prometheus_setup_backup_dir
+      - prometheus_setup_backup_retention_count | int > 0
+
+- name: Unmount the legacy snapshot bind mount
+  ansible.posix.mount:
+    path: "{{ prometheus_setup_snapshots_dir }}"
+    state: unmounted
+
+- name: Remove the legacy snapshot mount from fstab
+  ansible.posix.mount:
+    path: "{{ prometheus_setup_snapshots_dir }}"
+    state: absent_from_fstab
+
+- name: Ensure local snapshot staging is writable by Prometheus
+  ansible.builtin.file:
+    path: "{{ prometheus_setup_snapshots_dir }}"
+    state: directory
+    owner: "{{ prometheus_setup_user }}"
+    group: "{{ prometheus_setup_group }}"
+    mode: "0755"
+
+- name: Ensure the NFS backup directory exists as the service user
+  ansible.builtin.file:
+    path: "{{ prometheus_setup_backup_dir }}"
+    state: directory
+    mode: "0755"
+  become: true
+  become_user: "{{ prometheus_setup_user }}"
+
+- name: Verify the backup directory is on NFS
+  ansible.builtin.command:
+    argv:
+      - findmnt
+      - --noheadings
+      - --output
+      - FSTYPE
+      - --target
+      - "{{ prometheus_setup_backup_dir }}"
+  register: prometheus_setup_backup_filesystem
+  changed_when: false
+
+- name: Refuse to back up to an unmounted local NFS path
+  ansible.builtin.assert:
+    that:
+      - prometheus_setup_backup_filesystem.stdout | trim in ['nfs', 'nfs4']
+    fail_msg: "{{ prometheus_setup_backup_dir }} must be on a mounted NFS share before creating backups."
+
+- name: Check service-user write access to NFS backups
+  become: true
+  become_user: "{{ prometheus_setup_user }}"
+  block:
+    - name: Create a temporary NFS write probe
+      ansible.builtin.tempfile:
+        state: directory
+        path: "{{ prometheus_setup_backup_dir }}"
+        prefix: .prometheus-write-test-
+      register: prometheus_setup_backup_write_probe
+  always:
+    - name: Remove the NFS write probe
+      ansible.builtin.file:
+        path: "{{ prometheus_setup_backup_write_probe.path }}"
+        state: absent
+      when: prometheus_setup_backup_write_probe.path is defined

@@ -28,6 +28,7 @@ prometheus_setup_config_file: "{{ prometheus_setup_data_dir }}/etc/prometheus.ym
 prometheus_setup_rules_file: "{{ prometheus_setup_data_dir }}/etc/prometheus.rules.yml"
 prometheus_setup_tsdb_dir: "{{ prometheus_setup_data_dir }}/data"
 prometheus_setup_snapshots_dir: "{{ prometheus_setup_tsdb_dir }}/snapshots"
+prometheus_setup_backup_dir: /nfs/backups/prometheus
 prometheus_setup_console_templates: "{{ prometheus_setup_data_dir }}/consoles"
 prometheus_setup_console_libraries: "{{ prometheus_setup_data_dir }}/console_libraries"
 prometheus_setup_extra_args: "--web.enable-lifecycle --web.enable-admin-api"
