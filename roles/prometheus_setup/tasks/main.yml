@@ -94,24 +94,8 @@
     - Reload Prometheus configuration
     - Validate Prometheus rules with promtool
 
-- name: Create a Prometheus backup directory on /nfs/backups/
-  ansible.builtin.file:
-    path: "/nfs/backups/prometheus"
-    state: directory
-    mode: "0755"
-    owner: "{{ prometheus_setup_user }}"
-    group: "{{ prometheus_setup_group }}"
-
-# Use a bind mount to link the NFS directory to the Prometheus snapshots directory
-# otherwise, an invalid cross-device link error occurs during snapshot creation
-# if a softlink is used instead.
-- name: Bind mount NAS share to Prometheus data directory
-  ansible.posix.mount:
-    path: "{{ prometheus_setup_snapshots_dir }}"
-    src: /nfs/backups/prometheus
-    fstype: none
-    opts: bind
-    state: mounted
+- name: Prepare local snapshot staging and NFS backups
+  ansible.builtin.import_tasks: prepare_backup.yml
 
 - name: Create Prometheus systemd service file
   ansible.builtin.template:

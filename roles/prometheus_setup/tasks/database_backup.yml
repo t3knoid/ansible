@@ -1,4 +1,6 @@
 ---
+- name: Prepare local snapshot staging and NFS backups
+  ansible.builtin.import_tasks: prepare_backup.yml
 
 - name: Create Prometheus snapshot
   ansible.builtin.uri:
@@ -16,7 +18,9 @@
     prometheus_setup_snapshot_name: "{{ prometheus_setup_snapshot_response.json.data.name }}"
     prometheus_setup_snapshot_path: "{{ prometheus_setup_snapshots_dir }}/{{
       prometheus_setup_snapshot_response.json.data.name }}"
-    prometheus_setup_snapshot_config_archive: "{{ prometheus_setup_snapshots_dir
+    prometheus_setup_snapshot_backup_path: "{{ prometheus_setup_backup_dir }}/{{ prometheus_setup_snapshot_response.json.data.name }}"
+    prometheus_setup_snapshot_staging_path: "{{ prometheus_setup_backup_dir }}/.{{ prometheus_setup_snapshot_response.json.data.name }}.incomplete"
+    prometheus_setup_snapshot_config_archive: "{{ prometheus_setup_backup_dir
       }}/{{ prometheus_setup_snapshot_response.json.data.name }}-config.tar.gz"
 
 - name: Verify Prometheus snapshot directory exists
@@ -26,9 +30,19 @@
 
 - name: Fail when Prometheus snapshot directory was not created
   ansible.builtin.fail:
-    msg: "Prometheus snapshot directory not found: {{ prometheus_setup_snapshot_path
+    msg:
+      "Prometheus snapshot directory not found: {{ prometheus_setup_snapshot_path
       }}"
   when: not prometheus_setup_snapshot_stat.stat.exists
+
+- name: Copy the local snapshot to NFS without cross-filesystem hard links
+  ansible.builtin.copy:
+    src: "{{ prometheus_setup_snapshot_path }}/"
+    dest: "{{ prometheus_setup_snapshot_staging_path }}/"
+    remote_src: true
+    mode: preserve
+  become: true
+  become_user: "{{ prometheus_setup_user }}"
 
 - name: Archive Prometheus configuration alongside snapshot
   community.general.archive:
@@ -40,13 +54,33 @@
     owner: "{{ prometheus_setup_user }}"
     group: "{{ prometheus_setup_group }}"
     mode: "0644"
+  become: true
+  become_user: "{{ prometheus_setup_user }}"
+
+- name: Publish the completed snapshot backup
+  ansible.builtin.command:
+    argv:
+      - mv
+      - --
+      - "{{ prometheus_setup_snapshot_staging_path }}"
+      - "{{ prometheus_setup_snapshot_backup_path }}"
+  become: true
+  become_user: "{{ prometheus_setup_user }}"
+  changed_when: true
+
+- name: Remove local snapshot only after the NFS backup is complete
+  ansible.builtin.file:
+    path: "{{ prometheus_setup_snapshot_path }}"
+    state: absent
+  become: true
+  become_user: "{{ prometheus_setup_user }}"
 
 - name: Prune old Prometheus snapshots and config archives
   ansible.builtin.shell: |
     set -euo pipefail
     retention_count={{ prometheus_setup_backup_retention_count | int }}
 
-    find {{ prometheus_setup_snapshots_dir | quote }} -mindepth 1 -maxdepth 1 -type d -printf '%T@ %p\n' \
+    find {{ prometheus_setup_backup_dir | quote }} -mindepth 1 -maxdepth 1 -type d -name '????????T??????Z-*' -printf '%T@ %p\n' \
       | sort -nr \
       | awk -v keep="$retention_count" 'NR > keep {print substr($0, index($0, " ") + 1)}' \
       | while IFS= read -r snapshot_dir; do
@@ -56,10 +90,12 @@
         done
   args:
     executable: /bin/bash
+  become: true
+  become_user: "{{ prometheus_setup_user }}"
   changed_when: false
 
 - name: Show snapshot directory
   ansible.builtin.debug:
     msg: >-
-      Snapshot created at: {{ prometheus_setup_snapshot_name }}; config archive
+      Snapshot backed up to: {{ prometheus_setup_snapshot_backup_path }}; config archive
       created at: {{ prometheus_setup_snapshot_config_archive }}
