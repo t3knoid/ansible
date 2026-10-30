@@ -34,6 +34,7 @@ _No constant variables found._
 ## 📑 Tasks
 - Gather service facts
 - Check installed code-server version
+- Check whether code-server requires a downgrade
 - Stop the code-server package
 - Remove current version of code-server
 - Download code-server package
