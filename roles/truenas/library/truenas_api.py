@@ -111,6 +111,7 @@ options:
         suboptions:
           type: {description: Display protocol., type: str, default: SPICE}
           bind: {description: Address to bind the console to., type: str, default: 0.0.0.0}
+                    port: {description: Display port passed to the middleware., type: int}
           resolution: {description: Console resolution., type: str}
           password: {description: Console password (at least 8 characters)., type: str}
       allow_delete:
@@ -799,6 +800,8 @@ def vm_desired_devices(d):
     display = d.get("display")
     if display:
         attrs = {"type": display["type"], "bind": display["bind"]}
+        if display.get("port") is not None:
+            attrs["port"] = display["port"]
         if display.get("resolution"):
             attrs["resolution"] = display["resolution"]
         devices.append(dict(dtype="DISPLAY", order=1200, attrs=attrs,
@@ -1022,6 +1025,7 @@ def main():
                 display=dict(type="dict", options=dict(
                     type=dict(type="str", default="SPICE"),
                     bind=dict(type="str", default="0.0.0.0"),
+                    port=dict(type="int"),
                     resolution=dict(type="str"),
                     password=dict(type="str", no_log=True),
                 )),

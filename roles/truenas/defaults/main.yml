@@ -217,6 +217,7 @@ truenas_apps_poll_interval: 5
 #     cdrom: /mnt/tank/isos/debian-12.iso
 #     display:
 #       type: SPICE
+#       port: 5901
 #       password: "{{ vault_debian12_display_password }}"
 #     allow_restart: true           # permit stop/start for CPU or memory changes
 #     allow_delete: false           # required for state: absent

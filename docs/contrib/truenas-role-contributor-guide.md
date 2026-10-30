@@ -170,6 +170,7 @@ truenas_vms:
     cdrom: /mnt/tank/isos/debian-12.iso
     display:
       type: SPICE
+      port: 5901
       password: "{{ vault_debian12_display_password }}"
 ```
 
@@ -182,7 +183,7 @@ ansible-playbook -i inventory/truenas/inventory.ini playbooks/truenas/deploy_tru
 
 Use `--tags truenas_vms` to select this isolated workflow. `truenas_vms` must be a list with unique names beginning with a letter, containing only letters, digits, or underscores, and no longer than 40 characters. Present VMs require at least 256 MiB of memory, one or more disks and NICs, and unique zvol paths across all declared VMs. The parent dataset for each new zvol must already exist. Disk zvols are created when missing and grown when the requested size increases; shrinking is refused.
 
-The module reconciles CPU, memory, bootloader, autostart, and declared devices. It does not remove extra devices automatically; set `cdrom: ""` to explicitly remove CD-ROM devices. A display password must be at least eight characters and should come from Ansible Vault.
+The module reconciles CPU, memory, bootloader, autostart, and declared devices. It does not remove extra devices automatically; set `cdrom: ""` to explicitly remove CD-ROM devices. A display can optionally set an integer `port`; if omitted, TrueNAS chooses the port. A display password must be at least eight characters and should come from Ansible Vault.
 
 Review approval controls carefully:
 
