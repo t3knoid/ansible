@@ -10,6 +10,8 @@
     GIT_ASKPASS: /bin/echo
     GIT_USERNAME: "token"
     GIT_PASSWORD: "{{ redmine_setup_github_token }}"
+  become: true
+  become_user: "{{ redmine_setup_user }}"
 
 - name: Mirror Redmine wiki into local Git repo
   refol.general.redmine_wiki_mirror:

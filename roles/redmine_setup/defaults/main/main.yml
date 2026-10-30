@@ -13,6 +13,7 @@ redmine_setup_www_publicdir: "{{ redmine_setup_www_rootdir }}/public"
 redmine_setup_apache_default_conf: /etc/apache2/sites-enabled/000-default.conf
 redmine_setup_smtp_settings_address: smtp-relay.gmail.com
 redmine_setup_smtp_settings_port: 587
+redmine_setup_user: "{{ users_list[0].username }}"
 
 # See vault for the following variables
 # redmine_setup_db_name
