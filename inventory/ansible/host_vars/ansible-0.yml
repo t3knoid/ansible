@@ -13,3 +13,7 @@ vms_config:
     backup: true
     size: 25
     storage: local
+
+vms_os: ubuntu_24_server
+vms_autoinstall: true
+vms_enable_serial_terminal: false
