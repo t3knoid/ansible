@@ -7,15 +7,19 @@ _Inventory for `ansible` hosts_
 ## 👥 Groups & Hosts
 ### `vms`
 - `ansible-0`
+- `ansible-1`
 
 ### `code_server`
 - `ansible-0`
+- `ansible-1`
 
 ### `vscode`
 - `ansible-0`
+- `ansible-1`
 
 ### `nginx`
 - `ansible-0`
+- `ansible-1`
 
 ### `rproxy_main`
 - `rproxy-0`
@@ -31,27 +35,33 @@ _Inventory for `ansible` hosts_
 
 ### `azure_cli`
 - `ansible-0`
+- `ansible-1`
 
 ### `oauth2_proxy`
 - `rproxy-0`
 
 ### `entra_id`
 - `ansible-0`
+- `ansible-1`
 
 ### `redis`
 - `rproxy-0`
 
 ### `ruby`
 - `ansible-0`
+- `ansible-1`
 
 ### `docker`
 - `ansible-0`
+- `ansible-1`
 
 ### `gh_cli`
 - `ansible-0`
+- `ansible-1`
 
 ### `node_exporter`
 - `ansible-0`
+- `ansible-1`
 
 ### `prometheus`
 - `prometheus-0`
