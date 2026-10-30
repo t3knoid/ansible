@@ -1,0 +1,13 @@
+- name: Manage TrueNAS virtual machines
+  hosts: truenas
+  become: true
+  gather_facts: false
+  roles:
+    - global
+  tasks:
+    - name: Import the isolated TrueNAS VMs workflow
+      ansible.builtin.import_role:
+        name: truenas
+        tasks_from: vms.yml
+      tags: [truenas_vms]
+  

@@ -1,6 +1,6 @@
 # 📘 TrueNAS Role Contributor Guide
 
-The `truenas` role configures an already-installed TrueNAS 25.10+ system through its local middleware API. It manages updates, local groups and users, the administrator account, network settings and Active Directory, datasets, shares, and services. The role does not install TrueNAS or provision its initial boot disk.
+The `truenas` role configures an already-installed TrueNAS 25.10+ system through its local middleware API. It manages updates, local groups and users, the administrator account, network settings and Active Directory, datasets, shares, and services. Virtual machines use a separate, opt-in workflow and playbook. The role does not install TrueNAS or provision its initial boot disk.
 
 ## 📋 Requirements and Bootstrap
 
@@ -15,7 +15,7 @@ If the inventory connection user does not have key-based SSH configured yet, run
 
 ## 📝 Repository Workflow
 
-The repository deployment inventory is [`inventory/truenas/inventory.ini`](../../inventory/truenas/inventory.ini), and its playbook is [`playbooks/truenas/configure_truenas.yml`](../../playbooks/truenas/configure_truenas.yml). Host variables belong under `inventory/truenas/host_vars/truenas-01/`; files elsewhere beside the inventory are not automatically loaded by Ansible.
+The repository deployment inventory is [`inventory/truenas/inventory.ini`](../../inventory/truenas/inventory.ini), and the main configuration playbook is [`playbooks/truenas/configure_truenas.yml`](../../playbooks/truenas/configure_truenas.yml). VM management is invoked separately with [`playbooks/truenas/deploy_truenas_vms.yml`](../../playbooks/truenas/deploy_truenas_vms.yml). Host variables belong under `inventory/truenas/host_vars/truenas-01/`; files elsewhere beside the inventory are not automatically loaded by Ansible.
 
 Contributors should add or edit the host variable files directly. Define only the sections you want the role to manage, keep secrets in an encrypted vault file, and keep environment-specific values out of role defaults.
 
@@ -47,6 +47,8 @@ The role always begins with preflight checks, then runs enabled configuration st
 
 The order allows groups and users to exist before shares are exposed and datasets to exist before shares are configured. Services are started last.
 
+VM management is not part of `configure_truenas.yml` or the normal role task sequence. The isolated VM playbook imports `roles/truenas/tasks/vms.yml`, validates all declarations before connecting to middleware, checks virtualization support, and then plans or applies each VM. Configure `truenas_vms` in the inventory host vars and run that playbook explicitly.
+
 ## 🔗 How Inputs Map To The API
 
 Most role variables map directly to TrueNAS middleware methods.
@@ -63,6 +65,7 @@ Most role variables map directly to TrueNAS middleware methods.
 | `truenas_resources`              | `<namespace>.query/create/update/delete`                             |
 | `truenas_post_calls`             | Raw `midclt` / middleware method calls                               |
 | `truenas_services`               | `service.update`, `service.started`, `service.start`, `service.stop` |
+| `truenas_vms`                    | `vm.query/create/update/delete`, `vm.device.*`, runtime methods, and `pool.dataset.*` for disk zvols |
 
 The role is intentionally thin. If a field is accepted by the underlying API method and the role passes that object through unchanged, configure it exactly as the TrueNAS API expects.
 
@@ -87,6 +90,7 @@ All role inputs are declared in [`defaults/main.yml`](defaults/main.yml); unset 
 | `truenas_resources`                               | Ordered definitions for other middleware resources, such as iSCSI or NVMe-oF. Supports `state`, name-to-ID resolution, create-only fields, and comparison/sensitive-field options.                                         |
 | `truenas_post_calls`                              | Raw middleware calls executed after shares/resources. These are not idempotent; use sparingly for operations such as permissions.                                                                                          |
 | `truenas_services`                                | Service names with optional `enable` and `state` (`started` by default).                                                                                                                                                   |
+| `truenas_vms`                                      | VM definitions for the isolated VM playbook. `truenas_vms_mode` defaults to `plan`; set it to `apply` to permit changes. Job, health, and polling timeouts default to 900, 180, and 5 seconds.                               |
 
 For users and groups, `state: absent` deletes the matching object. The role does not provide a deletion option for the administrator or datasets. A user's `password` is sent on creation, and is also resent on update when the `smb` flag changes because TrueNAS requires a password reset when SMB authentication is enabled for an existing account. For general password rotation on an existing account, use a deliberate `user.set_password` call or another explicit workflow.
 
@@ -145,6 +149,46 @@ truenas_datasets:
     share_type: MULTIPROTOCOL
     compression: LZ4
 ```
+
+### 🖥️ Virtual machines
+
+VMs are managed only by `playbooks/truenas/deploy_truenas_vms.yml`, not by the standard configuration playbook. Put declarations in the TrueNAS host vars and start with the default plan mode:
+
+```yaml
+truenas_vms:
+  - name: debian12
+    description: Build runner
+    runtime: running
+    cpu: {vcpus: 2, cores: 2, threads: 1}
+    memory_mib: 4096
+    bootloader: UEFI
+    autostart: true
+    disks:
+      - {zvol: tank/vms/debian12, size_gib: 40, type: VIRTIO}
+    nics:
+      - {attach: br0, type: VIRTIO}
+    cdrom: /mnt/tank/isos/debian-12.iso
+    display:
+      type: SPICE
+      password: "{{ vault_debian12_display_password }}"
+```
+
+Validate and review the plan before applying. The default `truenas_vms_mode: plan` never mutates middleware, and Ansible check mode also prevents changes when mode is `apply`.
+
+```bash
+ansible-playbook -i inventory/truenas/inventory.ini playbooks/truenas/deploy_truenas_vms.yml --check --diff -k --ask-vault-pass
+ansible-playbook -i inventory/truenas/inventory.ini playbooks/truenas/deploy_truenas_vms.yml -e truenas_vms_mode=apply -k --ask-vault-pass
+```
+
+Use `--tags truenas_vms` to select this isolated workflow. `truenas_vms` must be a list with unique names beginning with a letter, containing only letters, digits, or underscores, and no longer than 40 characters. Present VMs require at least 256 MiB of memory, one or more disks and NICs, and unique zvol paths across all declared VMs. The parent dataset for each new zvol must already exist. Disk zvols are created when missing and grown when the requested size increases; shrinking is refused.
+
+The module reconciles CPU, memory, bootloader, autostart, and declared devices. It does not remove extra devices automatically; set `cdrom: ""` to explicitly remove CD-ROM devices. A display password must be at least eight characters and should come from Ansible Vault.
+
+Review approval controls carefully:
+
+- Changing restart-sensitive hardware or devices on a running VM requires `allow_restart: true`. This permits the workflow to stop and restart the VM; changing the desired runtime to `stopped` also stops it.
+- `state: absent` requires `allow_delete: true` and a reviewed backup/data-retention plan. Set `allow_disk_delete: true` only when the VM's zvols should also be destroyed; otherwise the disks are retained.
+- `runtime` defaults to `running`; use `stopped` to leave a present VM powered off.
 
 ### 📁 SMB shares
 
@@ -238,8 +282,10 @@ The role exposes these tags for selecting a stage:
 | Datasets             | `truenas_datasets` |
 | Shares and resources | `truenas_shares`   |
 | Services             | `truenas_services` |
+| Virtual machines     | `truenas_vms`      |
 
 Use `--tags truenas_shares` to select share/resource work. The groups task also carries `truenas_users`, so a user-targeted run ensures declared groups first. Preflight is tagged `always` and continues to run for tagged invocations.
+VMs are run through the separate playbook; use `--tags truenas_vms` there.
 
 ## 🛡️ Idempotency and Safety
 
@@ -252,6 +298,8 @@ The custom module queries each object and compares only the keys provided in its
 - AD requires DNS that resolves the domain and a clock within five minutes of the domain controller. The AD `hostname` is the computer-account name and must be no longer than 15 characters.
 - Review service changes carefully, especially SSH autostart/state or `ssh_password_enabled`, to avoid losing access.
 - `truenas_post_calls` are raw calls. In check mode, a non-read-only call is reported as a pending change but is not executed.
+- VM plans are read-only by default. `truenas_vms_mode: apply` permits middleware changes, but Ansible check mode still suppresses them. Inspect planned actions and approvals before applying.
+- VM deletion and restarting a running VM for a hardware/device change are gated by `allow_delete` and `allow_restart`. Zvol deletion is separately opt-in with `allow_disk_delete`; zvols are never shrunk.
 
 ## 🔌 The `truenas_api` Module
 
@@ -260,6 +308,7 @@ The role's custom [truenas_api.py](library/truenas_api.py) module is the impleme
 - `mode: resource` manages objects found through `<namespace>.query` and then created, updated, or deleted.
 - `mode: config` manages singleton configuration namespaces with `<namespace>.config` and `<namespace>.update`.
 - `mode: call` performs an arbitrary middleware method call.
+- `mode: vm` plans or reconciles a VM, its devices, and requested disk zvols through `vm.*`, `vm.device.*`, and `pool.dataset.*` middleware calls. VM device argument shape is selected based on the TrueNAS version; verify accepted fields against `/api/docs/` on the target release.
 - `create_only_keys` are sent on create but are not compared or resent on update.
 - `skip_compare_keys` suppresses drift detection for fields the API returns in a shape that cannot be compared directly.
 - `sensitive_keys` are omitted from diffs and can be resent on update through `send_sensitive_on_update` or `send_sensitive_when`.

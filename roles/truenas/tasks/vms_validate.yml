@@ -1,0 +1,87 @@
+---
+- name: Validate the VMs execution mode
+  ansible.builtin.assert:
+    that:
+      - truenas_vms_mode in ['plan', 'apply']
+      - truenas_vms_job_timeout | int > 0
+      - truenas_vms_health_timeout | int > 0
+      - truenas_vms_poll_interval | int > 0
+    fail_msg: "Use plan or apply mode with positive VM job/health timeouts and polling interval."
+
+- name: Require a list of VM mappings
+  ansible.builtin.assert:
+    that:
+      - truenas_vms | type_debug == 'list'
+      - truenas_vms | select('mapping') | list | length == truenas_vms | length
+    fail_msg: "truenas_vms must be a list of VM definitions."
+
+- name: Validate VM identities and lifecycle controls
+  ansible.builtin.assert:
+    that:
+      - item.name is defined
+      - item.name is string
+      - item.name is match('^[A-Za-z][A-Za-z0-9_]*$')
+      - item.name | length <= 40
+      - item.state | default('present') in ['present', 'absent']
+      - item.runtime | default('running') in ['running', 'stopped']
+      - item.allow_delete | default(false) is boolean
+      - item.allow_restart | default(false) is boolean
+      - item.allow_disk_delete | default(false) is boolean
+      - item.keys() | difference(['name', 'description', 'state', 'runtime', 'cpu', 'memory_mib', 'bootloader', 'autostart', 'disks', 'nics', 'cdrom', 'display', 'allow_delete', 'allow_restart', 'allow_disk_delete']) | length == 0
+    fail_msg: "Check VM name, state, runtime, unknown keys, and boolean approval controls."
+  loop: "{{ truenas_vms }}"
+  no_log: "{{ truenas_no_log }}"
+
+- name: Reject duplicate VM names
+  ansible.builtin.assert:
+    that:
+      - truenas_vms | map(attribute='name') | unique | length == truenas_vms | length
+    fail_msg: "Each TrueNAS VM name must appear exactly once."
+
+- name: Validate present VM hardware declarations
+  ansible.builtin.assert:
+    that:
+      - item.memory_mib | default(0) | int >= 256
+      - item.cpu | default({}) is mapping
+      - item.cpu.vcpus | default(1) | int > 0
+      - item.cpu.cores | default(1) | int > 0
+      - item.cpu.threads | default(1) | int > 0
+      - item.bootloader | default('UEFI') in ['UEFI', 'UEFI_CSM']
+      - item.disks | default([]) | length > 0
+      - item.disks | select('mapping') | list | length == item.disks | length
+      - item.disks | map(attribute='zvol') | map('regex_search', '^[A-Za-z0-9_.-]+(/[A-Za-z0-9_.:-]+)+$') | select('none') | list | length == 0
+      - item.disks | map(attribute='size_gib') | map('int') | select('gt', 0) | list | length == item.disks | length
+      - item.nics | default([]) | length > 0
+      - item.nics | select('mapping') | list | length == item.nics | length
+      - item.nics | map(attribute='attach') | map('string') | map('length') | select('gt', 0) | list | length == item.nics | length
+      - item.cdrom | default('') is string
+      - item.display | default({}) is mapping
+    fail_msg: "VMs need memory_mib >= 256, a valid cpu mapping, disks (zvol + size_gib) and nics (attach)."
+  loop: "{{ truenas_vms }}"
+  when: item.state | default('present') == 'present'
+  no_log: "{{ truenas_no_log }}"
+
+- name: Require display passwords to be supplied, not empty
+  ansible.builtin.assert:
+    that:
+      - item.display.password | default('') | length >= 8
+    fail_msg: "Display devices need a password of at least 8 characters (use vault)."
+  loop: "{{ truenas_vms }}"
+  when:
+    - item.state | default('present') == 'present'
+    - item.display is defined
+  no_log: "{{ truenas_no_log }}"
+
+- name: Reject zvols shared between VMs
+  ansible.builtin.assert:
+    that:
+      - all_zvols | unique | length == all_zvols | length
+    fail_msg: "A zvol may only be attached to one VM."
+  vars:
+    all_zvols: >-
+      {{ truenas_vms
+         | selectattr('disks', 'defined')
+         | map(attribute='disks') | flatten
+         | map(attribute='zvol') | list }}
+  no_log: "{{ truenas_no_log }}"
+  

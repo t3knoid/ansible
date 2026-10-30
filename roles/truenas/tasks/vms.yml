@@ -1,0 +1,51 @@
+---
+- name: Validate all VM declarations before deployment
+  ansible.builtin.import_tasks: vms_validate.yml
+
+- name: Reconcile TrueNAS virtual machines through middleware
+  become: "{{ truenas_become }}"
+  when: truenas_vms | length > 0
+  block:
+    - name: Run read-only TrueNAS preflight
+      ansible.builtin.import_tasks: preflight.yml
+
+    - name: Check that virtualization is supported
+      truenas_api:
+        mode: call
+        method: vm.virtualization_details
+        read_only: true
+      register: truenas_vms_virt
+      changed_when: false
+      no_log: "{{ truenas_no_log }}"
+
+    - name: Require virtualization support
+      ansible.builtin.assert:
+        that:
+          - truenas_vms_virt.result.supported | default(false)
+        fail_msg: "This host does not report virtualization support (check BIOS/UEFI VT-x/AMD-V)."
+
+    - name: Plan or apply the VM lifecycle
+      truenas_api:
+        mode: vm
+        vm: "{{ item }}"
+        vm_apply: "{{ truenas_vms_mode == 'apply' }}"
+        vm_job_timeout: "{{ truenas_vms_job_timeout }}"
+        vm_health_timeout: "{{ truenas_vms_health_timeout }}"
+        vm_poll_interval: "{{ truenas_vms_poll_interval }}"
+      loop: "{{ truenas_vms }}"
+      loop_control:
+        label: "{{ item.name }}"
+      register: truenas_vms_results
+      no_log: "{{ truenas_no_log }}"
+
+    - name: Report redacted VM results
+      ansible.builtin.debug:
+        msg:
+          name: "{{ item }}"
+          actions: "{{ truenas_vms_result.actions }}"
+          planned: "{{ truenas_vms_result.planned }}"
+          runtime_state: "{{ truenas_vms_result.runtime_state | default('ABSENT') }}"
+          approval_required: "{{ truenas_vms_result.approval_required | default([]) }}"
+      vars:
+        truenas_vms_result: "{{ truenas_vms_results.results | selectattr('item.name', 'equalto', item) | first }}"
+      loop: "{{ truenas_vms | map(attribute='name') | list }}"
