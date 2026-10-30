@@ -143,6 +143,8 @@ truenas_datasets:
   - { name: Data/public, compression: LZ4 }
   - { name: Data/public/incoming, share_type: SMB, compression: LZ4 }
   - { name: Data/tvshows, share_type: MULTIPROTOCOL, compression: LZ4 }
+  - { name: Data/isos, share_type: MULTIPROTOCOL, compression: LZ4 }
+  - { name: Data/vms, share_type: MULTIPROTOCOL, compression: LZ4 }
 
 truenas_smb_shares:
   - name: books
@@ -298,38 +300,48 @@ truenas_services:
   - { name: ssh, enable: true, state: started }
   - { name: ups, enable: true, state: started }
 
-truenas_apps_mode: apply
+# truenas_apps_mode: apply
 
-truenas_apps:
-  - name: postgres
-    source: catalog
-    state: present
-    runtime: running
-    catalog:
-      app: postgres
-      train: community
-      version: "1.5.39"
-    values:
-      postgres:
-        image_selector: v18_image
-        user: postgres
-        password: "{{ vault_truenas_postgres_password }}"
-        database: postgres
-        shm_size_mb: 512
-      resources:
-        limits:
-          cpus: 2
-          memory: 4096
-      network:
-        host_network: false
-        tcp_port:
-          bind_mode: published
-          port_number: 5432
-          host_ips:
-            - "0.0.0.0"
-      storage:
-        data:
-          type: ix_volume
-          ix_volume_config:
-            acl_enable: false
-            dataset_name: data
+# truenas_apps:
+#   - name: postgres
+#     source: catalog
+#     state: present
+#     runtime: running
+#     catalog:
+#       app: postgres
+#       train: community
+#       version: "1.5.39"
+#     values:
+#       postgres:
+#         image_selector: v18_image
+#         user: postgres
+#         password: "{{ vault_truenas_postgres_password }}"
+#         database: postgres
+#         shm_size_mb: 512
+#       resources:
+#         limits:
+#           cpus: 2
+#           memory: 4096
+#       network:
+#         host_network: false
+#         tcp_port:
+#           bind_mode: published
+#           port_number: 5432
+#           host_ips:
+#             - "0.0.0.0"
+#       storage:
+#         data:
+#           type: ix_volume
+#           ix_volume_config:
+#             acl_enable: false
+#             dataset_name: data
+
+truenas_vms:
+  - name: ansible-1
+    pool: tank
+    disk_gib: 40
+    memory_mib: 4096
+    bridge: br0
+    iso: /mnt/tank/isos/debian-12.iso
+    display_password: "{{ vault_vm_display_password }}"
+    state: started
