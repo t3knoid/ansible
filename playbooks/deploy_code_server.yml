@@ -8,6 +8,7 @@
   roles:
     - global
     - nginx_setup
+    - node_exporter_setup
     - code_server
 
   pre_tasks:
