@@ -46,6 +46,8 @@ Use the existing repository patterns when creating or modifying inventories, rol
 
 ## Documentation Rules
 
+- When documenting configurable options or settings, use a reference table instead of dense prose. Include `Setting`, `Values`, `Default`, and `Setting Description` columns; group rows by topic when there are many settings. State when a value is required, omitted, unmanaged, or supplied by the underlying system rather than guessing a default.
+- Keep paragraphs for workflows, rationale, procedures, and other narrative context; avoid repeating option details already captured in a table.
 - Do not manually create or update generated documentation files for inventories, roles, or playbooks.
 - Do not manually edit `inventory/README.md`, `playbooks/README.md`, `roles/README.md`, `docs/inventory/*.md`, `docs/playbooks/*.md`, or `docs/roles/*.md` when the purpose of the change is scaffolding repo objects.
 - Documentation for these surfaces is generated automatically by GitHub workflows in `.github/workflows/`, including:
