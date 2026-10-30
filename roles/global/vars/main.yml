@@ -4,6 +4,7 @@ global_terraform_root_dir: "{{ global_ansible_root_dir }}/terraform"
 global_inventory_dir_name: "{{ inventory_dir | basename }}"
 global_ip_addresses:
   ansible-0: 192.168.20.101
+  ansible-1: 192.168.20.102 # hosted in TrueNAS
   test-0: 192.168.20.103
   semaphore-0: 192.168.20.110
   sonarr-0: 192.168.20.150
