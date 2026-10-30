@@ -198,3 +198,31 @@ truenas_apps: []
 truenas_apps_job_timeout: 900
 truenas_apps_health_timeout: 180
 truenas_apps_poll_interval: 5
+
+# ---------------------------------------------------------------------------
+# 10. Virtual machines
+# ---------------------------------------------------------------------------
+# truenas_vms:
+#   - name: debian12
+#     description: Build runner
+#     runtime: running              # running | stopped
+#     cpu: {vcpus: 2, cores: 2, threads: 1}
+#     memory_mib: 4096
+#     bootloader: UEFI              # UEFI | UEFI_CSM
+#     autostart: true
+#     disks:
+#       - {zvol: tank/vms/debian12, size_gib: 40, type: VIRTIO}
+#     nics:
+#       - {attach: br0, type: VIRTIO}
+#     cdrom: /mnt/tank/isos/debian-12.iso
+#     display:
+#       type: SPICE
+#       password: "{{ vault_debian12_display_password }}"
+#     allow_restart: true           # permit stop/start for CPU or memory changes
+#     allow_delete: false           # required for state: absent
+#     allow_disk_delete: false      # required to destroy zvols on delete
+truenas_vms_mode: plan
+truenas_vms: []
+truenas_vms_job_timeout: 900
+truenas_vms_health_timeout: 180
+truenas_vms_poll_interval: 5
