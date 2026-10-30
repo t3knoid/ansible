@@ -4,6 +4,7 @@
   ansible.builtin.git:
     repo: "{{ ansible_setup_git_repository }}"
     dest: "{{ ansible_setup_workdir }}"
+    version: "{{ ansible_setup_git_version | default('main') }}"
     update: false
   become: false
 
