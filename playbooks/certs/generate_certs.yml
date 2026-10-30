@@ -1,11 +1,39 @@
 ---
-
 # Purpose: Generate Let’s Encrypt certbot certificates on the cert staging host
+
+- name: Expose global variables on inventory hosts
+  hosts: all
+  gather_facts: false
+  roles:
+    - global
 
 - name: Generate certificates
   hosts: certs
   gather_facts: false
   become: true
+  pre_tasks:
+    - name: Consolidate reverse proxy sites from the selected inventory
+      ansible.builtin.set_fact:
+        rproxy_setup_sites: >-
+          {{
+            groups['all']
+            | map('extract', hostvars)
+            | selectattr('rproxy_setup_sites', 'defined')
+            | map(attribute='rproxy_setup_sites')
+            | flatten
+            | unique(attribute='server_name')
+            | list
+          }}
+
+    - name: Ensure the selected inventory defines reverse proxy sites
+      ansible.builtin.assert:
+        that:
+          - rproxy_setup_sites | length > 0
+        fail_msg: "No rproxy_setup_sites were found in the selected inventory."
+
+    - name: Display consolidated reverse proxy sites
+      ansible.builtin.debug:
+        var: rproxy_setup_sites
+
   roles:
-    - global
     - certs

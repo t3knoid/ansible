@@ -1,6 +1,5 @@
 ---
 
-
 - name: Create stage folders
   ansible.builtin.file:
     path: "{{ certs_stage }}/{{ nginx_setup_site.server_name }}"
