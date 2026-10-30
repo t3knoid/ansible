@@ -111,7 +111,7 @@ options:
         suboptions:
           type: {description: Display protocol., type: str, default: SPICE}
           bind: {description: Address to bind the console to., type: str, default: 0.0.0.0}
-                    port: {description: Display port passed to the middleware., type: int}
+          port: {description: Display port passed to the middleware., type: int}
           resolution: {description: Console resolution., type: str}
           password: {description: Console password (at least 8 characters)., type: str}
       allow_delete:
