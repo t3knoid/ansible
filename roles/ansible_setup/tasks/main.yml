@@ -20,6 +20,11 @@
   register: ansible_setup_azure_collection_install
   changed_when: "'was installed successfully' in ansible_setup_azure_collection_install.stdout"
 
+- name: Ensure git is installed
+  ansible.builtin.apt:
+    name:
+      - git
+
 - name: Checkout Ansible source code from github
   ansible.builtin.include_tasks: checkout_source.yml
   when: ansible_setup_checkout_source | default(false)
