@@ -1,0 +1,40 @@
+---
+- name: Verify code-server Debian version comparisons
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    code_server_role_tasks: "{{ lookup('ansible.builtin.file', playbook_dir ~ '/../tasks/main.yml') | from_yaml }}"
+    code_server_comparison_task: "{{ code_server_role_tasks | selectattr('name', 'equalto', 'Check whether code-server requires a downgrade') | first }}"
+  tasks:
+    - name: Compare fixture versions using the role's command
+      ansible.builtin.command:
+        argv: >-
+          {{ code_server_comparison_task['ansible.builtin.command']['argv'][:2]
+             + [item.installed,
+                code_server_comparison_task['ansible.builtin.command']['argv'][3],
+                item.requested] }}
+      register: code_server_comparison_result
+      changed_when: false
+      failed_when: code_server_comparison_result.rc != item.expected_rc
+      loop:
+        - installed: "4.142.0"
+          requested: "4.141.0"
+          expected_rc: 0
+        - installed: "4.141.0"
+          requested: "4.141.0"
+          expected_rc: 1
+        - installed: "4.99.0"
+          requested: "4.141.0"
+          expected_rc: 1
+        - installed: "4.141.0-1"
+          requested: "4.141.0"
+          expected_rc: 0
+        - installed: "4.141.0~rc1"
+          requested: "4.141.0"
+          expected_rc: 1
+        - installed: "1:4.100.0"
+          requested: "4.141.0"
+          expected_rc: 0
+      loop_control:
+        label: "{{ item.installed }} > {{ item.requested }}"

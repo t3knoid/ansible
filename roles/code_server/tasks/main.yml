@@ -5,10 +5,30 @@
   ansible.builtin.service_facts:
 
 - name: Check installed code-server version
-  ansible.builtin.command: code-server -v
+  ansible.builtin.command:
+    argv:
+      - dpkg-query
+      - --show
+      - "--showformat=${Version}"
+      - code-server
   register: code_server_installed_version_output
   changed_when: false
   failed_when: false
+
+- name: Check whether code-server requires a downgrade
+  ansible.builtin.command:
+    argv:
+      - dpkg
+      - --compare-versions
+      - "{{ code_server_installed_version_output.stdout | trim }}"
+      - gt
+      - "{{ code_server_version | string }}"
+  register: code_server_downgrade_check
+  changed_when: false
+  failed_when: code_server_downgrade_check.rc not in [0, 1]
+  when:
+    - code_server_installed_version_output.rc == 0
+    - code_server_installed_version_output.stdout | trim | length > 0
 
 - name: Stop the code-server package
   ansible.builtin.systemd:
@@ -22,9 +42,8 @@
     name: code-server
     state: absent
   when:
-    - code_server_installed_version_output.rc == 0
-    - code_server_installed_version_output.stdout_lines | length > 0
-    - code_server_installed_version_output.stdout_lines[0].split()[0] is version(code_server_version, '>')
+    - not (code_server_downgrade_check.skipped | default(false))
+    - code_server_downgrade_check.rc == 0
 
 - name: Download code-server package
   ansible.builtin.get_url:
