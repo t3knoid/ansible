@@ -10,15 +10,12 @@ _Inventory for `ansible` hosts_
 - `ansible-1`
 
 ### `code_server`
-- `ansible-0`
 - `ansible-1`
 
 ### `vscode`
-- `ansible-0`
 - `ansible-1`
 
 ### `nginx`
-- `ansible-0`
 - `ansible-1`
 
 ### `rproxy_main`
@@ -41,7 +38,6 @@ _Inventory for `ansible` hosts_
 - `rproxy-0`
 
 ### `entra_id`
-- `ansible-0`
 - `ansible-1`
 
 ### `redis`
@@ -73,6 +69,8 @@ _No group variables defined._
 ### `ansible-0`
 - `ansible_connection`: `local`
 - `vms_proxmox_node`: `pve-0`
+
+### `ansible-1`
 - `pihole_cname_entries`: `[{"domain": "code.refol.us", "target": "rproxy-0.refol.us"}]`
 
 ## 🧩 Group Children
@@ -87,8 +85,8 @@ _No group variables defined._
 
 ### `rproxy`
 - `rproxy_secondary`
-- `rproxy_main`
 - `rproxy_primary`
+- `rproxy_main`
 
 ### `cname`
 - `code_server`

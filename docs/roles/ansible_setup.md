@@ -23,7 +23,7 @@ Provides tasks to install and configure Ansible on a control node.
 | `ansible_setup_remote_tmp` | `"~/.ansible/tmp/"` |  |
 | `ansible_setup_azure_collection_version` | `"4.1.0"` |  |
 | `ansible_setup_python_modules` | `` |  |
-| `- ansible==12.0.0 # https` | `//pypi.org/project/ansible/` |  |
+| `- ansible==14.5.0 # https` | `//pypi.org/project/ansible/` |  |
 
 ## 📦 Vars
 _No constant variables found._
@@ -32,6 +32,7 @@ _No constant variables found._
 - Create ansible work folder
 - Install Ansible Python modules
 - Ensure Azure Ansible collection is installed
+- Ensure git is installed
 - Checkout Ansible source code from github
 - Create vault password file
 
