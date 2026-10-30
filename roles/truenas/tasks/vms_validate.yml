@@ -27,7 +27,7 @@
       - item.allow_delete | default(false) is boolean
       - item.allow_restart | default(false) is boolean
       - item.allow_disk_delete | default(false) is boolean
-      - item.keys() | difference(['name', 'description', 'state', 'runtime', 'cpu', 'memory_mib', 'bootloader', 'autostart', 'disks', 'nics', 'cdrom', 'display', 'allow_delete', 'allow_restart', 'allow_disk_delete']) | length == 0
+      - item.keys() | difference(['name', 'description', 'state', 'runtime', 'cpu', 'memory_mib', 'bootloader', 'autostart', 'disks', 'nics', 'cdrom', 'cdrom_order', 'display', 'allow_delete', 'allow_restart', 'allow_disk_delete']) | length == 0
     fail_msg: "Check VM name, state, runtime, unknown keys, and boolean approval controls."
   loop: "{{ truenas_vms }}"
   no_log: "{{ truenas_no_log }}"

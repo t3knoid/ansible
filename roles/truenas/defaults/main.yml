@@ -215,13 +215,18 @@ truenas_apps_poll_interval: 5
 #         size_gib: 40
 #         type: VIRTIO
 #         disk_sectorsize: 512 # optional: sets logical and physical sector size
+#         order: 20             # optional boot priority; lower numbers boot first
 #     nics:
-#       - {attach: br0, type: VIRTIO}
+#       - attach: br0
+#         type: VIRTIO
+#         order: 30
 #     cdrom: /mnt/tank/isos/debian-12.iso
+#     cdrom_order: 10           # optional; defaults to 1000
 #     display:
 #       type: SPICE
 #       port: 5901
 #       password: "{{ vault_debian12_display_password }}"
+#       order: 40
 #     allow_restart: true           # permit stop/start for CPU or memory changes
 #     allow_delete: false           # required for state: absent
 #     allow_disk_delete: false      # required to destroy zvols on delete
