@@ -94,6 +94,7 @@ options:
           size_gib: {description: Size in GiB., type: int, required: true}
           type: {description: Disk bus., type: str, default: VIRTIO, choices: [VIRTIO, AHCI]}
           sparse: {description: Create the zvol sparse., type: bool, default: true}
+          disk_sectorsize: {description: Logical and physical sector size in bytes., type: int, choices: [512, 4096]}
       nics:
         description: Network interfaces.
         type: list
@@ -790,8 +791,11 @@ def vm_desired_devices(d):
     if d.get("cdrom"):
         devices.append(dict(dtype="CDROM", order=1000, attrs={"path": d["cdrom"]}))
     for i, disk in enumerate(d["disks"]):
-        devices.append(dict(dtype="DISK", order=1001 + i, attrs={
-            "path": "/dev/zvol/%s" % disk["zvol"], "type": disk["type"]}))
+        attrs = {"path": "/dev/zvol/%s" % disk["zvol"], "type": disk["type"]}
+        if disk.get("disk_sectorsize") is not None:
+            attrs["logical_sectorsize"] = disk["disk_sectorsize"]
+            attrs["physical_sectorsize"] = disk["disk_sectorsize"]
+        devices.append(dict(dtype="DISK", order=1001 + i, attrs=attrs))
     for i, nic in enumerate(d["nics"]):
         attrs = {"type": nic["type"], "nic_attach": nic["attach"]}
         if nic.get("mac"):
@@ -1015,6 +1019,7 @@ def main():
                     size_gib=dict(type="int", required=True),
                     type=dict(type="str", default="VIRTIO", choices=["VIRTIO", "AHCI"]),
                     sparse=dict(type="bool", default=True),
+                    disk_sectorsize=dict(type="int", choices=[512, 4096]),
                 )),
                 nics=dict(type="list", elements="dict", default=[], options=dict(
                     attach=dict(type="str", required=True),

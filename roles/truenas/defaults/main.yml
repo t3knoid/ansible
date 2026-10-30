@@ -211,7 +211,10 @@ truenas_apps_poll_interval: 5
 #     bootloader: UEFI              # UEFI | UEFI_CSM
 #     autostart: true
 #     disks:
-#       - {zvol: tank/vms/debian12, size_gib: 40, type: VIRTIO}
+#       - zvol: tank/vms/debian12
+#         size_gib: 40
+#         type: VIRTIO
+#         disk_sectorsize: 512 # optional: sets logical and physical sector size
 #     nics:
 #       - {attach: br0, type: VIRTIO}
 #     cdrom: /mnt/tank/isos/debian-12.iso
