@@ -45,7 +45,7 @@ options:
   companion_keys:
     description:
       - Map of trigger key to a list of keys. When the trigger key is part of the update payload, the listed keys are sent too, taken from I(config), even if they are unchanged.
-      - Example C({configuration: [service_type]}) for APIs that require a discriminator next to a nested object.
+      - "Example C({configuration: [service_type]}) for APIs that require a discriminator next to a nested object."
     type: dict
     default: {}
   vm:
@@ -76,14 +76,34 @@ options:
         description: CPU topology and affinity settings.
         type: dict
         suboptions:
-          vcpus: {description: Virtual sockets., type: int, default: 1}
-          cores: {description: Cores per socket., type: int, default: 1}
-          threads: {description: Threads per core., type: int, default: 1}
-          mode: {description: CPU virtualization mode., type: str, choices: [CUSTOM, HOST-MODEL, HOST-PASSTHROUGH]}
-          model: {description: CPU model when mode is CUSTOM; choices come from vm.cpu_model_choices., type: str}
-          cpuset: {description: Host CPU cores to pin VM CPUs to., type: str}
-          pin_vcpus: {description: Pin virtual CPUs to the specified cpuset., type: bool}
-          nodeset: {description: NUMA nodes to constrain VM memory to., type: str}
+          vcpus: 
+            description: Virtual sockets.
+            type: int
+            default: 1
+          cores:
+            description: Cores per socket.
+            type: int
+            default: 1
+          threads:
+            description: Threads per core.
+            type: int
+            default: 1
+          mode:
+            description: CPU virtualization mode.
+            type: str
+            choices: [CUSTOM, HOST-MODEL, HOST-PASSTHROUGH]
+          model:
+            description: CPU model when mode is CUSTOM; choices come from vm.cpu_model_choices.
+            type: str
+          cpuset:
+            description: Host CPU cores to pin VM CPUs to.
+            type: str
+          pin_vcpus:
+            description: Pin virtual CPUs to the specified cpuset.
+            type: bool
+          nodeset:
+            description: NUMA nodes to constrain VM memory to.
+            type: str
             hide_from_msr:
                 description: Hide hypervisor signatures from guest MSR access.
                 type: bool
@@ -104,19 +124,19 @@ options:
         type: str
         default: UEFI
         choices: [UEFI, UEFI_CSM]
-            time:
-                description: Guest system clock reference.
-                type: str
-                choices: [LOCAL, UTC]
-            enable_secure_boot:
-                description: Enable UEFI Secure Boot.
-                type: bool
-            trusted_platform_module:
-                description: Enable a virtual TPM.
-                type: bool
-            shutdown_timeout:
-                description: Seconds to wait for graceful VM shutdown before forcing power off (5-300; default 90).
-                type: int
+      time:
+        description: Guest system clock reference.
+        type: str
+        choices: [LOCAL, UTC]
+      enable_secure_boot:
+        description: Enable UEFI Secure Boot.
+        type: bool
+      trusted_platform_module:
+        description: Enable a virtual TPM.
+        type: bool
+      shutdown_timeout:
+        description: Seconds to wait for graceful VM shutdown before forcing power off (5-300; default 90).
+        type: int
       autostart:
         description: Start the VM when TrueNAS boots.
         type: bool
@@ -126,41 +146,93 @@ options:
         type: list
         elements: dict
         suboptions:
-          zvol: {description: Zvol path such as C(tank/vms/debian12)., type: str, required: true}
-          size_gib: {description: Size in GiB., type: int, required: true}
-          type: {description: Disk bus., type: str, default: VIRTIO, choices: [VIRTIO, AHCI]}
-          sparse: {description: Create the zvol sparse., type: bool, default: true}
-          disk_sectorsize: {description: Logical and physical sector size in bytes., type: int, choices: [512, 4096]}
-          order: {description: Boot order priority (lower numbers boot first)., type: int}
+          zvol:
+            description: Zvol path such as C(tank/vms/debian12).
+            type: str
+            required: true
+          size_gib:
+            description: Size in GiB.
+            type: int
+            required: true
+          type:
+            description: Disk bus.
+            type: str
+            default: VIRTIO
+            choices: [VIRTIO, AHCI]
+          sparse:
+            description: Create the zvol sparse.
+            type: bool
+            default: true
+          disk_sectorsize:
+            description: Logical and physical sector size in bytes.
+            type: int
+            choices: [512, 4096]
+          order:
+            description: Boot order priority (lower numbers boot first).
+            type: int
       nics:
         description: Network interfaces.
         type: list
         elements: dict
         suboptions:
-          attach: {description: Bridge or interface to attach to., type: str, required: true}
-          type: {description: NIC model., type: str, default: VIRTIO, choices: [VIRTIO, E1000]}
-          trust_guest_rx_filters: {description: Trust guest receive filter changes; omitted leaves it unmanaged and TrueNAS defaults to false on create., type: bool}
-          mac: {description: Fixed MAC address; generated by TrueNAS when omitted., type: str}
-          order: {description: Boot order priority (lower numbers boot first)., type: int}
+          attach:
+            description: Bridge or interface to attach to.
+            type: str
+            required: true
+          type:
+            description: NIC model.
+            type: str
+            default: VIRTIO
+            choices: [VIRTIO, E1000]
+          trust_guest_rx_filters:
+            description: Trust guest receive filter changes; omitted leaves it unmanaged and TrueNAS defaults to false on create.
+            type: bool
+          mac:
+            description: Fixed MAC address; generated by TrueNAS when omitted.
+            type: str
+          order:
+            description: Boot order priority (lower numbers boot first).
+            type: int
       cdrom:
         description: Install ISO path. An empty string removes the CD-ROM device.
         type: str
-            cdrom_order:
-                description: CD-ROM boot order priority (lower numbers boot first); defaults to 1000.
-                type: int
+      cdrom_order:
+        description: CD-ROM boot order priority (lower numbers boot first); defaults to 1000.
+        type: int
       display:
         description: Display device. Its password cannot be read back, so it is sent on create and whenever another display attribute changes.
         type: dict
         suboptions:
-          type: {description: Display protocol; use VNC to enable a VNC display., type: str, default: SPICE, choices: [SPICE, VNC]}
-          bind: {description: Address to bind the console to., type: str, default: 0.0.0.0}
-          port: {description: Display port passed to the middleware., type: int}
-          web_port: {description: Web proxy port; omitted leaves it unmanaged and TrueNAS assigns it on create., type: int}
-          wait: {description: Wait for a display client before booting; omitted leaves it unmanaged., type: bool}
-          web: {description: Enable web access for SPICE; VNC requires false and defaults to false., type: bool}
-          resolution: {description: Console resolution., type: str}
-          password: {description: Console password; VNC passwords must be 1-8 characters, SPICE passwords at least 8 characters., type: str}
-          order: {description: Boot order priority (lower numbers boot first)., type: int}
+            type:
+                description: Display protocol; use VNC to enable a VNC display.
+                type: str
+                default: SPICE
+                choices: [SPICE, VNC]
+            bind:
+                description: Address to bind the console to.
+                type: str
+                default: 0.0.0.0
+            port:
+                description: Display port passed to the middleware.
+                type: int
+            web_port:
+                description: Web proxy port; omitted leaves it unmanaged and TrueNAS assigns it on create.
+                type: int
+            wait:
+                description: Wait for a display client before booting; omitted leaves it unmanaged.
+                type: bool
+            web:
+                description: Enable web access for SPICE; VNC requires false and defaults to false.
+                type: bool
+            resolution:
+                description: Console resolution.
+                type: str
+            password:
+                description: Console password; VNC passwords must be 1-8 characters, SPICE passwords at least 8 characters.
+                type: str
+            order:
+                description: Boot order priority (lower numbers boot first).
+                type: int
       allow_delete:
         description: Approve deleting the VM (required for I(state=absent)).
         type: bool
@@ -236,7 +308,7 @@ options:
   name_to_id:
     description:
       - Map of config/lookup key to C(namespace:field). Names are replaced by ids through C(namespace.query).
-      - Example C({groups: "group:name"}).
+      - "Example C({groups: 'group:name'})."
     type: dict
     default: {}
   no_create:
