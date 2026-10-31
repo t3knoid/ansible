@@ -5,28 +5,23 @@ _Inventory for `rosie` hosts_
 📄 **Source:** [`inventory/rosie/inventory.ini`](../../inventory/rosie/inventory.ini)
 
 ## 👥 Groups & Hosts
-### `vms`
-- `rosie-0`
-
 ### `linux`
-- `rosie-0`
-
-### `removable`
-- `rosie-0`
+- `ecube-2`
 
 ### `python`
-- `rosie-0`
+- `ecube-2`
 
 ### `rosie`
-- `rosie-0`
+- `ecube-2`
+
+### `docker`
+- `ecube-2`
 
 ## ⚙️ Group Variables
 _No group variables defined._
 
 ## 🖥 Host Variables
-### `rosie-0`
-- `vms_proxmox_node`: `pve-1`
-- `vms_clone`: `false`
+_No host variables defined._
 
 ## 🧩 Group Children
 _No child groups defined._
