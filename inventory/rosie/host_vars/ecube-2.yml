@@ -1,0 +1,7 @@
+---
+
+python3_version: 3.12
+python3_venv_folder: "/opt/python_{{ python3_version }}"
+ansible_python_interpreter: "{{ python3_venv_folder }}/bin/python3"
+
+nginx_setup_disable_default_site: true
