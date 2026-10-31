@@ -35,7 +35,7 @@
   become: true
   become_user: "{{ redmine_setup_user }}"
   environment:
-    HOME: "{{ redmine_setup_user_home }}"
+    HOME: "{{ ansible_facts.getent_passwd[redmine_setup_user][4] }}"
 
 - name: Set the wiki mirror repo owner
   ansible.builtin.file:
