@@ -101,4 +101,3 @@
     mode: call
     method: interface.checkin
   when: truenas_if_pending.result | default(false) | bool
-  
