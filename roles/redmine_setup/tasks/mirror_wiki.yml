@@ -11,6 +11,11 @@
     GIT_USERNAME: "token"
     GIT_PASSWORD: "{{ redmine_setup_github_token }}"
 
+- name: Get Redmine user information
+  ansible.builtin.getent:
+    database: passwd
+    key: "{{ redmine_setup_user }}"
+
 - name: Mark wiki mirror repository as safe
   community.general.git_config:
     name: safe.directory
@@ -20,7 +25,7 @@
   become: true
   become_user: "{{ redmine_setup_user }}"
   environment:
-    HOME: "{{ redmine_setup_user_home }}"
+    HOME: "{{ ansible_facts.getent_passwd[redmine_setup_user][4] }}"
 
 - name: Ensure wiki mirror repo is cloned
   ansible.builtin.git:
