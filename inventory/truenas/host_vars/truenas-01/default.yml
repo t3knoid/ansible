@@ -126,11 +126,7 @@ truenas_datasets:
   - { name: Data/downloads, share_type: NFS, compression: LZ4 }
   - { name: Data/downloads/complete, share_type: NFS, compression: LZ4 }
   - { name: Data/ecube, share_type: MULTIPROTOCOL, compression: LZ4 }
-  - {
-      name: Data/ecube/demo-case-004,
-      share_type: MULTIPROTOCOL,
-      compression: LZ4,
-    }
+  - { name: Data/ecube/demo-case-004, share_type: MULTIPROTOCOL, compression: LZ4 }
   - { name: Data/ecube/project1, share_type: MULTIPROTOCOL, compression: LZ4 }
   - { name: Data/ecube/project2, share_type: MULTIPROTOCOL, compression: LZ4 }
   - { name: Data/ecube/project3, share_type: MULTIPROTOCOL, compression: LZ4 }
