@@ -10,8 +10,14 @@
     GIT_ASKPASS: /bin/echo
     GIT_USERNAME: "token"
     GIT_PASSWORD: "{{ redmine_setup_github_token }}"
+
+- name: Set the wiki mirror repo owner
+  ansible.builtin.file:
+    path: "{{ redmine_setup_wiki_mirror_repo_path }}"
+    owner: "{{ redmine_setup_user }}"
+    group: "{{ redmine_setup_user }}"
+    recurse: true
   become: true
-  become_user: "{{ redmine_setup_user }}"
 
 - name: Mirror Redmine wiki into local Git repo
   refol.general.redmine_wiki_mirror:
