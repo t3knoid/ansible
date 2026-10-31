@@ -46,6 +46,9 @@ Configure TrueNAS 25.10+ (updates, admin, users, Active Directory, datasets, sha
 | `truenas_vms_job_timeout` | `900` |  |
 | `truenas_vms_health_timeout` | `180` |  |
 | `truenas_vms_poll_interval` | `5` |  |
+| `truenas_interfaces` | `[]` | state: absent              # deletes the interface |
+| `truenas_interfaces_mode` | `plan             # plan | apply` |  |
+| `truenas_interfaces_checkin_timeout` | `60    # seconds before TrueNAS rolls back an unconfirmed commit` |  |
 
 ## 📦 Vars
 | Variable | Default Value | Description |
