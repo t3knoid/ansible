@@ -30,7 +30,7 @@ redmine_setup_restore_path: ""
 # Wiki mirror settings
 # Redmine setup defaults
 
-redmine_setup_wiki_mirror_repo_path: "/data/redmine/wiki-mirror/repo"
+redmine_setup_wiki_mirror_repo_path: "/data/redmine/wiki-mirror"
 redmine_setup_wiki_mirror_extension: "md"
 redmine_setup_wiki_mirror_debug: false
 # Redmine API access
