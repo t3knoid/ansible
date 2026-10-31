@@ -102,17 +102,18 @@ truenas_users:
 
 truenas_network_configuration:
   nameserver1: 192.168.20.253
+  nameserver2: 192.168.20.251
   domain: refol.us
 
 truenas_ad:
-  domain: refol.us
+  domain: REFOL.US
   hostname: truenas-01
   username: "{{ vault_ad_join_username }}"
   password: "{{ vault_ad_join_password }}"
   enable: true
   enable_account_cache: true
   enable_dns_updates: true
-  timeout: 60
+  timeout: 10
   kerberos_realm: REFOL.US
   idmap: {}
 
