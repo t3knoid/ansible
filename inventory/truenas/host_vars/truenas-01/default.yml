@@ -100,6 +100,53 @@ truenas_users:
     ssh_password_enabled: false
     home: /var/empty
 
+# Order: physical NICs, then VLANs, then the bridges that use them.
+truenas_interfaces:
+  - name: enp7s0
+    no_create: true
+    config:
+      ipv4_dhcp: true
+      ipv6_auto: false
+      aliases: []
+      mtu: 1500
+  - name: enp8s0
+    no_create: true
+    config:
+      ipv4_dhcp: false
+      ipv6_auto: false
+      aliases: []
+      mtu: 1500
+  - name: vlan20
+    config:
+      type: VLAN
+      description: Infrastructure
+      vlan_parent_interface: enp8s0
+      vlan_tag: 20
+      vlan_pcp: 7
+      ipv4_dhcp: false
+      ipv6_auto: false
+      aliases: []
+      mtu: 1500
+  - name: br20
+    config:
+      type: BRIDGE
+      description: Bridge to vlan20
+      bridge_members: [vlan20]
+      ipv4_dhcp: false
+      ipv6_auto: false
+      aliases: []
+      mtu: 1500
+  - name: br0
+    config:
+      type: BRIDGE
+      description: Management Interface
+      bridge_members: [enp8s0]
+      ipv4_dhcp: false
+      ipv6_auto: false
+      aliases:
+        - {type: INET, address: 192.168.2.251, netmask: 24}
+      mtu: 1500
+
 truenas_network_configuration:
   nameserver1: 192.168.20.253
   nameserver2: 192.168.20.251

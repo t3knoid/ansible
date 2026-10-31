@@ -1,0 +1,104 @@
+---
+# Reconcile TrueNAS network interfaces through the middleware.
+# Imported from main.yml, which already provides become and the preflight.
+#   plan  (default): compare only; nothing is staged or committed.
+#   apply          : stage changes, commit with automatic rollback, then check in.
+- name: Validate interface declarations
+  ansible.builtin.assert:
+    that:
+      - truenas_interfaces_mode in ['plan', 'apply']
+      - truenas_interfaces_checkin_timeout | int >= 30
+      - truenas_interfaces | type_debug == 'list'
+      - truenas_interfaces | map(attribute='name') | unique | length == truenas_interfaces | length
+      - item is mapping
+      - item.name is defined
+      - item.name is string
+      - item.state | default('present') in ['present', 'absent']
+      - item.config | default({}) is mapping
+      - item.no_create | default(false) is boolean
+    fail_msg: "Check interface names (unique), state, config, no_create, mode and the check-in timeout (at least 30)."
+  loop: "{{ truenas_interfaces }}"
+  loop_control:
+    label: "{{ item.name | default('?') }}"
+
+- name: Read pending-change state
+  truenas_api:
+    mode: call
+    method: interface.has_pending_changes
+    read_only: true
+  register: truenas_if_pending_before
+  changed_when: false
+
+- name: Refuse to run over changes staged elsewhere
+  ansible.builtin.assert:
+    that:
+      - not (truenas_if_pending_before.result | bool)
+    fail_msg: >-
+      Interface changes are already staged (UI or an earlier failed run).
+      Review them, then commit them or run: midclt call interface.rollback
+
+# Plan mode (and any --check run) only compares; nothing is staged.
+- name: Plan or stage interface changes
+  truenas_api:
+    mode: resource
+    namespace: interface
+    lookup:
+      name: "{{ item.name }}"
+    config: "{{ item.config | default({}) | combine({'name': item.name}) }}"
+    state: "{{ item.state | default('present') }}"
+    no_create: "{{ item.no_create | default(false) }}"
+    create_only_keys: [type]
+  loop: "{{ truenas_interfaces }}"
+  loop_control:
+    label: "{{ item.name }}"
+  check_mode: "{{ ansible_check_mode or truenas_interfaces_mode != 'apply' }}"
+  register: truenas_if_results
+  no_log: "{{ truenas_no_log }}"
+
+- name: Report interface changes
+  ansible.builtin.debug:
+    msg:
+      name: "{{ item.item.name }}"
+      action: "{{ item.action | default('none') }}"
+      changed_keys: "{{ item.changed_keys | default([]) }}"
+      planned: "{{ ansible_check_mode or truenas_interfaces_mode != 'apply' }}"
+  loop: "{{ truenas_if_results.results }}"
+  loop_control:
+    label: "{{ item.item.name }}"
+
+- name: Check for staged changes
+  truenas_api:
+    mode: call
+    method: interface.has_pending_changes
+    read_only: true
+  register: truenas_if_pending
+  changed_when: false
+  when:
+    - truenas_interfaces_mode == 'apply'
+    - not ansible_check_mode
+
+# The commit can interrupt SSH briefly, so it runs asynchronously.
+# Unless checked in before the timeout, TrueNAS rolls the change back.
+- name: Commit staged changes (rolls back unless checked in)
+  truenas_api:
+    mode: call
+    method: interface.commit
+    args:
+      - rollback: true
+        checkin_timeout: "{{ truenas_interfaces_checkin_timeout | int }}"
+  async: "{{ truenas_interfaces_checkin_timeout | int }}"
+  poll: 0
+  when: truenas_if_pending.result | default(false) | bool
+
+- name: Wait for the host to answer again
+  ansible.builtin.wait_for_connection:
+    delay: 10
+    timeout: "{{ truenas_interfaces_checkin_timeout | int }}"
+  when: truenas_if_pending.result | default(false) | bool
+
+- name: Check in to keep the new configuration
+  truenas_api:
+    mode: call
+    method: interface.checkin
+  when: truenas_if_pending.result | default(false) | bool
+  

@@ -11,6 +11,10 @@
       when: truenas_update_enabled | bool
       tags: [truenas_update]
 
+    - ansible.builtin.import_tasks: interfaces.yml
+      when: truenas_interfaces | length > 0
+      tags: [truenas_interfaces]
+
     - ansible.builtin.import_tasks: groups.yml
       when: truenas_groups | length > 0
       tags: [truenas_groups, truenas_users]

@@ -255,3 +255,25 @@ truenas_vms: []
 truenas_vms_job_timeout: 900
 truenas_vms_health_timeout: 180
 truenas_vms_poll_interval: 5
+
+# ---------------------------------------------------------------------------
+# 11. Network interfaces
+# ---------------------------------------------------------------------------
+# Entries run top to bottom: physical NICs, then VLANs, then bridges that use them.
+# truenas_interfaces:
+#   - name: enp8s0
+#     no_create: true            # physical NICs can't be created or deleted
+#     config:
+#       ipv4_dhcp: false
+#       aliases: []
+#   - name: br0
+#     config:
+#       type: BRIDGE
+#       bridge_members: [enp8s0]
+#       aliases:
+#         - {type: INET, address: 192.168.2.251, netmask: 24}
+#   - name: br99
+#     state: absent              # deletes the interface
+truenas_interfaces: []
+truenas_interfaces_mode: plan             # plan | apply
+truenas_interfaces_checkin_timeout: 60    # seconds before TrueNAS rolls back an unconfirmed commit
