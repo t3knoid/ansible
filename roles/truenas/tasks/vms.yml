@@ -43,6 +43,7 @@
         msg:
           name: "{{ item }}"
           actions: "{{ truenas_vms_result.actions }}"
+          device_changes: "{{ truenas_vms_result.device_changes | default([]) }}"
           planned: "{{ truenas_vms_result.planned }}"
           runtime_state: "{{ truenas_vms_result.runtime_state | default('ABSENT') }}"
           approval_required: "{{ truenas_vms_result.approval_required | default([]) }}"

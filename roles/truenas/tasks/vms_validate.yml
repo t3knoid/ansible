@@ -27,11 +27,26 @@
       - item.allow_delete | default(false) is boolean
       - item.allow_restart | default(false) is boolean
       - item.allow_disk_delete | default(false) is boolean
-      - item.keys() | difference(['name', 'description', 'state', 'runtime', 'cpu', 'memory_mib', 'bootloader', 'autostart', 'disks', 'nics', 'cdrom', 'cdrom_order', 'display', 'allow_delete', 'allow_restart', 'allow_disk_delete']) | length == 0
+      - item.hide_from_msr is not defined or item.hide_from_msr is boolean
+      - item.ensure_display_device is not defined or item.ensure_display_device is boolean
+      - item.enable_secure_boot is not defined or item.enable_secure_boot is boolean
+      - item.trusted_platform_module is not defined or item.trusted_platform_module is boolean
+      - item.time | default('LOCAL') in ['LOCAL', 'UTC']
+      - item.shutdown_timeout is not defined or item.shutdown_timeout | int >= 5 and item.shutdown_timeout | int <= 300
+      - item.gpus is not defined or item.gpus | type_debug == 'list'
+      - item.gpus is not defined or item.gpus | select('string') | list | length == item.gpus | length
+      - item.gpus is not defined or item.gpus | unique | length == item.gpus | length
+      - >-
+        item.keys() | difference([
+          'name', 'description', 'state', 'runtime', 'cpu', 'memory_mib',
+          'bootloader', 'time', 'enable_secure_boot', 'trusted_platform_module',
+          'shutdown_timeout', 'autostart', 'disks', 'nics', 'cdrom', 'cdrom_order',
+          'display', 'hide_from_msr', 'ensure_display_device', 'gpus',
+          'allow_delete', 'allow_restart', 'allow_disk_delete'
+        ]) | length == 0
     fail_msg: "Check VM name, state, runtime, unknown keys, and boolean approval controls."
   loop: "{{ truenas_vms }}"
   no_log: "{{ truenas_no_log }}"
-
 - name: Reject duplicate VM names
   ansible.builtin.assert:
     that:
@@ -46,7 +61,15 @@
       - item.cpu.vcpus | default(1) | int > 0
       - item.cpu.cores | default(1) | int > 0
       - item.cpu.threads | default(1) | int > 0
+      - item.cpu.mode | default('CUSTOM') in ['CUSTOM', 'HOST-MODEL', 'HOST-PASSTHROUGH']
+      - item.cpu.model | default('') is string
+      - item.cpu.model | default('') | length == 0 or item.cpu.mode | default('CUSTOM') == 'CUSTOM'
+      - item.cpu.cpuset | default('') is string
+      - item.cpu.nodeset | default('') is string
+      - item.cpu.pin_vcpus | default(false) is boolean
+      - not (item.cpu.pin_vcpus | default(false)) or item.cpu.cpuset | default('') | length > 0
       - item.bootloader | default('UEFI') in ['UEFI', 'UEFI_CSM']
+      - item.display.type | default('SPICE') in ['SPICE', 'VNC']
       - item.disks | default([]) | length > 0
       - item.disks | select('mapping') | list | length == item.disks | length
       - item.disks | map(attribute='zvol') | map('regex_search', '^[A-Za-z0-9_.-]+(/[A-Za-z0-9_.:-]+)+$') | select('none') | list | length == 0
@@ -61,11 +84,17 @@
   when: item.state | default('present') == 'present'
   no_log: "{{ truenas_no_log }}"
 
-- name: Require display passwords to be supplied, not empty
+- name: Validate display passwords
   ansible.builtin.assert:
     that:
-      - item.display.password | default('') | length >= 8
-    fail_msg: "Display devices need a password of at least 8 characters (use vault)."
+      - >-
+        (item.display.type | default('SPICE') == 'VNC'
+        and item.display.password | default('') | length >= 1
+        and item.display.password | default('') | length <= 8)
+        or
+        (item.display.type | default('SPICE') == 'SPICE'
+        and item.display.password | default('') | length >= 8)
+    fail_msg: "VNC passwords must be 1-8 characters; SPICE passwords must be at least 8 characters (use vault)."
   loop: "{{ truenas_vms }}"
   when:
     - item.state | default('present') == 'present'

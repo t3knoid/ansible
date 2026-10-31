@@ -81,7 +81,7 @@ All role inputs are declared in [`defaults/main.yml`](defaults/main.yml); unset 
 | `truenas_update_enabled`, `truenas_update_reboot` | Opt into updates and optionally reboot into the new boot environment. Both default to `false`. `truenas_update_train` and `truenas_update_version` optionally pin a train or version.                                      |
 | `truenas_groups`                                  | `group.create` configuration. Each item supports `state: absent`; `gid` is create-only.                                                                                                                                    |
 | `truenas_admin`                                   | Optional subset of `user.create` fields for `truenas_admin`. Only listed settings are compared and updated. Its password is used only when creating the account.                                                           |
-| `truenas_admin_groups`                            | Local groups granting administrator privilege; defaults to `[builtin_administrators]`. The role warns if a configured group does not appear in `privilege.query`.                                                          |
+| `truenas_admin_groups`                            | Local groups granting administrator privilege; defaults to `[builtin_administrators]`. Check valid groups with `midclt call privilege.query`.                                                                          |
 | `truenas_users`                                   | Local user definitions. `groups` contains group names and is treated as the complete membership list. Users support `state: absent`; `delete_group` controls whether their primary group is also deleted (default `true`). |
 | `truenas_network_configuration`                   | Partial `network.configuration` settings, commonly the DNS server required to resolve the AD domain.                                                                                                                       |
 | `truenas_ad`                                      | Active Directory settings passed to `directoryservices.update`. Credentials are sent only when the managed AD configuration changes.                                                                                       |
@@ -101,7 +101,7 @@ For users and groups, `state: absent` deletes the matching object. The role does
 - `truenas_admin` and `truenas_users` accept `user.create` fields directly.
 - If `group_create: false`, set `group` to the primary group name. Supplementary `groups` do not replace the primary group field.
 - `groups` is treated as the complete supplementary membership list. Avoid builtin groups such as `users`; TrueNAS rejects direct membership changes for some builtin groups.
-- Valid `shell` values come from `user.shell_choices`. Common values are `/usr/bin/zsh` for a login shell and `/usr/sbin/nologin` for SMB-only or service accounts.
+- Find valid `shell` values with `midclt call user.shell_choices`. Common values are `/usr/bin/zsh` for a login shell and `/usr/sbin/nologin` for SMB-only or service accounts.
 - `ssh_password_enabled: true` requires a real login shell and a valid `home` path.
 - `home_create: true` creates the home directory only when the user is created. It does not repair an existing account during update.
 - `password_disabled: true` cannot be combined with `smb: true`. SMB users must have a password.
@@ -159,9 +159,21 @@ truenas_vms:
   - name: debian12
     description: Build runner
     runtime: running
-    cpu: {vcpus: 2, cores: 2, threads: 1}
+    cpu:
+      vcpus: 2
+      cores: 2
+      threads: 1
+      mode: CUSTOM
+      model: EPYC
+      cpuset: "0-7"
+      pin_vcpus: true
+      nodeset: "0-1"
     memory_mib: 4096
     bootloader: UEFI
+    time: LOCAL
+    enable_secure_boot: false
+    trusted_platform_module: false
+    shutdown_timeout: 90
     autostart: true
     disks:
       - zvol: tank/vms/debian12
@@ -180,9 +192,14 @@ truenas_vms:
       port: 5901
       password: "{{ vault_debian12_display_password }}"
       order: 40
+    hide_from_msr: false
+    ensure_display_device: false
+    gpus: ["0000:03:00.0"]
 ```
 
 Validate and review the plan before applying. The default `truenas_vms_mode: plan` never mutates middleware, and Ansible check mode also prevents changes when mode is `apply`.
+
+The redacted report includes `device_changes` with device IDs and the old/new values of differing managed attributes or device order. Display passwords are excluded. A planned device update on a running VM also plans `stop` and `start`; inspect these differences before granting restart approval. Run with `-e truenas_vms_mode=plan` to diagnose drift without changing the VM.
 
 ```bash
 ansible-playbook -i inventory/truenas/inventory.ini playbooks/truenas/deploy_truenas_vms.yml --check --diff -k --ask-vault-pass
@@ -191,7 +208,77 @@ ansible-playbook -i inventory/truenas/inventory.ini playbooks/truenas/deploy_tru
 
 Use `--tags truenas_vms` to select this isolated workflow. `truenas_vms` must be a list with unique names beginning with a letter, containing only letters, digits, or underscores, and no longer than 40 characters. Present VMs require at least 256 MiB of memory, one or more disks and NICs, and unique zvol paths across all declared VMs. The parent dataset for each new zvol must already exist. Disk zvols are created when missing and grown when the requested size increases; shrinking is refused.
 
-The module reconciles CPU, memory, bootloader, autostart, and declared devices. Optional disk `disk_sectorsize` accepts `512` or `4096` and sets both the middleware `logical_sectorsize` and `physical_sectorsize` to match the TrueNAS UI. When omitted, the sector size is not managed and TrueNAS uses its default for a new disk. Set `order` on a disk, NIC, or display, or `cdrom_order` alongside the `cdrom` path, to control boot priority; lower numbers boot first. Defaults preserve the established order: CD-ROM 1000, disks from 1001 in list order, NICs from 1100, and display 1200. Order changes on a running VM require `allow_restart: true`. The module does not remove extra devices automatically; set `cdrom: ""` to explicitly remove CD-ROM devices. A display can optionally set an integer `port`; if omitted, TrueNAS chooses the port. A display password must be at least eight characters and should come from Ansible Vault.
+The tables below summarize the VM settings, accepted values, and defaults. “Not set” means the role leaves the field unmanaged and TrueNAS applies its own default where applicable.
+
+#### VM, CPU, and firmware settings
+
+| Setting | Values | Default | Setting Description |
+| --- | --- | --- | --- |
+| `name` | Letters, digits, underscores; starts with a letter; max 40 characters | Required | VM identity. |
+| `description` | String | Empty string | Free-text VM description. |
+| `state` | `present`, `absent` | `present` | Whether the VM should exist. Removal requires `allow_delete: true`. |
+| `runtime` | `running`, `stopped` | `running` | Desired power state. |
+| `cpu.vcpus`, `cpu.cores`, `cpu.threads` | Positive integers | `1` each | CPU socket, core, and thread topology. |
+| `cpu.mode` | `CUSTOM`, `HOST-MODEL`, `HOST-PASSTHROUGH` | Not set | CPU virtualization mode. |
+| `cpu.model` | Model from `midclt call vm.cpu_model_choices` | Not set | Custom CPU model; valid only with `cpu.mode: CUSTOM`. |
+| `cpu.cpuset` | Host CPU list/range, such as `0-7` | Not set | Host cores to use when `cpu.pin_vcpus: true`. |
+| `cpu.pin_vcpus` | Boolean | TrueNAS default (`false`) | Pin VM CPUs to `cpu.cpuset`; a nonempty cpuset is required when enabled. |
+| `cpu.nodeset` | NUMA node list/range, such as `0-1` | Not set | Constrain VM memory allocation to NUMA nodes. |
+| `memory_mib` | Integer, at least 256 | Required for present VMs | VM memory in MiB. |
+| `bootloader` | `UEFI`, `UEFI_CSM` | `UEFI` | Firmware method; `UEFI_CSM` corresponds to the UI's legacy BIOS option. |
+| `time` | `LOCAL`, `UTC` | TrueNAS default (`LOCAL`) | Guest system clock reference. Changing it on a running VM requires `allow_restart: true`. |
+| `enable_secure_boot` | Boolean | TrueNAS default (`false`) | Enable UEFI Secure Boot. Changing it on a running VM requires `allow_restart: true`. |
+| `trusted_platform_module` | Boolean | TrueNAS default (`false`) | Enable a virtual TPM. Changing it on a running VM requires `allow_restart: true`. |
+| `shutdown_timeout` | Integer, 5-300 seconds | TrueNAS default (`90`) | Graceful shutdown wait before TrueNAS forces power off. |
+| `autostart` | Boolean | `false` | Start the VM when TrueNAS boots. |
+| `hide_from_msr` | Boolean | TrueNAS default (`false`) | Hide hypervisor signatures from guest MSR access. |
+| `ensure_display_device` | Boolean | `false` | Ensure a display device exists; false preserves the module's previous behavior. |
+| Guest Operating System | UI choices: Windows, Linux, FreeBSD | Wizard selection | Creation-wizard choice only; it is not persisted in the VM API and is not a role setting. |
+
+#### Disk, network, and display settings
+
+| Setting | Values | Default | Setting Description |
+| --- | --- | --- | --- |
+| `disks[].zvol` | Existing or new pool/zvol path | Required | Zvol attached as a VM disk. The parent dataset must exist. |
+| `disks[].size_gib` | Positive integer | Required | Create or grow the zvol to this size; shrinking is refused. |
+| `disks[].type` | `VIRTIO`, `AHCI` | `VIRTIO` | Disk bus. |
+| `disks[].sparse` | Boolean | `true` | Create a new zvol as sparse. |
+| `disks[].disk_sectorsize` | `512`, `4096` | Not set | Sets both middleware `logical_sectorsize` and `physical_sectorsize`; when omitted, TrueNAS chooses the new disk's default. |
+| `disks[].order` | Integer; lower boots first | List-derived | Boot priority. Defaults to 1001 for the first disk, then increments in list order. |
+| `nics[].attach` | Bridge or interface name | Required | Network interface to attach. |
+| `nics[].type` | `VIRTIO`, `E1000` | `VIRTIO` | NIC model. |
+| `nics[].trust_guest_rx_filters` | Boolean | Unmanaged; TrueNAS defaults to `false` on create | Trust guest-requested receive filter changes. Explicit `false` is supported and compared during reconciliation. |
+| `nics[].mac` | MAC address | Not set | When omitted, TrueNAS generates the address. |
+| `nics[].order` | Integer; lower boots first | List-derived | Boot priority; NICs default from 1100 in list order. |
+| `cdrom` | ISO path or empty string | Not set | Attach an ISO; set to `""` to explicitly remove CD-ROM devices. |
+| `cdrom_order` | Integer; lower boots first | `1000` | CD-ROM boot priority. |
+| `display.type` | `SPICE`, `VNC` | `SPICE` | Use `VNC` for the UI's Enable Display (VNC) option. |
+| `display.password` | SPICE: at least 8 characters; VNC: 1-8 characters | Required when a display is configured | Console password; store it in Ansible Vault. Passwords cannot be read back, so they are resent on create and when another display attribute changes. |
+| `display.bind` | IP address | `0.0.0.0` | Address on which to bind the console. |
+| `display.port` | Integer | TrueNAS-selected | Console port; set explicitly to request a particular port. |
+| `display.web_port` | Integer | Unmanaged; TrueNAS assigns on create | Web proxy port; setting this does not enable web access. |
+| `display.wait` | Boolean | Unmanaged; TrueNAS defaults to `false` on create | Wait for a display client connection before booting the VM. |
+| `display.web` | Boolean | VNC: `false`; SPICE: unmanaged (TrueNAS defaults to `true` on create) | Enable browser-based console access for SPICE. VNC requires `false`; use a native VNC client instead. |
+| `display.resolution` | Resolution string | Not set | Console resolution. |
+| `display.order` | Integer; lower boots first | `1200` | Display-device boot priority. |
+
+#### GPU and approval settings
+
+| Setting | Values | Default | Setting Description |
+| --- | --- | --- | --- |
+| `gpus` | List of `pci_slot` values from `system.advanced.get_gpu_pci_choices` | Omitted | Omitted leaves PCI devices unmanaged; `[]` removes GPU functions managed by this option but does not de-isolate them. Selected GPUs expand to all PCI functions and are added to host isolation without removing existing entries. |
+| `allow_restart` | Boolean | `false` | Permit stopping and restarting a running VM for restart-sensitive changes, including CPU, memory, firmware/security, and device changes. |
+| `allow_delete` | Boolean | `false` | Required with `state: absent`; review backups and data retention first. |
+| `allow_disk_delete` | Boolean | `false` | With approved VM deletion, also destroy its zvols. Otherwise the disks are retained. |
+
+Find valid custom CPU models with `midclt call vm.cpu_model_choices`. On the TrueNAS shell, inspect available GPU slots and current host isolation with:
+
+```bash
+midclt call system.advanced.get_gpu_pci_choices
+midclt call system.advanced.config
+```
+
+Use the chosen GPU entry's `pci_slot` (for example, `0000:03:00.0`) in `gpus`, not its display label or per-function `vm_pci_slot`. The module rejects system-critical GPUs. GPU changes on a running VM require `allow_restart: true`.
 
 Review approval controls carefully:
 

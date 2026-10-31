@@ -336,12 +336,69 @@ truenas_services:
 #             acl_enable: false
 #             dataset_name: data
 
+# truenas_vms:
+#   - name: ansible
+#     description: Ansible controller
+#     runtime: running              # running | stopped
+#     cpu: {vcpus: 2, cores: 1, threads: 2}
+#     memory_mib: 4096
+#     bootloader: UEFI              # UEFI | UEFI_CSM
+#     autostart: true
+#     disks:
+#       - zvol: Data/vms/ansible-naa1gkr
+#         size_gib: 40
+#         type: AHCI
+#         order: 1001
+#     nics:
+#       - attach: br20
+#         type: E1000
+#         order: 1002
+#     cdrom: /mnt/data/isos/ubuntu-26.04.1-live-server-amd64.iso
+#     cdrom_order: 1000
+#     display:
+#       bind: 0.0.0.0
+#       type: SPICE
+#       password: "{{ vault_truenas_vms_display_password }}"
+#       order: 1003
+#     allow_restart: true           # permit stop/start for CPU or memory changes
+#     allow_delete: false           # required for state: absent
+#     allow_disk_delete: false      # required to destroy zvols on delete
+
 truenas_vms:
-  - name: ansible-1
-    pool: tank
-    disk_gib: 40
+  - name: ansible
+    description: Ansible controller
+    runtime: running              # running | stopped
+    cpu:
+      vcpus: 2
+      cores: 1
+      threads: 2
+      mode: HOST-PASSTHROUGH
     memory_mib: 4096
-    bridge: br0
-    iso: /mnt/tank/isos/debian-12.iso
-    display_password: "{{ vault_vm_display_password }}"
-    state: started
+    bootloader: UEFI              # UEFI | UEFI_CSM
+    time: LOCAL
+    enable_secure_boot: false
+    shutdown_timeout: 90
+    autostart: true
+    disks:
+      - zvol: Data/vms/ansible-naa1gkr
+        size_gib: 40
+        type: AHCI
+        order: 1001
+    nics:
+      - attach: br20
+        type: E1000
+        trust_guest_rx_filters: false
+        order: 1003
+    display:
+      bind: 0.0.0.0
+      type: VNC
+      password: "{{ vault_truenas_vms_display_password }}"
+      port: 5900
+      resolution: 1920x1080
+      web_port: 5902
+      wait: false
+      web: false
+      order: 1002
+    allow_restart: false           # permit stop/start for CPU or memory changes
+    allow_delete: false           # required for state: absent
+    allow_disk_delete: false      # required to destroy zvols on delete

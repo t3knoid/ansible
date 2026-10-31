@@ -206,9 +206,21 @@ truenas_apps_poll_interval: 5
 #   - name: debian12
 #     description: Build runner
 #     runtime: running              # running | stopped
-#     cpu: {vcpus: 2, cores: 2, threads: 1}
+#     cpu:
+#       vcpus: 2
+#       cores: 2
+#       threads: 1
+#       mode: CUSTOM                  # CUSTOM | HOST-MODEL | HOST-PASSTHROUGH
+#       model: EPYC                   # only used with mode: CUSTOM; see vm.cpu_model_choices
+#       cpuset: "0-7"
+#       pin_vcpus: true
+#       nodeset: "0-1"
 #     memory_mib: 4096
 #     bootloader: UEFI              # UEFI | UEFI_CSM
+#     time: LOCAL                   # LOCAL | UTC
+#     enable_secure_boot: false
+#     trusted_platform_module: false
+#     shutdown_timeout: 90           # seconds; TrueNAS accepts 5-300
 #     autostart: true
 #     disks:
 #       - zvol: tank/vms/debian12
@@ -219,14 +231,22 @@ truenas_apps_poll_interval: 5
 #     nics:
 #       - attach: br0
 #         type: VIRTIO
+#         trust_guest_rx_filters: false
 #         order: 30
 #     cdrom: /mnt/tank/isos/debian-12.iso
 #     cdrom_order: 10           # optional; defaults to 1000
 #     display:
 #       type: SPICE
 #       port: 5901
+#       web_port: 5902
+#       wait: false
+#       web: true
 #       password: "{{ vault_debian12_display_password }}"
 #       order: 40
+#     # For VNC, set type: VNC and provide a 1-8 character password.
+#     hide_from_msr: false
+#     ensure_display_device: false    # defaults to false for compatibility
+#     gpus: ["0000:03:00.0"]          # pci_slot from system.advanced.get_gpu_pci_choices
 #     allow_restart: true           # permit stop/start for CPU or memory changes
 #     allow_delete: false           # required for state: absent
 #     allow_disk_delete: false      # required to destroy zvols on delete
