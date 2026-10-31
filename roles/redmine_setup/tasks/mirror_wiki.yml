@@ -1,5 +1,11 @@
 ---
 
+- name: Ensure acl is installed (needed to become an unprivileged user)
+  ansible.builtin.package:
+    name: acl
+    state: present
+  become: true
+
 - name: Ensure wiki mirror directory exists and is owned by the Redmine user
   ansible.builtin.file:
     path: "{{ redmine_setup_wiki_mirror_repo_path }}"
