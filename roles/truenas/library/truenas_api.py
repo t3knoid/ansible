@@ -42,6 +42,12 @@ options:
     description: Seconds between Apps job and runtime checks.
     type: int
     default: 5
+  companion_keys:
+    description:
+      - Map of trigger key to a list of keys. When the trigger key is part of the update payload, the listed keys are sent too, taken from I(config), even if they are unchanged.
+      - Example C({configuration: [service_type]}) for APIs that require a discriminator next to a nested object.
+    type: dict
+    default: {}
   vm:
     description:
       - Virtual machine definition used by C(mode=vm).
@@ -492,6 +498,12 @@ def _sensitive_payload(p, desired, changes, payload):
             if key in desired:
                 payload[key] = desired[key]
 
+def _companion_payload(p, desired, payload):
+    for trigger, companions in (p["companion_keys"] or {}).items():
+        if trigger in payload:
+            for key in companions:
+                if key in desired and key not in payload:
+                    payload[key] = desired[key]
 
 def run_resource(module, tp):
     p = module.params
@@ -550,6 +562,7 @@ def run_resource(module, tp):
         if "mapall_user" in desired or "mapall_group" in desired:
             payload.setdefault("maproot_user", None)
             payload.setdefault("maproot_group", None)
+    _companion_payload(p, desired, payload)
     _sensitive_payload(p, desired, changes, payload)
     result.update(changed=True, action="updated", changed_keys=sorted(changes))
     result["diff"] = dict(before=dict((k, current.get(k)) for k in changes), after=changes)
@@ -570,6 +583,7 @@ def run_config(module, tp):
     if not changes:
         return result
     payload = dict(changes)
+    _companion_payload(p, desired, payload)
     _sensitive_payload(p, desired, changes, payload)
     result.update(changed=True, action="updated", changed_keys=sorted(changes))
     result["diff"] = dict(before=dict((k, current.get(k)) for k in changes), after=changes)
@@ -1200,6 +1214,7 @@ def run_vm(module, tp):
 def main():
     module = AnsibleModule(
         argument_spec=dict(
+            companion_keys=dict(type="dict", default={}),
             mode=dict(type="str", default="resource", choices=["resource", "config", "call", "app", "vm"]),
             vm=dict(type="dict", options=dict(
                 name=dict(type="str", required=True),

@@ -15,6 +15,8 @@
     sensitive_keys: [credential]
     # Credentials are only sent when the join itself has to change.
     send_sensitive_when: [service_type, enable, configuration]
+    companion_keys:
+      configuration: [service_type]
   vars:
     truenas_ad_base:
       service_type: ACTIVEDIRECTORY
