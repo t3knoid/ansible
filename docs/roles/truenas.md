@@ -41,9 +41,30 @@ Configure TrueNAS 25.10+ (updates, admin, users, Active Directory, datasets, sha
 | `truenas_apps_job_timeout` | `900` |  |
 | `truenas_apps_health_timeout` | `180` |  |
 | `truenas_apps_poll_interval` | `5` |  |
+| `truenas_vms_mode` | `plan` | allow_disk_delete: false      # required to destroy zvols on delete |
+| `truenas_vms` | `[]` |  |
+| `truenas_vms_job_timeout` | `900` |  |
+| `truenas_vms_health_timeout` | `180` |  |
+| `truenas_vms_poll_interval` | `5` |  |
 
 ## 📦 Vars
-_No constant variables found._
+| Variable | Default Value | Description |
+|----------|---------------|-------------|
+| `truenas_ad_base` | `` |  |
+| `service_type` | `ACTIVEDIRECTORY` |  |
+| `enable` | `"{{ truenas_ad.enable | default(true) }}"` |  |
+| `enable_account_cache` | `"{{ truenas_ad.enable_account_cache | default(true) }}"` |  |
+| `enable_dns_updates` | `"{{ truenas_ad.enable_dns_updates | default(true) }}"` |  |
+| `timeout` | `"{{ truenas_ad.timeout | default(60) }}"` |  |
+| `credential` | `` |  |
+| `credential_type` | `KERBEROS_USER` |  |
+| `username` | `"{{ truenas_ad.username }}"` |  |
+| `password` | `"{{ truenas_ad.password }}"` |  |
+| `configuration` | `>-` |  |
+| `{{ {'hostname'` | `truenas_ad.hostname, 'domain': truenas_ad.domain | upper}` |  |
+| `| combine({'idmap'` | `truenas_ad.idmap} if truenas_ad.idmap | default({}) | length > 0 else {}) }}` |  |
+| `truenas_ad_config` | `>-` |  |
+| `{{ truenas_ad_base | combine({'kerberos_realm'` | `truenas_ad.kerberos_realm | upper} if truenas_ad.kerberos_realm is defined else {}) }}` |  |
 
 ## 📑 Tasks
 - Configure TrueNAS through the middleware API
