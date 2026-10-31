@@ -19,6 +19,15 @@
     recurse: true
   become: true
 
+- name: Mark wiki mirror repository as safe for Git
+  community.general.git_config:
+    name: safe.directory
+    value: "{{ redmine_setup_wiki_mirror_repo_path }}"
+    scope: global
+    state: present
+  become: true
+  become_user: "{{ redmine_setup_user }}"
+
 - name: Mirror Redmine wiki into local Git repo
   refol.general.redmine_wiki_mirror:
     redmine_url: "{{ redmine_setup_url }}"
