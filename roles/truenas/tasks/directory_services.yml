@@ -17,21 +17,34 @@
     send_sensitive_when: [service_type, enable, configuration]
     companion_keys:
       configuration: [service_type]
-  vars:
-    truenas_ad_base:
-      service_type: ACTIVEDIRECTORY
-      enable: "{{ truenas_ad.enable | default(true) }}"
-      enable_account_cache: "{{ truenas_ad.enable_account_cache | default(true) }}"
-      enable_dns_updates: "{{ truenas_ad.enable_dns_updates | default(true) }}"
-      timeout: "{{ truenas_ad.timeout | default(60) }}"
-      credential:
-        credential_type: KERBEROS_USER
-        username: "{{ truenas_ad.username }}"
-        password: "{{ truenas_ad.password }}"
-      configuration: >-
-        {{ {'service_type': 'ACTIVEDIRECTORY', 'hostname': truenas_ad.hostname, 'domain': truenas_ad.domain}
-           | combine({'idmap': truenas_ad.idmap} if truenas_ad.idmap | default({}) | length > 0 else {}) }}
-    truenas_ad_config: >-
-      {{ truenas_ad_base | combine({'kerberos_realm': truenas_ad.kerberos_realm} if truenas_ad.kerberos_realm is defined else {}) }}
   when: truenas_ad | length > 0
   no_log: "{{ truenas_no_log }}"
+
+- name: Plan Active Directory changes
+  truenas_api:
+    mode: config
+    namespace: directoryservices
+    job: true
+    config: "{{ truenas_ad_config }}"
+    sensitive_keys: [credential]
+    send_sensitive_when: [service_type, enable, configuration]
+    companion_keys:
+      configuration: [service_type]
+  check_mode: true
+  register: truenas_ad_plan
+  changed_when: false
+  when: truenas_ad | length > 0
+  no_log: "{{ truenas_no_log }}"
+
+- name: Refuse join-settings changes while AD is enabled
+  ansible.builtin.assert:
+    that:
+      - (truenas_ad_plan.changed_keys | default([]))
+        | difference(['enable_account_cache', 'enable_dns_updates', 'timeout'])
+        | length == 0
+        or truenas_ad_allow_reconfigure | default(false) | bool
+    fail_msg: >-
+      Changing {{ truenas_ad_plan.changed_keys | join(', ') }} requires disabling directory
+      services (service interruption). Re-run in a maintenance window with
+      -e truenas_ad_allow_reconfigure=true after disabling AD.
+  when: truenas_ad | length > 0

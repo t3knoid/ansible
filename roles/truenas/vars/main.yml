@@ -1,0 +1,15 @@
+truenas_ad_base:
+  service_type: ACTIVEDIRECTORY
+  enable: "{{ truenas_ad.enable | default(true) }}"
+  enable_account_cache: "{{ truenas_ad.enable_account_cache | default(true) }}"
+  enable_dns_updates: "{{ truenas_ad.enable_dns_updates | default(true) }}"
+  timeout: "{{ truenas_ad.timeout | default(60) }}"
+  credential:
+    credential_type: KERBEROS_USER
+    username: "{{ truenas_ad.username }}"
+    password: "{{ truenas_ad.password }}"
+  configuration: >-
+    {{ {'hostname': truenas_ad.hostname, 'domain': truenas_ad.domain | upper}
+        | combine({'idmap': truenas_ad.idmap} if truenas_ad.idmap | default({}) | length > 0 else {}) }}
+truenas_ad_config: >-
+  {{ truenas_ad_base | combine({'kerberos_realm': truenas_ad.kerberos_realm | upper} if truenas_ad.kerberos_realm is defined else {}) }}
