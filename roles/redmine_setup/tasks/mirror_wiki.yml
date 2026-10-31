@@ -11,15 +11,7 @@
     GIT_USERNAME: "token"
     GIT_PASSWORD: "{{ redmine_setup_github_token }}"
 
-- name: Set the wiki mirror repo owner
-  ansible.builtin.file:
-    path: "{{ redmine_setup_wiki_mirror_repo_path }}"
-    owner: "{{ redmine_setup_user }}"
-    group: "{{ redmine_setup_user }}"
-    recurse: true
-  become: true
-
-- name: Mark wiki mirror repository as safe for Git
+- name: Mark wiki mirror repository as safe
   community.general.git_config:
     name: safe.directory
     value: "{{ redmine_setup_wiki_mirror_repo_path }}"
@@ -27,6 +19,27 @@
     state: present
   become: true
   become_user: "{{ redmine_setup_user }}"
+  environment:
+    HOME: "{{ redmine_setup_user_home }}"
+
+- name: Ensure wiki mirror repo is cloned
+  ansible.builtin.git:
+    repo: "{{ redmine_setup_wiki_mirror_repo_url }}"
+    dest: "{{ redmine_setup_wiki_mirror_repo_path }}"
+    version: main
+    force: true
+  become: true
+  become_user: "{{ redmine_setup_user }}"
+  environment:
+    HOME: "{{ redmine_setup_user_home }}"
+
+- name: Set the wiki mirror repo owner
+  ansible.builtin.file:
+    path: "{{ redmine_setup_wiki_mirror_repo_path }}"
+    owner: "{{ redmine_setup_user }}"
+    group: "{{ redmine_setup_user }}"
+    recurse: true
+  become: true
 
 - name: Mirror Redmine wiki into local Git repo
   refol.general.redmine_wiki_mirror:
@@ -37,7 +50,6 @@
     filename_extension: "{{ redmine_setup_wiki_mirror_extension }}"
     rewrite_links: true
     delete_stale: true
-
     debug: "{{ redmine_setup_wiki_mirror_debug }}"
   register: redmine_setup_wiki_mirror
 
