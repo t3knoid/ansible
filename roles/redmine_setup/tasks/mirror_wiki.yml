@@ -31,7 +31,7 @@
         GIT_PASSWORD: "{{ redmine_setup_github_token }}"
 
     - name: Mirror Redmine wiki into local Git repo
-      refol.general.redmine_wiki_mirror:
+      redmine_wiki_mirror:
         redmine_url: "{{ redmine_setup_url }}"
         project: "{{ redmine_setup_project }}"
         api_key: "{{ redmine_setup_api_key }}"
@@ -41,6 +41,18 @@
         delete_stale: true
         debug: "{{ redmine_setup_wiki_mirror_debug }}"
       register: redmine_setup_wiki_mirror
+
+    - name: Report Redmine wiki mirror result
+      ansible.builtin.debug:
+        msg:
+          - "Wiki pages found: {{ redmine_setup_wiki_mirror.wiki_pages_found }}"
+          - "Pages synced: {{ redmine_setup_wiki_mirror.synced_pages | length }}"
+          - "Pages deleted: {{ redmine_setup_wiki_mirror.deleted_pages | length }}"
+
+    - name: Show Redmine wiki mirror debug log
+      ansible.builtin.debug:
+        var: redmine_setup_wiki_mirror.debug_log
+      when: redmine_setup_wiki_mirror_debug | bool
 
     - name: Stage wiki mirror changes # noqa: command-instead-of-module
       ansible.builtin.command: git add -A --verbose
