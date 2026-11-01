@@ -59,7 +59,7 @@ grafana_setup_auth_azuread_allowed_domains: ""
 
 rproxy_setup_sites:
   - server_name: grafana.refol.us
-    port: "{{ grafana_setup_http_port }}"
+    port: "3000"
     proxy_pass: "http://{{ global_ip_addresses['grafana-0'] }}"
     allow_list:
       - 192.168.0.0/24
