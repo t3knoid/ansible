@@ -14,7 +14,7 @@ code_server_auth_mode: "none"
 rproxy_setup_sites:
   - server_name: code.refol.us
     port: 8000
-    proxy_pass: "http://{{ global_ip_addresses[groups['code_server'][0]] }}"
+    proxy_pass: "http://{{ global_ip_addresses['ansible-1'] }}"
     allow_list:
       - 192.168.0.0/24
       - 192.168.2.0/24
