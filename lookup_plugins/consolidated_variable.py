@@ -49,7 +49,7 @@ from ansible.vars.manager import VariableManager
 
 VAR_EXTS = (".yml", ".yaml", ".json")
 LAZY_TEMPLATING = LooseVersion(ANSIBLE_VERSION.split("rc")[0].split("b")[0]) >= LooseVersion("2.19")
-
+SKIP_DIRS = {"group_vars", "host_vars"}   # next to VAR_EXTS
 
 def _materialize(value):
     """Recursively read every value so lazy templates render now, inside the plugin."""
@@ -102,6 +102,8 @@ class LookupModule(LookupBase):
         # one source per subdirectory; realpath-dedupe handles symlinked inventories
         sources, seen_src = [], set()
         for name in sorted(os.listdir(base)):
+            if name in SKIP_DIRS or name.startswith("."):
+                continue
             path = os.path.join(base, name)
             real = os.path.realpath(path)
             if os.path.isdir(path) and real not in seen_src:
