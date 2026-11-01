@@ -9,21 +9,10 @@
   vars:
     inventory_dir_root: "{{ lookup('ansible.builtin.config','DEFAULT_HOST_LIST')[0] }}"
     roles_dir_root: "{{ lookup('ansible.builtin.config','DEFAULT_ROLES_PATH')[0] }}"
+    rproxy_setup_sites: >-
+      {{ query('consolidated_variable', 'rproxy_setup_sites',
+               inventory_dir=inventory_dir_root,
+               roles_dir=roles_dir_root) }}
   roles:
     - global
     - certs
-
-  pre_tasks:
-    - name: Consolidate rproxy_setup_sites
-      refol.general.consolidate_variable:
-        inventory_dir: "{{ inventory_dir_root }}"
-        roles_dir: "{{ roles_dir_root }}"
-        target_var: rproxy_setup_sites
-        debug: false
-      register: consolidated_rproxy_setup_sites
-      delegate_to: localhost
-
-    - name: Set rproxy_setup_sites
-      ansible.builtin.set_fact:
-        rproxy_setup_sites: "{{ consolidated_rproxy_setup_sites.result }}"
-      delegate_to: localhost
