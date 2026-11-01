@@ -10,6 +10,8 @@
   ansible.builtin.command: git commit -am "Mirror Redmine wiki"
   args:
     chdir: "{{ redmine_setup_wiki_mirror_repo_path }}"
+  become: true
+  become_user: "{{ redmine_setup_user }}"
   changed_when: false
 
 - name: Push wiki mirror changes over HTTPS # noqa: command-instead-of-module
@@ -17,4 +19,6 @@
     git push https://{{ redmine_setup_github_token }}@github.com/{{ redmine_setup_wiki_mirror_repo_path_remote }}
   args:
     chdir: "{{ redmine_setup_wiki_mirror_repo_path }}"
+  become: true
+  become_user: "{{ redmine_setup_user }}"
   changed_when: false
