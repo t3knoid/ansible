@@ -15,6 +15,17 @@
     recurse: true  # also repairs ownership left over from earlier runs
   become: true
 
+- name: Set git identity for redmine user
+  community.general.git_config:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    scope: global
+  become: true
+  become_user: "{{ redmine_setup_user }}"
+  loop:
+    - { name: user.name, value: "{{ redmine_setup_github_user_name }}" }
+    - { name: user.email, value: "{{ redmine_setup_github_user_email }}" }
+
 - name: Mirror wiki repo tasks (run as the Redmine user)
   become: true
   become_user: "{{ redmine_setup_user }}"
