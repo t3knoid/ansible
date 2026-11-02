@@ -354,67 +354,74 @@ truenas_services:
 
 # truenas_apps_mode: apply
 
-# truenas_apps:
-#   - name: postgres
-#     source: catalog
-#     state: present
-#     runtime: running
-#     catalog:
-#       app: postgres
-#       train: community
-#       version: "1.5.39"
-#     values:
-#       postgres:
-#         image_selector: v18_image
-#         user: postgres
-#         password: "{{ vault_truenas_postgres_password }}"
-#         database: postgres
-#         shm_size_mb: 512
-#       resources:
-#         limits:
-#           cpus: 2
-#           memory: 4096
-#       network:
-#         host_network: false
-#         tcp_port:
-#           bind_mode: published
-#           port_number: 5432
-#           host_ips:
-#             - "0.0.0.0"
-#       storage:
-#         data:
-#           type: ix_volume
-#           ix_volume_config:
-#             acl_enable: false
-#             dataset_name: data
+truenas_apps:
+  - name: postgres
+    source: catalog
+    state: present
+    runtime: running
+    catalog:
+      app: postgres
+      train: community
+      version: "1.5.46"
+    values:
+      postgres:
+        image_selector: v18_image
+        user: postgres
+        password: "{{ vault_truenas_postgres_password }}"
+        database: postgres
+        shm_size_mb: 512
+      resources:
+        limits:
+          cpus: 2
+          memory: 4096
+      network:
+        host_network: false
+        tcp_port:
+          bind_mode: published
+          port_number: 5432
+          host_ips:
+            - "0.0.0.0"
+      storage:
+        data:
+          type: ix_volume
+          ix_volume_config:
+            acl_enable: false
+            dataset_name: data
 
-# truenas_vms:
-#   - name: ansible
-#     description: Ansible controller
-#     runtime: running              # running | stopped
-#     cpu: {vcpus: 2, cores: 1, threads: 2}
-#     memory_mib: 4096
-#     bootloader: UEFI              # UEFI | UEFI_CSM
-#     autostart: true
-#     disks:
-#       - zvol: Data/vms/ansible-naa1gkr
-#         size_gib: 40
-#         type: AHCI
-#         order: 1001
-#     nics:
-#       - attach: br20
-#         type: E1000
-#         order: 1002
-#     cdrom: /mnt/data/isos/ubuntu-26.04.1-live-server-amd64.iso
-#     cdrom_order: 1000
-#     display:
-#       bind: 0.0.0.0
-#       type: SPICE
-#       password: "{{ vault_truenas_vms_display_password }}"
-#       order: 1003
-#     allow_restart: true           # permit stop/start for CPU or memory changes
-#     allow_delete: false           # required for state: absent
-#     allow_disk_delete: false      # required to destroy zvols on delete
+  - name: nexdeck
+    source: catalog
+    state: present
+    runtime: running
+    catalog:
+      app: nexdeck
+      train: community
+      version: "1.0.42"
+    values:
+      TZ: America/New_York
+      nexdeck:
+        secret_key: "{{ vault_truenas_nexdeck_secret_key }}"
+        public_url: https://home.refol.us
+        docker_socket: false
+      run_as:
+        user: 568
+        group: 568
+      network:
+        host_network: false
+        web_port:
+          bind_mode: published
+          port_number: 30495
+          host_ips:
+            - "0.0.0.0"
+      storage:
+        data:
+          type: ix_volume
+          ix_volume_config:
+            acl_enable: false
+            dataset_name: config
+      resources:
+        limits:
+          cpus: 2
+          memory: 2048
 
 truenas_vms:
   - name: ansible
