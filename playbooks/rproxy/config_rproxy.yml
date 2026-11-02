@@ -4,7 +4,7 @@
 # or host_vars.
 
 - name: Configure Reverse Proxy
-  hosts: vms
+  hosts: vms, baremetal
   become: true
   gather_facts: true
   roles:

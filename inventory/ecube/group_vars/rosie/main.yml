@@ -1,0 +1,16 @@
+---
+
+rproxy_setup_sites:
+  - server_name: rosie.refol.us
+    port: 8001
+    proxy_pass: "http://{{ global_ip_addresses['ecube-2'] }}"
+    allow_list:
+      - 192.168.0.0/24
+      - 192.168.2.0/24
+      - 24.105.250.200
+      - 70.107.117.124
+    restricted: false
+    # OAuth2 integration
+    use_oauth2: false
+    use_entra_id_oidc: false
+    enable: true
