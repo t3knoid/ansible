@@ -6,17 +6,14 @@
     config: "{{ truenas_network_configuration }}"
   when: truenas_network_configuration | length > 0
 
-- name: Join / configure Active Directory
+# Plan and guard before applying, so a refused change never reaches the middleware.
+- name: Read the current directory services state
   truenas_api:
-    mode: config
-    namespace: directoryservices
-    job: true
-    config: "{{ truenas_ad_config }}"
-    sensitive_keys: [credential]
-    # Credentials are only sent when the join itself has to change.
-    send_sensitive_when: [service_type, enable, configuration]
-    companion_keys:
-      configuration: [service_type]
+    mode: call
+    method: directoryservices.config
+    read_only: true
+  register: truenas_ad_current
+  changed_when: false
   when: truenas_ad | length > 0
   no_log: "{{ truenas_no_log }}"
 
@@ -39,7 +36,8 @@
 - name: Refuse join-settings changes while AD is enabled
   ansible.builtin.assert:
     that:
-      - (truenas_ad_plan.changed_keys | default([]))
+      - not (truenas_ad_current.result.enable | default(false) | bool)
+        or (truenas_ad_plan.changed_keys | default([]))
         | difference(['enable_account_cache', 'enable_dns_updates', 'timeout'])
         | length == 0
         or truenas_ad_allow_reconfigure | default(false) | bool
@@ -48,3 +46,17 @@
       services (service interruption). Re-run in a maintenance window with
       -e truenas_ad_allow_reconfigure=true after disabling AD.
   when: truenas_ad | length > 0
+
+- name: Join / configure Active Directory
+  truenas_api:
+    mode: config
+    namespace: directoryservices
+    job: true
+    config: "{{ truenas_ad_config }}"
+    sensitive_keys: [credential]
+    # Credentials are only sent when the join itself has to change.
+    send_sensitive_when: [service_type, enable, configuration]
+    companion_keys:
+      configuration: [service_type]
+  when: truenas_ad | length > 0
+  no_log: "{{ truenas_no_log }}"
