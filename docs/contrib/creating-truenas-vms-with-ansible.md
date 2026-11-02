@@ -1,4 +1,4 @@
-# Creating TrueNAS VMs with Ansible: Contributor Guide
+# Creating TrueNAS VMs with Ansible
 
 VMs on TrueNAS hosts are declared as data in the `truenas_vms` variable and reconciled by the `truenas_api` module in `mode: vm`. The workflow uses the same plan/apply pattern as TrueNAS Apps:
 

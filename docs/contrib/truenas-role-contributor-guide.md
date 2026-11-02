@@ -211,6 +211,8 @@ Apps are not managed by `configure_truenas.yml`. Add declarations to `inventory/
 | `truenas_apps_health_timeout` | Positive seconds | `180` | Maximum wait for the desired runtime state. |
 | `truenas_apps_poll_interval` | Positive seconds | `5` | Interval between job and runtime-state checks. |
 
+For a step-by-step walkthrough, including how to work out an app's `values` from its catalog schema, see [Creating TrueNAS Apps with Ansible](creating-truenas-apps-with-ansible.md).
+
 For a catalog app, provide the catalog app name, train, an explicit version (not `latest`), and a `values` mapping matching that app's catalog schema:
 
 ```yaml
