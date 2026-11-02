@@ -12,11 +12,15 @@ short_description: Idempotently manage TrueNAS objects through the local middlew
 description:
   - Runs on the TrueNAS host and talks to the middleware over its local socket.
   - Uses C(truenas_api_client) when it can be imported, otherwise falls back to C(midclt).
-  - C(mode=resource) ensures an object exists/does not exist, found via C(<namespace>.query).
+  - C(mode=resource) ensures an object exists/does not exist, found via C(<namespace>.query). The lookup must match at most one object.
   - C(mode=config) manages a singleton configuration (C(<namespace>.config) / C(<namespace>.update)).
   - C(mode=call) performs a raw API call (not idempotent unless C(read_only=true)).
   - C(mode=app) reconciles generic catalog/custom Apps with bounded middleware jobs and runtime checks.
-  - C(mode=vm) reconciles TrueNAS virtual machines with bounded middleware jobs and runtime checks.
+  - C(mode=vm) reconciles TrueNAS virtual machines, their devices, disk zvols and GPU passthrough with bounded middleware jobs and runtime checks.
+  - Only keys present in I(config) are compared. Lists of scalars compare without regard to order, and ZFS property wrappers (C(parsed)/C(value)/C(rawvalue)) compare case-insensitively against plain values.
+  - Updates send only the changed keys, plus any I(companion_keys) and I(sensitive_keys) that apply.
+  - For C(sharing.smb), a changed C(options) is sent together with C(purpose). For C(sharing.nfs), setting C(maproot_*) clears C(mapall_*) and the reverse, because the API treats them as mutually exclusive.
+  - Check mode is supported in every mode and never mutates the middleware.
 options:
   mode:
     description: Operating mode.
@@ -24,7 +28,15 @@ options:
     default: resource
     choices: [resource, config, call, app, vm]
   app:
-    description: App definition with name, source, state, runtime, catalog/values or compose, and explicit allow_upgrade/allow_delete approvals.
+    description:
+      - App definition used by C(mode=app). Allowed keys are C(name), C(source), C(state), C(runtime), C(catalog), C(values), C(compose), C(allow_upgrade) and C(allow_delete); any other key fails.
+      - C(name) is lowercase letters, digits and hyphens, starts with a letter, ends with a letter or digit, and is at most 40 characters.
+      - C(source) is C(catalog) or C(custom). C(state) is C(present) (default) or C(absent). C(runtime) is C(running) (default) or C(stopped).
+      - Catalog apps need C(catalog.app), C(catalog.train) and an explicit C(catalog.version) other than C(latest), plus an optional C(values) mapping. Values are merged into the current configuration, so only the listed keys are compared.
+      - Custom apps need C(compose), a YAML string with a nonempty C(services) mapping. It is compared in both directions and replaced as a whole.
+      - A catalog version change requires C(allow_upgrade=true) and must be an available upgrade; downgrades are refused. Deletion requires C(allow_delete=true) and keeps images and ix volumes.
+      - Converting an app between catalog and custom, or changing its catalog app or train, is refused.
+      - The whole definition is treated as sensitive and hidden from logs.
     type: dict
   app_apply:
     description: Allow app mutations; false plans using read-only queries. Check mode always prevents mutations.
@@ -51,7 +63,9 @@ options:
   vm:
     description:
       - Virtual machine definition used by C(mode=vm).
-      - Extra disks, NICs and other devices already on the VM are never removed.
+      - Extra disks, NICs and other devices already on the VM are never removed. The only device deletions are C(cdrom="") and GPU functions dropped from I(gpus).
+      - Changes to CPU, memory, firmware, clock, security settings or devices on a running VM need a stop and start, which requires I(allow_restart).
+      - The device payload shape is chosen from the TrueNAS version (typed attributes on 25.04 and later).
     type: dict
     suboptions:
       name:
@@ -76,7 +90,7 @@ options:
         description: CPU topology and affinity settings.
         type: dict
         suboptions:
-          vcpus: 
+          vcpus:
             description: Virtual sockets.
             type: int
             default: 1
@@ -104,18 +118,20 @@ options:
           nodeset:
             description: NUMA nodes to constrain VM memory to.
             type: str
-            hide_from_msr:
-                description: Hide hypervisor signatures from guest MSR access.
-                type: bool
-            ensure_display_device:
-                description: Ensure at least one display device is configured; defaults to false for compatibility with the previous module behavior.
-                type: bool
-            gpus:
-                description:
-                    - GPU PCI slots selected from C(system.advanced.get_gpu_pci_choices), such as C(0000:04:00.0).
-                    - Each selected GPU expands to all of its PCI functions. Omit this option to leave PCI devices unmanaged; an explicit empty list removes managed GPU functions.
-                type: list
-                elements: str
+      hide_from_msr:
+        description: Hide hypervisor signatures from guest MSR access.
+        type: bool
+      ensure_display_device:
+        description: Ensure at least one display device is configured; defaults to false for compatibility with the previous module behavior.
+        type: bool
+      gpus:
+        description:
+          - GPU PCI slots selected from C(system.advanced.get_gpu_pci_choices), such as C(0000:04:00.0).
+          - Each selected GPU expands to all of its PCI functions and is added to the host's isolated GPU list; existing isolation entries are never removed.
+          - Omit this option to leave PCI devices unmanaged; an explicit empty list removes managed GPU functions from the VM but does not de-isolate them.
+          - GPUs that use devices critical to the host are refused.
+        type: list
+        elements: str
       memory_mib:
         description: Memory in MiB (at least 256). Required when I(state=present).
         type: int
@@ -142,7 +158,9 @@ options:
         type: bool
         default: false
       disks:
-        description: Zvol-backed disks. Missing zvols are created, and a larger I(size_gib) grows an existing zvol. Shrinking is refused.
+        description:
+          - Zvol-backed disks. At least one is required when I(state=present). Missing zvols are created, and a larger I(size_gib) grows an existing zvol. Shrinking is refused.
+          - The parent dataset of a new zvol must already exist. A zvol may appear only once per VM.
         type: list
         elements: dict
         suboptions:
@@ -168,10 +186,10 @@ options:
             type: int
             choices: [512, 4096]
           order:
-            description: Boot order priority (lower numbers boot first).
+            description: Boot order priority (lower numbers boot first); defaults to 1001 for the first disk, then increments in list order.
             type: int
       nics:
-        description: Network interfaces.
+        description: Network interfaces. At least one is required when I(state=present).
         type: list
         elements: dict
         suboptions:
@@ -191,7 +209,7 @@ options:
             description: Fixed MAC address; generated by TrueNAS when omitted.
             type: str
           order:
-            description: Boot order priority (lower numbers boot first).
+            description: Boot order priority (lower numbers boot first); defaults to 1100 for the first NIC, then increments in list order.
             type: int
       cdrom:
         description: Install ISO path. An empty string removes the CD-ROM device.
@@ -231,18 +249,18 @@ options:
                 description: Console password; VNC passwords must be 1-8 characters, SPICE passwords at least 8 characters.
                 type: str
             order:
-                description: Boot order priority (lower numbers boot first).
+                description: Boot order priority (lower numbers boot first); defaults to 1200.
                 type: int
       allow_delete:
         description: Approve deleting the VM (required for I(state=absent)).
         type: bool
         default: false
       allow_restart:
-        description: Approve stopping and restarting a running VM for changes that need it.
+        description: Approve stopping and restarting a running VM for changes that need it. Without it, apply fails when a restart is needed.
         type: bool
         default: false
       allow_disk_delete:
-        description: Also destroy the VM's zvols when deleting it.
+        description: Also destroy the VM's zvols when deleting it. Otherwise the zvols are kept.
         type: bool
         default: false
   vm_apply:
@@ -265,7 +283,7 @@ options:
     description: API namespace, e.g. C(sharing.smb), C(user), C(pool.dataset), C(directoryservices).
     type: str
   lookup:
-    description: Equality filters used to find the object (resource mode). Names are translated by I(name_to_id).
+    description: Equality filters used to find the object (resource mode); required in that mode and must match at most one object. Names are translated by I(name_to_id).
     type: dict
     default: {}
   config:
@@ -292,12 +310,12 @@ options:
     elements: str
     default: []
   sensitive_keys:
-    description: Keys that cannot be read back (passwords). Sent on create, and on update only if requested.
+    description: Keys that cannot be read back (passwords). Never compared and redacted from diffs. Sent on create, and on update only if I(send_sensitive_on_update) or I(send_sensitive_when) applies.
     type: list
     elements: str
     default: []
   send_sensitive_on_update:
-    description: Always send I(sensitive_keys) with an update.
+    description: Send I(sensitive_keys) with every update that has other changes.
     type: bool
     default: false
   send_sensitive_when:
@@ -346,12 +364,12 @@ options:
     elements: str
     default: []
   transport:
-    description: Force a transport. C(auto) prefers truenas_api_client.
+    description: Force a transport. C(auto) prefers truenas_api_client and falls back to midclt; C(client) fails if the client cannot be used.
     type: str
     default: auto
     choices: [auto, client, midclt]
 author:
-  - truenas role
+  - Frank Refol
 """
 
 EXAMPLES = r"""
@@ -367,6 +385,52 @@ EXAMPLES = r"""
     method: system.version_short
     read_only: true
   register: ver
+
+- name: User with group names resolved to ids
+  truenas_api:
+    namespace: user
+    lookup: {username: alice}
+    config: {username: alice, full_name: Alice, password: "{{ vault_alice_password }}", smb: true, groups: [media]}
+    create_only_keys: [password]
+    sensitive_keys: [password]
+    send_sensitive_when: [smb]
+    name_to_id: {groups: "group:name"}
+
+- name: Singleton configuration
+  truenas_api:
+    mode: config
+    namespace: network.configuration
+    config: {nameserver1: 192.168.1.10}
+
+- name: Middleware job, ignoring a known no-op error
+  truenas_api:
+    mode: call
+    method: update.run
+    job: true
+    args: [{reboot: false}]
+    ignore_error_patterns: ["(?i)no update"]
+
+- name: Plan a custom app (set app_apply to make changes)
+  truenas_api:
+    mode: app
+    app:
+      name: example-web
+      source: custom
+      compose: |
+        services:
+          web:
+            image: nginx:1.27
+    app_apply: false
+
+- name: Plan a VM (set vm_apply to make changes)
+  truenas_api:
+    mode: vm
+    vm:
+      name: debian12
+      memory_mib: 4096
+      disks: [{zvol: tank/vms/debian12, size_gib: 40}]
+      nics: [{attach: br0}]
+    vm_apply: false
 """
 
 RETURN = r"""
@@ -379,13 +443,54 @@ changed_keys:
   returned: resource/config
   type: list
 id:
-  description: Id of the object.
+  description: Id of the object. Not returned for a planned create in check mode.
   returned: resource
   type: raw
+diff:
+  description: Before and after values of the changed keys; sensitive keys are redacted on create.
+  returned: resource/config, when changed
+  type: dict
 result:
   description: API return value (call mode).
-  returned: call
+  returned: call, unless check mode skipped the call or an error was ignored
   type: raw
+msg:
+  description: Explanation when a call was skipped in check mode or an error was ignored.
+  returned: call, when applicable
+  type: str
+ignored_error:
+  description: The middleware error that matched I(ignore_error_patterns).
+  returned: call, when an error was ignored
+  type: str
+name:
+  description: App or VM name.
+  returned: app/vm
+  type: str
+actions:
+  description:
+    - Planned or applied actions in execution order.
+    - App actions are C(create), C(update), C(upgrade), C(delete), C(start) and C(stop).
+    - VM actions include C(create_zvol:<zvol>), C(grow_zvol:<zvol>), C(isolate_gpu:<pci_slot>), C(stop), C(create), C(update), C(<op>_device:<dtype>), C(delete), C(delete_zvols) and C(start).
+  returned: app/vm
+  type: list
+planned:
+  description: True when nothing was applied (check mode, or I(app_apply)/I(vm_apply) false).
+  returned: app/vm
+  type: bool
+runtime_state:
+  description: Runtime state after reconciliation, or the current state when planned; C(ABSENT) when the app or VM does not exist.
+  returned: app/vm
+  type: str
+approval_required:
+  description:
+    - For apps, true when the planned upgrade or delete lacks its approval.
+    - For VMs, the list of missing approvals, such as C(allow_restart) or C(allow_delete).
+  returned: app (upgrade/delete) and vm
+  type: raw
+device_changes:
+  description: Per-device operations with C(operation), C(dtype), C(id) and, for updates, the before/after value of each differing attribute or order. Display passwords are excluded.
+  returned: vm, when the VM exists
+  type: list
 """
 
 import copy
