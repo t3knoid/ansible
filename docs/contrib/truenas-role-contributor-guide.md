@@ -1,6 +1,6 @@
 # 📘 TrueNAS Role Contributor Guide
 
-The `truenas` role configures an already-installed TrueNAS 25.10+ system through its local middleware API. It manages updates, local groups and users, the administrator account, network settings and Active Directory, datasets, shares, and services. Virtual machines use a separate, opt-in workflow and playbook. The role does not install TrueNAS or provision its initial boot disk.
+The `truenas` role configures an already-installed TrueNAS 25.10+ system through its local middleware API. It manages updates, network interfaces, local groups and users, the administrator account, network settings and Active Directory, datasets, shares, services, applications, and virtual machines. Apps and VMs use separate, opt-in workflows and playbooks. The role does not install TrueNAS or provision its initial boot disk.
 
 ## 📋 Requirements and Bootstrap
 
@@ -15,7 +15,7 @@ If the inventory connection user does not have key-based SSH configured yet, run
 
 ## 📝 Repository Workflow
 
-The repository deployment inventory is [`inventory/truenas/inventory.ini`](../../inventory/truenas/inventory.ini), and the main configuration playbook is [`playbooks/truenas/configure_truenas.yml`](../../playbooks/truenas/configure_truenas.yml). VM management is invoked separately with [`playbooks/truenas/deploy_truenas_vms.yml`](../../playbooks/truenas/deploy_truenas_vms.yml). Host variables belong under `inventory/truenas/host_vars/truenas-01/`; files elsewhere beside the inventory are not automatically loaded by Ansible.
+The repository deployment inventory is [`inventory/truenas/inventory.ini`](../../inventory/truenas/inventory.ini), and the main configuration playbook is [`playbooks/truenas/configure_truenas.yml`](../../playbooks/truenas/configure_truenas.yml). Apps and VM management are invoked separately with [`playbooks/truenas/deploy_truenas_apps.yml`](../../playbooks/truenas/deploy_truenas_apps.yml) and [`playbooks/truenas/deploy_truenas_vms.yml`](../../playbooks/truenas/deploy_truenas_vms.yml). Host variables belong under `inventory/truenas/host_vars/truenas-01/`; files elsewhere beside the inventory are not automatically loaded by Ansible.
 
 Contributors should add or edit the host variable files directly. Define only the sections you want the role to manage, keep secrets in an encrypted vault file, and keep environment-specific values out of role defaults.
 
@@ -37,17 +37,23 @@ The role always begins with preflight checks, then runs enabled configuration st
 
 1. **Preflight:** wait for middleware readiness, check the minimum version, and verify the initial administrator exists.
 2. **Update:** optionally download and install a TrueNAS update into a new boot environment, with an optional reboot.
-3. **Groups:** ensure configured local groups.
-4. **Administrator:** manage the fixed local account `truenas_admin` and add it to `truenas_admin_groups`.
-5. **Users:** ensure local users and resolve configured group names to IDs.
-6. **Network and Active Directory:** apply network configuration first, then configure/join AD if requested.
-7. **Datasets:** create or update configured datasets.
-8. **Shares and resources:** manage SMB/NFS shares, additional middleware resources, then raw post-configuration API calls.
-9. **Services:** configure service autostart and start or stop each configured service.
+3. **Interfaces:** plan or apply network interface changes, committing with automatic rollback and then checking in.
+4. **Groups:** ensure configured local groups.
+5. **Administrator:** manage the local administrator account (`truenas_admin` unless `truenas_admin.username` overrides it) and add it to `truenas_admin_groups`.
+6. **Users:** ensure local users and resolve configured group names to IDs.
+7. **Network and Active Directory:** apply network configuration first, then configure/join AD if requested.
+8. **Datasets:** create or update configured datasets.
+9. **Shares and resources:** manage SMB/NFS shares, additional middleware resources, then raw post-configuration API calls.
+10. **Services:** configure service autostart and start or stop each configured service.
 
-The order allows groups and users to exist before shares are exposed and datasets to exist before shares are configured. Services are started last.
+The order allows interfaces to exist before anything binds to them, groups and users to exist before shares are exposed, and datasets to exist before shares are configured. Services are started last.
 
-VM management is not part of `configure_truenas.yml` or the normal role task sequence. The isolated VM playbook imports `roles/truenas/tasks/vms.yml`, validates all declarations before connecting to middleware, checks virtualization support, and then plans or applies each VM. Configure `truenas_vms` in the inventory host vars and run that playbook explicitly.
+Apps and VM management are not part of `configure_truenas.yml` or the normal role task sequence:
+
+- The isolated Apps playbook imports `roles/truenas/tasks/apps.yml`. It validates all declarations before connecting to middleware, runs the preflight, requires an Apps storage pool (`docker.config`), and then plans or applies each app.
+- The isolated VM playbook imports `roles/truenas/tasks/vms.yml`. It validates all declarations before connecting to middleware, runs the preflight, checks virtualization support, and then plans or applies each VM.
+
+Configure `truenas_apps` or `truenas_vms` in the inventory host vars and run the matching playbook explicitly.
 
 ## 🔗 How Inputs Map To The API
 
@@ -55,6 +61,7 @@ Most role variables map directly to TrueNAS middleware methods.
 
 | Role input                       | TrueNAS API surface                                                  |
 | -------------------------------- | -------------------------------------------------------------------- |
+| `truenas_interfaces`             | `interface.query/create/update/delete`, then `interface.has_pending_changes`, `interface.commit`, `interface.checkin` |
 | `truenas_groups`                 | `group.create` / `group.update` / `group.delete`                     |
 | `truenas_admin`, `truenas_users` | `user.create` / `user.update` / `user.delete`                        |
 | `truenas_network_configuration`  | `network.configuration.update`                                       |
@@ -65,13 +72,14 @@ Most role variables map directly to TrueNAS middleware methods.
 | `truenas_resources`              | `<namespace>.query/create/update/delete`                             |
 | `truenas_post_calls`             | Raw `midclt` / middleware method calls                               |
 | `truenas_services`               | `service.update`, `service.started`, `service.start`, `service.stop` |
+| `truenas_apps`                   | `app.query`, `app.create` / `app.update` / `app.upgrade` / `app.delete`, and runtime methods |
 | `truenas_vms`                    | `vm.query/create/update/delete`, `vm.device.*`, runtime methods, and `pool.dataset.*` for disk zvols |
 
 The role is intentionally thin. If a field is accepted by the underlying API method and the role passes that object through unchanged, configure it exactly as the TrueNAS API expects.
 
 ## ⚙️ Configuration Reference
 
-All role inputs are declared in [`defaults/main.yml`](defaults/main.yml); unset lists and maps default to empty, so their stages are skipped. Treat that file as the canonical variable contract when adding or reviewing new settings.
+All role inputs are declared in [`defaults/main.yml`](../../roles/truenas/defaults/main.yml); unset lists and maps default to empty, so their stages are skipped. Treat that file as the canonical variable contract when adding or reviewing new settings.
 
 | Variable                                          | Purpose and behavior                                                                                                                                                                                                       |
 | ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -79,22 +87,61 @@ All role inputs are declared in [`defaults/main.yml`](defaults/main.yml); unset 
 | `truenas_no_log`                                  | Hide task arguments/results that may include secrets; defaults to `true`. Disable only for temporary debugging.                                                                                                            |
 | `truenas_min_version`                             | Minimum accepted major/minor version; defaults to `25.10`.                                                                                                                                                                 |
 | `truenas_update_enabled`, `truenas_update_reboot` | Opt into updates and optionally reboot into the new boot environment. Both default to `false`. `truenas_update_train` and `truenas_update_version` optionally pin a train or version.                                      |
+| `truenas_update_reboot_timeout`, `truenas_update_noop_patterns` | Seconds to wait for the post-update reboot (default `1800`), and `update.run` error patterns treated as "nothing to do" rather than failures.                                                        |
+| `truenas_interfaces`, `truenas_interfaces_mode`    | Interface declarations, processed in order. The mode defaults to `plan`; use `apply` only after reviewing the plan. See [Network interfaces](#-network-interfaces).                                               |
+| `truenas_interfaces_checkin_timeout`              | Seconds TrueNAS waits for a check-in before rolling back a committed interface change; default `60`, minimum `30`.                                                                                                         |
 | `truenas_groups`                                  | `group.create` configuration. Each item supports `state: absent`; `gid` is create-only.                                                                                                                                    |
-| `truenas_admin`                                   | Optional subset of `user.create` fields for `truenas_admin`. Only listed settings are compared and updated. Its password is used only when creating the account.                                                           |
-| `truenas_admin_groups`                            | Local groups granting administrator privilege; defaults to `[builtin_administrators]`. Check valid groups with `midclt call privilege.query`.                                                                          |
+| `truenas_admin`                                   | Optional subset of `user.create` fields for the administrator account. `username` defaults to `truenas_admin`. Only listed settings are compared and updated. Its password is used only when creating the account.         |
+| `truenas_admin_groups`                            | Local groups granting administrator privilege; defaults to `[builtin_administrators]`. The role only warns if a group does not appear in any privilege. Check valid groups with `midclt call privilege.query`.             |
 | `truenas_users`                                   | Local user definitions. `groups` contains group names and is treated as the complete membership list. Users support `state: absent`; `delete_group` controls whether their primary group is also deleted (default `true`). |
+| `truenas_user_create_only_keys`                   | User fields sent on creation but never compared or updated afterwards: `password`, `random_password`, `group_create`, `group`, `home_create`, `home_mode`, and `uid`. Applies to both the administrator and users.       |
 | `truenas_network_configuration`                   | Partial `network.configuration` settings, commonly the DNS server required to resolve the AD domain.                                                                                                                       |
 | `truenas_ad`                                      | Active Directory settings passed to `directoryservices.update`. Credentials are sent only when the managed AD configuration changes.                                                                                       |
+| `truenas_ad_allow_reconfigure`                    | Not declared in defaults; pass `-e truenas_ad_allow_reconfigure=true` to permit join-setting changes. Without it, only `enable_account_cache`, `enable_dns_updates`, and `timeout` may change.                         |
 | `truenas_datasets`                                | `pool.dataset` definitions. Datasets are never deleted by this role. Creation-only properties are listed in `truenas_dataset_create_only_keys`.                                                                            |
 | `truenas_smb_shares`, `truenas_nfs_shares`        | SMB and NFS share definitions. These support `state: absent`; each uses its name or path as its lookup key.                                                                                                                |
 | `truenas_resources`                               | Ordered definitions for other middleware resources, such as iSCSI or NVMe-oF. Supports `state`, name-to-ID resolution, create-only fields, and comparison/sensitive-field options.                                         |
 | `truenas_post_calls`                              | Raw middleware calls executed after shares/resources. These are not idempotent; use sparingly for operations such as permissions.                                                                                          |
-| `truenas_services`                                | Service names with optional `enable` and `state` (`started` by default).                                                                                                                                                   |
+| `truenas_services`                                | Service names with optional `enable` (`true` by default) and `state` (`started` by default).                                                                                                                              |
+| `truenas_apps`, `truenas_apps_mode`               | App declarations and the isolated Apps workflow. The mode defaults to `plan`; use `apply` only after reviewing the plan. Job, health, and polling timeouts default to 900, 180, and 5 seconds. See [Apps](#-apps).      |
 | `truenas_vms`                                      | VM definitions for the isolated VM playbook. `truenas_vms_mode` defaults to `plan`; set it to `apply` to permit changes. Job, health, and polling timeouts default to 900, 180, and 5 seconds.                               |
 
 For users and groups, `state: absent` deletes the matching object. The role does not provide a deletion option for the administrator or datasets. A user's `password` is sent on creation, and is also resent on update when the `smb` flag changes because TrueNAS requires a password reset when SMB authentication is enabled for an existing account. For general password rotation on an existing account, use a deliberate `user.set_password` call or another explicit workflow.
 
 ## 🧩 Common Configuration Patterns
+
+### 🔀 Network interfaces
+
+`truenas_interfaces` runs as part of `configure_truenas.yml`, but like Apps and VMs it defaults to `truenas_interfaces_mode: plan`, which only compares and reports. Nothing is staged until the mode is `apply`, and Ansible check mode stays read-only even then.
+
+- Entries are processed top to bottom. List physical NICs first, then VLANs, then bridges or LAGGs that use them.
+- `name` is the lookup key and must be unique. `config` is passed to `interface.create` / `interface.update`; `type` is create-only.
+- Physical NICs cannot be created or deleted, so set `no_create: true` on them. A missing NIC then fails instead of being created.
+- `state: absent` deletes a virtual interface.
+- The stage refuses to run if interface changes are already staged from the UI or an earlier failed run. Review them, then commit them or run `midclt call interface.rollback`.
+- In apply mode, staged changes are committed with `rollback: true` and the role checks in once the host answers again. If it cannot check in within `truenas_interfaces_checkin_timeout` seconds, TrueNAS rolls the change back.
+
+Minimal shape:
+
+```yaml
+truenas_interfaces:
+  - name: enp8s0
+    no_create: true
+    config:
+      ipv4_dhcp: false
+      aliases: []
+  - name: br0
+    config:
+      type: BRIDGE
+      bridge_members: [enp8s0]
+      aliases:
+        - { type: INET, address: 192.168.2.251, netmask: 24 }
+```
+
+```bash
+ansible-playbook -i inventory/truenas/inventory.ini playbooks/truenas/configure_truenas.yml --tags truenas_interfaces -k --ask-vault-pass
+ansible-playbook -i inventory/truenas/inventory.ini playbooks/truenas/configure_truenas.yml --tags truenas_interfaces -e truenas_interfaces_mode=apply -k --ask-vault-pass
+```
 
 ### 👤 Administrator and local users
 
@@ -148,6 +195,66 @@ truenas_datasets:
   - name: Data/shared
     share_type: MULTIPROTOCOL
     compression: LZ4
+```
+
+### 📦 Apps
+
+Apps are not managed by `configure_truenas.yml`. Add declarations to `inventory/truenas/host_vars/truenas-01/default.yml` and run the isolated [`deploy_truenas_apps.yml`](../../playbooks/truenas/deploy_truenas_apps.yml) playbook. TrueNAS must already have an Apps storage pool configured. The role validates all declarations before connecting and reports the planned actions; credentials in app values should be kept in the host's encrypted Vault file.
+
+`truenas_apps_mode` defaults to `plan`. First review the plan, then explicitly set the mode to `apply` to make changes. Ansible check mode remains read-only, even when the mode is `apply`.
+
+| Setting | Values | Default | Setting Description |
+| --- | --- | --- | --- |
+| `truenas_apps_mode` | `plan`, `apply` | `plan` | Plan intended changes or apply them through TrueNAS middleware. |
+| `truenas_apps` | List of app definitions | `[]` | Apps to reconcile. Names must be unique, use lowercase letters, digits, and hyphens, start with a letter, end with a letter or digit, and be no longer than 40 characters. |
+| `truenas_apps_job_timeout` | Positive seconds | `900` | Maximum wait for a middleware app job. |
+| `truenas_apps_health_timeout` | Positive seconds | `180` | Maximum wait for the desired runtime state. |
+| `truenas_apps_poll_interval` | Positive seconds | `5` | Interval between job and runtime-state checks. |
+
+For a catalog app, provide the catalog app name, train, an explicit version (not `latest`), and a `values` mapping matching that app's catalog schema:
+
+```yaml
+truenas_apps:
+  - name: example-app
+    source: catalog
+    state: present
+    runtime: running
+    catalog:
+      app: example-app
+      train: stable
+      version: "1.2.3"
+    values: {}
+```
+
+For a custom app, provide a Compose YAML string with at least one service instead of `catalog` and `values`:
+
+```yaml
+truenas_apps:
+  - name: example-web
+    source: custom
+    state: present
+    runtime: running
+    compose: |
+      services:
+        web:
+          image: nginx:1.27
+          ports:
+            - "8080:80"
+```
+
+Each app definition supports `state: present|absent` and `runtime: running|stopped`. Catalog version changes require `allow_upgrade: true`; removal requires `allow_delete: true`. Review the upgrade or deletion plan carefully before enabling either approval. Deletion retains images and ix volumes, but app data retention should still be checked before applying.
+
+The role refuses some changes outright rather than gating them:
+
+- Top-level keys other than `name`, `source`, `state`, `runtime`, `catalog`, `values`, `compose`, `allow_upgrade`, and `allow_delete`. Put app settings inside `values` or `compose`.
+- Converting an existing app between `catalog` and `custom`, or changing its catalog app or train.
+- Catalog downgrades, or a version that `app.upgrade_summary` does not report as an available upgrade.
+
+Catalog `values` are merged into the app's current configuration, so only the keys you list are compared and updated. Custom Compose definitions are compared in both directions and replaced as a whole.
+
+```bash
+ansible-playbook -i inventory/truenas/inventory.ini playbooks/truenas/deploy_truenas_apps.yml --limit truenas-01 --check --diff -k --ask-vault-pass
+ansible-playbook -i inventory/truenas/inventory.ini playbooks/truenas/deploy_truenas_apps.yml --limit truenas-01 -e truenas_apps_mode=apply -k --ask-vault-pass
 ```
 
 ### 🖥️ Virtual machines
@@ -370,7 +477,9 @@ The role exposes these tags for selecting a stage:
 
 | Stage                | Tag                |
 | -------------------- | ------------------ |
+| Preflight            | `truenas_preflight` (also `always`) |
 | Update               | `truenas_update`   |
+| Interfaces           | `truenas_interfaces` |
 | Groups               | `truenas_groups`   |
 | Administrator        | `truenas_admin`    |
 | Users                | `truenas_users`    |
@@ -378,10 +487,11 @@ The role exposes these tags for selecting a stage:
 | Datasets             | `truenas_datasets` |
 | Shares and resources | `truenas_shares`   |
 | Services             | `truenas_services` |
+| Apps                 | `truenas_apps`     |
 | Virtual machines     | `truenas_vms`      |
 
 Use `--tags truenas_shares` to select share/resource work. The groups task also carries `truenas_users`, so a user-targeted run ensures declared groups first. Preflight is tagged `always` and continues to run for tagged invocations.
-VMs are run through the separate playbook; use `--tags truenas_vms` there.
+Apps and VMs are run through their separate playbooks, which tag their workflows `truenas_apps` and `truenas_vms`.
 
 ## 🛡️ Idempotency and Safety
 
@@ -391,28 +501,34 @@ The custom module queries each object and compares only the keys provided in its
 - Updates install into a new boot environment. With `truenas_update_reboot: false`, the NAS is not rebooted by the role.
 - `truenas_no_log: true` is important because user, AD, and other API task arguments can contain passwords.
 - A listed `groups` value replaces the user's complete group membership, not just an additive subset.
+- Interface changes can drop the SSH session. Plan first, keep console access available, and make sure the role can reconnect at the new address before the check-in timeout, or TrueNAS rolls the change back.
 - AD requires DNS that resolves the domain and a clock within five minutes of the domain controller. The AD `hostname` is the computer-account name and must be no longer than 15 characters.
+- Changing AD join settings (domain, hostname, realm, idmap, `enable`) requires disabling directory services first, so the role fails unless `-e truenas_ad_allow_reconfigure=true` is passed. Do this in a maintenance window.
 - Review service changes carefully, especially SSH autostart/state or `ssh_password_enabled`, to avoid losing access.
 - `truenas_post_calls` are raw calls. In check mode, a non-read-only call is reported as a pending change but is not executed.
+- App plans are read-only by default. Catalog version changes require `allow_upgrade: true`, and removal requires `allow_delete: true`.
 - VM plans are read-only by default. `truenas_vms_mode: apply` permits middleware changes, but Ansible check mode still suppresses them. Inspect planned actions and approvals before applying.
 - VM deletion and restarting a running VM for a hardware/device change are gated by `allow_delete` and `allow_restart`. Zvol deletion is separately opt-in with `allow_disk_delete`; zvols are never shrunk.
 
 ## 🔌 The `truenas_api` Module
 
-The role's custom [truenas_api.py](library/truenas_api.py) module is the implementation layer behind every stage.
+The role's custom [truenas_api.py](../../roles/truenas/library/truenas_api.py) module is the implementation layer behind every stage.
 
 - `mode: resource` manages objects found through `<namespace>.query` and then created, updated, or deleted.
 - `mode: config` manages singleton configuration namespaces with `<namespace>.config` and `<namespace>.update`.
 - `mode: call` performs an arbitrary middleware method call.
+- `mode: app` plans or reconciles one catalog or custom app through `app.*` middleware calls. Changes are made only when `app_apply: true` and not in check mode.
 - `mode: vm` plans or reconciles a VM, its devices, and requested disk zvols through `vm.*`, `vm.device.*`, and `pool.dataset.*` middleware calls. VM device argument shape is selected based on the TrueNAS version; verify accepted fields against `/api/docs/` on the target release.
 - `create_only_keys` are sent on create but are not compared or resent on update.
 - `skip_compare_keys` suppresses drift detection for fields the API returns in a shape that cannot be compared directly.
-- `sensitive_keys` are omitted from diffs and can be resent on update through `send_sensitive_on_update` or `send_sensitive_when`.
+- `sensitive_keys` are omitted from comparison and diffs. They are resent on update only when `send_sensitive_on_update: true`, or when one of the keys listed in `send_sensitive_when` has changed.
+- `companion_keys` maps a key to fields that must be sent with it. When the trigger key is in an update payload, its companions are added even if unchanged; AD uses this to send `service_type` with `configuration`.
 - `name_to_id` translates human-readable names in `lookup` or `config` into the integer ids the middleware expects.
+- `id_key` names the field used as the object id for update and delete; it defaults to `id`.
 - `no_create: true` turns a missing resource into a failure instead of silently creating it.
 - `query_options` passes the optional second argument to `<namespace>.query`.
 - `delete_args` appends extra arguments to `<namespace>.delete`.
-- `transport: auto` prefers `truenas_api_client` on the NAS and falls back to `midclt`.
+- `transport: auto` prefers `truenas_api_client` on the NAS and falls back to `midclt`. Set `client` or `midclt` to force one.
 
 Use the module directly only when extending the role or prototyping a new resource pattern. Prefer the higher-level role inputs whenever one already exists.
 
@@ -421,11 +537,11 @@ Use the module directly only when extending the role or prototyping a new resour
 - Keep the role interface narrow. Add a dedicated top-level variable only when a middleware surface needs custom orchestration, validation, or ordering beyond a generic `truenas_resources` entry.
 - Prefer expressing new TrueNAS objects through `truenas_resources` before introducing new tasks. Promote a pattern into its own task file only after the generic form becomes noisy or needs special update semantics.
 - When adding a new field to a managed object, check whether TrueNAS treats it as create-only, sensitive, name-to-id, or mutually exclusive with another field. Those rules belong in the task or module arguments, not only in prose.
-- Keep update semantics aligned with the middleware API. If an update requires companion fields such as SMB `purpose` or mutually exclusive NFS mapping keys, document that behavior and encode it in [`library/truenas_api.py`](library/truenas_api.py) or the calling task.
+- Keep update semantics aligned with the middleware API. If an update requires companion fields such as SMB `purpose` or mutually exclusive NFS mapping keys, document that behavior and encode it in [`library/truenas_api.py`](../../roles/truenas/library/truenas_api.py) or the calling task.
 - Validate role changes with the repository inventory and a focused tag whenever possible, then rerun a syntax check for the full playbook.
 
 Consult the [TrueNAS 25.10 API](https://api.truenas.com/v25.10/) for accepted fields. The API can also be inspected on the NAS with `midclt call <namespace>.query`.
 
 ## ✅ Verification Status
 
-The module's comparison behavior and role Jinja expressions have been exercised offline against a mock middleware, including check mode, drift, name-to-ID resolution, and sensitive values. The relevant API method names and argument shapes were checked against TrueNAS 25.10 documentation. The role has not been verified against a live TrueNAS 25.10.7 host; begin with check-mode runs and verify version-specific fields, shell choices, and the administrator privilege group against the target system.
+The module's comparison behavior and role Jinja expressions have been exercised offline against a mock middleware, including check mode, drift, name-to-ID resolution, and sensitive values. The relevant API method names and argument shapes were checked against TrueNAS 25.10 documentation. The role has also been run against a live TrueNAS 25.10.7 host (`truenas-01` in the repository inventory). When targeting a different host or TrueNAS release, begin with check-mode runs and verify version-specific fields, shell choices, and the administrator privilege group against the target system.
