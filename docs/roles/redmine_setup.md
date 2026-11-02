@@ -42,6 +42,8 @@ Redmine Setup installs and configures an [Redmine](https://www.redmine.org/). Th
 | `redmine_setup_project` | `"home-lab"` |  |
 | `redmine_setup_wiki_mirror_repo_url` | `"https://github.com/t3knoid/homelab.git"` | GitHub repo (HTTPS) |
 | `redmine_setup_wiki_mirror_repo_path_remote` | `"t3knoid/homelab.git"` |  |
+| `redmine_setup_github_user_name` | `"t3knoid"` |  |
+| `redmine_setup_github_user_email` | `"t3knoid@users.noreply.github.com"` |  |
 
 ## 📦 Vars
 _No constant variables found._
