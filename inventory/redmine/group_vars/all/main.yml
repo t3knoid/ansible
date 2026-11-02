@@ -47,7 +47,6 @@ rproxy_setup_sites:
       - 70.107.117.124
     restricted: false
     enable: true
-    nginx_setup_server_extra: "rewrite ^/$ /projects/home-lab permanent;"
   - server_name: api.redmine.refol.us
     port: 80
     proxy_pass: "http://{{ global_ip_addresses['redmine-0'] }}"
@@ -58,7 +57,6 @@ rproxy_setup_sites:
       - 70.107.117.124
     restricted: false
     enable: true
-    nginx_setup_server_extra: "rewrite ^/$ /projects/home-lab permanent;"
 
 ruby_setup_version: 3.3.7
 redmine_setup_version: 7.0.2
