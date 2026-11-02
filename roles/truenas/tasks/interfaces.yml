@@ -90,14 +90,20 @@
   poll: 0
   when: truenas_if_pending.result | default(false) | bool
 
+# Leave headroom inside the check-in window for the check-in call itself.
 - name: Wait for the host to answer again
   ansible.builtin.wait_for_connection:
-    delay: 10
-    timeout: "{{ truenas_interfaces_checkin_timeout | int }}"
+    delay: 5
+    sleep: 2
+    timeout: "{{ truenas_interfaces_checkin_timeout | int - 15 }}"
   when: truenas_if_pending.result | default(false) | bool
 
 - name: Check in to keep the new configuration
   truenas_api:
     mode: call
     method: interface.checkin
+  register: truenas_if_checkin
+  until: truenas_if_checkin is succeeded
+  retries: 3
+  delay: 2
   when: truenas_if_pending.result | default(false) | bool
