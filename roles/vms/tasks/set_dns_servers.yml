@@ -14,7 +14,7 @@
         ethernets:
           {{ vms_default_nic.stdout }}:
             addresses:
-            - "{{ global_ip_address }}/24"
+            - "{{ global_ip_address }}/{{ global_prefix }}"
             nameservers:
               addresses:
               {% for dns_server in global_dns_servers -%}

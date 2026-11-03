@@ -23,7 +23,7 @@ autoinstall:
       version: 2
       ethernets:
         {{ pxeserver_setup_client_nic }}:
-          addresses: [{{ global_ip_address }}/24]
+          addresses: [{{ global_ip_address }}/{{ global_prefix }}]
           gateway4: {{ global_gateway }}
           nameservers:
             search: [{{ global_domain_name }}]

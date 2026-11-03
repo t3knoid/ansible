@@ -1,0 +1,12 @@
+---
+# Per-host network values derived from global_hosts/global_networks
+# (roles/global/vars/main.yml). These are role defaults so inventory
+# group_vars/host_vars can override them, e.g. global_gateway for a host on a
+# non-standard route.
+
+global_host: "{{ global_hosts[inventory_hostname] }}"
+global_ip_address: "{{ global_host.ip }}"
+global_network: "{{ global_networks[global_host.network] }}"
+global_gateway: "{{ global_network.gateway }}"
+global_prefix: "{{ global_network.cidr.split('/')[1] }}"
+global_pihole_api_host: "{{ global_ip_addresses['dns-1'] }}"

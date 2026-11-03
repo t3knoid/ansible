@@ -3,6 +3,52 @@
   ansible.builtin.debug:
     msg: Loading global variables
 
+- name: Validate global_hosts against global_networks
+  run_once: true
+  vars:
+    global_duplicate_ips: >-
+      {{ global_ip_addresses | dict2items | groupby('value')
+         | selectattr('1.1', 'defined') | map('first') | list }}
+    global_unknown_networks: >-
+      {{ global_hosts | dict2items | rejectattr('value.network', 'in', global_networks)
+         | map(attribute='key') | list }}
+    # Pure Jinja integer math so no netaddr dependency is needed.
+    global_out_of_subnet: >-
+      {%- set bad = [] -%}
+      {%- for name, h in global_hosts.items() if h.network in global_networks -%}
+      {%-   set cidr = global_networks[h.network].cidr.split('/') -%}
+      {%-   set block = 2 ** (32 - (cidr[1] | int)) -%}
+      {%-   set ip = h.ip.split('.') | map('int') | list -%}
+      {%-   set net = cidr[0].split('.') | map('int') | list -%}
+      {%-   set ip_int = ((ip[0] * 256 + ip[1]) * 256 + ip[2]) * 256 + ip[3] -%}
+      {%-   set net_int = ((net[0] * 256 + net[1]) * 256 + net[2]) * 256 + net[3] -%}
+      {%-   if ip_int // block != net_int // block %}{{ bad.append(name ~ ' (' ~ h.ip ~ ' not in ' ~ h.network ~ ')') }}{% endif -%}
+      {%- endfor -%}
+      {{ bad }}
+  ansible.builtin.assert:
+    that:
+      - global_duplicate_ips | length == 0
+      - global_unknown_networks | length == 0
+      - global_out_of_subnet | length == 0
+    fail_msg: >-
+      Invalid network data in roles/global/vars/main.yml.
+      Duplicate IPs: {{ global_duplicate_ips }}.
+      Hosts with an unknown network: {{ global_unknown_networks }}.
+      Hosts outside their network's CIDR: {{ global_out_of_subnet }}.
+    quiet: true
+
+# Not fatal: some plays target hosts that never need an IP from this map
+# (e.g. localhost). Anything that does use global_ip_address will still fail.
+- name: Warn when this host has no entry in global_hosts
+  ansible.builtin.debug:
+    msg: >-
+      WARNING: {{ inventory_hostname }} is not defined in global_hosts
+      (roles/global/vars/main.yml); global_ip_address,
+      global_gateway and global_prefix are unavailable for it.
+  when:
+    - inventory_hostname != 'localhost'
+    - inventory_hostname not in global_hosts
+
 # Cache as a fact so other hosts can read it via hostvars (role vars alone
 # aren't visible when a different host's context is templated, e.g. in
 # playbooks/rproxy/config_rproxy.yml).

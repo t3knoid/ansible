@@ -5,7 +5,7 @@ network:
   ethernets:
     ens18:
       addresses: 
-        - {{ global_ip_address }}/24
+        - {{ global_ip_address }}/{{ global_prefix }}
       routes: # https://netplan.readthedocs.io/en/latest/netplan-yaml/#default-routes
       - to: default
         via: {{ global_gateway }}
