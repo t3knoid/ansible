@@ -7,10 +7,13 @@ def collect_constant_var_files(role_path):
     return [f"{role_path}/vars/main.yml"]
 
 def collect_default_var_files(role_path):
-    return [
-        f"{role_path}/defaults/main.yml",
-        f"{role_path}/defaults/main/main.yml"
-    ]
+    # defaults/main/ may be split across files; main.yml first, vault files skipped
+    split_dir = Path(role_path) / "defaults" / "main"
+    split_files = sorted(
+        (f for f in split_dir.glob("*.yml") if not f.name.startswith("vault")),
+        key=lambda f: (f.name != "main.yml", f.name),
+    ) if split_dir.is_dir() else []
+    return [f"{role_path}/defaults/main.yml"] + [str(f) for f in split_files]
 
 def extract_vars_with_comments(file_path):
     if not Path(file_path).exists():
