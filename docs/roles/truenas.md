@@ -5,7 +5,7 @@
 ![Platforms: ](https://img.shields.io/badge/platforms--orange.svg)
 
 ## 📖 Overview
-Configure TrueNAS 25.10+ (updates, admin, users, Active Directory, datasets, shares, services) through the middleware API
+Configure TrueNAS 25.10+ (updates, network interfaces, admin, users, Active Directory, datasets, shares, services, apps, VMs) through the middleware API
 
 ## 📋 Requirements
 - Minimum Ansible version: `2.14`
