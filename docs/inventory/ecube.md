@@ -20,6 +20,8 @@ _Inventory for `ecube` hosts_
 ### `ecube`
 - `ecube-0`
 - `ecube-1`
+
+### `rosie`
 - `ecube-2`
 
 ### `pgdb`
@@ -51,6 +53,9 @@ _Inventory for `ecube` hosts_
 ### `certs`
 - `rproxy-0`
 
+### `cname`
+- `ecube-2`
+
 ## ⚙️ Group Variables
 _No group variables defined._
 
@@ -64,10 +69,10 @@ _No group variables defined._
 - `vms_clone`: `false`
 
 ### `ecube-2`
-- `pihole_cname_entries`: `[{"domain": "demo.ecube.com", "target": "rproxy-0.refol.us"}]`
+- `pihole_cname_entries`: `[{"domain": "rosie.refol.us", "target": "rproxy-0.refol.us"}]`
 
 ## 🧩 Group Children
 ### `rproxy`
-- `rproxy_primary`
 - `rproxy_main`
+- `rproxy_primary`
 - `rproxy_secondary`
