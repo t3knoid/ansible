@@ -57,7 +57,7 @@
 
 - name: Ensure .pgpass entry exists without duplication
   ansible.builtin.lineinfile:
-    path:  ~/.pgpass
+    path: ~/.pgpass
     line: "{{ redmine_setup_pg_host }}:{{ redmine_setup_pg_port }}:{{
       redmine_setup_db_name }}:{{ redmine_setup_db_user }}:{{
       redmine_setup_db_password }}"

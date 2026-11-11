@@ -50,6 +50,19 @@
     group: "www-data"
     recurse: true
 
+- name: Remove default Redmine root routes
+  ansible.builtin.replace:
+    path: "{{ redmine_setup_installdir }}/config/routes.rb"
+    regexp: '^\s*root\s+:to\s*=>\s*[''"]welcome#index[''"](?:,\s*:as\s*=>\s*[''"]home[''"])?\s*$'
+    replace: ""
+    backup: true
+
+- name: Set Home Lab project as Redmine home page
+  ansible.builtin.lineinfile:
+    path: "{{ redmine_setup_installdir }}/config/routes.rb"
+    insertafter: '^Rails\.application\.routes\.draw do'
+    line: "  root :to => 'projects#show', :id => '{{ redmine_setup_default_project }}', :as => 'home'"
+
 - name: Create softlink of extracted source code to root directory
   ansible.builtin.file:
     src: "{{ redmine_setup_installdir }}"
@@ -163,8 +176,10 @@
 - name: Test Apache configuration
   ansible.builtin.command:
     cmd: apache2ctl configtest
+  changed_when: false
 
 - name: Reload Apache service
   ansible.builtin.systemd:
     name: apache2
     state: reloaded
+  changed_when: false

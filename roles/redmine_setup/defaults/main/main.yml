@@ -44,3 +44,5 @@ redmine_setup_github_user_name: "t3knoid"
 redmine_setup_github_user_email: "t3knoid@users.noreply.github.com"
 
 # See vault for redmine_setup_api_key and redmine_setup_github_token
+
+redmine_setup_default_project: "home-lab"
