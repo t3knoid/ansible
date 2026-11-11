@@ -57,11 +57,18 @@
     replace: ""
     backup: true
 
-- name: Set Home Lab project as Redmine home page
+- name: Remove old Home Lab project root route
   ansible.builtin.lineinfile:
     path: "{{ redmine_setup_installdir }}/config/routes.rb"
+    regexp: '^\s*root\s+:to\s*=>\s*[''"]projects#show[''"].*:as\s*=>\s*[''"]home[''"]'
+    state: absent
+
+- name: Set Home Lab wiki as Redmine home page
+  ansible.builtin.lineinfile:
+    path: "{{ redmine_setup_installdir }}/config/routes.rb"
+    regexp: '^\s*root\s+:to\s*=>\s*[''"]wiki#show[''"].*:as\s*=>\s*[''"]home[''"]'
     insertafter: '^Rails\.application\.routes\.draw do'
-    line: "  root :to => 'projects#show', :id => '{{ redmine_setup_default_project }}', :as => 'home'"
+    line: "  root :to => 'wiki#show', :project_id => '{{ redmine_setup_default_project }}', :as => 'home'"
 
 - name: Create softlink of extracted source code to root directory
   ansible.builtin.file:
