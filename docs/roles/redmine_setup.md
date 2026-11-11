@@ -44,6 +44,7 @@ Redmine Setup installs and configures an [Redmine](https://www.redmine.org/). Th
 | `redmine_setup_wiki_mirror_repo_path_remote` | `"t3knoid/homelab.git"` |  |
 | `redmine_setup_github_user_name` | `"t3knoid"` |  |
 | `redmine_setup_github_user_email` | `"t3knoid@users.noreply.github.com"` |  |
+| `redmine_setup_default_project` | `"home-lab"` | See vault for redmine_setup_api_key and redmine_setup_github_token |
 
 ## 📦 Vars
 _No constant variables found._
@@ -56,6 +57,8 @@ _No constant variables found._
 - Ensure extraction folder exists
 - Download and extract Redmine source code
 - Chown Redmine extracted source code with www-data
+- Remove default Redmine root routes
+- Set Home Lab project as Redmine home page
 - Create softlink of extracted source code to root directory
 - Copy database.yml to target machine
 - Copy configuration.yml to target machine

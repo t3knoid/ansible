@@ -9,8 +9,8 @@ Provides tasks to manage system users in Ubuntu and Debian.
 
 ## 📋 Requirements
 - Minimum Ansible version: `2.9`
-- Supported on: `Ubuntu` (22.04, 24.04)
-- Supported on: `Debian` (11, 12)
+- Supported on: `Ubuntu` (all)
+- Supported on: `Debian` (all)
 
 ## ⚙️ Defaults
 _No default variables found._
