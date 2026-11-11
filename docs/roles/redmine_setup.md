@@ -58,7 +58,8 @@ _No constant variables found._
 - Download and extract Redmine source code
 - Chown Redmine extracted source code with www-data
 - Remove default Redmine root routes
-- Set Home Lab project as Redmine home page
+- Remove old Home Lab project root route
+- Set Home Lab wiki as Redmine home page
 - Create softlink of extracted source code to root directory
 - Copy database.yml to target machine
 - Copy configuration.yml to target machine
