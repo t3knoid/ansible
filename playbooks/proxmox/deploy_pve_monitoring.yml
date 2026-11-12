@@ -11,8 +11,23 @@
     - node_exporter_setup
     - pve_exporter_setup
   tasks:
-    - name: Enable the Ceph mgr prometheus module
-      ansible.builtin.command: ceph mgr module enable prometheus
-      changed_when: false
+    - name: Configure the Ceph mgr prometheus module
+      when: groups['ceph_nodes'] | default([]) | length > 0
       run_once: true
-      when: inventory_hostname in groups['ceph_nodes'] | default([])
+      delegate_to: "{{ groups['ceph_nodes'] | first }}"
+      block:
+        - name: Enable the Ceph mgr prometheus module
+          ansible.builtin.command: ceph mgr module enable prometheus
+          changed_when: false
+
+        # Since Reef, per-daemon perf counters are excluded from the mgr module and are
+        # expected to come from cephadm's ceph-exporter, which Proxmox does not deploy.
+        - name: Read the Ceph mgr prometheus exclude_perf_counters setting
+          ansible.builtin.command: ceph config get mgr mgr/prometheus/exclude_perf_counters
+          register: ceph_prometheus_exclude_perf_counters
+          changed_when: false
+
+        - name: Export per-daemon perf counters from the Ceph mgr prometheus module
+          ansible.builtin.command: ceph config set mgr mgr/prometheus/exclude_perf_counters false
+          when: ceph_prometheus_exclude_perf_counters.stdout | trim | lower != 'false'
+          changed_when: true

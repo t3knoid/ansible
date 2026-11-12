@@ -178,6 +178,8 @@ scrape_configs:
 {% if prometheus_setup_ceph_static_configs | default([]) | length > 0 %}
   - job_name: '{{ prometheus_setup_ceph_job_name }}'
     scrape_interval: 30s
+    # Keep labels set by ceph-mgr (e.g. instance on per-host metrics) instead of overwriting them.
+    honor_labels: true
 
     static_configs:
 {% for scrape_config in prometheus_setup_ceph_static_configs %}

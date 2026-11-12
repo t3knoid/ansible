@@ -8,3 +8,93 @@ groups:
   rules:
   - record: job_instance_mode:node_cpu_seconds:avg_rate5m
     expr: avg by (job, instance, mode) (rate(node_cpu_seconds_total[5m]))
+{% if prometheus_setup_ceph_alerts_enabled | bool %}
+
+- name: ceph
+  rules:
+{% raw %}
+  - alert: CephMetricsAbsent
+    expr: absent(ceph_health_status{job="{% endraw %}{{ prometheus_setup_ceph_job_name }}{% raw %}"})
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: No Ceph metrics are being scraped
+      description: No active ceph-mgr is serving the prometheus module on any scraped node.
+
+  - alert: CephHealthWarning
+    expr: max(ceph_health_status) == 1
+    for: 15m
+    labels:
+      severity: warning
+    annotations:
+      summary: Ceph cluster is in HEALTH_WARN
+      description: Run `ceph health detail` on a Proxmox node for details.
+
+  - alert: CephHealthError
+    expr: max(ceph_health_status) == 2
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: Ceph cluster is in HEALTH_ERR
+      description: Run `ceph health detail` on a Proxmox node for details.
+
+  - alert: CephMonQuorumLost
+    expr: max by (ceph_daemon) (ceph_mon_quorum_status) == 0
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: Ceph monitor {{ $labels.ceph_daemon }} is out of quorum
+
+  - alert: CephOSDDown
+    expr: max by (ceph_daemon) (ceph_osd_up) == 0
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: Ceph OSD {{ $labels.ceph_daemon }} is down
+
+  - alert: CephOSDOut
+    expr: max by (ceph_daemon) (ceph_osd_in) == 0
+    for: 15m
+    labels:
+      severity: warning
+    annotations:
+      summary: Ceph OSD {{ $labels.ceph_daemon }} is marked out
+
+  - alert: CephOSDNearFull
+    expr: max by (ceph_daemon) (ceph_osd_stat_bytes_used / ceph_osd_stat_bytes) > 0.80
+    for: 15m
+    labels:
+      severity: warning
+    annotations:
+      summary: Ceph OSD {{ $labels.ceph_daemon }} is {{ $value | humanizePercentage }} full
+
+  - alert: CephClusterNearFull
+    expr: max(ceph_cluster_total_used_bytes / ceph_cluster_total_bytes) > 0.80
+    for: 15m
+    labels:
+      severity: warning
+    annotations:
+      summary: Ceph cluster raw capacity is {{ $value | humanizePercentage }} used
+
+  - alert: CephClusterCriticallyFull
+    expr: max(ceph_cluster_total_used_bytes / ceph_cluster_total_bytes) > 0.90
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: Ceph cluster raw capacity is {{ $value | humanizePercentage }} used
+
+  - alert: CephPGsNotActive
+    expr: sum(ceph_pg_total) - sum(ceph_pg_active) > 0
+    for: 15m
+    labels:
+      severity: critical
+    annotations:
+      summary: "{{ $value }} Ceph placement groups are not active"
+      description: Inactive PGs block I/O to the affected pools.
+{% endraw %}
+{% endif %}
