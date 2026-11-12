@@ -1,0 +1,11 @@
+---
+# Defaults for sftp_bastion role (prefixed variables)
+sftp_bastion_user: sftpuser
+sftp_bastion_shell: /usr/sbin/nologin
+sftp_bastion_home: "/home/{{ sftp_bastion_user }}"
+sftp_bastion_key_name: id_synology
+sftp_bastion_synology_host: 192.168.10.50
+sftp_bastion_synology_user: synologyuser
+sftp_bastion_sshd_service_name: sshd
+sftp_bastion_forcecommand_user: "{{ sftp_bastion_synology_user }}"
+sftp_bastion_forcecommand_host: "{{ sftp_bastion_synology_host }}"
