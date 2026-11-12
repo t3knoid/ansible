@@ -68,6 +68,9 @@ Installs and configures a Prometheus monitoring system on Debian/Ubuntu.
 | `prometheus_setup_ceph_job_name` | `"ceph"` |  |
 | `prometheus_setup_ceph_port` | `9283` |  |
 | `prometheus_setup_ceph_alerts_enabled` | `true` | deploy_prometheus.yml normally runs with only the prometheus inventory. |
+| `prometheus_setup_pihole_exporter_job_name` | `"pihole_exporter"` |  |
+| `prometheus_setup_pihole_exporter_port` | `9617` |  |
+| `prometheus_setup_pihole_alerts_enabled` | `true` | Render the pihole alert group in prometheus.rules.yml. |
 | `prometheus_setup_remove_instances` | `[]` |  |
 | `prometheus_setup_remove_targets` | `[]` |  |
 | `prometheus_setup_remove_jobs` | `` |  |

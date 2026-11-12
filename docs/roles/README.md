@@ -54,6 +54,7 @@
 | [`openvpn_setup`](./openvpn_setup.md) | Installs and configures an OpenVPN client with optional fail-closed egress rules for the forward proxy host; expects inventory or environment-provided credentials, CA certificate, and remote server, applies IPv4 OUTPUT fail-closed rules, and resolves the VPN endpoint at deploy time |
 | [`pbs`](./pbs.md) | Installs and configures Proxmox Backup Server on Ubuntu systems. |
 | [`pihole`](./pihole.md) | Installs and configures Pi-hole on Ubuntu systems (https://pi-hole.net/). Provides tasks to manage Pi-hole settings and configurations. |
+| [`pihole_exporter_setup`](./pihole_exporter_setup.md) | Install and configure eko/pihole-exporter for Pi-hole v6 monitoring. |
 | [`playwright`](./playwright.md) | Installs playwright. |
 | [`plex_exporter_setup`](./plex_exporter_setup.md) | Deploy Prometheus Plex Exporter as a Docker service. |
 | [`plex_setup`](./plex_setup.md) | Installs Plex Media Server. |
