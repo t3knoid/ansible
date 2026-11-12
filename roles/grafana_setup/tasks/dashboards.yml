@@ -68,6 +68,7 @@
     - linux-release-upgrade-progress.dashboard.json
     - plex-media-server.dashboard.json
     - rproxy-entra-id-health.dashboard.json
+    - pihole-dns.dashboard.json
 
 - name: Remove standalone Proxmox VM snapshots dashboard
   ansible.builtin.file:

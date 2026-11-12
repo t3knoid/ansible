@@ -52,6 +52,14 @@
       "url": "/d/rproxy-entra-id-health",
       "keepTime": true,
       "targetBlank": false
+    },
+    {
+      "title": "DNS",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/pihole-dns",
+      "keepTime": true,
+      "targetBlank": false
     }
   ],
   "panels": [
@@ -66,7 +74,7 @@
       },
       "gridPos": {
         "h": 5,
-        "w": 6,
+        "w": 5,
         "x": 0,
         "y": 0
       },
@@ -160,8 +168,8 @@
       },
       "gridPos": {
         "h": 5,
-        "w": 6,
-        "x": 6,
+        "w": 5,
+        "x": 5,
         "y": 0
       },
       "fieldConfig": {
@@ -327,8 +335,8 @@
       },
       "gridPos": {
         "h": 5,
-        "w": 6,
-        "x": 12,
+        "w": 5,
+        "x": 10,
         "y": 0
       },
       "fieldConfig": {
@@ -421,8 +429,8 @@
       },
       "gridPos": {
         "h": 5,
-        "w": 6,
-        "x": 18,
+        "w": 4,
+        "x": 15,
         "y": 0
       },
       "fieldConfig": {
@@ -497,6 +505,183 @@
           "range": false,
           "legendFormat": "Connections",
           "refId": "B"
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "title": "Main DNS",
+      "description": "Health of the main Pi-hole DNS server (dns-1), plus the backup server (dns-0). Up means the exporter is scraped and returns Pi-hole data.",
+      "type": "stat",
+      "pluginVersion": "12.2.0",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 5,
+        "x": 19,
+        "y": 0
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "decimals": 0,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "cyan"
+          },
+          "links": [
+            {
+              "title": "DNS",
+              "url": "/d/pihole-dns",
+              "targetBlank": false
+            }
+          ]
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "DNS-1"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "text": "Down",
+                        "color": "red"
+                      },
+                      "1": {
+                        "text": "Up",
+                        "color": "green"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Blocking"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "text": "Off",
+                        "color": "orange"
+                      },
+                      "1": {
+                        "text": "On",
+                        "color": "green"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "noValue",
+                "value": "Unknown"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Queries/s"
+            },
+            "properties": [
+              {
+                "id": "decimals",
+                "value": 1
+              },
+              {
+                "id": "noValue",
+                "value": "Unknown"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Backup"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "text": "Down",
+                        "color": "red"
+                      },
+                      "1": {
+                        "text": "Up",
+                        "color": "green"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "orientation": "horizontal",
+        "textMode": "value_and_name",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "expr": "(max(up{job=\"pihole_exporter\",instance=\"dns-1\"}) == 1 and on () count(pihole_status{job=\"pihole_exporter\",instance=\"dns-1\"})) or vector(0)",
+          "instant": true,
+          "range": false,
+          "legendFormat": "DNS-1",
+          "refId": "A"
+        },
+        {
+          "expr": "max(pihole_status{job=\"pihole_exporter\",instance=\"dns-1\"})",
+          "instant": true,
+          "range": false,
+          "legendFormat": "Blocking",
+          "refId": "B"
+        },
+        {
+          "expr": "max(pihole_request_rate{job=\"pihole_exporter\",instance=\"dns-1\"})",
+          "instant": true,
+          "range": false,
+          "legendFormat": "Queries/s",
+          "refId": "C"
+        },
+        {
+          "expr": "(max(up{job=\"pihole_exporter\",instance=\"dns-0\"}) == 1 and on () count(pihole_status{job=\"pihole_exporter\",instance=\"dns-0\"})) or vector(0)",
+          "instant": true,
+          "range": false,
+          "legendFormat": "Backup",
+          "refId": "D"
         }
       ]
     },
