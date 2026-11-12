@@ -51,6 +51,13 @@ options:
         at the mirrored filenames (the main wiki page `wiki` is written as index.md).
     type: bool
     default: false
+  download_attachments:
+    description:
+      - Download each page's attachments (e.g. images) into C(attachments/<page>/)
+        under I(output_dir) and rewrite references to them in the page content.
+      - Stale attachments are removed when I(delete_stale) is true.
+    type: bool
+    default: true
 """
 
 EXAMPLES = r"""
@@ -93,6 +100,7 @@ def run_module():
             filename_extension=dict(type="str", default="md"),
             debug=dict(type="bool", default=False),
             rewrite_links=dict(type="bool", default=False),
+            download_attachments=dict(type="bool", default=True),
         ),
         supports_check_mode=True,
     )
@@ -105,8 +113,9 @@ def run_module():
         output_dir=module.params["output_dir"],
         delete_stale=module.params["delete_stale"],
         filename_extension=module.params["filename_extension"],
-      debug_enabled=module.params["debug"],
-      rewrite_links=module.params["rewrite_links"],
+        debug_enabled=module.params["debug"],
+        rewrite_links=module.params["rewrite_links"],
+        download_attachments=module.params["download_attachments"],
     )
 
     module.exit_json(

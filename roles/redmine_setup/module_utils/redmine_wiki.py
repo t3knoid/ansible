@@ -54,6 +54,116 @@ def _get_json(module, url: str, headers: Dict[str, str], debug_enabled: bool, lo
         )
 
 
+def _get_bytes(module, url: str, headers: Dict[str, str], debug_enabled: bool, log: List[str]) -> bytes:
+    _debug(debug_enabled, log, f"Downloading: {url}")
+    resp, info = fetch_url(module, url, headers=headers)
+    status = info.get("status", 0)
+    if status != 200 or resp is None:
+        module.fail_json(
+            msg=f"Failed to download '{url}' (status={status})",
+            response_info=info,
+            debug_log=log,
+        )
+    return resp.read()
+
+
+ATTACHMENTS_DIR = "attachments"
+
+
+def _attachment_dir_for_title(title: str) -> str:
+    """Per-page attachment folder (relative to output_dir) to avoid filename collisions."""
+    return f"{ATTACHMENTS_DIR}/{_filename_for_title(title, extension='x')[:-2]}"
+
+
+def _rewrite_attachment_refs(content: str, attachments: List[Dict], rel_dir: str) -> str:
+    """Point image/link references to page attachments at their local copies.
+
+    Handles bare filenames (``![alt](diagram.png)``), Redmine's ``attachment:name``
+    syntax, and ``/attachments/download/<id>/<name>`` style URLs (absolute or
+    site-relative). Only references matching an attachment of this page are touched.
+    """
+    by_name = {}
+    by_id = {}
+    for a in attachments:
+        name = a.get("filename")
+        if not name:
+            continue
+        local = f"{rel_dir}/{quote(name)}"
+        by_name[name] = local
+        by_name[quote(name)] = local
+        if a.get("id") is not None:
+            by_id[str(a["id"])] = local
+
+    if not by_name:
+        return content
+
+    def _resolve(target: str):
+        t = target.strip()
+        # Strip optional markdown title: (file.png "title")
+        title_part = ""
+        m = re.match(r'^(\S+)(\s+"[^"]*")$', t)
+        if m:
+            t, title_part = m.group(1), m.group(2)
+        if t.startswith("attachment:"):
+            t = t[len("attachment:"):]
+        m = re.search(r'/attachments/(?:download/|thumbnails/)?(\d+)(?:/[^/\s]*)?$', t)
+        if m and m.group(1) in by_id:
+            return by_id[m.group(1)] + title_part
+        local = by_name.get(t) or by_name.get(unquote(t))
+        return (local + title_part) if local else None
+
+    # Markdown images and links: ![alt](target) / [label](target)
+    def _md_repl(m):
+        local = _resolve(m.group(2))
+        return f"{m.group(1)}({local})" if local else m.group(0)
+
+    content = re.sub(r'(!?\[[^\]]*\])\(([^)]+)\)', _md_repl, content)
+
+    # HTML <img src="...">
+    def _html_repl(m):
+        local = _resolve(m.group(2))
+        return f"{m.group(1)}{local}{m.group(3)}" if local else m.group(0)
+
+    content = re.sub(r'(<img\b[^>]*?\bsrc=["\'])([^"\']+)(["\'])', _html_repl, content, flags=re.IGNORECASE)
+
+    return content
+
+
+def _sync_attachments(module, attachments: List[Dict], dest_dir: Path, headers: Dict[str, str],
+                      debug_enabled: bool, log: List[str]) -> Tuple[bool, List[str], set]:
+    """Download page attachments into dest_dir. Returns (changed, written_paths, kept_names)."""
+    changed = False
+    written: List[str] = []
+    kept = set()
+    for a in attachments:
+        name = a.get("filename")
+        url = a.get("content_url")
+        if not name or not url:
+            continue
+        safe_name = Path(name).name  # guard against path traversal
+        if not safe_name or safe_name in (".", ".."):
+            continue
+        kept.add(safe_name)
+        fpath = dest_dir / safe_name
+
+        # Skip the download when size matches an existing local copy.
+        size = a.get("filesize")
+        if fpath.exists() and size is not None and fpath.stat().st_size == int(size):
+            _debug(debug_enabled, log, f"Attachment unchanged: {fpath}")
+            continue
+
+        data = _get_bytes(module, url, headers, debug_enabled, log)
+        if fpath.exists() and fpath.read_bytes() == data:
+            continue
+        _debug(debug_enabled, log, f"Writing attachment {fpath}")
+        if not module.check_mode:
+            dest_dir.mkdir(parents=True, exist_ok=True)
+            fpath.write_bytes(data)
+        changed = True
+        written.append(str(fpath))
+    return changed, written, kept
+
+
 def _default_filename(title: str, extension: str = "md") -> str:
     safe = title.replace(" ", "_").lower()
     return f"{safe}.{extension}"
@@ -282,6 +392,7 @@ def mirror_redmine_wiki(
     filename_extension: str = "md",
     debug_enabled: bool = False,
     rewrite_links: bool = False,
+    download_attachments: bool = True,
 ) -> Tuple[bool, List[str], List[str], List[str], int]:
     """
     Returns: (changed, synced_pages, deleted_pages, debug_log, wiki_pages_found)
@@ -322,6 +433,8 @@ def mirror_redmine_wiki(
     seen_filenames = set()
     synced_pages: List[str] = []
     deleted_pages: List[str] = []
+    # attachment folder (relative) -> set of filenames that should exist there
+    expected_attachments: Dict[str, set] = {}
 
     # Mirror wiki pages
     for entry in index:
@@ -337,6 +450,8 @@ def mirror_redmine_wiki(
 
         encoded_title = quote(title, safe="")
         page_url = f"{base}/projects/{project}/wiki/{encoded_title}.json"
+        if download_attachments:
+            page_url += "?include=attachments"
         page_response = _get_json(module, page_url, headers, debug_enabled, log)
         page = page_response.get("wiki_page")
         if not isinstance(page, dict):
@@ -356,6 +471,19 @@ def mirror_redmine_wiki(
                 debug_log=log,
             )
             raise RedmineWikiMirrorError(f"Redmine returned no wiki text for page '{title}'")
+
+        if download_attachments:
+            attachments = page.get("attachments") or []
+            if attachments:
+                rel_dir = _attachment_dir_for_title(title)
+                a_changed, a_written, a_kept = _sync_attachments(
+                    module, attachments, outdir / rel_dir, headers, debug_enabled, log
+                )
+                expected_attachments[rel_dir] = a_kept
+                if a_changed:
+                    changed = True
+                    synced_pages.extend(a_written)
+                content = _rewrite_attachment_refs(content, attachments, rel_dir)
 
         if rewrite_links:
             try:
@@ -397,5 +525,19 @@ def mirror_redmine_wiki(
                     f.unlink()
                 changed = True
                 deleted_pages.append(str(f))
+
+    if delete_stale and download_attachments:
+        att_root = outdir / ATTACHMENTS_DIR
+        if att_root.is_dir():
+            for f in sorted(att_root.rglob("*"), reverse=True):
+                rel_parent = f.parent.relative_to(outdir).as_posix()
+                if f.is_file() and f.name not in expected_attachments.get(rel_parent, set()):
+                    _debug(debug_enabled, log, f"Deleting stale attachment {f}")
+                    if not module.check_mode:
+                        f.unlink()
+                    changed = True
+                    deleted_pages.append(str(f))
+                elif f.is_dir() and not module.check_mode and not any(f.iterdir()):
+                    f.rmdir()
 
     return changed, synced_pages, deleted_pages, log, len(index)
