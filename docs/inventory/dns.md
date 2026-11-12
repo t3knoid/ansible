@@ -52,6 +52,10 @@ _Inventory for `dns` hosts_
 - `dns-0`
 - `dns-1`
 
+### `pihole_exporter`
+- `dns-0`
+- `dns-1`
+
 ### `prometheus`
 - `prometheus-0`
 
