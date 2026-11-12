@@ -65,7 +65,7 @@
           exporter_groups_to_review: >-
             {{ hostvars[decommission_host].group_names | intersect([
               'node_exporter', 'nginx_exporter', 'nginxlog_exporter',
-              'postgres_exporter', 'pve_exporter', 'ceph_nodes'
+              'postgres_exporter', 'pve_exporter', 'pihole_exporter', 'ceph_nodes'
             ]) | sort }}
           status: "Inventory preview only; no infrastructure was queried or decommissioned."
       loop: "{{ decommission_hosts }}"

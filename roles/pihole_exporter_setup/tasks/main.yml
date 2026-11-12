@@ -1,0 +1,81 @@
+---
+- name: Require a Pi-hole password for pihole_exporter
+  ansible.builtin.assert:
+    that:
+      - pihole_exporter_setup_password | default('') | length > 0
+    fail_msg: >-
+      Set pihole_exporter_setup_password (or pihole_password) via vault before deploying pihole_exporter_setup.
+  no_log: true
+
+- name: Create pihole_exporter group
+  ansible.builtin.group:
+    name: "{{ pihole_exporter_setup_group }}"
+    system: true
+
+- name: Create pihole_exporter user
+  ansible.builtin.user:
+    name: "{{ pihole_exporter_setup_user }}"
+    group: "{{ pihole_exporter_setup_group }}"
+    system: true
+    create_home: false
+    shell: /usr/sbin/nologin
+
+- name: Create pihole_exporter install directory
+  ansible.builtin.file:
+    path: "{{ pihole_exporter_setup_install_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Download pihole_exporter binary
+  ansible.builtin.get_url:
+    url: "{{ pihole_exporter_setup_download_url }}"
+    checksum: "sha256:{{ pihole_exporter_setup_download_url }}.sha256.txt"
+    dest: "{{ pihole_exporter_setup_versioned_binary }}"
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Link pihole_exporter binary into /usr/local/bin
+  ansible.builtin.file:
+    src: "{{ pihole_exporter_setup_versioned_binary }}"
+    dest: "{{ pihole_exporter_setup_binary }}"
+    state: link
+    force: true
+  notify: Restart pihole_exporter service
+
+- name: Create pihole_exporter configuration directory
+  ansible.builtin.file:
+    path: "{{ pihole_exporter_setup_config_dir }}"
+    state: directory
+    owner: root
+    group: "{{ pihole_exporter_setup_group }}"
+    mode: "0750"
+
+- name: Write the Pi-hole password file
+  ansible.builtin.copy:
+    content: "{{ pihole_exporter_setup_password }}"
+    dest: "{{ pihole_exporter_setup_password_file }}"
+    owner: root
+    group: "{{ pihole_exporter_setup_group }}"
+    mode: "0640"
+  no_log: true
+  notify: Restart pihole_exporter service
+
+- name: Create pihole_exporter systemd service file
+  ansible.builtin.template:
+    src: pihole_exporter.service.j2
+    dest: "{{ pihole_exporter_setup_service_file }}"
+    owner: root
+    group: root
+    mode: "{{ pihole_exporter_setup_service_mode }}"
+  notify:
+    - Reload systemd daemon
+    - Restart pihole_exporter service
+
+- name: Enable and start pihole_exporter service
+  ansible.builtin.systemd:
+    name: "{{ pihole_exporter_setup_service_name }}"
+    enabled: true
+    state: started

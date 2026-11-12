@@ -192,6 +192,36 @@
   ansible.builtin.set_fact:
     prometheus_setup_ceph_static_configs: "{{ prometheus_setup_ceph_static_config_map.values() | list }}"
 
+- name: Load existing pihole exporter scrape targets
+  ansible.builtin.set_fact:
+    prometheus_setup_pihole_exporter_static_configs: >-
+      {{ prometheus_setup_existing_scrape_configs
+         | selectattr('job_name', 'equalto', prometheus_setup_pihole_exporter_job_name)
+         | map(attribute='static_configs') | first | default([]) }}
+
+- name: Initialize pihole exporter target map
+  ansible.builtin.set_fact:
+    prometheus_setup_pihole_exporter_static_config_map: {}
+
+- name: Seed pihole exporter target map from existing Prometheus config
+  ansible.builtin.set_fact:
+    prometheus_setup_pihole_exporter_static_config_map: "{{ prometheus_setup_pihole_exporter_static_config_map | combine({item.labels.instance: item}) }}"
+  loop: "{{ prometheus_setup_pihole_exporter_static_configs }}"
+
+- name: Merge current inventory pihole exporter targets into target map
+  ansible.builtin.set_fact:
+    prometheus_setup_pihole_exporter_static_config_map: >-
+      {{ prometheus_setup_pihole_exporter_static_config_map | combine({item: {
+        'targets': [global_ip_addresses[item] ~ ':' ~
+          (hostvars[item].pihole_exporter_setup_port | default(prometheus_setup_pihole_exporter_port) | string)],
+        'labels': {'instance': item, 'group': item | regex_replace('-[0-9]+$', '')}
+      }}) }}
+  loop: "{{ groups['pihole_exporter'] | default([]) }}"
+
+- name: Build merged pihole exporter scrape targets
+  ansible.builtin.set_fact:
+    prometheus_setup_pihole_exporter_static_configs: "{{ prometheus_setup_pihole_exporter_static_config_map.values() | list }}"
+
 - name: Initialize blackbox target map
   ansible.builtin.set_fact:
     prometheus_setup_blackbox_static_config_map: {}

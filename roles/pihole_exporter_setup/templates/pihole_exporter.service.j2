@@ -1,0 +1,27 @@
+[Unit]
+Description=Prometheus Pi-hole Exporter
+Wants=network-online.target
+After=network-online.target pihole-FTL.service
+
+[Service]
+Type=simple
+User={{ pihole_exporter_setup_user }}
+Group={{ pihole_exporter_setup_group }}
+ExecStart={{ pihole_exporter_setup_binary }} \
+  -pihole_protocol {{ pihole_exporter_setup_pihole_protocol }} \
+  -pihole_hostname {{ pihole_exporter_setup_pihole_hostname }} \
+  -pihole_port {{ pihole_exporter_setup_pihole_port }} \
+  -pihole_password_file {{ pihole_exporter_setup_password_file }} \
+  -bind_addr {{ pihole_exporter_setup_bind_address }} \
+  -port {{ pihole_exporter_setup_port }} \
+  -timeout {{ pihole_exporter_setup_timeout }} \
+  -log_level {{ pihole_exporter_setup_log_level }}
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

@@ -98,3 +98,45 @@ groups:
       description: Inactive PGs block I/O to the affected pools.
 {% endraw %}
 {% endif %}
+{% if prometheus_setup_pihole_alerts_enabled | bool %}
+
+- name: pihole
+  rules:
+{% raw %}
+  - alert: PiholeExporterDown
+    expr: up{job="{% endraw %}{{ prometheus_setup_pihole_exporter_job_name }}{% raw %}"} == 0
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: Pi-hole exporter on {{ $labels.instance }} is unreachable
+      description: Prometheus cannot scrape the Pi-hole exporter. The exporter service or the host may be down.
+
+  - alert: PiholeMetricsAbsent
+    expr: up{job="{% endraw %}{{ prometheus_setup_pihole_exporter_job_name }}{% raw %}"} == 1 unless on (instance) pihole_status
+    for: 10m
+    labels:
+      severity: warning
+    annotations:
+      summary: Pi-hole exporter on {{ $labels.instance }} returns no Pi-hole data
+      description: The exporter is up but cannot read the Pi-hole API. Check pihole-FTL and the exporter password.
+
+  - alert: PiholeBlockingDisabled
+    expr: pihole_status == 0
+    for: 15m
+    labels:
+      severity: warning
+    annotations:
+      summary: Pi-hole blocking is disabled on {{ $labels.instance }}
+      description: Ad blocking has been off for 15 minutes. Re-enable it with `pihole enable` or in the web interface.
+
+  - alert: PiholeGravityEmpty
+    expr: pihole_domains_being_blocked == 0
+    for: 15m
+    labels:
+      severity: warning
+    annotations:
+      summary: Pi-hole on {{ $labels.instance }} has no blocklist domains
+      description: The gravity database is empty. Run `pihole -g` to rebuild it.
+{% endraw %}
+{% endif %}
