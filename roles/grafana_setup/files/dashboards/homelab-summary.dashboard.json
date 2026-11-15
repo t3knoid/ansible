@@ -1,0 +1,703 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "At-a-glance homelab health: Proxmox nodes online, cluster CPU, web services up, reverse proxy, DNS, and Plex health.",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [
+    {
+      "asDropdown": false,
+      "icon": "dashboard",
+      "includeVars": false,
+      "keepTime": true,
+      "tags": [],
+      "targetBlank": false,
+      "title": "Proxmox VE Status",
+      "type": "link",
+      "url": "/d/proxmox-ve-status"
+    },
+    {
+      "asDropdown": false,
+      "icon": "dashboard",
+      "includeVars": false,
+      "keepTime": true,
+      "tags": [],
+      "targetBlank": false,
+      "title": "Web Service Status",
+      "type": "link",
+      "url": "/d/web-service-status"
+    },
+    {
+      "asDropdown": false,
+      "icon": "dashboard",
+      "includeVars": false,
+      "keepTime": true,
+      "tags": [],
+      "targetBlank": false,
+      "title": "Reverse Proxy & Entra ID Health",
+      "type": "link",
+      "url": "/d/rproxy-entra-id-health"
+    },
+    {
+      "asDropdown": false,
+      "icon": "dashboard",
+      "includeVars": false,
+      "keepTime": true,
+      "tags": [],
+      "targetBlank": false,
+      "title": "DNS",
+      "type": "link",
+      "url": "/d/pihole-dns"
+    },
+    {
+      "asDropdown": false,
+      "icon": "dashboard",
+      "includeVars": false,
+      "keepTime": true,
+      "tags": [],
+      "targetBlank": false,
+      "title": "Plex Media Server",
+      "type": "link",
+      "url": "/d/plex-media-server"
+    }
+  ],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "Proxmox VE nodes reporting up (pve_up) vs. down.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Offline"
+            },
+            "properties": [
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "red",
+                      "value": 1
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "textMode": "value_and_name",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "count(max by (id) (pve_up{id=~\"node/.+\"}) == 1) or (0 * count(max by (id) (pve_up{id=~\"node/.+\"})))",
+          "instant": true,
+          "range": false,
+          "legendFormat": "Online",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "count(max by (id) (pve_up{id=~\"node/.+\"}) == 0) or (0 * count(max by (id) (pve_up{id=~\"node/.+\"})))",
+          "instant": true,
+          "range": false,
+          "legendFormat": "Offline",
+          "refId": "B"
+        }
+      ],
+      "title": "Proxmox Nodes Online",
+      "type": "stat",
+      "links": [
+        {
+          "title": "Proxmox VE Status",
+          "url": "/d/proxmox-ve-status?${__url_time_range}",
+          "targetBlank": false
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "Proxmox cluster CPU usage, weighted by each node's core count.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 90
+              }
+            ]
+          },
+          "unit": "percent",
+          "decimals": 1
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 4,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "sum(max by (id) (pve_cpu_usage_ratio{id=~\"node/.+\"}) * max by (id) (pve_cpu_usage_limit{id=~\"node/.+\"})) / sum(max by (id) (pve_cpu_usage_limit{id=~\"node/.+\"})) * 100",
+          "instant": false,
+          "range": true,
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "title": "Cluster CPU",
+      "type": "stat",
+      "links": [
+        {
+          "title": "Proxmox VE Status",
+          "url": "/d/proxmox-ve-status?${__url_time_range}",
+          "targetBlank": false
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "Blackbox HTTP probes currently succeeding vs. failing.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Offline"
+            },
+            "properties": [
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "red",
+                      "value": 1
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 8,
+        "y": 0
+      },
+      "id": 3,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "textMode": "value_and_name",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "count(probe_success{job=~\"blackbox_http|blackbox\"} == 1) or (0 * count(probe_success{job=~\"blackbox_http|blackbox\"}))",
+          "instant": true,
+          "range": false,
+          "legendFormat": "Online",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "count(probe_success{job=~\"blackbox_http|blackbox\"} == 0) or (0 * count(probe_success{job=~\"blackbox_http|blackbox\"}))",
+          "instant": true,
+          "range": false,
+          "legendFormat": "Offline",
+          "refId": "B"
+        }
+      ],
+      "title": "Web Services Up",
+      "type": "stat",
+      "links": [
+        {
+          "title": "Web Service Status",
+          "url": "/d/web-service-status?${__url_time_range}",
+          "targetBlank": false
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "Roll-up of the Reverse Proxy & Entra ID Health dashboard: number of failing proxy-tier checks (nginx ports, backend proxy reachability, oauth2-proxy, Redis, nginx exporters, failed units, host scrapes). Backend app outages are shown under Web Services Up instead. 0 = Healthy.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "Healthy",
+                  "color": "green",
+                  "index": 0
+                }
+              }
+            },
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "NO DATA",
+                  "color": "text",
+                  "index": 1
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "suffix: issue(s)"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 12,
+        "y": 0
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "background_solid",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "(count(up{job=\"node\",instance=~\"rproxy-.*\"} == 0) or vector(0))\n+ (count(rproxy_nginx_expected_port_up{job=\"node\",instance=~\"rproxy-.*\"} == 0) or vector(0))\n+ (count(rproxy_backend_reachable{job=\"node\",instance=~\"rproxy-.*\"} == 0) or vector(0))\n+ (count(rproxy_redis_up{job=\"node\",instance=~\"rproxy-.*\"} == 0) or vector(0))\n+ (count(rproxy_oauth2_proxy_port_up{job=\"node\",instance=~\"rproxy-.*\"} == 0) or vector(0))\n+ (count(up{job=\"nginx_exporter\",instance=~\"rproxy-.*\"} == 0) or vector(0))\n+ (count(linux_systemd_service_failed_info{job=\"node\",instance=~\"rproxy-.*\",service=~\"oauth2-proxy.*|nginx.*|redis.*\"}) or vector(0))\n+ (count(absent(rproxy_nginx_expected_port_up{job=\"node\",instance=~\"rproxy-.*\"})) or vector(0))",
+          "instant": true,
+          "range": false,
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "title": "Reverse Proxy Health",
+      "type": "stat",
+      "links": [
+        {
+          "title": "Reverse Proxy & Entra ID Health",
+          "url": "/d/rproxy-entra-id-health?${__url_time_range}",
+          "targetBlank": false
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "Roll-up of the DNS dashboard: Pi-hole servers whose exporter is down or whose blocking is disabled. 0 = Healthy, 1+ = degraded (other servers still answering), DOWN = no healthy Pi-hole server.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "Healthy",
+                  "color": "green",
+                  "index": 0
+                },
+                "-1": {
+                  "text": "DOWN",
+                  "color": "red",
+                  "index": 1
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "orange",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "suffix: issue(s)"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 16,
+        "y": 0
+      },
+      "id": 5,
+      "options": {
+        "colorMode": "background_solid",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "((count((max by (instance) (up{job=\"pihole_exporter\"}) == 0) or (max by (instance) (pihole_status{job=\"pihole_exporter\"}) == 0)) or vector(0)) unless on () absent((max by (instance) (up{job=\"pihole_exporter\"}) == 1) and on (instance) (max by (instance) (pihole_status{job=\"pihole_exporter\"}) == 1)))\nor on () (vector(-1) and on () absent((max by (instance) (up{job=\"pihole_exporter\"}) == 1) and on (instance) (max by (instance) (pihole_status{job=\"pihole_exporter\"}) == 1)))",
+          "instant": true,
+          "range": false,
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "title": "DNS Health",
+      "type": "stat",
+      "links": [
+        {
+          "title": "DNS",
+          "url": "/d/pihole-dns?${__url_time_range}",
+          "targetBlank": false
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "Roll-up of Plex Media Server health: failing checks across the plex host, prometheus-plex-exporter, Plex server reporting, and failed Plex systemd units. 0 = Healthy.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "Healthy",
+                  "color": "green",
+                  "index": 0
+                }
+              }
+            },
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "NO DATA",
+                  "color": "text",
+                  "index": 1
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "suffix: issue(s)"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 20,
+        "y": 0
+      },
+      "id": 6,
+      "options": {
+        "colorMode": "background_solid",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "(count(up{job=\"node\",group=\"plex\"} == 0) or vector(0))\n+ (count(up{job=\"plex_exporter\"} == 0) or vector(0))\n+ (count(absent(up{job=\"plex_exporter\"})) or vector(0))\n+ (count(absent(server_info{job=\"plex_exporter\"})) or vector(0))\n+ (count(linux_systemd_service_failed_info{job=\"node\",group=\"plex\",service=~\"plexmediaserver.*|plex.*\"}) or vector(0))",
+          "instant": true,
+          "range": false,
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "title": "Plex Health",
+      "type": "stat",
+      "links": [
+        {
+          "title": "Plex Media Server",
+          "url": "/d/plex-media-server?${__url_time_range}",
+          "targetBlank": false
+        }
+      ]
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 41,
+  "tags": [
+    "summary",
+    "proxmox",
+    "blackbox",
+    "rproxy",
+    "dns",
+    "plex"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Homelab Summary",
+  "uid": "homelab-summary",
+  "version": 4,
+  "weekStart": ""
+}

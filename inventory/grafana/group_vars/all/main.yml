@@ -49,6 +49,8 @@ grafana_setup_domain: "grafana.refol.us"
 grafana_setup_protocol: "https"
 grafana_setup_version: "12.2.0"
 grafana_setup_edition: "grafana-enterprise"
+grafana_setup_allow_embedding: true
+grafana_setup_public_dashboards_enabled: true
 grafana_setup_auth_anonymous_enabled: true
 grafana_setup_auth_anonymous_org_name: "Main Org."
 grafana_setup_auth_anonymous_org_role: "Viewer"
