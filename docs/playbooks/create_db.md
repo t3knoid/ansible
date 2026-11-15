@@ -1,12 +1,14 @@
-# 📖 Playbook: semaphoreui/create_db.yml
+# 📖 Playbook: grafana/create_db.yml
 
 ## 🛠 Purpose
-Create PostgreSQL database for Semaphore UI application.
+Create PostgreSQL database for Grafana on the database server
 
 ## 🔗 Roles Applied
 - [`global`](../roles/global/README.md)
+- [`python3`](../roles/python3/README.md)
+- [`autofs`](../roles/autofs/README.md)
 
 ## 🚀 Usage
 ```bash
-ansible-playbook playbooks/semaphoreui/create_db.yml
+ansible-playbook playbooks/grafana/create_db.yml
 ```
