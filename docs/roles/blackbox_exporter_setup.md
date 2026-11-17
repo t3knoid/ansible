@@ -65,6 +65,17 @@ Install and configure Prometheus Blackbox Exporter for probing web services.
 | `method` | `GET` |  |
 | `preferred_ip_protocol` | `ip4` |  |
 | `follow_redirects` | `false` |  |
+| `http_vhost_reachable` | `` | destination, which means the vhost is missing and another server block answered. |
+| `prober` | `http` |  |
+| `timeout` | `5s` |  |
+| `http` | `` |  |
+| `method` | `GET` |  |
+| `preferred_ip_protocol` | `ip4` |  |
+| `follow_redirects` | `false` |  |
+| `valid_status_codes` | `[200, 204, 301, 302, 303, 307, 308, 401, 403]` |  |
+| `fail_if_header_matches` | `` |  |
+| `- header` | `Location` |  |
+| `regexp` | `"/projects/home-lab"` |  |
 | `https_frontdoor_oauth2` | `` | which proves TLS + nginx vhost + oauth2-proxy are working on the front proxy. |
 | `prober` | `http` |  |
 | `timeout` | `5s` |  |
@@ -83,7 +94,7 @@ Install and configure Prometheus Blackbox Exporter for probing web services.
 | `preferred_ip_protocol` | `ip4` |  |
 | `follow_redirects` | `false` |  |
 | `fail_if_not_ssl` | `true` |  |
-| `valid_status_codes` | `[200, 204, 301, 302, 303, 307, 308]` |  |
+| `valid_status_codes` | `[200, 204, 301, 302, 303, 307, 308, 401, 403, 502, 503, 504]` | 401/403 = the app's own login, 502-504 = rproxy-0 answered but the backend did not |
 | `https_edge_oauth2` | `` | and come from the origin (oauth2 sign-in page), so Cloudflare error pages (52x) and WAF blocks fail. |
 | `prober` | `http` |  |
 | `timeout` | `10s` |  |
@@ -105,7 +116,7 @@ Install and configure Prometheus Blackbox Exporter for probing web services.
 | `preferred_ip_protocol` | `ip4` |  |
 | `follow_redirects` | `false` |  |
 | `fail_if_not_ssl` | `true` |  |
-| `valid_status_codes` | `[200, 204, 301, 302, 303, 307, 308]` |  |
+| `valid_status_codes` | `[200, 204, 301, 302, 303, 307, 308, 401, 403, 502, 503, 504]` | 401/403 = the app's own login, 502-504 = rproxy-0 answered but the backend did not |
 | `fail_if_header_not_matches` | `` |  |
 | `- header` | `Server` |  |
 | `regexp` | `"cloudflare"` |  |
