@@ -8,6 +8,8 @@ Type=simple
 User={{ blackbox_exporter_setup_user }}
 Group={{ blackbox_exporter_setup_group }}
 ExecStart={{ blackbox_exporter_setup_binary }} --config.file={{ blackbox_exporter_setup_config_file }} --web.listen-address={{ blackbox_exporter_setup_listen_address }} --log.level={{ blackbox_exporter_setup_log_level }}
+# ICMP probes need raw sockets; the exporter runs as an unprivileged user.
+AmbientCapabilities=CAP_NET_RAW
 Restart=on-failure
 RestartSec=5
 

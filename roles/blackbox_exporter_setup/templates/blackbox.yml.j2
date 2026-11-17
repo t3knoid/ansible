@@ -1,2 +1,37 @@
 modules:
 {{ blackbox_exporter_setup_modules | to_nice_yaml(indent=2) | indent(2, true) }}
+{% for svc in blackbox_exporter_setup_service_path_services %}
+{%   set internal_ip = svc.internal_dns_expected_ip | default(global_ip_addresses[blackbox_exporter_setup_service_path_front_proxy] | default('')) %}
+  # Public resolution of {{ svc.fqdn }}: must return at least one A record and no private addresses.
+  dns_public_{{ svc.service }}:
+    prober: dns
+    timeout: 5s
+    dns:
+      query_name: "{{ svc.fqdn }}"
+      query_type: A
+      transport_protocol: udp
+      preferred_ip_protocol: ip4
+      recursion_desired: true
+      valid_rcodes: [NOERROR]
+      validate_answer_rrs:
+        fail_if_none_matches_regexp:
+          - '.*\sIN\sA\s.*'
+        fail_if_matches_regexp:
+          - '.*\sIN\sA\s+(10|127|192\.168|172\.(1[6-9]|2[0-9]|3[01]))\..*'
+  # Internal (split DNS) resolution of {{ svc.fqdn }}: must resolve to the front proxy.
+  dns_internal_{{ svc.service }}:
+    prober: dns
+    timeout: 5s
+    dns:
+      query_name: "{{ svc.fqdn }}"
+      query_type: A
+      transport_protocol: udp
+      preferred_ip_protocol: ip4
+      recursion_desired: true
+      valid_rcodes: [NOERROR]
+{%   if internal_ip %}
+      validate_answer_rrs:
+        fail_if_none_matches_regexp:
+          - '.*\sIN\sA\s+{{ internal_ip | regex_escape }}$'
+{%   endif %}
+{% endfor %}

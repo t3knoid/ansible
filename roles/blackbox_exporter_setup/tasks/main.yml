@@ -60,6 +60,8 @@
     owner: root
     group: root
     mode: "0644"
+    # Refuse an invalid config instead of installing it and leaving the exporter unable to start.
+    validate: "{{ blackbox_exporter_setup_binary }} --config.check --config.file=%s"
   notify:
     - Restart blackbox_exporter service
 

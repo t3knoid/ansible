@@ -140,3 +140,201 @@ groups:
       description: The gravity database is empty. Run `pihole -g` to rebuild it.
 {% endraw %}
 {% endif %}
+{% if prometheus_setup_service_path_rules_enabled | bool and prometheus_setup_service_path_services | default([]) | length > 0 %}
+{%   set J = prometheus_setup_service_path_job_name %}
+{%   set SLOW = prometheus_setup_service_path_slow_seconds %}
+{%   set FP = prometheus_setup_service_path_front_proxy %}
+{%   set BP1 = prometheus_setup_service_path_back_proxy_primary %}
+{%   set BP2 = prometheus_setup_service_path_back_proxy_standby %}
+{%   macro ps(c, t) %}max by (service) (probe_success{job="{{ J }}",component="{{ c }}",probe_type="{{ t }}"}){% endmacro %}
+{%   macro mins(c, t) %}min by (service) (probe_success{job="{{ J }}",component="{{ c }}",probe_type="{{ t }}"}){% endmacro %}
+{%   macro pd(c, t) %}max by (service) (probe_duration_seconds{job="{{ J }}",component="{{ c }}",probe_type="{{ t }}"}){% endmacro %}
+{%   macro sc(c) %}max by (service) (probe_http_status_code{job="{{ J }}",component="{{ c }}",probe_type="http"}){% endmacro %}
+{%   macro n(x) %}max by (service) (service_path:node_health{node="{{ x }}"}){% endmacro %}
+{%   macro e(x) %}max by (service) (service_path:edge_health{edge="{{ x }}"}){% endmacro %}
+{#     ok/slow/fail pattern: 2 = all probes succeed and fast, 1 = some succeed or slow, 0 = none succeed #}
+{%   macro okslow(c, t) %}
+      ((({{ mins(c, t) }} == 1) * 2) unless on (service) ({{ pd(c, t) }} > {{ SLOW }}))
+      or (({{ ps(c, t) }} == 1) * 0 + 1)
+      or ({{ ps(c, t) }} * 0)
+{%-  endmacro %}
+{%   macro backproxy(bp) %}
+      (({{ ps(bp, 'tcp') }} == 0) * 0)
+      or (({{ sc(bp) }} >= 200 < 300) * 0 + 2)
+      or (({{ sc(bp) }} >= 502 <= 504) * 0 + 2)
+      or ({{ ps(bp, 'tcp') }} * 0 + 1)
+{%-  endmacro %}
+{%   macro bphop(bp) %}
+      (({{ sc(bp) }} >= 200 < 300) * 0 + 2)
+      or (({{ sc(bp) }} >= 502 <= 504) * 0)
+{%-  endmacro %}
+{%   macro fronthop(bp) %}
+      max by (service) (probe_success{job="{{ J }}"}) * 0
+        + on () group_left () (2 * max(rproxy_backend_reachable{instance="{{ FP }}",backend="{{ bp }}"}))
+{%-  endmacro %}
+
+# Service request-path health. Values: 2 = healthy, 1 = degraded/slow/partial, 0 = failed.
+# A missing series means "not evaluated" (no data, or the hop cannot be tested because an earlier hop failed);
+# the Service Path dashboard renders that as gray/unknown.
+- name: service-path
+  interval: {{ prometheus_setup_service_path_scrape_interval }}
+  rules:
+  # ---------- Nodes (components) ----------
+  - record: service_path:node_health
+    labels: {node: public_dns}
+    expr: |
+{{ okslow('public_dns', 'dns') }}
+  - record: service_path:node_health
+    labels: {node: internal_dns}
+    expr: |
+{{ okslow('internal_dns', 'dns') }}
+  # Cloudflare answered with a 52x origin error: the edge itself is up, the origin hop is not.
+  - record: service_path:node_health
+    labels: {node: cloudflare}
+    expr: |
+{{ okslow('cloudflare', 'http') }}
+      or (({{ sc('cloudflare') }} >= 520 <= 530) * 0 + 2)
+      or (({{ sc('cloudflare') }} > 0) * 0 + 1)
+  # HTTPS/vhost/oauth2 check fails but TCP 443 answers: TLS, HTTP or auth problem on the front proxy.
+  - record: service_path:node_health
+    labels: {node: front_proxy}
+    expr: |
+      ((({{ ps(FP, 'http') }} == 1) * 2) unless on (service) ({{ pd(FP, 'http') }} > {{ SLOW }}))
+      or (({{ ps(FP, 'http') }} == 1) * 0 + 1)
+      or (({{ ps(FP, 'tcp') }} == 1) * 0 + 1)
+      or ({{ ps(FP, 'tcp') }} * 0)
+  # Back proxy is healthy when it answers the vhost with 2xx, or with 502-504 (nginx itself is fine, its
+  # upstream is not). Any other answer (e.g. 301 = vhost missing, default server) is degraded.
+  - record: service_path:node_health
+    labels: {node: back_proxy_primary}
+    expr: |
+{{ backproxy(BP1) }}
+  - record: service_path:node_health
+    labels: {node: back_proxy_standby}
+    expr: |
+{{ backproxy(BP2) }}
+  # Host is up when it answers ping or accepts connections on the application port.
+  - record: service_path:node_health
+    labels: {node: host}
+    expr: |
+      ((({{ ps('host', 'icmp') }} == 1) or ({{ ps('app', 'tcp') }} == 1)) * 0 + 2)
+      or ({{ ps('host', 'icmp') }} * 0)
+  - record: service_path:node_health
+    labels: {node: app}
+    expr: |
+{{ okslow('app', 'http') }}
+
+  # ---------- Edges (hops) ----------
+  - record: service_path:edge_health
+    labels: {edge: dns_edge}
+    expr: {{ n('public_dns') }}
+  # Proven broken only when Cloudflare itself reports it cannot reach the origin (52x).
+  - record: service_path:edge_health
+    labels: {edge: edge_front}
+    expr: |
+{{ okslow('cloudflare', 'http') }}
+      or (({{ sc('cloudflare') }} >= 520 <= 530) * 0)
+  # Internal DNS probe validates that the answer is the front proxy address.
+  - record: service_path:edge_health
+    labels: {edge: idns_front}
+    expr: {{ n('internal_dns') }}
+  # Measured from {{ FP }} itself (rproxy_backend_reachable textfile metric, refreshed every 5 minutes).
+  - record: service_path:edge_health
+    labels: {edge: front_bp1}
+    expr: |
+{{ fronthop(BP1) }}
+  - record: service_path:edge_health
+    labels: {edge: front_bp2}
+    expr: |
+{{ fronthop(BP2) }}
+  # 2xx through the back proxy proves the hop to the backend; 502-504 proves it is broken.
+  - record: service_path:edge_health
+    labels: {edge: bp1_host}
+    expr: |
+{{ bphop(BP1) }}
+  - record: service_path:edge_health
+    labels: {edge: bp2_host}
+    expr: |
+{{ bphop(BP2) }}
+  - record: service_path:edge_health
+    labels: {edge: host_app}
+    expr: |
+      (({{ ps('app', 'tcp') }} == 1) * 0 + 2)
+      or (({{ ps('app', 'tcp') }} == 0) * 0)
+
+  # ---------- Traffic flow (drives the animated overlay) ----------
+  # Present only on hops that traffic is expected to take right now. The standby back proxy only
+  # carries traffic when the primary is down (nginx `backup` upstream).
+{%   for edge in ['dns_edge', 'edge_front', 'idns_front', 'host_app'] %}
+  - record: service_path:edge_flow
+    labels: {edge: {{ edge }}}
+    expr: {{ e(edge) }} >= 1
+{%   endfor %}
+  - record: service_path:edge_flow
+    labels: {edge: front_bp1}
+    expr: ({{ e('front_bp1') }} >= 1) and on (service) ({{ n('back_proxy_primary') }} >= 1)
+  - record: service_path:edge_flow
+    labels: {edge: bp1_host}
+    expr: ({{ e('bp1_host') }} >= 1) and on (service) ({{ n('back_proxy_primary') }} >= 1)
+  - record: service_path:edge_flow
+    labels: {edge: front_bp2}
+    expr: ({{ e('front_bp2') }} >= 1) and on (service) ({{ n('back_proxy_primary') }} == 0)
+  - record: service_path:edge_flow
+    labels: {edge: bp2_host}
+    expr: ({{ e('bp2_host') }} >= 1) and on (service) ({{ n('back_proxy_primary') }} == 0)
+
+  # ---------- Path summaries ----------
+  # Back proxy layer works if either back proxy can reach the backend.
+  - record: service_path:node_health
+    labels: {node: back_proxy_layer}
+    expr: |
+      (
+        min by (service) (service_path:node_health{node="back_proxy_primary"} or service_path:edge_health{edge="bp1_host"})
+          >= on (service)
+        min by (service) (service_path:node_health{node="back_proxy_standby"} or service_path:edge_health{edge="bp2_host"})
+      )
+      or min by (service) (service_path:node_health{node="back_proxy_standby"} or service_path:edge_health{edge="bp2_host"})
+      or min by (service) (service_path:node_health{node="back_proxy_primary"} or service_path:edge_health{edge="bp1_host"})
+  - record: service_path:path_health
+    labels: {path: external}
+    expr: |
+      min by (service) (
+        service_path:node_health{node=~"public_dns|cloudflare|front_proxy|back_proxy_layer|host|app"}
+        or service_path:edge_health{edge="edge_front"}
+      )
+  - record: service_path:path_health
+    labels: {path: internal}
+    expr: |
+      min by (service) (
+        service_path:node_health{node=~"internal_dns|front_proxy|back_proxy_layer|host|app"}
+      )
+
+  # ---------- Probable failure location ----------
+  # First matching condition wins. Codes (dashboard maps them to text):
+  #  0 healthy                 1 DNS failure (public and internal)
+  #  2 external path: DNS      3 internal path: DNS
+  #  4 external path: edge     5 internal path: LAN cannot reach front proxy (Cloudflare can)
+  #  6 front proxy failure     7 back proxy failure (both)
+  #  8 backend host down       9 application failure
+  # 10 front proxy degraded   11 degraded (partial / slow / standby down)
+  # 12 external path: Cloudflare cannot reach origin    13 front proxy cannot reach back proxies
+  - record: service_path:probable_failure_code
+    expr: |
+      ((({{ n('public_dns') }} == 0) and on (service) ({{ n('internal_dns') }} == 0)) * 0 + 1)
+      or ((({{ n('front_proxy') }} == 0) and on (service) ({{ e('edge_front') }} >= 1)) * 0 + 5)
+      or (({{ n('front_proxy') }} == 0) * 0 + 6)
+      or ((({{ e('front_bp1') }} == 0) and on (service) ({{ e('front_bp2') }} == 0)) * 0 + 13)
+      or ((({{ n('back_proxy_primary') }} == 0) and on (service) ({{ n('back_proxy_standby') }} == 0)) * 0 + 7)
+      or (({{ n('host') }} == 0) * 0 + 8)
+      or (({{ n('app') }} == 0) * 0 + 9)
+      or (({{ n('internal_dns') }} == 0) * 0 + 3)
+      or (({{ n('public_dns') }} == 0) * 0 + 2)
+      or (({{ e('edge_front') }} == 0) * 0 + 12)
+      or (({{ n('cloudflare') }} == 0) * 0 + 4)
+      or (({{ n('front_proxy') }} == 1) * 0 + 10)
+      or ((
+            (min by (service) (service_path:node_health) < 2)
+            or (min by (service) (service_path:edge_health) < 2)
+          ) * 0 + 11)
+      or (max by (service) (service_path:node_health) * 0)
+{% endif %}

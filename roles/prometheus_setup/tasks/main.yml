@@ -71,16 +71,10 @@
     group: "{{ prometheus_setup_group }}"
     mode: "{{ prometheus_setup_data_mode }}"
 
-- name: Copy Prometheus configuration file
-  ansible.builtin.template:
-    src: prometheus.yml.j2
-    dest: "{{ prometheus_setup_config_file }}"
-    owner: "{{ prometheus_setup_user }}"
-    group: "{{ prometheus_setup_group }}"
-    mode: "{{ prometheus_setup_config_mode }}"
-    backup: true
-  notify:
-    - Reload Prometheus configuration
+# Build prometheus.yml through exporters.yml so targets already present in the live config
+# (registered from other inventories) are preserved instead of being replaced by this inventory's hosts.
+- name: Render Prometheus configuration preserving existing scrape targets
+  ansible.builtin.import_tasks: exporters.yml
 
 - name: Copy Prometheus rule file
   ansible.builtin.template:

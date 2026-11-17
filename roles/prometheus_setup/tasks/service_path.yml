@@ -1,0 +1,45 @@
+---
+# Resolve the public (Cloudflare) address of each service so the external-path probe can be sent to the
+# Cloudflare edge directly. Inside the LAN the fqdn resolves to rproxy-0 through split DNS, so probing the
+# name normally would never touch Cloudflare. Resolved with DNS-over-HTTPS from the Prometheus host.
+- name: Resolve public edge addresses for service path probes
+  ansible.builtin.uri:
+    url: "{{ prometheus_setup_service_path_doh_url }}?name={{ item.fqdn }}&type=A"
+    headers:
+      Accept: application/dns-json
+    return_content: true
+  loop: "{{ prometheus_setup_service_path_services | rejectattr('edge_ip', 'defined') | list }}"
+  loop_control:
+    label: "{{ item.fqdn }}"
+  register: prometheus_setup_service_path_edge_lookup
+  failed_when: false
+  changed_when: false
+
+- name: Build service path edge address map
+  ansible.builtin.set_fact:
+    prometheus_setup_service_path_edge_ips: >-
+      {{ prometheus_setup_service_path_edge_ips | default({}) | combine({
+        item.item.service: (((item.content | default('{}', true) | from_json).Answer | default([]))
+                            | selectattr('type', 'equalto', 1) | map(attribute='data') | first | default(''))
+      }) }}
+  loop: "{{ prometheus_setup_service_path_edge_lookup.results | default([]) }}"
+  loop_control:
+    label: "{{ item.item.service }}"
+
+- name: Add pinned service path edge addresses
+  ansible.builtin.set_fact:
+    prometheus_setup_service_path_edge_ips: >-
+      {{ prometheus_setup_service_path_edge_ips | default({}) | combine({item.service: item.edge_ip}) }}
+  loop: "{{ prometheus_setup_service_path_services | selectattr('edge_ip', 'defined') | list }}"
+  loop_control:
+    label: "{{ item.service }}"
+
+- name: Warn about services without a public edge address
+  ansible.builtin.debug:
+    msg: >-
+      No public A record found for {{ item.fqdn }}; the Cloudflare edge probe for {{ item.service }} is skipped.
+      Set edge_ip on the service_path_services entry to pin one.
+  loop: "{{ prometheus_setup_service_path_services }}"
+  loop_control:
+    label: "{{ item.service }}"
+  when: not (prometheus_setup_service_path_edge_ips | default({})).get(item.service)

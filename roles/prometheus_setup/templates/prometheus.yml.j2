@@ -52,7 +52,18 @@ scrape_configs:
 {% endfor %}
 {% endif %}
 
-{% if groups['plex_exporter'] | default([]) | length > 0 %}
+{% if prometheus_setup_plex_exporter_static_configs | default([]) | length > 0 %}
+  - job_name: 'plex_exporter'
+    scrape_interval: 30s
+
+    static_configs:
+{% for scrape_config in prometheus_setup_plex_exporter_static_configs %}
+      - targets: {{ scrape_config.targets | to_json }}
+        labels:
+          instance: '{{ scrape_config.labels.instance }}'
+          group: '{{ scrape_config.labels.group }}'
+{% endfor %}
+{% elif groups['plex_exporter'] | default([]) | length > 0 %}
   - job_name: 'plex_exporter'
     scrape_interval: 30s
 
@@ -244,6 +255,73 @@ scrape_configs:
         target_label: __param_target
       - source_labels: [__param_target]
         target_label: target
+      - target_label: __address__
+        replacement: '{{ prometheus_setup_blackbox_exporter_address }}'
+{% endif %}
+
+{% macro service_path_target(target, svc, component, probe_type, path, module, name, hostname='', role='') %}
+      - targets: ['{{ target }}']
+        labels:
+          instance: '{{ svc.service }}/{{ name }}'
+          service: '{{ svc.service }}'
+          component: '{{ component }}'
+          probe_type: '{{ probe_type }}'
+          path: '{{ path }}'
+          backend: '{{ svc.backend_host }}'
+{% if role %}
+          role: '{{ role }}'
+{% endif %}
+          __param_module: '{{ module }}'
+{% if hostname %}
+          __param_hostname: '{{ hostname }}'
+{% endif %}
+{% endmacro %}
+{% if prometheus_setup_service_path_services | default([]) | length > 0 %}
+{%   set fp = prometheus_setup_service_path_front_proxy %}
+{%   set bp1 = prometheus_setup_service_path_back_proxy_primary %}
+{%   set bp2 = prometheus_setup_service_path_back_proxy_standby %}
+  # Request-path probes: one target per hop so a failure can be located (Service Path dashboard).
+  - job_name: '{{ prometheus_setup_service_path_job_name }}'
+    metrics_path: /probe
+    scrape_interval: {{ prometheus_setup_service_path_scrape_interval }}
+    scrape_timeout: {{ prometheus_setup_service_path_scrape_timeout }}
+
+    static_configs:
+{%   for svc in prometheus_setup_service_path_services %}
+{%     set auth = 'oauth2' if svc.frontdoor_auth | default('oauth2') == 'oauth2' else 'open' %}
+{%     set backend_ip = global_ip_addresses[svc.backend_host] %}
+{%     set health_path = svc.health_path | default('/') %}
+{%     set edge_ip = (prometheus_setup_service_path_edge_ips | default({})).get(svc.service, '') %}
+      # --- {{ svc.service }} ({{ svc.fqdn }}) ---
+{%     for resolver in prometheus_setup_service_path_public_resolvers %}
+{{ service_path_target(resolver, svc, 'public_dns', 'dns', 'external', 'dns_public_' ~ svc.service, 'public_dns/' ~ resolver) }}
+{%-    endfor %}
+{%     for dns_host in prometheus_setup_service_path_internal_dns_hosts %}
+{{ service_path_target(global_ip_addresses[dns_host], svc, 'internal_dns', 'dns', 'internal', 'dns_internal_' ~ svc.service, 'internal_dns/' ~ dns_host) }}
+{%-    endfor %}
+{%     if edge_ip %}
+{{ service_path_target('https://' ~ edge_ip ~ '/', svc, 'cloudflare', 'http', 'external', 'https_edge_' ~ auth, 'cloudflare/https', svc.fqdn) }}
+{%-    endif %}
+{%     if fp %}
+{{ service_path_target('https://' ~ global_ip_addresses[fp] ~ '/', svc, fp, 'http', 'internal', 'https_frontdoor_' ~ auth, fp ~ '/https', svc.fqdn, 'front_proxy') }}
+{{ service_path_target(global_ip_addresses[fp] ~ ':' ~ prometheus_setup_service_path_front_proxy_port, svc, fp, 'tcp', 'internal', 'tcp_connect_ipv4', fp ~ '/tcp', '', 'front_proxy') }}
+{%-    endif %}
+{%     for bp, role in [(bp1, 'back_proxy_primary'), (bp2, 'back_proxy_standby')] if bp %}
+{{ service_path_target('http://' ~ global_ip_addresses[bp] ~ ':' ~ prometheus_setup_service_path_back_proxy_port ~ health_path, svc, bp, 'http', 'backend', 'http_vhost_2xx', bp ~ '/http', svc.fqdn, role) }}
+{{ service_path_target(global_ip_addresses[bp] ~ ':' ~ prometheus_setup_service_path_back_proxy_port, svc, bp, 'tcp', 'backend', 'tcp_connect_ipv4', bp ~ '/tcp', '', role) }}
+{%-    endfor %}
+{{ service_path_target(backend_ip, svc, 'host', 'icmp', 'backend', 'icmp_ipv4', 'host/icmp') }}
+{{ service_path_target(backend_ip ~ ':' ~ svc.backend_port, svc, 'app', 'tcp', 'backend', 'tcp_connect_ipv4', 'app/tcp') }}
+{{ service_path_target('http://' ~ backend_ip ~ ':' ~ svc.backend_port ~ health_path, svc, 'app', 'http', 'backend', 'http_vhost_2xx', 'app/http') }}
+{%   endfor %}
+
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: target
+      - source_labels: [__param_hostname]
+        target_label: vhost
       - target_label: __address__
         replacement: '{{ prometheus_setup_blackbox_exporter_address }}'
 {% endif %}

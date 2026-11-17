@@ -71,3 +71,26 @@ prometheus_setup_remove_jobs:
   - "{{ prometheus_setup_pihole_exporter_job_name }}"
   - "{{ prometheus_setup_blackbox_job_name }}"
 prometheus_setup_remove_reload_url: "http://localhost:9090/-/reload"
+
+# Service request-path probes (Service Path dashboard). Targets are generated from service_path_services.
+prometheus_setup_service_path_services: "{{ service_path_services | default([]) }}"
+prometheus_setup_service_path_job_name: "service_path"
+prometheus_setup_service_path_scrape_interval: "30s"
+prometheus_setup_service_path_scrape_timeout: "15s"
+# Probes slower than this (probe_duration_seconds) mark a hop as degraded.
+prometheus_setup_service_path_slow_seconds: 2
+# Public resolvers used for the external DNS check and to discover the Cloudflare edge IP at deploy time.
+prometheus_setup_service_path_public_resolvers:
+  - 1.1.1.1
+  - 8.8.8.8
+prometheus_setup_service_path_doh_url: "https://cloudflare-dns.com/dns-query"
+# Internal (split DNS) resolvers, by inventory hostname.
+prometheus_setup_service_path_internal_dns_hosts:
+  - dns-0
+  - dns-1
+prometheus_setup_service_path_front_proxy: "{{ groups['rproxy_main'] | default([]) | first | default('') }}"
+prometheus_setup_service_path_back_proxy_primary: "{{ groups['rproxy_primary'] | default([]) | first | default('') }}"
+prometheus_setup_service_path_back_proxy_standby: "{{ groups['rproxy_secondary'] | default([]) | first | default('') }}"
+prometheus_setup_service_path_front_proxy_port: 443
+prometheus_setup_service_path_back_proxy_port: 80
+prometheus_setup_service_path_rules_enabled: true

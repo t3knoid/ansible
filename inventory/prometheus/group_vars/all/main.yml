@@ -123,3 +123,37 @@ postgres_exporter_port: 9187
 blackbox_exporter_port: 9115
 
 prometheus_setup_truenas_update_check: true
+
+# Service request-path monitoring (Service Path dashboard).
+# Each entry generates independent Blackbox probes for every hop of the request path:
+#   public DNS -> Cloudflare edge -> rproxy-0 -> rproxy-1 / rproxy-2 -> backend host -> application
+#   internal DNS -> rproxy-0
+# Shared by the blackbox_exporter_setup role (per-service DNS modules) and the
+# prometheus_setup role (scrape targets + health recording rules).
+#   service:        value of the `service` label and the dashboard's $service variable
+#   fqdn:           public/internal virtual host name (used for DNS queries, Host header and TLS SNI)
+#   backend_host:   inventory hostname of the application VM (IP taken from global_ip_addresses)
+#   backend_port:   application port on backend_host
+#   health_path:    unauthenticated application health endpoint (also requested through rproxy-1/2)
+#   frontdoor_auth: oauth2 when rproxy-0 gates the site with oauth2-proxy (the probe then expects the
+#                   oauth2-proxy sign-in page), none when rproxy-0 passes requests straight through
+#   edge_ip:        optional; pin the Cloudflare edge IP instead of resolving it at deploy time
+service_path_services:
+  - service: lidarr
+    fqdn: lidarr.refol.us
+    backend_host: lidarr-0
+    backend_port: 8686
+    health_path: /ping
+    frontdoor_auth: oauth2
+  - service: sonarr
+    fqdn: sonarr.refol.us
+    backend_host: sonarr-0
+    backend_port: 8989
+    health_path: /ping
+    frontdoor_auth: oauth2
+  - service: radarr
+    fqdn: radarr.refol.us
+    backend_host: radarr-0
+    backend_port: 7878
+    health_path: /ping
+    frontdoor_auth: oauth2

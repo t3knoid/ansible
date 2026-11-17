@@ -70,6 +70,7 @@
     - rproxy-entra-id-health.dashboard.json
     - pihole-dns.dashboard.json
     - homelab-summary.dashboard.json
+    - service-path.dashboard.json
 
 - name: Remove standalone Proxmox VM snapshots dashboard
   ansible.builtin.file:

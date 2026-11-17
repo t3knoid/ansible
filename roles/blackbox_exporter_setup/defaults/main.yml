@@ -33,3 +33,81 @@ blackbox_exporter_setup_modules:
   tcp_connect:
     prober: tcp
     timeout: 5s
+  # --- Service request-path probes (see service_path_services) ---
+  icmp_ipv4:
+    prober: icmp
+    timeout: 3s
+    icmp:
+      preferred_ip_protocol: ip4
+  tcp_connect_ipv4:
+    prober: tcp
+    timeout: 5s
+    tcp:
+      preferred_ip_protocol: ip4
+  # Plain HTTP request against a reverse proxy or backend. Pass the virtual host with the
+  # `hostname` URL parameter (__param_hostname) so the correct nginx server block is selected.
+  # Redirects are not followed: a 301 means the vhost is missing and nginx fell back to the default server.
+  http_vhost_2xx:
+    prober: http
+    timeout: 5s
+    http:
+      method: GET
+      preferred_ip_protocol: ip4
+      follow_redirects: false
+  # HTTPS against rproxy-0 directly (internal path). `hostname` sets both the Host header and TLS SNI.
+  # oauth2 variant: an unauthenticated request must return the oauth2-proxy sign-in page (401/403),
+  # which proves TLS + nginx vhost + oauth2-proxy are working on the front proxy.
+  https_frontdoor_oauth2:
+    prober: http
+    timeout: 5s
+    http:
+      method: GET
+      preferred_ip_protocol: ip4
+      follow_redirects: false
+      fail_if_not_ssl: true
+      valid_status_codes: [401, 403]
+      fail_if_body_not_matches_regexp:
+        - "OAuth2_Proxy|oauth2/static"
+  https_frontdoor_open:
+    prober: http
+    timeout: 5s
+    http:
+      method: GET
+      preferred_ip_protocol: ip4
+      follow_redirects: false
+      fail_if_not_ssl: true
+      valid_status_codes: [200, 204, 301, 302, 303, 307, 308]
+  # HTTPS through a Cloudflare edge IP (external path). The response must carry `Server: cloudflare`
+  # and come from the origin (oauth2 sign-in page), so Cloudflare error pages (52x) and WAF blocks fail.
+  https_edge_oauth2:
+    prober: http
+    timeout: 10s
+    http:
+      method: GET
+      preferred_ip_protocol: ip4
+      follow_redirects: false
+      fail_if_not_ssl: true
+      valid_status_codes: [401, 403]
+      fail_if_header_not_matches:
+        - header: Server
+          regexp: "cloudflare"
+      fail_if_body_not_matches_regexp:
+        - "OAuth2_Proxy|oauth2/static"
+  https_edge_open:
+    prober: http
+    timeout: 10s
+    http:
+      method: GET
+      preferred_ip_protocol: ip4
+      follow_redirects: false
+      fail_if_not_ssl: true
+      valid_status_codes: [200, 204, 301, 302, 303, 307, 308]
+      fail_if_header_not_matches:
+        - header: Server
+          regexp: "cloudflare"
+
+# Per-service DNS modules (dns_public_<service>, dns_internal_<service>) are generated from this list,
+# because the Blackbox DNS prober takes the query name from the module, not from the target.
+blackbox_exporter_setup_service_path_services: "{{ service_path_services | default([]) }}"
+# Answer the internal resolvers must return for each fqdn (split DNS points at the front proxy).
+blackbox_exporter_setup_service_path_front_proxy: "{{ groups['rproxy_main'] | default([]) | first | default('') }}"
