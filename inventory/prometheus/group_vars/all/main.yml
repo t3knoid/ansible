@@ -111,10 +111,10 @@ prometheus_setup_blackbox_targets:
   - target: "http://192.168.20.157:8181"
     instance: "tautulli.refol.us"
     group: "web"
-  - target: "http://192.168.20.101:8000"
+  - target: "http://192.168.20.102:8000"  # ansible-1 (code-server), per rproxy_setup_sites
     instance: "code.refol.us"
     group: "web"
-  - target: "http://192.168.20.160:8083"
+  - target: "http://192.168.20.160:8081"  # books-0 catalog port, per rproxy_setup_sites
     instance: "catalog.refol.us"
     group: "web"
 
@@ -138,6 +138,10 @@ prometheus_setup_truenas_update_check: true
 #   frontdoor_auth: oauth2 when rproxy-0 gates the site with oauth2-proxy (the probe then expects the
 #                   oauth2-proxy sign-in page), none when rproxy-0 passes requests straight through
 #   edge_ip:        optional; pin the Cloudflare edge IP instead of resolving it at deploy time
+#   health_accept_redirects: true when health_path may answer with a redirect/login (3xx/401/403);
+#                   any answer from the app counts, except the nginx catch-all redirect
+#   internal_dns_expected_ip: optional; IP the internal resolvers must return ("" = only require an answer,
+#                   for names without split DNS)
 service_path_services:
   - service: lidarr
     fqdn: lidarr.refol.us
@@ -157,3 +161,72 @@ service_path_services:
     backend_port: 7878
     health_path: /ping
     frontdoor_auth: oauth2
+  # Health paths verified live on 2026-11-16: ombi (history), lab, sabnzbd, semaphore.
+  # Services marked "unverified" were down when added; confirm their health_path once they are up.
+  - service: ombi
+    fqdn: ombi.refol.us
+    backend_host: ombi-0
+    backend_port: 3579
+    health_path: /
+    frontdoor_auth: none
+  - service: books
+    fqdn: books.refol.us
+    backend_host: books-0
+    backend_port: 8083
+    health_path: /  # unverified (Calibre-Web, redirects to /login)
+    health_accept_redirects: true
+    frontdoor_auth: none
+  - service: catalog
+    fqdn: catalog.refol.us
+    backend_host: books-0
+    backend_port: 8081
+    health_path: /  # unverified (Calibre content server)
+    health_accept_redirects: true
+    frontdoor_auth: oauth2
+  - service: lazy
+    fqdn: lazy.refol.us
+    backend_host: books-0
+    backend_port: 5299
+    health_path: /  # unverified (LazyLibrarian, redirects)
+    health_accept_redirects: true
+    frontdoor_auth: oauth2
+  - service: lab
+    fqdn: lab.refol.us
+    backend_host: redmine-0
+    backend_port: 80
+    health_path: /login
+    frontdoor_auth: none
+  - service: sabnzbd
+    fqdn: sabnzbd.refol.us
+    backend_host: sabnzbd-0
+    backend_port: 8080
+    health_path: /api?mode=version
+    frontdoor_auth: oauth2
+  - service: semaphore
+    fqdn: semaphore.refol.us
+    backend_host: semaphore-0
+    backend_port: 3000
+    health_path: /api/ping
+    frontdoor_auth: none
+  - service: tautulli
+    fqdn: tautulli.refol.us
+    backend_host: tautulli-0
+    backend_port: 8181
+    health_path: /status  # unverified (Tautulli container health check endpoint)
+    health_accept_redirects: true
+    frontdoor_auth: none
+  - service: code
+    fqdn: code.refol.us
+    backend_host: ansible-1
+    backend_port: 8000
+    health_path: /healthz  # unverified (code-server)
+    health_accept_redirects: true
+    frontdoor_auth: oauth2
+  - service: demo-ecube
+    fqdn: demo.ecube.one
+    backend_host: ecube-1
+    backend_port: 80
+    health_path: /  # unverified (backend unreachable when added)
+    health_accept_redirects: true
+    frontdoor_auth: none
+    internal_dns_expected_ip: ""  # no split DNS: internal resolvers return the Cloudflare addresses

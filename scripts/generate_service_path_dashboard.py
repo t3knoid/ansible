@@ -140,7 +140,7 @@ panels.append(stat(
     [target(f'service_path:path_health{{{SVC},path="internal"}}')], mappings=NODE_MAP,
     desc="Worst hop on Internal DNS -> rproxy-0 -> back proxies -> host -> app."))
 http_thresh = {"mode": "absolute", "steps": [
-    {"color": RED, "value": None}, {"color": GREEN, "value": 200}, {"color": YELLOW, "value": 300},
+    {"color": RED, "value": None}, {"color": GREEN, "value": 200},
     {"color": "orange", "value": 400}, {"color": RED, "value": 500}]}
 panels.append(stat(
     "HTTP status (via back proxy)", 13, y, 3, 4,
@@ -262,7 +262,7 @@ node("n_cloudflare", "cloudflare", "Cloudflare", "public edge, HTTPS", X_EXT, R_
      [("n_rproxy0", (1, -0.4), (-1, 0.3), "edge_front", False)])
 node("n_internal_dns", "internal_dns", "Internal DNS", "Pi-hole dns-0 / dns-1", X_INT, R_DNS,
      [("n_rproxy0", (0, -1), (1, 0.3), "idns_front", False)])
-node("n_rproxy0", "front_proxy", "rproxy-0", "front proxy, TLS + oauth2", X_MID, R_FP,
+node("n_rproxy0", "front_proxy", "rproxy-0", "front proxy, TLS", X_MID, R_FP,
      [("n_rproxy1", (-0.5, -1), (0, 1), "front_bp1", False),
       ("n_rproxy2", (0.5, -1), (0, 1), "front_bp2", True)])
 node("n_rproxy1", "back_proxy_primary", "rproxy-1", "back proxy (primary)", X_BP1, R_BP,

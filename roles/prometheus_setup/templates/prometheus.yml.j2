@@ -291,6 +291,7 @@ scrape_configs:
 {%     set auth = 'oauth2' if svc.frontdoor_auth | default('oauth2') == 'oauth2' else 'open' %}
 {%     set backend_ip = global_ip_addresses[svc.backend_host] %}
 {%     set health_path = svc.health_path | default('/') %}
+{%     set health_module = 'http_vhost_reachable' if svc.health_accept_redirects | default(false) else 'http_vhost_2xx' %}
 {%     set edge_ip = (prometheus_setup_service_path_edge_ips | default({})).get(svc.service, '') %}
       # --- {{ svc.service }} ({{ svc.fqdn }}) ---
 {%     for resolver in prometheus_setup_service_path_public_resolvers %}
@@ -307,12 +308,12 @@ scrape_configs:
 {{ service_path_target(global_ip_addresses[fp] ~ ':' ~ prometheus_setup_service_path_front_proxy_port, svc, fp, 'tcp', 'internal', 'tcp_connect_ipv4', fp ~ '/tcp', '', 'front_proxy') }}
 {%-    endif %}
 {%     for bp, role in [(bp1, 'back_proxy_primary'), (bp2, 'back_proxy_standby')] if bp %}
-{{ service_path_target('http://' ~ global_ip_addresses[bp] ~ ':' ~ prometheus_setup_service_path_back_proxy_port ~ health_path, svc, bp, 'http', 'backend', 'http_vhost_2xx', bp ~ '/http', svc.fqdn, role) }}
+{{ service_path_target('http://' ~ global_ip_addresses[bp] ~ ':' ~ prometheus_setup_service_path_back_proxy_port ~ health_path, svc, bp, 'http', 'backend', health_module, bp ~ '/http', svc.fqdn, role) }}
 {{ service_path_target(global_ip_addresses[bp] ~ ':' ~ prometheus_setup_service_path_back_proxy_port, svc, bp, 'tcp', 'backend', 'tcp_connect_ipv4', bp ~ '/tcp', '', role) }}
 {%-    endfor %}
 {{ service_path_target(backend_ip, svc, 'host', 'icmp', 'backend', 'icmp_ipv4', 'host/icmp') }}
 {{ service_path_target(backend_ip ~ ':' ~ svc.backend_port, svc, 'app', 'tcp', 'backend', 'tcp_connect_ipv4', 'app/tcp') }}
-{{ service_path_target('http://' ~ backend_ip ~ ':' ~ svc.backend_port ~ health_path, svc, 'app', 'http', 'backend', 'http_vhost_2xx', 'app/http') }}
+{{ service_path_target('http://' ~ backend_ip ~ ':' ~ svc.backend_port ~ health_path, svc, 'app', 'http', 'backend', health_module, 'app/http') }}
 {%   endfor %}
 
     relabel_configs:

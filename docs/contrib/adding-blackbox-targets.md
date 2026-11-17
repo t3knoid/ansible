@@ -197,3 +197,9 @@ To manage blackbox targets:
 5. Verify the `blackbox_http` job in Prometheus and Grafana
 
 The inventory list is authoritative, and redeploying applies the exact target set defined there.
+
+---
+
+## 🔗 See also
+
+* [Service Path Dashboard](service-path-dashboard.md): per-hop request-path probes (DNS, Cloudflare, reverse proxies, backend, application) for web services, defined in `service_path_services` in the same inventory file.

@@ -160,12 +160,12 @@ groups:
 {%-  endmacro %}
 {%   macro backproxy(bp) %}
       (({{ ps(bp, 'tcp') }} == 0) * 0)
-      or (({{ sc(bp) }} >= 200 < 300) * 0 + 2)
+      or (({{ ps(bp, 'http') }} == 1) * 0 + 2)
       or (({{ sc(bp) }} >= 502 <= 504) * 0 + 2)
       or ({{ ps(bp, 'tcp') }} * 0 + 1)
 {%-  endmacro %}
 {%   macro bphop(bp) %}
-      (({{ sc(bp) }} >= 200 < 300) * 0 + 2)
+      (({{ ps(bp, 'http') }} == 1) * 0 + 2)
       or (({{ sc(bp) }} >= 502 <= 504) * 0)
 {%-  endmacro %}
 {%   macro fronthop(bp) %}
@@ -203,7 +203,7 @@ groups:
       or (({{ ps(FP, 'http') }} == 1) * 0 + 1)
       or (({{ ps(FP, 'tcp') }} == 1) * 0 + 1)
       or ({{ ps(FP, 'tcp') }} * 0)
-  # Back proxy is healthy when it answers the vhost with 2xx, or with 502-504 (nginx itself is fine, its
+  # Back proxy is healthy when its vhost probe succeeds, or it answers 502-504 (nginx itself is fine, its
   # upstream is not). Any other answer (e.g. 301 = vhost missing, default server) is degraded.
   - record: service_path:node_health
     labels: {node: back_proxy_primary}
@@ -247,7 +247,7 @@ groups:
     labels: {edge: front_bp2}
     expr: |
 {{ fronthop(BP2) }}
-  # 2xx through the back proxy proves the hop to the backend; 502-504 proves it is broken.
+  # A successful vhost probe through the back proxy proves the hop to the backend; 502-504 proves it is broken.
   - record: service_path:edge_health
     labels: {edge: bp1_host}
     expr: |

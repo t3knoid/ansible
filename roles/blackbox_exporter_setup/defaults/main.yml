@@ -54,6 +54,20 @@ blackbox_exporter_setup_modules:
       method: GET
       preferred_ip_protocol: ip4
       follow_redirects: false
+  # Lenient variant for apps whose health path redirects to a login page or requires auth:
+  # any 2xx/3xx/401/403 answer proves the app responded, except a redirect to the nginx catch-all
+  # destination, which means the vhost is missing and another server block answered.
+  http_vhost_reachable:
+    prober: http
+    timeout: 5s
+    http:
+      method: GET
+      preferred_ip_protocol: ip4
+      follow_redirects: false
+      valid_status_codes: [200, 204, 301, 302, 303, 307, 308, 401, 403]
+      fail_if_header_matches:
+        - header: Location
+          regexp: "/projects/home-lab"
   # HTTPS against rproxy-0 directly (internal path). `hostname` sets both the Host header and TLS SNI.
   # oauth2 variant: an unauthenticated request must return the oauth2-proxy sign-in page (401/403),
   # which proves TLS + nginx vhost + oauth2-proxy are working on the front proxy.
@@ -76,7 +90,8 @@ blackbox_exporter_setup_modules:
       preferred_ip_protocol: ip4
       follow_redirects: false
       fail_if_not_ssl: true
-      valid_status_codes: [200, 204, 301, 302, 303, 307, 308]
+      # 401/403 = the app's own login, 502-504 = rproxy-0 answered but the backend did not
+      valid_status_codes: [200, 204, 301, 302, 303, 307, 308, 401, 403, 502, 503, 504]
   # HTTPS through a Cloudflare edge IP (external path). The response must carry `Server: cloudflare`
   # and come from the origin (oauth2 sign-in page), so Cloudflare error pages (52x) and WAF blocks fail.
   https_edge_oauth2:
@@ -101,7 +116,8 @@ blackbox_exporter_setup_modules:
       preferred_ip_protocol: ip4
       follow_redirects: false
       fail_if_not_ssl: true
-      valid_status_codes: [200, 204, 301, 302, 303, 307, 308]
+      # 401/403 = the app's own login, 502-504 = rproxy-0 answered but the backend did not
+      valid_status_codes: [200, 204, 301, 302, 303, 307, 308, 401, 403, 502, 503, 504]
       fail_if_header_not_matches:
         - header: Server
           regexp: "cloudflare"
