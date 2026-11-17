@@ -48,6 +48,69 @@ Install and configure Prometheus Blackbox Exporter for probing web services.
 | `tcp_connect` | `` |  |
 | `prober` | `tcp` |  |
 | `timeout` | `5s` |  |
+| `icmp_ipv4` | `` | --- Service request-path probes (see service_path_services) --- |
+| `prober` | `icmp` |  |
+| `timeout` | `3s` |  |
+| `icmp` | `` |  |
+| `preferred_ip_protocol` | `ip4` |  |
+| `tcp_connect_ipv4` | `` |  |
+| `prober` | `tcp` |  |
+| `timeout` | `5s` |  |
+| `tcp` | `` |  |
+| `preferred_ip_protocol` | `ip4` |  |
+| `http_vhost_2xx` | `` | Redirects are not followed: a 301 means the vhost is missing and nginx fell back to the default server. |
+| `prober` | `http` |  |
+| `timeout` | `5s` |  |
+| `http` | `` |  |
+| `method` | `GET` |  |
+| `preferred_ip_protocol` | `ip4` |  |
+| `follow_redirects` | `false` |  |
+| `https_frontdoor_oauth2` | `` | which proves TLS + nginx vhost + oauth2-proxy are working on the front proxy. |
+| `prober` | `http` |  |
+| `timeout` | `5s` |  |
+| `http` | `` |  |
+| `method` | `GET` |  |
+| `preferred_ip_protocol` | `ip4` |  |
+| `follow_redirects` | `false` |  |
+| `fail_if_not_ssl` | `true` |  |
+| `valid_status_codes` | `[401, 403]` |  |
+| `fail_if_body_not_matches_regexp` | `` |  |
+| `https_frontdoor_open` | `` |  |
+| `prober` | `http` |  |
+| `timeout` | `5s` |  |
+| `http` | `` |  |
+| `method` | `GET` |  |
+| `preferred_ip_protocol` | `ip4` |  |
+| `follow_redirects` | `false` |  |
+| `fail_if_not_ssl` | `true` |  |
+| `valid_status_codes` | `[200, 204, 301, 302, 303, 307, 308]` |  |
+| `https_edge_oauth2` | `` | and come from the origin (oauth2 sign-in page), so Cloudflare error pages (52x) and WAF blocks fail. |
+| `prober` | `http` |  |
+| `timeout` | `10s` |  |
+| `http` | `` |  |
+| `method` | `GET` |  |
+| `preferred_ip_protocol` | `ip4` |  |
+| `follow_redirects` | `false` |  |
+| `fail_if_not_ssl` | `true` |  |
+| `valid_status_codes` | `[401, 403]` |  |
+| `fail_if_header_not_matches` | `` |  |
+| `- header` | `Server` |  |
+| `regexp` | `"cloudflare"` |  |
+| `fail_if_body_not_matches_regexp` | `` |  |
+| `https_edge_open` | `` |  |
+| `prober` | `http` |  |
+| `timeout` | `10s` |  |
+| `http` | `` |  |
+| `method` | `GET` |  |
+| `preferred_ip_protocol` | `ip4` |  |
+| `follow_redirects` | `false` |  |
+| `fail_if_not_ssl` | `true` |  |
+| `valid_status_codes` | `[200, 204, 301, 302, 303, 307, 308]` |  |
+| `fail_if_header_not_matches` | `` |  |
+| `- header` | `Server` |  |
+| `regexp` | `"cloudflare"` |  |
+| `blackbox_exporter_setup_service_path_services` | `"{{ service_path_services | default([]) }}"` | because the Blackbox DNS prober takes the query name from the module, not from the target. |
+| `blackbox_exporter_setup_service_path_front_proxy` | `"{{ groups['rproxy_main'] | default([]) | first | default('') }}"` | Answer the internal resolvers must return for each fqdn (split DNS points at the front proxy). |
 
 ## 📦 Vars
 _No constant variables found._

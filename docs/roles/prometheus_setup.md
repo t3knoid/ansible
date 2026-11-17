@@ -75,6 +75,20 @@ Installs and configures a Prometheus monitoring system on Debian/Ubuntu.
 | `prometheus_setup_remove_targets` | `[]` |  |
 | `prometheus_setup_remove_jobs` | `` |  |
 | `prometheus_setup_remove_reload_url` | `"http://localhost:9090/-/reload"` |  |
+| `prometheus_setup_service_path_services` | `"{{ service_path_services | default([]) }}"` | Service request-path probes (Service Path dashboard). Targets are generated from service_path_services. |
+| `prometheus_setup_service_path_job_name` | `"service_path"` |  |
+| `prometheus_setup_service_path_scrape_interval` | `"30s"` |  |
+| `prometheus_setup_service_path_scrape_timeout` | `"15s"` |  |
+| `prometheus_setup_service_path_slow_seconds` | `2` | Probes slower than this (probe_duration_seconds) mark a hop as degraded. |
+| `prometheus_setup_service_path_public_resolvers` | `` | Public resolvers used for the external DNS check and to discover the Cloudflare edge IP at deploy time. |
+| `prometheus_setup_service_path_doh_url` | `"https://cloudflare-dns.com/dns-query"` |  |
+| `prometheus_setup_service_path_internal_dns_hosts` | `` | Internal (split DNS) resolvers, by inventory hostname. |
+| `prometheus_setup_service_path_front_proxy` | `"{{ groups['rproxy_main'] | default([]) | first | default('') }}"` |  |
+| `prometheus_setup_service_path_back_proxy_primary` | `"{{ groups['rproxy_primary'] | default([]) | first | default('') }}"` |  |
+| `prometheus_setup_service_path_back_proxy_standby` | `"{{ groups['rproxy_secondary'] | default([]) | first | default('') }}"` |  |
+| `prometheus_setup_service_path_front_proxy_port` | `443` |  |
+| `prometheus_setup_service_path_back_proxy_port` | `80` |  |
+| `prometheus_setup_service_path_rules_enabled` | `true` |  |
 
 ## 📦 Vars
 _No constant variables found._
@@ -89,7 +103,7 @@ _No constant variables found._
 - Create Prometheus etc directory
 - Create Prometheus consoles directory
 - Create Prometheus console_libraries directory
-- Copy Prometheus configuration file
+- Render Prometheus configuration preserving existing scrape targets
 - Copy Prometheus rule file
 - Prepare local snapshot staging and NFS backups
 - Create Prometheus systemd service file
