@@ -1,436 +1,517 @@
-# truenas_api -- Idempotently manage TrueNAS objects through the local middleware API
+# truenas_api — Idempotently manage TrueNAS objects through the local middleware API
 
 ## Synopsis
 
-Runs on the TrueNAS host and talks to the middleware over its local socket\.
+Runs on the TrueNAS host and talks to the middleware over its local socket.
 
-Uses <code>truenas\_api\_client</code> when it can be imported\, otherwise falls back to <code>midclt</code>\.
+Uses `truenas_api_client` when it can be imported, otherwise falls back to `midclt`.
 
-<code>mode\=resource</code> ensures an object exists/does not exist\, found via <code>\<namespace\>\.query</code>\. The lookup must match at most one object\.
+`mode=resource` ensures an object exists/does not exist, found via `<namespace>.query`. The lookup must match at most one object.
 
-<code>mode\=config</code> manages a singleton configuration \(<code>\<namespace\>\.config</code> / <code>\<namespace\>\.update</code>\)\.
+`mode=config` manages a singleton configuration (`<namespace>.config` / `<namespace>.update`).
 
-<code>mode\=call</code> performs a raw API call \(not idempotent unless <code>read\_only\=true</code>\)\.
+`mode=call` performs a raw API call (not idempotent unless `read_only=true`).
 
-<code>mode\=app</code> reconciles generic catalog/custom Apps with bounded middleware jobs and runtime checks\.
+`mode=app` reconciles generic catalog/custom Apps with bounded middleware jobs and runtime checks.
 
-<code>mode\=vm</code> reconciles TrueNAS virtual machines\, their devices\, disk zvols and GPU passthrough with bounded middleware jobs and runtime checks\.
+`mode=vm` reconciles TrueNAS virtual machines, their devices, disk zvols and GPU passthrough with bounded middleware jobs and runtime checks.
 
-Only keys present in <em>config</em> are compared\. Lists of scalars compare without regard to order\, and ZFS property wrappers \(<code>parsed</code>/<code>value</code>/<code>rawvalue</code>\) compare case\-insensitively against plain values\.
+Only keys present in *config* are compared. Lists of scalars compare without regard to order, and ZFS property wrappers (`parsed`/`value`/`rawvalue`) compare case-insensitively against plain values.
 
-Updates send only the changed keys\, plus any <em>companion\_keys</em> and <em>sensitive\_keys</em> that apply\.
+Updates send only the changed keys, plus any *companion_keys* and *sensitive_keys* that apply.
 
-For <code>sharing\.smb</code>\, a changed <code>options</code> is sent together with <code>purpose</code>\. For <code>sharing\.nfs</code>\, setting <code>maproot\_\*</code> clears <code>mapall\_\*</code> and the reverse\, because the API treats them as mutually exclusive\.
+For `sharing.smb`, a changed `options` is sent together with `purpose`. For `sharing.nfs`, setting `maproot_*` clears `mapall_*` and the reverse, because the API treats them as mutually exclusive.
 
-Check mode is supported in every mode and never mutates the middleware\.
-
-
-
+Check mode is supported in every mode and never mutates the middleware.
 
 ## Parameters
 
-  mode (optional, str, resource)
-    Operating mode\.
+- **mode** (str, optional, default: `resource`)
 
-  app (optional, dict, None)
-    App definition used by <code>mode\=app</code>\. Allowed keys are <code>name</code>\, <code>source</code>\, <code>state</code>\, <code>runtime</code>\, <code>catalog</code>\, <code>values</code>\, <code>compose</code>\, <code>allow\_upgrade</code> and <code>allow\_delete</code>\; any other key fails\.
+  Operating mode.
 
-    <code>name</code> is lowercase letters\, digits and hyphens\, starts with a letter\, ends with a letter or digit\, and is at most 40 characters\.
+- **app** (dict, optional)
 
-    <code>source</code> is <code>catalog</code> or <code>custom</code>\. <code>state</code> is <code>present</code> \(default\) or <code>absent</code>\. <code>runtime</code> is <code>running</code> \(default\) or <code>stopped</code>\.
+  App definition used by `mode=app`. Allowed keys are `name`, `source`, `state`, `runtime`, `catalog`, `values`, `compose`, `allow_upgrade` and `allow_delete`; any other key fails.
 
-    Catalog apps need <code>catalog\.app</code>\, <code>catalog\.train</code> and an explicit <code>catalog\.version</code> other than <code>latest</code>\, plus an optional <code>values</code> mapping\. Values are merged into the current configuration\, so only the listed keys are compared\.
+  `name` is lowercase letters, digits and hyphens, starts with a letter, ends with a letter or digit, and is at most 40 characters.
 
-    Custom apps need <code>compose</code>\, a YAML string with a nonempty <code>services</code> mapping\. It is compared in both directions and replaced as a whole\.
+  `source` is `catalog` or `custom`. `state` is `present` (default) or `absent`. `runtime` is `running` (default) or `stopped`.
 
-    A catalog version change requires <code>allow\_upgrade\=true</code> and must be an available upgrade\; downgrades are refused\. Deletion requires <code>allow\_delete\=true</code> and keeps images and ix volumes\.
+  Catalog apps need `catalog.app`, `catalog.train` and an explicit `catalog.version` other than `latest`, plus an optional `values` mapping. Values are merged into the current configuration, so only the listed keys are compared.
 
-    Converting an app between catalog and custom\, or changing its catalog app or train\, is refused\.
+  Custom apps need `compose`, a YAML string with a nonempty `services` mapping. It is compared in both directions and replaced as a whole.
 
-    The whole definition is treated as sensitive and hidden from logs\.
+  A catalog version change requires `allow_upgrade=true` and must be an available upgrade; downgrades are refused. Deletion requires `allow_delete=true` and keeps images and ix volumes.
 
-  app_apply (optional, bool, False)
-    Allow app mutations\; false plans using read\-only queries\. Check mode always prevents mutations\.
+  Converting an app between catalog and custom, or changing its catalog app or train, is refused.
 
-  app_job_timeout (optional, int, 900)
-    Maximum seconds to wait for each Apps middleware job\; a timeout does not cancel the job\.
+  The whole definition is treated as sensitive and hidden from logs.
 
-  app_health_timeout (optional, int, 180)
-    Maximum seconds to wait for each desired Apps runtime state\.
+- **app_apply** (bool, optional, default: `false`)
 
-  app_poll_interval (optional, int, 5)
-    Seconds between Apps job and runtime checks\.
+  Allow app mutations; false plans using read-only queries. Check mode always prevents mutations.
 
-  companion_keys (optional, dict, {})
-    Map of trigger key to a list of keys\. When the trigger key is part of the update payload\, the listed keys are sent too\, taken from <em>config</em>\, even if they are unchanged\.
+- **app_job_timeout** (int, optional, default: `900`)
 
-    Example <code>\{configuration\: \[service\_type\]\}</code> for APIs that require a discriminator next to a nested object\.
+  Maximum seconds to wait for each Apps middleware job; a timeout does not cancel the job.
 
-  vm (optional, dict, None)
-    Virtual machine definition used by <code>mode\=vm</code>\.
+- **app_health_timeout** (int, optional, default: `180`)
 
-    Extra disks\, NICs and other devices already on the VM are never removed\. The only device deletions are <code>cdrom\=\"\"</code> and GPU functions dropped from <em>gpus</em>\.
+  Maximum seconds to wait for each desired Apps runtime state.
 
-    Changes to CPU\, memory\, firmware\, clock\, security settings or devices on a running VM need a stop and start\, which requires <em>allow\_restart</em>\.
+- **app_poll_interval** (int, optional, default: `5`)
 
-    The device payload shape is chosen from the TrueNAS version \(typed attributes on 25\.04 and later\)\.
+  Seconds between Apps job and runtime checks.
 
-    name (True, str, None)
-      VM name \(letters\, digits and underscores\; at most 40 characters\)\.
+- **companion_keys** (dict, optional, default: `{}`)
 
-    description (optional, str, )
-      Free\-text VM description\.
+  Map of trigger key to a list of keys. When the trigger key is part of the update payload, the listed keys are sent too, taken from *config*, even if they are unchanged.
 
-    state (optional, str, present)
-      Whether the VM should exist\.
+  Example `{configuration: [service_type]}` for APIs that require a discriminator next to a nested object.
 
-    runtime (optional, str, running)
-      Desired power state when the VM is present\.
+- **vm** (dict, optional)
 
-    cpu (optional, dict, None)
-      CPU topology and affinity settings\.
+  Virtual machine definition used by `mode=vm`.
 
-      vcpus (optional, int, 1)
-        Virtual sockets\.
+  Extra disks, NICs and other devices already on the VM are never removed. The only device deletions are `cdrom=""` and GPU functions dropped from *gpus*.
 
-      cores (optional, int, 1)
-        Cores per socket\.
+  Changes to CPU, memory, firmware, clock, security settings or devices on a running VM need a stop and start, which requires *allow_restart*.
 
-      threads (optional, int, 1)
-        Threads per core\.
+  The device payload shape is chosen from the TrueNAS version (typed attributes on 25.04 and later).
 
-      mode (optional, str, None)
-        CPU virtualization mode\.
+  - **name** (str, required)
 
-      model (optional, str, None)
-        CPU model when mode is CUSTOM\; choices come from vm\.cpu\_model\_choices\.
+    VM name (letters, digits and underscores; at most 40 characters).
 
-      cpuset (optional, str, None)
-        Host CPU cores to pin VM CPUs to\.
+  - **description** (str, optional, default: `""`)
 
-      pin_vcpus (optional, bool, None)
-        Pin virtual CPUs to the specified cpuset\.
+    Free-text VM description.
 
-      nodeset (optional, str, None)
-        NUMA nodes to constrain VM memory to\.
+  - **state** (str, optional, default: `present`)
 
+    Whether the VM should exist.
 
-    hide_from_msr (optional, bool, None)
-      Hide hypervisor signatures from guest MSR access\.
+  - **runtime** (str, optional, default: `running`)
 
-    ensure_display_device (optional, bool, None)
-      Ensure at least one display device is configured\; defaults to false for compatibility with the previous module behavior\.
+    Desired power state when the VM is present.
 
-    gpus (optional, list, None)
-      GPU PCI slots selected from <code>system\.advanced\.get\_gpu\_pci\_choices</code>\, such as <code>0000\:04\:00\.0</code>\.
+  - **cpu** (dict, optional)
 
-      Each selected GPU expands to all of its PCI functions and is added to the host\'s isolated GPU list\; existing isolation entries are never removed\.
+    CPU topology and affinity settings.
 
-      Omit this option to leave PCI devices unmanaged\; an explicit empty list removes managed GPU functions from the VM but does not de\-isolate them\.
+    - **vcpus** (int, optional, default: `1`)
 
-      GPUs that use devices critical to the host are refused\.
+      Virtual sockets.
 
-    memory_mib (optional, int, None)
-      Memory in MiB \(at least 256\)\. Required when <em>state\=present</em>\.
+    - **cores** (int, optional, default: `1`)
 
-    bootloader (optional, str, UEFI)
-      Firmware type\.
+      Cores per socket.
 
-    time (optional, str, None)
-      Guest system clock reference\.
+    - **threads** (int, optional, default: `1`)
 
-    enable_secure_boot (optional, bool, None)
-      Enable UEFI Secure Boot\.
+      Threads per core.
 
-    trusted_platform_module (optional, bool, None)
-      Enable a virtual TPM\.
+    - **mode** (str, optional)
 
-    shutdown_timeout (optional, int, None)
-      Seconds to wait for graceful VM shutdown before forcing power off \(5\-300\; default 90\)\.
+      CPU virtualization mode.
 
-    autostart (optional, bool, False)
-      Start the VM when TrueNAS boots\.
+    - **model** (str, optional)
 
-    disks (optional, list, None)
-      Zvol\-backed disks\. At least one is required when <em>state\=present</em>\. Missing zvols are created\, and a larger <em>size\_gib</em> grows an existing zvol\. Shrinking is refused\.
+      CPU model when mode is `CUSTOM`; choices come from `vm.cpu_model_choices`.
 
-      The parent dataset of a new zvol must already exist\. A zvol may appear only once per VM\.
+    - **cpuset** (str, optional)
 
-      zvol (True, str, None)
-        Zvol path such as <code>tank/vms/debian12</code>\.
+      Host CPU cores to pin VM CPUs to.
 
-      size_gib (True, int, None)
-        Size in GiB\.
+    - **pin_vcpus** (bool, optional)
 
-      type (optional, str, VIRTIO)
-        Disk bus\.
+      Pin virtual CPUs to the specified cpuset.
 
-      sparse (optional, bool, True)
-        Create the zvol sparse\.
+    - **nodeset** (str, optional)
 
-      disk_sectorsize (optional, int, None)
-        Logical and physical sector size in bytes\.
+      NUMA nodes to constrain VM memory to.
 
-      order (optional, int, None)
-        Boot order priority \(lower numbers boot first\)\; defaults to 1001 for the first disk\, then increments in list order\.
+  - **hide_from_msr** (bool, optional)
 
+    Hide hypervisor signatures from guest MSR access.
 
-    nics (optional, list, None)
-      Network interfaces\. At least one is required when <em>state\=present</em>\.
+  - **ensure_display_device** (bool, optional)
 
-      attach (True, str, None)
-        Bridge or interface to attach to\.
+    Ensure at least one display device is configured; defaults to false for compatibility with the previous module behavior.
 
-      type (optional, str, VIRTIO)
-        NIC model\.
+  - **gpus** (list, optional)
 
-      trust_guest_rx_filters (optional, bool, None)
-        Trust guest receive filter changes\; omitted leaves it unmanaged and TrueNAS defaults to false on create\.
+    GPU PCI slots selected from `system.advanced.get_gpu_pci_choices`, such as `0000:04:00.0`.
 
-      mac (optional, str, None)
-        Fixed MAC address\; generated by TrueNAS when omitted\.
+    Each selected GPU expands to all of its PCI functions and is added to the host's isolated GPU list; existing isolation entries are never removed.
 
-      order (optional, int, None)
-        Boot order priority \(lower numbers boot first\)\; defaults to 1100 for the first NIC\, then increments in list order\.
+    Omit this option to leave PCI devices unmanaged; an explicit empty list removes managed GPU functions from the VM but does not de-isolate them.
 
+    GPUs that use devices critical to the host are refused.
 
-    cdrom (optional, str, None)
-      Install ISO path\. An empty string removes the CD\-ROM device\.
+  - **memory_mib** (int, optional)
 
-    cdrom_order (optional, int, None)
-      CD\-ROM boot order priority \(lower numbers boot first\)\; defaults to 1000\.
+    Memory in MiB (at least 256). Required when *state=present*.
 
-    display (optional, dict, None)
-      Display device\. Its password cannot be read back\, so it is sent on create and whenever another display attribute changes\.
+  - **bootloader** (str, optional, default: `UEFI`)
 
-      type (optional, str, SPICE)
-        Display protocol\; use VNC to enable a VNC display\.
+    Firmware type.
 
-      bind (optional, str, 0.0.0.0)
-        Address to bind the console to\.
+  - **time** (str, optional)
 
-      port (optional, int, None)
-        Display port passed to the middleware\.
+    Guest system clock reference.
 
-      web_port (optional, int, None)
-        Web proxy port\; omitted leaves it unmanaged and TrueNAS assigns it on create\.
+  - **enable_secure_boot** (bool, optional)
 
-      wait (optional, bool, None)
-        Wait for a display client before booting\; omitted leaves it unmanaged\.
+    Enable UEFI Secure Boot.
 
-      web (optional, bool, None)
-        Enable web access for SPICE\; VNC requires false and defaults to false\.
+  - **trusted_platform_module** (bool, optional)
 
-      resolution (optional, str, None)
-        Console resolution\.
+    Enable a virtual TPM.
 
-      password (optional, str, None)
-        Console password\; VNC passwords must be 1\-8 characters\, SPICE passwords at least 8 characters\.
+  - **shutdown_timeout** (int, optional)
 
-      order (optional, int, None)
-        Boot order priority \(lower numbers boot first\)\; defaults to 1200\.
+    Seconds to wait for graceful VM shutdown before forcing power off (5–300; default 90).
 
+  - **autostart** (bool, optional, default: `false`)
 
-    allow_delete (optional, bool, False)
-      Approve deleting the VM \(required for <em>state\=absent</em>\)\.
+    Start the VM when TrueNAS boots.
 
-    allow_restart (optional, bool, False)
-      Approve stopping and restarting a running VM for changes that need it\. Without it\, apply fails when a restart is needed\.
+  - **disks** (list, optional)
 
-    allow_disk_delete (optional, bool, False)
-      Also destroy the VM\'s zvols when deleting it\. Otherwise the zvols are kept\.
+    Zvol-backed disks. At least one is required when *state=present*. Missing zvols are created, and a larger *size_gib* grows an existing zvol. Shrinking is refused.
 
+    The parent dataset of a new zvol must already exist. A zvol may appear only once per VM.
 
-  vm_apply (optional, bool, False)
-    Allow VM mutations\; false plans using read\-only queries\. Check mode always prevents mutations\.
+    - **zvol** (str, required)
 
-  vm_job_timeout (optional, int, 900)
-    Maximum seconds to wait for each VM middleware job\; a timeout does not cancel the job\.
+      Zvol path such as `tank/vms/debian12`.
 
-  vm_health_timeout (optional, int, 180)
-    Maximum seconds to wait for each desired VM runtime state\.
+    - **size_gib** (int, required)
 
-  vm_poll_interval (optional, int, 5)
-    Seconds between VM job and runtime checks\.
+      Size in GiB.
 
-  namespace (optional, str, None)
-    API namespace\, e\.g\. <code>sharing\.smb</code>\, <code>user</code>\, <code>pool\.dataset</code>\, <code>directoryservices</code>\.
+    - **type** (str, optional, default: `VIRTIO`)
 
-  lookup (optional, dict, {})
-    Equality filters used to find the object \(resource mode\)\; required in that mode and must match at most one object\. Names are translated by <em>name\_to\_id</em>\.
+      Disk bus.
 
-  config (optional, dict, {})
-    Desired state\. Only the keys listed here are compared\; other attributes are left alone\.
+    - **sparse** (bool, optional, default: `true`)
 
-  state (optional, str, present)
-    Whether the object should exist \(resource mode\)\.
+      Create the zvol sparse.
 
-  id_key (optional, str, id)
-    Attribute holding the object id passed to update/delete\.
+    - **disk_sectorsize** (int, optional)
 
-  create_only_keys (optional, list, [])
-    Keys sent on create but never compared or sent on update\.
+      Logical and physical sector size in bytes.
 
-  skip_compare_keys (optional, list, [])
-    Keys never compared \(the API returns them in another shape than it accepts them\)\.
+    - **order** (int, optional)
 
-  sensitive_keys (optional, list, [])
-    Keys that cannot be read back \(passwords\)\. Never compared and redacted from diffs\. Sent on create\, and on update only if <em>send\_sensitive\_on\_update</em> or <em>send\_sensitive\_when</em> applies\.
+      Boot order priority (lower numbers boot first); defaults to 1001 for the first disk, then increments in list order.
 
-  send_sensitive_on_update (optional, bool, False)
-    Send <em>sensitive\_keys</em> with every update that has other changes\.
+  - **nics** (list, optional)
 
-  send_sensitive_when (optional, list, [])
-    Send <em>sensitive\_keys</em> with an update only when one of these keys changed\.
+    Network interfaces. At least one is required when *state=present*.
 
-  name_to_id (optional, dict, {})
-    Map of config/lookup key to <code>namespace\:field</code>\. Names are replaced by ids through <code>namespace\.query</code>\.
+    - **attach** (str, required)
 
-    Example <code>\{groups\: \'group\:name\'\}</code>\.
+      Bridge or interface to attach to.
 
-  no_create (optional, bool, False)
-    Fail instead of creating a missing object\.
+    - **type** (str, optional, default: `VIRTIO`)
 
-  query_options (optional, dict, {})
-    Second argument passed to <code>\<namespace\>\.query</code>\.
+      NIC model.
 
-  delete_args (optional, list, [])
-    Extra arguments passed to <code>\<namespace\>\.delete</code> after the id\.
+    - **trust_guest_rx_filters** (bool, optional)
 
-  job (optional, bool, False)
-    The update \(config mode\) or call \(call mode\) is a middleware job\; wait for it\.
+      Trust guest receive filter changes; omitted leaves it unmanaged and TrueNAS defaults to false on create.
 
-  method (optional, str, None)
-    Method name for <code>mode\=call</code>\.
+    - **mac** (str, optional)
 
-  args (optional, list, [])
-    Positional arguments for <code>mode\=call</code>\.
+      Fixed MAC address; generated by TrueNAS when omitted.
 
-  read_only (optional, bool, False)
-    <code>mode\=call</code> only reads data\; never reports changed and also runs in check mode\.
+    - **order** (int, optional)
 
-  ignore_error_patterns (optional, list, [])
-    <code>mode\=call</code> regular expressions\; a matching error is reported as unchanged instead of failing\.
+      Boot order priority (lower numbers boot first); defaults to 1100 for the first NIC, then increments in list order.
 
-  transport (optional, str, auto)
-    Force a transport\. <code>auto</code> prefers truenas\_api\_client and falls back to midclt\; <code>client</code> fails if the client cannot be used\.
+  - **cdrom** (str, optional)
 
+    Install ISO path. An empty string removes the CD-ROM device.
 
+  - **cdrom_order** (int, optional)
+
+    CD-ROM boot order priority (lower numbers boot first); defaults to 1000.
+
+  - **display** (dict, optional)
+
+    Display device. Its password cannot be read back, so it is sent on create and whenever another display attribute changes.
+
+    - **type** (str, optional, default: `SPICE`)
+
+      Display protocol; use `VNC` to enable a VNC display.
+
+    - **bind** (str, optional, default: `0.0.0.0`)
+
+      Address to bind the console to.
+
+    - **port** (int, optional)
+
+      Display port passed to the middleware.
+
+    - **web_port** (int, optional)
+
+      Web proxy port; omitted leaves it unmanaged and TrueNAS assigns it on create.
+
+    - **wait** (bool, optional)
+
+      Wait for a display client before booting; omitted leaves it unmanaged.
+
+    - **web** (bool, optional)
+
+      Enable web access for SPICE; VNC requires false and defaults to false.
+
+    - **resolution** (str, optional)
+
+      Console resolution.
+
+    - **password** (str, optional)
+
+      Console password; VNC passwords must be 1–8 characters, SPICE passwords at least 8 characters.
+
+    - **order** (int, optional)
+
+      Boot order priority (lower numbers boot first); defaults to 1200.
+
+  - **allow_delete** (bool, optional, default: `false`)
+
+    Approve deleting the VM (required for *state=absent*).
+
+  - **allow_restart** (bool, optional, default: `false`)
+
+    Approve stopping and restarting a running VM for changes that need it. Without it, apply fails when a restart is needed.
+
+  - **allow_disk_delete** (bool, optional, default: `false`)
+
+    Also destroy the VM's zvols when deleting it. Otherwise the zvols are kept.
+
+- **vm_apply** (bool, optional, default: `false`)
+
+  Allow VM mutations; false plans using read-only queries. Check mode always prevents mutations.
+
+- **vm_job_timeout** (int, optional, default: `900`)
+
+  Maximum seconds to wait for each VM middleware job; a timeout does not cancel the job.
+
+- **vm_health_timeout** (int, optional, default: `180`)
+
+  Maximum seconds to wait for each desired VM runtime state.
+
+- **vm_poll_interval** (int, optional, default: `5`)
+
+  Seconds between VM job and runtime checks.
+
+- **namespace** (str, optional)
+
+  API namespace, e.g. `sharing.smb`, `user`, `pool.dataset`, `directoryservices`.
+
+- **lookup** (dict, optional, default: `{}`)
+
+  Equality filters used to find the object (resource mode); required in that mode and must match at most one object. Names are translated by *name_to_id*.
+
+- **config** (dict, optional, default: `{}`)
+
+  Desired state. Only the keys listed here are compared; other attributes are left alone.
+
+- **state** (str, optional, default: `present`)
+
+  Whether the object should exist (resource mode).
+
+- **id_key** (str, optional, default: `id`)
+
+  Attribute holding the object id passed to update/delete.
+
+- **create_only_keys** (list, optional, default: `[]`)
+
+  Keys sent on create but never compared or sent on update.
+
+- **skip_compare_keys** (list, optional, default: `[]`)
+
+  Keys never compared (the API returns them in another shape than it accepts them).
+
+- **sensitive_keys** (list, optional, default: `[]`)
+
+  Keys that cannot be read back (passwords). Never compared and redacted from diffs. Sent on create, and on update only if *send_sensitive_on_update* or *send_sensitive_when* applies.
+
+- **send_sensitive_on_update** (bool, optional, default: `false`)
+
+  Send *sensitive_keys* with every update that has other changes.
+
+- **send_sensitive_when** (list, optional, default: `[]`)
+
+  Send *sensitive_keys* with an update only when one of these keys changed.
+
+- **name_to_id** (dict, optional, default: `{}`)
+
+  Map of config/lookup key to `namespace:field`. Names are replaced by ids through `namespace.query`.
+
+  Example `{groups: 'group:name'}`.
+
+- **no_create** (bool, optional, default: `false`)
+
+  Fail instead of creating a missing object.
+
+- **query_options** (dict, optional, default: `{}`)
+
+  Second argument passed to `<namespace>.query`.
+
+- **delete_args** (list, optional, default: `[]`)
+
+  Extra arguments passed to `<namespace>.delete` after the id.
+
+- **job** (bool, optional, default: `false`)
+
+  The update (config mode) or call (call mode) is a middleware job; wait for it.
+
+- **method** (str, optional)
+
+  Method name for `mode=call`.
+
+- **args** (list, optional, default: `[]`)
+
+  Positional arguments for `mode=call`.
+
+- **read_only** (bool, optional, default: `false`)
+
+  `mode=call` only reads data; never reports changed and also runs in check mode.
+
+- **ignore_error_patterns** (list, optional, default: `[]`)
+
+  `mode=call` regular expressions; a matching error is reported as unchanged instead of failing.
+
+- **transport** (str, optional, default: `auto`)
+
+  Force a transport. `auto` prefers truenas_api_client and falls back to midclt; `client` fails if the client cannot be used.
 
 ## Examples
 
 ```yaml
-    
-    - name: SMB share
-      truenas_api:
-        namespace: sharing.smb
-        lookup: {name: media}
-        config: {name: media, path: /mnt/tank/media, purpose: DEFAULT_SHARE}
+- name: SMB share
+  truenas_api:
+    namespace: sharing.smb
+    lookup: {name: media}
+    config: {name: media, path: /mnt/tank/media, purpose: DEFAULT_SHARE}
 
-    - name: Read-only call
-      truenas_api:
-        mode: call
-        method: system.version_short
-        read_only: true
-      register: ver
+- name: Read-only call
+  truenas_api:
+    mode: call
+    method: system.version_short
+    read_only: true
+  register: ver
 
-    - name: User with group names resolved to ids
-      truenas_api:
-        namespace: user
-        lookup: {username: alice}
-        config: {username: alice, full_name: Alice, password: "{{ vault_alice_password }}", smb: true, groups: [media]}
-        create_only_keys: [password]
-        sensitive_keys: [password]
-        send_sensitive_when: [smb]
-        name_to_id: {groups: "group:name"}
+- name: User with group names resolved to ids
+  truenas_api:
+    namespace: user
+    lookup: {username: alice}
+    config: {username: alice, full_name: Alice, password: "{{ vault_alice_password }}", smb: true, groups: [media]}
+    create_only_keys: [password]
+    sensitive_keys: [password]
+    send_sensitive_when: [smb]
+    name_to_id: {groups: "group:name"}
 
-    - name: Singleton configuration
-      truenas_api:
-        mode: config
-        namespace: network.configuration
-        config: {nameserver1: 192.168.1.10}
+- name: Singleton configuration
+  truenas_api:
+    mode: config
+    namespace: network.configuration
+    config: {nameserver1: 192.168.1.10}
 
-    - name: Middleware job, ignoring a known no-op error
-      truenas_api:
-        mode: call
-        method: update.run
-        job: true
-        args: [{reboot: false}]
-        ignore_error_patterns: ["(?i)no update"]
+- name: Middleware job, ignoring a known no-op error
+  truenas_api:
+    mode: call
+    method: update.run
+    job: true
+    args: [{reboot: false}]
+    ignore_error_patterns: ["(?i)no update"]
 
-    - name: Plan a custom app (set app_apply to make changes)
-      truenas_api:
-        mode: app
-        app:
-          name: example-web
-          source: custom
-          compose: |
-            services:
-              web:
-                image: nginx:1.27
-        app_apply: false
+- name: Plan a custom app (set app_apply to make changes)
+  truenas_api:
+    mode: app
+    app:
+      name: example-web
+      source: custom
+      compose: |
+        services:
+          web:
+            image: nginx:1.27
+    app_apply: false
 
-    - name: Plan a VM (set vm_apply to make changes)
-      truenas_api:
-        mode: vm
-        vm:
-          name: debian12
-          memory_mib: 4096
-          disks: [{zvol: tank/vms/debian12, size_gib: 40}]
-          nics: [{attach: br0}]
-        vm_apply: false
-
+- name: Plan a VM (set vm_apply to make changes)
+  truenas_api:
+    mode: vm
+    vm:
+      name: debian12
+      memory_mib: 4096
+      disks: [{zvol: tank/vms/debian12, size_gib: 40}]
+      nics: [{attach: br0}]
+    vm_apply: false
 ```
-
 
 ## Return Values
 
-  action (resource/config, str, )
-    created\, updated\, deleted or none \(resource/config mode\)\.
+- **action** (str) — returned in resource/config mode
 
-  changed_keys (resource/config, list, )
-    Keys that differ from the desired state\.
+  `created`, `updated`, `deleted` or `none` (resource/config mode).
 
-  id (resource, raw, )
-    Id of the object\. Not returned for a planned create in check mode\.
+- **changed_keys** (list) — returned in resource/config mode
 
-  diff (resource/config, when changed, dict, )
-    Before and after values of the changed keys\; sensitive keys are redacted on create\.
+  Keys that differ from the desired state.
 
-  result (call, unless check mode skipped the call or an error was ignored, raw, )
-    API return value \(call mode\)\.
+- **id** (raw) — returned in resource mode
 
-  msg (call, when applicable, str, )
-    Explanation when a call was skipped in check mode or an error was ignored\.
+  Id of the object. Not returned for a planned create in check mode.
 
-  ignored_error (call, when an error was ignored, str, )
-    The middleware error that matched <em>ignore\_error\_patterns</em>\.
+- **diff** (dict) — returned in resource/config mode, when changed
 
-  name (app/vm, str, )
-    App or VM name\.
+  Before and after values of the changed keys; sensitive keys are redacted on create.
 
-  actions (app/vm, list, )
-    Planned or applied actions in execution order\.
-    App actions are <code>create</code>\, <code>update</code>\, <code>upgrade</code>\, <code>delete</code>\, <code>start</code> and <code>stop</code>\.
-    VM actions include <code>create\_zvol\:\<zvol\></code>\, <code>grow\_zvol\:\<zvol\></code>\, <code>isolate\_gpu\:\<pci\_slot\></code>\, <code>stop</code>\, <code>create</code>\, <code>update</code>\, <code>\<op\>\_device\:\<dtype\></code>\, <code>delete</code>\, <code>delete\_zvols</code> and <code>start</code>\.
+- **result** (raw) — returned in call mode, unless check mode skipped the call or an error was ignored
 
-  planned (app/vm, bool, )
-    True when nothing was applied \(check mode\, or <em>app\_apply</em>/<em>vm\_apply</em> false\)\.
+  API return value (call mode).
 
-  runtime_state (app/vm, str, )
-    Runtime state after reconciliation\, or the current state when planned\; <code>ABSENT</code> when the app or VM does not exist\.
+- **msg** (str) — returned in call mode, when applicable
 
-  approval_required (app (upgrade/delete) and vm, raw, )
-    For apps\, true when the planned upgrade or delete lacks its approval\.
-    For VMs\, the list of missing approvals\, such as <code>allow\_restart</code> or <code>allow\_delete</code>\.
+  Explanation when a call was skipped in check mode or an error was ignored.
 
-  device_changes (vm, when the VM exists, list, )
-    Per\-device operations with <code>operation</code>\, <code>dtype</code>\, <code>id</code> and\, for updates\, the before/after value of each differing attribute or order\. Display passwords are excluded\.
+- **ignored_error** (str) — returned in call mode, when an error was ignored
 
+  The middleware error that matched *ignore_error_patterns*.
 
+- **name** (str) — returned in app/vm mode
 
-## Status
+  App or VM name.
 
+- **actions** (list) — returned in app/vm mode
+
+  Planned or applied actions in execution order.
+
+  App actions are `create`, `update`, `upgrade`, `delete`, `start` and `stop`.
+
+  VM actions include `create_zvol:<zvol>`, `grow_zvol:<zvol>`, `isolate_gpu:<pci_slot>`, `stop`, `create`, `update`, `<op>_device:<dtype>`, `delete`, `delete_zvols` and `start`.
+
+- **planned** (bool) — returned in app/vm mode
+
+  True when nothing was applied (check mode, or *app_apply*/*vm_apply* false).
+
+- **runtime_state** (str) — returned in app/vm mode
+
+  Runtime state after reconciliation, or the current state when planned; `ABSENT` when the app or VM does not exist.
+
+- **approval_required** (raw) — returned in app mode (upgrade/delete) and vm mode
+
+  For apps, true when the planned upgrade or delete lacks its approval.
+
+  For VMs, the list of missing approvals, such as `allow_restart` or `allow_delete`.
+
+- **device_changes** (list) — returned in vm mode, when the VM exists
+
+  Per-device operations with `operation`, `dtype`, `id` and, for updates, the before/after value of each differing attribute or order. Display passwords are excluded.
 
 ## Authors
 
