@@ -22,6 +22,14 @@
   "id": null,
   "links": [
     {
+      "title": "Service Path",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/service-path",
+      "keepTime": true,
+      "targetBlank": false
+    },
+    {
       "title": "Nodes",
       "type": "link",
       "icon": "dashboard",
@@ -686,6 +694,159 @@
       ]
     },
     {
+      "id": 22,
+      "title": "Web Services / Why Down",
+      "description": "Probable failure location per service from the service_path probes (service_path:probable_failure_code). Click a tile to open Service Path for that service.",
+      "type": "stat",
+      "pluginVersion": "12.2.0",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 5
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "service_path:probable_failure_code",
+          "legendFormat": "{{service}}",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "Healthy",
+                  "color": "#73BF69",
+                  "index": 0
+                },
+                "1": {
+                  "text": "DNS: public + internal",
+                  "color": "#F2495C",
+                  "index": 1
+                },
+                "2": {
+                  "text": "Public DNS",
+                  "color": "#F2495C",
+                  "index": 2
+                },
+                "3": {
+                  "text": "Internal DNS",
+                  "color": "#F2495C",
+                  "index": 3
+                },
+                "4": {
+                  "text": "Cloudflare edge",
+                  "color": "#F2495C",
+                  "index": 4
+                },
+                "5": {
+                  "text": "LAN to rproxy-0",
+                  "color": "#F2495C",
+                  "index": 5
+                },
+                "6": {
+                  "text": "rproxy-0 down",
+                  "color": "#F2495C",
+                  "index": 6
+                },
+                "7": {
+                  "text": "rproxy-1/2 down",
+                  "color": "#F2495C",
+                  "index": 7
+                },
+                "8": {
+                  "text": "Backend host down",
+                  "color": "#F2495C",
+                  "index": 8
+                },
+                "9": {
+                  "text": "Application down",
+                  "color": "#F2495C",
+                  "index": 9
+                },
+                "10": {
+                  "text": "rproxy-0 degraded",
+                  "color": "#FADE2A",
+                  "index": 10
+                },
+                "11": {
+                  "text": "Degraded",
+                  "color": "#FADE2A",
+                  "index": 11
+                },
+                "12": {
+                  "text": "Cloudflare to origin",
+                  "color": "#F2495C",
+                  "index": 12
+                },
+                "13": {
+                  "text": "rproxy-0 to rproxy-1/2",
+                  "color": "#F2495C",
+                  "index": 13
+                }
+              }
+            }
+          ],
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#8E8E8E",
+                "value": null
+              }
+            ]
+          },
+          "noValue": "No service_path data",
+          "links": [
+            {
+              "title": "Open Service Path for ${__field.labels.service}",
+              "url": "/d/service-path/service-path?var-service=${__field.labels.service}&${__url_time_range}",
+              "targetBlank": false
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "textMode": "value_and_name",
+        "orientation": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "text": {
+          "titleSize": 14,
+          "valueSize": 16
+        }
+      }
+    },
+    {
       "id": 5,
       "title": "HTTP Traffic / All Sites",
       "type": "timeseries",
@@ -699,7 +860,7 @@
         "h": 9,
         "w": 16,
         "x": 0,
-        "y": 5
+        "y": 11
       },
       "fieldConfig": {
         "defaults": {
@@ -759,7 +920,7 @@
         "h": 5,
         "w": 8,
         "x": 16,
-        "y": 5
+        "y": 11
       },
       "fieldConfig": {
         "defaults": {
@@ -813,7 +974,7 @@
         "h": 4,
         "w": 8,
         "x": 16,
-        "y": 10
+        "y": 16
       },
       "fieldConfig": {
         "defaults": {
@@ -861,7 +1022,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 14
+        "y": 20
       },
       "fieldConfig": {
         "defaults": {
@@ -913,7 +1074,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 14
+        "y": 20
       },
       "fieldConfig": {
         "defaults": {
@@ -967,7 +1128,7 @@
         "h": 7,
         "w": 8,
         "x": 0,
-        "y": 22
+        "y": 28
       },
       "fieldConfig": {
         "defaults": {
@@ -1039,7 +1200,7 @@
         "h": 7,
         "w": 8,
         "x": 8,
-        "y": 22
+        "y": 28
       },
       "fieldConfig": {
         "defaults": {
@@ -1095,7 +1256,7 @@
         "h": 7,
         "w": 8,
         "x": 16,
-        "y": 22
+        "y": 28
       },
       "fieldConfig": {
         "defaults": {
@@ -1178,7 +1339,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 29
+        "y": 35
       },
       "fieldConfig": {
         "defaults": {
@@ -1238,7 +1399,7 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 29
+        "y": 35
       },
       "fieldConfig": {
         "defaults": {
@@ -1365,7 +1526,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 38
+        "y": 44
       },
       "panels": [
         {

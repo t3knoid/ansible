@@ -22,6 +22,18 @@
   "id": null,
   "links": [
     {
+      "title": "Service Path",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/service-path",
+      "keepTime": true,
+      "targetBlank": false,
+      "includeVars": false,
+      "asDropdown": false,
+      "tags": [],
+      "tooltip": ""
+    },
+    {
       "title": "Observability Landing",
       "type": "link",
       "icon": "dashboard",
@@ -476,12 +488,12 @@
                     "type": "value",
                     "options": {
                       "1": {
-                        "text": "✓ Up",
+                        "text": "\u2713 Up",
                         "color": "green",
                         "index": 0
                       },
                       "0": {
-                        "text": "✗ Down",
+                        "text": "\u2717 Down",
                         "color": "red",
                         "index": 1
                       }
@@ -510,12 +522,12 @@
                     "type": "value",
                     "options": {
                       "1": {
-                        "text": "✓ Enabled",
+                        "text": "\u2713 Enabled",
                         "color": "green",
                         "index": 0
                       },
                       "0": {
-                        "text": "⚠ Disabled",
+                        "text": "\u26a0 Disabled",
                         "color": "orange",
                         "index": 1
                       }
@@ -1128,7 +1140,7 @@
           },
           "editorMode": "code",
           "expr": "pihole_forward_destinations_responsetime{job=\"pihole_exporter\",destination!~\"blocklist|cache|other\"}",
-          "legendFormat": "{{instance}} → {{destination_name}}",
+          "legendFormat": "{{instance}} \u2192 {{destination_name}}",
           "instant": false,
           "range": true,
           "refId": "A"

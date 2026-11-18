@@ -23,6 +23,18 @@
   "liveNow": false,
   "links": [
     {
+      "title": "Observability Landing",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/observability-landing",
+      "keepTime": true,
+      "targetBlank": false,
+      "includeVars": false,
+      "asDropdown": false,
+      "tags": [],
+      "tooltip": ""
+    },
+    {
       "title": "Web service status",
       "type": "link",
       "url": "/d/web-service-status",
@@ -1312,6 +1324,14 @@
                     "animate": true
                   }
                 }
+              ],
+              "links": [
+                {
+                  "title": "Check public DNS propagation for ${fqdn}",
+                  "url": "https://dnschecker.org/#A/${fqdn}",
+                  "targetBlank": true,
+                  "oneClick": true
+                }
               ]
             },
             {
@@ -1350,7 +1370,15 @@
                   "fixed": "transparent"
                 }
               },
-              "connections": []
+              "connections": [],
+              "links": [
+                {
+                  "title": "Check public DNS propagation for ${fqdn}",
+                  "url": "https://dnschecker.org/#A/${fqdn}",
+                  "targetBlank": true,
+                  "oneClick": true
+                }
+              ]
             },
             {
               "type": "text",
@@ -1387,7 +1415,15 @@
                   "fixed": "transparent"
                 }
               },
-              "connections": []
+              "connections": [],
+              "links": [
+                {
+                  "title": "Check public DNS propagation for ${fqdn}",
+                  "url": "https://dnschecker.org/#A/${fqdn}",
+                  "targetBlank": true,
+                  "oneClick": true
+                }
+              ]
             },
             {
               "type": "rectangle",
@@ -1484,6 +1520,14 @@
                     "animate": true
                   }
                 }
+              ],
+              "links": [
+                {
+                  "title": "Open Cloudflare dashboard",
+                  "url": "https://dash.cloudflare.com/",
+                  "targetBlank": true,
+                  "oneClick": true
+                }
               ]
             },
             {
@@ -1522,7 +1566,15 @@
                   "fixed": "transparent"
                 }
               },
-              "connections": []
+              "connections": [],
+              "links": [
+                {
+                  "title": "Open Cloudflare dashboard",
+                  "url": "https://dash.cloudflare.com/",
+                  "targetBlank": true,
+                  "oneClick": true
+                }
+              ]
             },
             {
               "type": "text",
@@ -1559,7 +1611,15 @@
                   "fixed": "transparent"
                 }
               },
-              "connections": []
+              "connections": [],
+              "links": [
+                {
+                  "title": "Open Cloudflare dashboard",
+                  "url": "https://dash.cloudflare.com/",
+                  "targetBlank": true,
+                  "oneClick": true
+                }
+              ]
             },
             {
               "type": "rectangle",
@@ -1656,6 +1716,14 @@
                     "animate": true
                   }
                 }
+              ],
+              "links": [
+                {
+                  "title": "Open DNS dashboard",
+                  "url": "/d/pihole-dns?${__url_time_range}",
+                  "targetBlank": false,
+                  "oneClick": true
+                }
               ]
             },
             {
@@ -1694,7 +1762,15 @@
                   "fixed": "transparent"
                 }
               },
-              "connections": []
+              "connections": [],
+              "links": [
+                {
+                  "title": "Open DNS dashboard",
+                  "url": "/d/pihole-dns?${__url_time_range}",
+                  "targetBlank": false,
+                  "oneClick": true
+                }
+              ]
             },
             {
               "type": "text",
@@ -1731,7 +1807,15 @@
                   "fixed": "transparent"
                 }
               },
-              "connections": []
+              "connections": [],
+              "links": [
+                {
+                  "title": "Open DNS dashboard",
+                  "url": "/d/pihole-dns?${__url_time_range}",
+                  "targetBlank": false,
+                  "oneClick": true
+                }
+              ]
             },
             {
               "type": "rectangle",
@@ -1884,6 +1968,14 @@
                     "animate": true
                   }
                 }
+              ],
+              "links": [
+                {
+                  "title": "Open Reverse Proxy & Entra ID Health",
+                  "url": "/d/rproxy-entra-id-health?${__url_time_range}",
+                  "targetBlank": false,
+                  "oneClick": true
+                }
               ]
             },
             {
@@ -1922,7 +2014,15 @@
                   "fixed": "transparent"
                 }
               },
-              "connections": []
+              "connections": [],
+              "links": [
+                {
+                  "title": "Open Reverse Proxy & Entra ID Health",
+                  "url": "/d/rproxy-entra-id-health?${__url_time_range}",
+                  "targetBlank": false,
+                  "oneClick": true
+                }
+              ]
             },
             {
               "type": "text",
@@ -1959,7 +2059,15 @@
                   "fixed": "transparent"
                 }
               },
-              "connections": []
+              "connections": [],
+              "links": [
+                {
+                  "title": "Open Reverse Proxy & Entra ID Health",
+                  "url": "/d/rproxy-entra-id-health?${__url_time_range}",
+                  "targetBlank": false,
+                  "oneClick": true
+                }
+              ]
             },
             {
               "type": "rectangle",
@@ -2056,6 +2164,14 @@
                     "animate": true
                   }
                 }
+              ],
+              "links": [
+                {
+                  "title": "Open Reverse Proxy & Entra ID Health",
+                  "url": "/d/rproxy-entra-id-health?${__url_time_range}",
+                  "targetBlank": false,
+                  "oneClick": true
+                }
               ]
             },
             {
@@ -2094,7 +2210,15 @@
                   "fixed": "transparent"
                 }
               },
-              "connections": []
+              "connections": [],
+              "links": [
+                {
+                  "title": "Open Reverse Proxy & Entra ID Health",
+                  "url": "/d/rproxy-entra-id-health?${__url_time_range}",
+                  "targetBlank": false,
+                  "oneClick": true
+                }
+              ]
             },
             {
               "type": "text",
@@ -2131,7 +2255,15 @@
                   "fixed": "transparent"
                 }
               },
-              "connections": []
+              "connections": [],
+              "links": [
+                {
+                  "title": "Open Reverse Proxy & Entra ID Health",
+                  "url": "/d/rproxy-entra-id-health?${__url_time_range}",
+                  "targetBlank": false,
+                  "oneClick": true
+                }
+              ]
             },
             {
               "type": "rectangle",
@@ -2228,6 +2360,14 @@
                     "animate": true
                   }
                 }
+              ],
+              "links": [
+                {
+                  "title": "Open Reverse Proxy & Entra ID Health",
+                  "url": "/d/rproxy-entra-id-health?${__url_time_range}",
+                  "targetBlank": false,
+                  "oneClick": true
+                }
               ]
             },
             {
@@ -2266,7 +2406,15 @@
                   "fixed": "transparent"
                 }
               },
-              "connections": []
+              "connections": [],
+              "links": [
+                {
+                  "title": "Open Reverse Proxy & Entra ID Health",
+                  "url": "/d/rproxy-entra-id-health?${__url_time_range}",
+                  "targetBlank": false,
+                  "oneClick": true
+                }
+              ]
             },
             {
               "type": "text",
@@ -2303,7 +2451,15 @@
                   "fixed": "transparent"
                 }
               },
-              "connections": []
+              "connections": [],
+              "links": [
+                {
+                  "title": "Open Reverse Proxy & Entra ID Health",
+                  "url": "/d/rproxy-entra-id-health?${__url_time_range}",
+                  "targetBlank": false,
+                  "oneClick": true
+                }
+              ]
             },
             {
               "type": "rectangle",
@@ -2400,6 +2556,14 @@
                     "animate": true
                   }
                 }
+              ],
+              "links": [
+                {
+                  "title": "Open Node Detail for ${backend}",
+                  "url": "/d/node-exporter-node-detail?var-instance=${backend}&${__url_time_range}",
+                  "targetBlank": false,
+                  "oneClick": true
+                }
               ]
             },
             {
@@ -2438,7 +2602,15 @@
                   "fixed": "transparent"
                 }
               },
-              "connections": []
+              "connections": [],
+              "links": [
+                {
+                  "title": "Open Node Detail for ${backend}",
+                  "url": "/d/node-exporter-node-detail?var-instance=${backend}&${__url_time_range}",
+                  "targetBlank": false,
+                  "oneClick": true
+                }
+              ]
             },
             {
               "type": "text",
@@ -2475,7 +2647,15 @@
                   "fixed": "transparent"
                 }
               },
-              "connections": []
+              "connections": [],
+              "links": [
+                {
+                  "title": "Open Node Detail for ${backend}",
+                  "url": "/d/node-exporter-node-detail?var-instance=${backend}&${__url_time_range}",
+                  "targetBlank": false,
+                  "oneClick": true
+                }
+              ]
             },
             {
               "type": "rectangle",
@@ -2515,7 +2695,15 @@
                 "width": 1,
                 "radius": 8
               },
-              "connections": []
+              "connections": [],
+              "links": [
+                {
+                  "title": "Open https://${fqdn}",
+                  "url": "https://${fqdn}",
+                  "targetBlank": true,
+                  "oneClick": true
+                }
+              ]
             },
             {
               "type": "text",
@@ -2553,7 +2741,15 @@
                   "fixed": "transparent"
                 }
               },
-              "connections": []
+              "connections": [],
+              "links": [
+                {
+                  "title": "Open https://${fqdn}",
+                  "url": "https://${fqdn}",
+                  "targetBlank": true,
+                  "oneClick": true
+                }
+              ]
             },
             {
               "type": "text",
@@ -2590,7 +2786,15 @@
                   "fixed": "transparent"
                 }
               },
-              "connections": []
+              "connections": [],
+              "links": [
+                {
+                  "title": "Open https://${fqdn}",
+                  "url": "https://${fqdn}",
+                  "targetBlank": true,
+                  "oneClick": true
+                }
+              ]
             },
             {
               "type": "text",

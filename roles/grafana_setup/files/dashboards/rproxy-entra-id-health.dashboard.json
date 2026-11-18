@@ -20,7 +20,28 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
   "id": null,
-  "links": [],
+  "links": [
+    {
+      "asDropdown": false,
+      "icon": "dashboard",
+      "includeVars": false,
+      "keepTime": true,
+      "targetBlank": false,
+      "title": "Observability Landing",
+      "type": "link",
+      "url": "/d/observability-landing"
+    },
+    {
+      "asDropdown": false,
+      "icon": "dashboard",
+      "includeVars": false,
+      "keepTime": true,
+      "targetBlank": false,
+      "title": "Service Path",
+      "type": "link",
+      "url": "/d/service-path"
+    }
+  ],
   "liveNow": false,
   "panels": [
     {

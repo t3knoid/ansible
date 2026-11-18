@@ -23,6 +23,16 @@
     {
       "asDropdown": false,
       "icon": "dashboard",
+      "includeVars": false,
+      "keepTime": true,
+      "targetBlank": false,
+      "title": "Service Path",
+      "type": "link",
+      "url": "/d/service-path"
+    },
+    {
+      "asDropdown": false,
+      "icon": "dashboard",
       "includeVars": true,
       "keepTime": true,
       "targetBlank": false,
